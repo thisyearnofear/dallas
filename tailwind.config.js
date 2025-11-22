@@ -7,7 +7,8 @@ export default {
     theme: {
         extend: {
             colors: {
-                "brand": "#005a0a",
+                "brand": "#c9a383",
+                "brand-accent": "#ff007f",
                 "gray-dark": "#282629",
                 "white-secondary": "#f7f7f7",
                 "gray-light": "#d4d4d4",
@@ -15,7 +16,7 @@ export default {
             },
         },
         fontFamily: {
-            "sans": "Roboto, sans-serif",
+            "sans": "'Special Elite', cursive",
         }
     },
     plugins: [],

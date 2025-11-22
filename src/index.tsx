@@ -6,6 +6,7 @@ import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 
 import { Home } from "./pages/home";
+import { Products } from "./pages/products";
 import { Links } from "./pages/links";
 import { Donate } from "./pages/donate";
 import { NotFound } from "./pages/_404";
@@ -21,6 +22,7 @@ export function App() {
                 <div class="w-full p-10">
                     <Router>
                         <Route path="/" component={Home} />
+                        <Route path="/products" component={Products} />
                         <Route path="/links" component={Links} />
                         <Route path="/donate" component={Donate} />
                         <Route default component={NotFound} />

@@ -1,31 +1,17 @@
-import { meta } from "../components/constants";
-
 export function Home() {
     return (
         <>
-            <h1 class="text-3xl font-medium mb-5">FREE ROSS.</h1>
+            <h1 class="text-3xl font-medium mb-5">"There ain't nothin' out there can kill fuckin' Ron Woodroof in 30 days."</h1>
             <p class="text-xl">
-                After 11 years behind bars, Ross Ulbricht - the visionary
-                founder of Silk Road - has been granted a full and unconditional
-                pardon by President Trump. This marks a historic victory for
-                freedom, privacy, and decentralization.
+                Diagnosed with AIDS in 1985 and given 30 days to live, Ron Woodroof wasn't the kind of man to go down without a fight. He smuggled unapproved, life-saving drugs into Texas and started the Dallas Buyers Club.
             </p>
             <br />
             <p class="text-xl">
-                Known as the "Dread Pirate Roberts," Ross created Silk Road in
-                2011 as one of the first platforms to demonstrate Bitcoin's
-                potential for truly peer-to-peer, anonymous transactions.
-                Despite facing life imprisonment for non-violent charges, Ross
-                never wavered from his principles of freedom and individual
-                sovereignty.
+                This wasn't just about survival; it was a revolution. A middle finger to a system that had left them for dead. The club became a lifeline for hundreds of people, providing hope when there was none.
             </p>
             <br />
             <p class="text-xl">
-                Today, we honor Ross's legacy on Base - built by a developer who
-                has been part of the freedom journey since the beginning. This
-                project represents our continued commitment to the values Ross
-                fought for: privacy, decentralization, and resistance against
-                overreach.
+                "Sometimes I feel like I'm fighting for a life I ain't got time to live."
             </p>
             <br />
             <p class="text-xl">
@@ -33,7 +19,7 @@ export function Home() {
                 <a class="text-brand hover:underline font-bold" href="/links">
                     links
                 </a>{" "}
-                page or learn more about Ross's story in our{" "}
+                page or learn more about Ron's story in our{" "}
                 <a
                     class="text-brand hover:underline font-bold"
                     href="/links#press"
