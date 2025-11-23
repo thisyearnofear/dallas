@@ -1,4 +1,5 @@
 import { MembershipFlow } from "../components/MembershipFlow";
+import { MembershipPurchase } from "../components/MembershipPurchase";
 
 export function Membership() {
     return (
@@ -8,6 +9,11 @@ export function Membership() {
                 <p class="text-xl text-gray-600 max-w-3xl mx-auto">
                     Become part of something bigger. Fight for access to life-saving treatments and support others on their journey.
                 </p>
+            </div>
+
+            <div class="mb-12">
+                <h2 class="text-3xl font-bold mb-8 text-center">Membership Tiers</h2>
+                <MembershipPurchase />
             </div>
 
             <MembershipFlow />

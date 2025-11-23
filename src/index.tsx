@@ -1,5 +1,6 @@
 import { render } from "preact";
 import { LocationProvider, Router, Route } from "preact-iso";
+import { WalletProvider } from "./context/WalletContext";
 
 import { Header } from "./components/Header";
 import { Navbar } from "./components/Navbar";
@@ -31,10 +32,11 @@ import { NotFound } from "./pages/_404";
 import "./style.css";
 
 export function App() {
-    const { notification, showNotification } = useNotification();
+     const { notification, showNotification } = useNotification();
 
-    return (
-        <LocationProvider>
+     return (
+         <WalletProvider>
+         <LocationProvider>
             <SwipeGestures>
                 {/* Mobile Progress & Live Counter */}
                 <ProgressTracker />
@@ -65,12 +67,13 @@ export function App() {
                 <NotificationToast notification={notification} />
                 
                 {/* Authentic 90s Experience */}
-                <Authentic90sPopups />
-                <LiveActivityNotifications />
-                <WinnerPopup />
-            </SwipeGestures>
-        </LocationProvider>
-    );
-}
+                 <Authentic90sPopups />
+                 <LiveActivityNotifications />
+                 <WinnerPopup />
+                </SwipeGestures>
+                </LocationProvider>
+                </WalletProvider>
+                );
+                }
 
-render(<App />, document.getElementById("app"));
+                render(<App />, document.getElementById("app"));

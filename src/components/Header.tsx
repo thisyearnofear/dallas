@@ -1,4 +1,5 @@
 import { meta } from "./constants";
+import { WalletButton } from "./WalletButton";
 
 export function Header() {
     return (
@@ -42,20 +43,21 @@ export function Header() {
                         disabled
                     />
 
-                    <div class="flex flex-col items-end ml-auto mr-2 sm:mr-5">
-                        <p class="text-lg sm:text-xl whitespace-nowrap">
-                            Hi, <b>{meta.author}</b>
-                        </p>
-                        <div class="flex whitespace-nowrap">
-                            <a class="text-brand italic cursor-not-allowed">
-                                settings
-                            </a>
-                            <p class="text-brand italic font-medium mx-2">-</p>
-                            <a class="text-brand italic cursor-not-allowed">
-                                logout
-                            </a>
-                        </div>
-                    </div>
+                    <div class="flex flex-col items-end ml-auto mr-2 sm:mr-5 gap-2">
+                         <WalletButton />
+                         <p class="text-lg sm:text-xl whitespace-nowrap">
+                             Hi, <b>{meta.author}</b>
+                         </p>
+                         <div class="flex whitespace-nowrap">
+                             <a class="text-brand italic cursor-not-allowed">
+                                 settings
+                             </a>
+                             <p class="text-brand italic font-medium mx-2">-</p>
+                             <a class="text-brand italic cursor-not-allowed">
+                                 logout
+                             </a>
+                         </div>
+                     </div>
                 </div>
             </div>
         </header>
