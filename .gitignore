@@ -24,3 +24,15 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+
+# Environment variables (keep .env.example in repo)
+.env
+.env.local
+.env.*.local
+
+# Build & package caches
+.turbo
+.pnpm-store
+
+# OS files
+Thumbs.db

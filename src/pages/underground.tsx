@@ -10,12 +10,11 @@ import {
     MexicanConnectionStatus 
 } from "../components/UndergroundTheme";
 import { 
-    BlackMarketTerminal, 
     DrugTestingSimulator, 
     CryptoPaymentInterface, 
-    DangerLevelIndicator,
     SecretHandshakeChallenge 
 } from "../components/BlackMarketExperience";
+import { Terminal, DangerIndicator } from "../components/SharedUIComponents";
 import { 
     RetroModal, 
     InfomercialPopup, 
@@ -143,7 +142,7 @@ export function Underground() {
                             </div>
                             {!collapsedSections.network && (
                                 <div class="p-4 space-y-4">
-                                    <UndergroundNetwork />
+                                    <NetworkStatus />
                                     <PatientCodeGenerator />
                                 </div>
                             )}
@@ -276,7 +275,7 @@ export function Underground() {
                                     <span class="font-bold text-sm">TERMINAL ACCESS</span>
                                 </div>
                                 <div class="p-4">
-                                    <BlackMarketTerminal />
+                                    <Terminal onCommand={(cmd) => console.log('Underground command:', cmd)} />
                                 </div>
                             </div>
 

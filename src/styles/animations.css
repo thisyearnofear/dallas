@@ -1,0 +1,234 @@
+/* Enhanced Animations - Delightful micro-interactions */
+/* Following Core Principles: PERFORMANT, CLEAN */
+
+/* Typing cursor animation */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Shimmer effect for progress bars */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Slide animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px) translateX(-50%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(-50%);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dashed line animation for agent connections */
+@keyframes dash {
+  from {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  to {
+    stroke-dashoffset: -10;
+    opacity: 1;
+  }
+}
+
+/* Floating animation for important elements */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Glow animation for active states */
+@keyframes glow {
+  0%, 100% { 
+    box-shadow: 0 0 5px currentColor;
+    opacity: 1;
+  }
+  50% { 
+    box-shadow: 0 0 20px currentColor, 0 0 30px currentColor;
+    opacity: 0.8;
+  }
+}
+
+/* Matrix-style text reveal */
+@keyframes matrixReveal {
+  0% {
+    opacity: 0;
+    transform: rotateX(90deg);
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+    transform: rotateX(0deg);
+  }
+}
+
+/* Pulse ring animation */
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* Data stream animation */
+@keyframes dataStream {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  10%, 90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+/* Utility classes */
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out;
+}
+
+.animate-dash {
+  animation: dash 0.5s ease-out forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.animate-matrixReveal {
+  animation: matrixReveal 0.6s ease-out forwards;
+}
+
+.animate-pulseRing {
+  animation: pulseRing 1.5s ease-out infinite;
+}
+
+.animate-dataStream {
+  animation: dataStream 3s ease-in-out infinite;
+}
+
+/* Hover and interaction states */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.click-scale {
+  transition: transform 0.1s ease;
+}
+
+.click-scale:active {
+  transform: scale(0.95);
+}
+
+/* Terminal-style animations */
+.terminal-cursor {
+  animation: blink 1s infinite;
+}
+
+.terminal-line {
+  animation: matrixReveal 0.3s ease-out forwards;
+}
+
+/* Agent status animations */
+.agent-active {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.agent-coordinating {
+  animation: pulseRing 1s ease-out infinite;
+}
+
+/* Notification animations */
+.notification-enter {
+  animation: slideIn 0.3s ease-out;
+}
+
+.notification-exit {
+  animation: slideUp 0.3s ease-in reverse;
+}
+
+/* Loading states */
+.loading-dots::after {
+  content: '';
+  animation: loadingDots 1.5s infinite;
+}
+
+@keyframes loadingDots {
+  0%, 20% { content: ''; }
+  40% { content: '.'; }
+  60% { content: '..'; }
+  80%, 100% { content: '...'; }
+}
+
+/* Responsive animations - reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .animate-pulse,
+  .animate-spin,
+  .animate-bounce {
+    animation: none;
+  }
+}
