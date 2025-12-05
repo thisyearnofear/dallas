@@ -1,4 +1,3 @@
-import { TestimonialsGrid } from "../components/TestimonialsGrid";
 import { useState, useEffect } from "preact/hooks";
 
 export function Home() {
@@ -161,9 +160,6 @@ export function Home() {
                     </div>
                 </div>
             )}
-
-            {/* Testimonials Grid */}
-            <TestimonialsGrid />
 
             {/* Secret Click Area (Hidden Easter Egg) */}
             <div class="text-center mt-16">
