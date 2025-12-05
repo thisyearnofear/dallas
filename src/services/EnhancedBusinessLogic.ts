@@ -5,6 +5,7 @@ import { transactionHistoryService, TransactionRecord } from './transactionHisto
 import { SOLANA_CONFIG } from '../config/solana';
 import { agentNetwork } from '../agents/AgentFoundation';
 import { edenlayerTaskComposer, EdenlayerTaskComposer } from './EdenlayerTaskComposition';
+import { PublicKey } from '@solana/web3.js';
 
 // ENHANCED: Edenlayer Protocol Integration
 interface EdenlayerConfig {
@@ -44,7 +45,7 @@ export class EnhancedBusinessLogic {
   private txHistory = transactionHistoryService; // REUSE existing service
   private edenlayerInitialized = false;
   private taskComposer: EdenlayerTaskComposer;
-  
+
   // ENHANCE: Existing product catalog with A.I.D.S. treatments
   private treatments: A_I_D_S_Treatment[] = [
     {
@@ -59,7 +60,7 @@ export class EnhancedBusinessLogic {
     {
       id: 'peptide_code',
       name: 'Peptide-T Personality Code',
-      type: 'reconstruction_code', 
+      type: 'reconstruction_code',
       price: 0.2,
       riskLevel: 'MEDIUM',
       effectiveness: 62,
@@ -70,7 +71,7 @@ export class EnhancedBusinessLogic {
       name: 'DDC Memory Restoration',
       type: 'stability_algorithm',
       price: 0.3,
-      riskLevel: 'HIGH', 
+      riskLevel: 'HIGH',
       effectiveness: 91,
       description: 'Memory fragment reconstruction. Recovers lost digital memories and experiences.'
     },
@@ -113,6 +114,7 @@ export class EnhancedBusinessLogic {
     patientId: string;
     paymentMethod: 'SOL' | 'BTC' | 'CASH';
     walletAddress?: string;
+    sendTransaction?: (destination: PublicKey, amount: number) => Promise<string>;
   }): Promise<{
     success: boolean;
     transactionId?: string;
@@ -134,7 +136,7 @@ export class EnhancedBusinessLogic {
 
     // ENHANCED: Coordinate with local agents + Edenlayer task composition results
     const localCoordination = await agentNetwork.coordinateDecision('process_treatment', params);
-    
+
     // REUSE: Existing transaction infrastructure if workflow approves
     let transaction = { success: false, id: null };
     if (workflowResult.status !== 'failed' && localCoordination.length > 0) {
@@ -144,13 +146,14 @@ export class EnhancedBusinessLogic {
         workflowTasks: workflowResult.taskIds
       });
     }
-    
+
     // ENHANCE: Add to transaction history with full workflow details
     this.txHistory.addTransaction({
-      id: transaction.id || `workflow_${workflowResult.mainTaskId}`,
+      from: params.walletAddress || 'unknown_wallet',
+      to: SOLANA_CONFIG.treasuryAddress,
+      signature: transaction.id || `pending_${Date.now()}`,
       type: 'other',
       amount: this.getTreatmentPrice(params.treatmentId),
-      timestamp: Date.now(),
       status: transaction.success ? 'completed' : workflowResult.status === 'failed' ? 'failed' : 'pending',
       agentData: {
         local: localCoordination,
@@ -159,7 +162,7 @@ export class EnhancedBusinessLogic {
         agentCount: 5, // Risk, Supply, Identity, Identity, Community
         taskComposition: workflowResult.taskIds
       }
-    } as TransactionRecord);
+    });
 
     return {
       success: transaction.success || workflowResult.status === 'completed',
@@ -205,7 +208,7 @@ export class EnhancedBusinessLogic {
 
     // ENHANCE: Use community and supply agents for coordination + Edenlayer
     const localStrategy = await agentNetwork.coordinateDecision('group_purchase', params);
-    
+
     return {
       success: workflowResult.status !== 'failed',
       savings: this.calculateBulkSavings(params, localStrategy),
@@ -226,7 +229,7 @@ export class EnhancedBusinessLogic {
     estimatedRecoveryTime: string;
   }> {
     const agentResponse = await agentNetwork.coordinateDecision('emergency_response', { scenario });
-    
+
     return {
       actions: this.generateEmergencyActions(scenario, agentResponse),
       agentResponse,
@@ -238,7 +241,7 @@ export class EnhancedBusinessLogic {
   private synthesizeAgentRecommendations(decisions: any[]): 'PROCEED' | 'WAIT' | 'FIND_ALTERNATIVE' {
     const proceedVotes = decisions.filter(d => d.action === 'PROCEED').length;
     const totalDecisions = decisions.length;
-    
+
     if (proceedVotes / totalDecisions > 0.7) return 'PROCEED';
     if (proceedVotes / totalDecisions > 0.3) return 'WAIT';
     return 'FIND_ALTERNATIVE';
@@ -250,6 +253,40 @@ export class EnhancedBusinessLogic {
 
   private async executeWithExistingInfrastructure(params: any, coordination: any): Promise<any> {
     // ENHANCEMENT FIRST: Use existing Solana infrastructure, enhanced with agent optimization
+
+    // Convert mock execution to real Solana transaction
+    if (params.paymentMethod === 'SOL' && params.sendTransaction) {
+      try {
+        const amount = this.getTreatmentPrice(params.treatmentId);
+        // Ensure amount is valid
+        if (amount <= 0) {
+          console.warn('Free treatment or invalid price, skipping transaction');
+          return {
+            success: true,
+            id: `free_tx_${Date.now()}`,
+            optimizations: coordination
+          };
+        }
+
+        const recipient = new PublicKey(SOLANA_CONFIG.treasuryAddress);
+        const signature = await params.sendTransaction(recipient, amount);
+
+        return {
+          success: true,
+          id: signature,
+          optimizations: coordination
+        };
+      } catch (error) {
+        console.error('Real Solana transaction failed:', error);
+        return {
+          success: false,
+          id: null,
+          error: error
+        };
+      }
+    }
+
+    // Fallback for non-SOL or legacy calls
     return {
       success: true,
       id: `tx_${Date.now()}`,
@@ -285,7 +322,7 @@ export class EnhancedBusinessLogic {
   private estimateRecoveryTime(scenario: string): string {
     const timeMap = {
       'corporate_raid': '2-4 days',
-      'supply_disruption': '1-2 weeks', 
+      'supply_disruption': '1-2 weeks',
       'identity_crisis': '6-12 hours'
     };
     return timeMap[scenario as keyof typeof timeMap] || 'Unknown';
@@ -306,11 +343,11 @@ export class EnhancedBusinessLogic {
       EDENLAYER_CONFIG.registeredAgents.set('risk', 'risk-agent-uuid');
       EDENLAYER_CONFIG.registeredAgents.set('community', 'community-agent-uuid');
       EDENLAYER_CONFIG.registeredAgents.set('identity', 'identity-agent-uuid');
-      
+
       // Update task composer with registered agents
       this.taskComposer = new EdenlayerTaskComposer(EDENLAYER_CONFIG.registeredAgents);
       this.edenlayerInitialized = true;
-      
+
       console.log('✅ Edenlayer initialized with 4 registered agents');
     } catch (error) {
       console.warn('⚠️ Edenlayer initialization failed, using fallback mode:', error);
@@ -320,7 +357,7 @@ export class EnhancedBusinessLogic {
   private determineUrgency(treatmentId: string): 'low' | 'medium' | 'high' | 'critical' {
     const treatment = this.treatments.find(t => t.id === treatmentId);
     if (!treatment) return 'medium';
-    
+
     switch (treatment.riskLevel) {
       case 'EXTREME': return 'critical';
       case 'HIGH': return 'high';

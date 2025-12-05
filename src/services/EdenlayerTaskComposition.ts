@@ -1,7 +1,7 @@
 // Edenlayer Task Composition - Real implementation following Edenlayer patterns
 // Following Core Principles: CLEAN separation, MODULAR design
 
-import { EDENLAYER_CONFIG } from './EnhancedBusinessLogic';
+import { EDENLAYER_CONFIG } from './EdenlayerIntegration';
 
 // CLEAN: Edenlayer task composition interfaces
 export interface EdenlayerTask {

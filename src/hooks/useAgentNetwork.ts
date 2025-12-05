@@ -42,17 +42,17 @@ export function useAgentNetwork() {
       try {
         // Get initial agent status
         const agentStatus = coreAgentNetwork.getAgentStatus();
-        
+
         // Get initial danger level
         const dangerLevel = await enhancedBusinessLogic.getDangerLevel();
-        
+
         setState(prev => ({
           ...prev,
           agents: agentStatus,
           currentDangerLevel: dangerLevel,
           agentSuggestions: [
             "assess current threat level",
-            "check treatment availability", 
+            "check treatment availability",
             "coordinate group purchase",
             "initiate identity restoration"
           ],
@@ -74,10 +74,10 @@ export function useAgentNetwork() {
   // MODULAR: Agent coordination function
   const coordinateAgents = async (operation: string, params: any = {}) => {
     setState(prev => ({ ...prev, isCoordinating: true }));
-    
+
     try {
       const result = await coreAgentNetwork.coordinateOperation(operation, params);
-      
+
       // Update network activity with agent coordination results
       const newActivity = [
         `🤖 ${result.coordination.participatingAgents.join(', ')} coordinated for ${operation}`,
@@ -85,17 +85,17 @@ export function useAgentNetwork() {
         `🎯 Action: ${result.synthesis.action}`,
         `🎲 Confidence: ${result.synthesis.confidence}%`
       ];
-      
+
       setState(prev => ({
         ...prev,
         isCoordinating: false,
         networkActivity: [...newActivity, ...prev.networkActivity].slice(0, 10) // Keep last 10
       }));
-      
+
       return result;
     } catch (error) {
-      setState(prev => ({ 
-        ...prev, 
+      setState(prev => ({
+        ...prev,
         isCoordinating: false,
         networkActivity: [`❌ Agent coordination failed: ${error.message}`, ...prev.networkActivity]
       }));
@@ -108,9 +108,9 @@ export function useAgentNetwork() {
     // Use MCP bridge for enhanced coordination
     const result = await agentMCPBridge.threatAssessment();
     const newDangerLevel = result.synthesizedThreat.level;
-    
-    setState(prev => ({ 
-      ...prev, 
+
+    setState(prev => ({
+      ...prev,
       currentDangerLevel: newDangerLevel,
       networkActivity: [
         `🤖 MCP threat assessment: ${newDangerLevel}% danger`,
@@ -125,7 +125,7 @@ export function useAgentNetwork() {
   const coordinateGroupPurchase = async (treatmentIds: string[]) => {
     const memberCount = 5; // Default group size
     const result = await agentMCPBridge.groupPurchaseOrchestration(treatmentIds, memberCount);
-    
+
     setState(prev => ({
       ...prev,
       networkActivity: [
@@ -135,23 +135,24 @@ export function useAgentNetwork() {
         ...prev.networkActivity
       ].slice(0, 10)
     }));
-    
+
     return result;
   };
 
   // ENHANCED: Real Edenlayer + MCP identity restoration with blockchain
   const processIdentityRestoration = async (patientId: string, treatmentId: string) => {
     setState(prev => ({ ...prev, isCoordinating: true }));
-    
+
     try {
       // ENHANCED: Real Edenlayer task execution with wallet integration
       const result = await enhancedBusinessLogic.processIdentityRestoration({
         treatmentId,
         patientId,
         paymentMethod: 'SOL',
-        walletAddress: wallet.publicKey?.toString()
+        walletAddress: wallet.publicKey?.toString(),
+        sendTransaction: wallet.sendTransaction
       });
-      
+
       setState(prev => ({
         ...prev,
         isCoordinating: false,
@@ -164,7 +165,7 @@ export function useAgentNetwork() {
           ...prev.networkActivity
         ].slice(0, 10)
       }));
-      
+
       return result;
     } catch (error) {
       setState(prev => ({
@@ -182,16 +183,16 @@ export function useAgentNetwork() {
   // ENHANCED: Real emergency coordination with Edenlayer + MCP
   const handleEmergencyResponse = async (scenario: string) => {
     setState(prev => ({ ...prev, isCoordinating: true }));
-    
+
     const severity = scenario === 'corporate_raid' ? 8 : scenario === 'supply_disruption' ? 6 : 7;
-    
+
     try {
       // ENHANCED: Parallel coordination via both systems
       const [mcpResult, edenlayerResult] = await Promise.all([
         agentMCPBridge.emergencyCoordination(scenario, severity),
         enhancedBusinessLogic.handleEmergencyScenario(scenario as any)
       ]);
-      
+
       setState(prev => ({
         ...prev,
         isCoordinating: false,
@@ -204,7 +205,7 @@ export function useAgentNetwork() {
           ...prev.networkActivity
         ].slice(0, 10)
       }));
-      
+
       return {
         mcp: mcpResult,
         edenlayer: edenlayerResult,
@@ -247,17 +248,17 @@ export function useAgentNetwork() {
   return {
     // State
     ...state,
-    
+
     // Actions
     coordinateAgents,
     assessThreatLevel,
-    coordinateGroupPurchase, 
+    coordinateGroupPurchase,
     processIdentityRestoration,
     handleEmergencyResponse,
-    
+
     // Utilities
     getAgentStatus: () => state.agents,
-    isNetworkHealthy: () => Object.values(state.agents).every(agent => 
+    isNetworkHealthy: () => Object.values(state.agents).every(agent =>
       agent.status === 'ACTIVE' || agent.status === 'MONITORING'
     )
   };
@@ -266,45 +267,45 @@ export function useAgentNetwork() {
 // CLEAN: Specific hooks for individual agents (MODULAR)
 export function useSupplyChainAgent() {
   const { agents, coordinateAgents } = useAgentNetwork();
-  
+
   return {
     status: agents.supply,
-    checkAvailability: (treatmentId: string) => 
+    checkAvailability: (treatmentId: string) =>
       coordinateAgents('check_availability', { treatmentId }),
-    optimizePricing: (params: any) => 
+    optimizePricing: (params: any) =>
       coordinateAgents('optimize_pricing', params)
   };
 }
 
 export function useRiskAssessmentAgent() {
-  const { agents, currentDangerLevel, assessThreatLevel } = useAgentNetwork();
-  
+  const { agents, currentDangerLevel, assessThreatLevel, coordinateAgents } = useAgentNetwork();
+
   return {
     status: agents.risk,
     dangerLevel: currentDangerLevel,
     assessThreat: assessThreatLevel,
-    monitorSurveillance: () => 
+    monitorSurveillance: () =>
       coordinateAgents('monitor_surveillance', {})
   };
 }
 
 export function useCommunityAgent() {
-  const { agents, coordinateGroupPurchase } = useAgentNetwork();
-  
+  const { agents, coordinateGroupPurchase, coordinateAgents } = useAgentNetwork();
+
   return {
     status: agents.community,
-    coordinateMembers: () => 
+    coordinateMembers: () =>
       coordinateAgents('coordinate_members', {}),
     groupPurchase: coordinateGroupPurchase
   };
 }
 
 export function useIdentityAgent() {
-  const { agents, processIdentityRestoration } = useAgentNetwork();
-  
+  const { agents, processIdentityRestoration, coordinateAgents } = useAgentNetwork();
+
   return {
     status: agents.identity,
-    assessFragmentation: (patientId: string) => 
+    assessFragmentation: (patientId: string) =>
       coordinateAgents('assess_fragmentation', { patientId }),
     restoreIdentity: processIdentityRestoration
   };

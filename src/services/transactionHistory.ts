@@ -8,17 +8,19 @@ export interface TransactionRecord {
   timestamp: number;
   signature: string;
   type: 'donation' | 'membership' | 'other';
+  status?: string;
+  agentData?: any;
 }
 
 class TransactionHistoryService {
   private storageKey = 'dallas-club-transactions';
-  
+
   // Get all transactions for the current user
   getTransactions(): TransactionRecord[] {
     try {
       const stored = localStorage.getItem(this.storageKey);
       if (!stored) return [];
-      
+
       const transactions: TransactionRecord[] = JSON.parse(stored);
       return transactions;
     } catch (error) {
@@ -26,7 +28,7 @@ class TransactionHistoryService {
       return [];
     }
   }
-  
+
   // Add a new transaction to history
   addTransaction(transaction: Omit<TransactionRecord, 'id' | 'timestamp'>): TransactionRecord {
     const newTransaction: TransactionRecord = {
@@ -34,16 +36,16 @@ class TransactionHistoryService {
       id: `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       timestamp: Date.now(),
     };
-    
+
     try {
       const transactions = this.getTransactions();
       transactions.push(newTransaction);
-      
+
       // Keep only last 50 transactions to avoid localStorage bloat
       if (transactions.length > 50) {
         transactions.splice(0, transactions.length - 50);
       }
-      
+
       localStorage.setItem(this.storageKey, JSON.stringify(transactions));
       return newTransaction;
     } catch (error) {
@@ -51,22 +53,22 @@ class TransactionHistoryService {
       return newTransaction;
     }
   }
-  
+
   // Get transactions by type
   getTransactionsByType(type: TransactionRecord['type']): TransactionRecord[] {
     const transactions = this.getTransactions();
     return transactions.filter(tx => tx.type === type);
   }
-  
+
   // Get transactions by date range
   getTransactionsByDateRange(startDate: Date, endDate: Date): TransactionRecord[] {
     const start = startDate.getTime();
     const end = endDate.getTime();
-    
+
     const transactions = this.getTransactions();
     return transactions.filter(tx => tx.timestamp >= start && tx.timestamp <= end);
   }
-  
+
   // Clear transaction history
   clearHistory(): void {
     try {

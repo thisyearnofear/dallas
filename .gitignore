@@ -29,10 +29,16 @@ lerna-debug.log*
 .env
 .env.local
 .env.*.local
+.env.production
+.env.development
 
 # Build & package caches
 .turbo
 .pnpm-store
+
+# Test coverage
+coverage
+.coverage
 
 # OS files
 Thumbs.db

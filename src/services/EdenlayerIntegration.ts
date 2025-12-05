@@ -2,6 +2,7 @@
 // Following Core Principles: ENHANCEMENT FIRST, CLEAN separation
 
 import { WalletContextType } from '../context/WalletContext';
+import { PublicKey } from '@solana/web3.js';
 
 // CLEAN: Edenlayer API configuration
 export const EDENLAYER_CONFIG = {
@@ -460,7 +461,7 @@ export class UndergroundMarketplace {
       const transactionSignature = await this.wallet.sendTransaction(
         treasuryAddress,
         amount,
-        'purchase'
+        'donation'
       );
 
       return {
