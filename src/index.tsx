@@ -25,6 +25,7 @@ import { Links } from "./pages/links";
 import { Donate } from "./pages/donate";
 import { Membership } from "./pages/membership";
 import { Achievements } from "./pages/achievements";
+import { Testimonials } from "./pages/testimonials";
 import { Referrals } from "./pages/referrals";
 import { Underground } from "./pages/underground";
 import { NotFound } from "./pages/_404";
@@ -53,6 +54,7 @@ export function App() {
                             <Route path="/donate" component={Donate} />
                             <Route path="/membership" component={Membership} />
                             <Route path="/achievements" component={Achievements} />
+                            <Route path="/testimonials" component={Testimonials} />
                             <Route path="/referrals" component={Referrals} />
                             <Route path="/underground" component={Underground} />
                             <Route default component={NotFound} />

@@ -1,5 +1,4 @@
 import { AchievementSystem } from "../components/AchievementSystem";
-import { TestimonialsGrid } from "../components/TestimonialsGrid";
 
 export function Achievements() {
     return (
@@ -12,10 +11,6 @@ export function Achievements() {
             </div>
 
             <AchievementSystem />
-
-            <div class="mt-16">
-                <TestimonialsGrid />
-            </div>
         </>
     );
 }
