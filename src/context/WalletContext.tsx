@@ -13,6 +13,7 @@ export interface WalletContextType {
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
   sendTransaction: (destination: PublicKey, amount: number, type?: TransactionRecord['type']) => Promise<string>;
+  signMessage: (message: Uint8Array) => Promise<Uint8Array>;
   connection: Connection;
   getTransactionHistory: () => TransactionRecord[];
 }
@@ -232,7 +233,7 @@ export function WalletProvider({ children }: { children: any }) {
       setLastTransaction(now);
 
       // Record the transaction in history
-      transactionHistoryService.addTransaction({
+      await transactionHistoryService.addTransaction({
         from: publicKey.toString(),
         to: destination.toString(),
         amount,
@@ -254,8 +255,27 @@ export function WalletProvider({ children }: { children: any }) {
     }
   };
 
-  const getTransactionHistory = (): TransactionRecord[] => {
-    return transactionHistoryService.getTransactions();
+  const signMessage = async (message: Uint8Array): Promise<Uint8Array> => {
+    if (!publicKey || !connected) {
+      throw new Error('Wallet not connected');
+    }
+
+    const provider = getProvider();
+    if (!provider || !provider.signMessage) {
+      throw new Error('Wallet does not support message signing');
+    }
+
+    try {
+      const { signature } = await provider.signMessage(message, 'utf8');
+      return signature;
+    } catch (error: any) {
+      console.error('Signing error:', error);
+      throw new Error(error.message || 'Failed to sign message');
+    }
+  };
+
+  const getTransactionHistory = async (): Promise<TransactionRecord[]> => {
+    return await transactionHistoryService.getTransactions();
   };
 
   const value: WalletContextType = {
@@ -265,6 +285,7 @@ export function WalletProvider({ children }: { children: any }) {
     connect,
     disconnect,
     sendTransaction,
+    signMessage,
     connection,
     getTransactionHistory,
   };

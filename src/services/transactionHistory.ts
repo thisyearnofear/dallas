@@ -1,4 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
+import { encryptionService } from './EncryptionService';
 
 export interface TransactionRecord {
   id: string;
@@ -15,22 +16,37 @@ export interface TransactionRecord {
 class TransactionHistoryService {
   private storageKey = 'dallas-club-transactions';
 
-  // Get all transactions for the current user
-  getTransactions(): TransactionRecord[] {
+  // Get all transactions for the current user (Encrypted)
+  async getTransactions(): Promise<TransactionRecord[]> {
     try {
       const stored = localStorage.getItem(this.storageKey);
       if (!stored) return [];
 
-      const transactions: TransactionRecord[] = JSON.parse(stored);
-      return transactions;
+      try {
+        // Attempt to decrypt (New Secure Format)
+        const decrypted = await encryptionService.decrypt(stored);
+        return JSON.parse(decrypted);
+      } catch (decryptError) {
+        // Fallback to legacy plain text (Migration path)
+        try {
+          const legacy = JSON.parse(stored);
+          // If valid legacy data, we'll return it. 
+          // Next write will encrypt it automatically.
+          if (Array.isArray(legacy)) return legacy;
+          return [];
+        } catch (jsonError) {
+          console.error('Data corruption detected:', jsonError);
+          return [];
+        }
+      }
     } catch (error) {
       console.error('Error loading transaction history:', error);
       return [];
     }
   }
 
-  // Add a new transaction to history
-  addTransaction(transaction: Omit<TransactionRecord, 'id' | 'timestamp'>): TransactionRecord {
+  // Add a new transaction to history (Encrypted)
+  async addTransaction(transaction: Omit<TransactionRecord, 'id' | 'timestamp'>): Promise<TransactionRecord> {
     const newTransaction: TransactionRecord = {
       ...transaction,
       id: `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -38,7 +54,7 @@ class TransactionHistoryService {
     };
 
     try {
-      const transactions = this.getTransactions();
+      const transactions = await this.getTransactions();
       transactions.push(newTransaction);
 
       // Keep only last 50 transactions to avoid localStorage bloat
@@ -46,7 +62,11 @@ class TransactionHistoryService {
         transactions.splice(0, transactions.length - 50);
       }
 
-      localStorage.setItem(this.storageKey, JSON.stringify(transactions));
+      // Encrypt before saving
+      const serialized = JSON.stringify(transactions);
+      const encrypted = await encryptionService.encrypt(serialized);
+      
+      localStorage.setItem(this.storageKey, encrypted);
       return newTransaction;
     } catch (error) {
       console.error('Error saving transaction:', error);
@@ -55,17 +75,17 @@ class TransactionHistoryService {
   }
 
   // Get transactions by type
-  getTransactionsByType(type: TransactionRecord['type']): TransactionRecord[] {
-    const transactions = this.getTransactions();
+  async getTransactionsByType(type: TransactionRecord['type']): Promise<TransactionRecord[]> {
+    const transactions = await this.getTransactions();
     return transactions.filter(tx => tx.type === type);
   }
 
   // Get transactions by date range
-  getTransactionsByDateRange(startDate: Date, endDate: Date): TransactionRecord[] {
+  async getTransactionsByDateRange(startDate: Date, endDate: Date): Promise<TransactionRecord[]> {
     const start = startDate.getTime();
     const end = endDate.getTime();
 
-    const transactions = this.getTransactions();
+    const transactions = await this.getTransactions();
     return transactions.filter(tx => tx.timestamp >= start && tx.timestamp <= end);
   }
 

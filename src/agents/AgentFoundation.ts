@@ -2,7 +2,8 @@
 // Following Core Principles: DRY, MODULAR, CLEAN separation
 
 import { transactionHistoryService, TransactionRecord } from '../services/transactionHistory';
-import { SOLANA_CONFIG } from '../config/solana';
+import { SOLANA_CONFIG, getRpcEndpoint } from '../config/solana';
+import { Connection } from '@solana/web3.js';
 
 // SINGLE SOURCE OF TRUTH for agent types and interfaces
 export interface AgentDecision {
@@ -23,14 +24,16 @@ export interface AgentContext {
 export abstract class EnhancedBusinessAgent {
   protected context: AgentContext;
   protected txHistory = transactionHistoryService; // REUSE existing service
-  
+  protected connection: Connection;
+
   constructor() {
     this.context = this.initializeContext();
+    this.connection = new Connection(getRpcEndpoint());
   }
 
   // ENHANCE existing transaction history with agent intelligence
-  protected getIntelligentTransactionHistory(): TransactionRecord[] {
-    const transactions = this.txHistory.getTransactions();
+  protected async getIntelligentTransactionHistory(): Promise<TransactionRecord[]> {
+    const transactions = await this.txHistory.getTransactions();
     // ADD: Pattern analysis to existing transaction data
     return this.analyzeTransactionPatterns(transactions);
   }
@@ -56,7 +59,7 @@ export class SupplyChainAgent extends EnhancedBusinessAgent {
   async makeDecision(params: { product: string; quantity: number }): Promise<AgentDecision> {
     // ENHANCE existing product availability logic
     const riskAssessment = this.assessSupplyRisk(params);
-    const marketAnalysis = this.analyzeMarketConditions(params);
+    const marketAnalysis = await this.analyzeMarketConditions(params);
     
     return {
       action: riskAssessment.safe && marketAnalysis.favorable ? 'PROCEED' : 'WAIT',
@@ -81,9 +84,24 @@ export class SupplyChainAgent extends EnhancedBusinessAgent {
     return { safe: true, level: 'LOW' };
   }
 
-  private analyzeMarketConditions(params: any) {
-    // Will be enhanced with market data
-    return { favorable: true, status: 'STABLE' };
+  private async analyzeMarketConditions(params: any) {
+    try {
+      // REAL DATA: Fetch current epoch info to determine network stability
+      const epochInfo = await this.connection.getEpochInfo();
+      const slotIndex = epochInfo.slotIndex;
+      const slotsInEpoch = epochInfo.slotsInEpoch;
+      
+      // If we are late in the epoch, market might be volatile (simulated logic based on real data)
+      const isStable = (slotIndex / slotsInEpoch) < 0.9;
+      
+      return { 
+        favorable: isStable, 
+        status: isStable ? `STABLE (Epoch Progress: ${((slotIndex/slotsInEpoch)*100).toFixed(1)}%)` : 'VOLATILE (Epoch Ending)' 
+      };
+    } catch (e) {
+      console.warn('Failed to fetch real market data, using fallback', e);
+      return { favorable: true, status: 'UNKNOWN (Network Error)' };
+    }
   }
 
   private getOptimalTiming(): string {
@@ -108,8 +126,8 @@ export class SupplyChainAgent extends EnhancedBusinessAgent {
 export class RiskAssessmentAgent extends EnhancedBusinessAgent {
   async makeDecision(params: { transactionAmount: number; location: string }): Promise<AgentDecision> {
     // ENHANCE existing danger level with intelligent analysis
-    const threatAnalysis = this.analyzeThreatLandscape(params);
-    const historicalRisk = this.assessHistoricalRisk(params);
+    const threatAnalysis = await this.analyzeThreatLandscape(params);
+    const historicalRisk = await this.assessHistoricalRisk(params);
     
     return {
       action: threatAnalysis.dangerLevel < 70 ? 'PROCEED' : 'WAIT',
@@ -135,17 +153,36 @@ export class RiskAssessmentAgent extends EnhancedBusinessAgent {
   }
 
   // MODULAR: Risk-specific intelligence  
-  private analyzeThreatLandscape(params: any) {
-    return {
-      dangerLevel: Math.floor(Math.random() * 100), // Will be enhanced with real intelligence
-      locationRisk: 'MODERATE',
-      confidence: 78,
-      saferLocation: 'Alternative site recommended'
-    };
+  private async analyzeThreatLandscape(params: any) {
+    // REAL DATA: Measure network latency to determine "Network Threat"
+    const start = Date.now();
+    try {
+      await this.connection.getVersion();
+      const latency = Date.now() - start;
+      
+      // Higher latency = Higher "Network Threat" (congestion/attacks)
+      // Cap at 100
+      const dangerLevel = Math.min(Math.floor(latency / 5), 100); 
+
+      return {
+        dangerLevel, 
+        locationRisk: latency > 300 ? 'HIGH_LATENCY_ZONE' : 'LOW_LATENCY_ZONE',
+        confidence: 95, // High confidence because it's real data
+        saferLocation: latency > 500 ? 'Use VPN / Switch RPC' : 'Current connection secure'
+      };
+    } catch (e) {
+      console.warn('Threat assessment failed', e);
+      return {
+        dangerLevel: 80, // High risk default on error
+        locationRisk: 'DISCONNECTED',
+        confidence: 20,
+        saferLocation: 'Check internet connection'
+      };
+    }
   }
 
-  private assessHistoricalRisk(params: any) {
-    const transactions = this.getIntelligentTransactionHistory();
+  private async assessHistoricalRisk(params: any) {
+    const transactions = await this.getIntelligentTransactionHistory();
     return {
       trend: transactions.length > 10 ? 'INCREASING' : 'STABLE'
     };

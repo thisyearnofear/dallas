@@ -38,10 +38,11 @@ npm run test:watch   # Watch mode for development
 
 ## ✨ Key Features
 
-- **🤖 Functional Agentic Economy**: 4 core autonomous agents (Supply, Risk, Community, Identity) coordinate operations in real-time.
-- **💸 Real Solana Transactions**: Agents don't just simulate; they execute actual value transfers on devnet/mainnet.
+- **🤖 Functional Agentic Economy**: 4 core autonomous agents (Supply, Risk, Community, Identity) coordinate operations in real-time using **Real Network Data** (Epoch slots, RPC latency).
+- **💸 Real Solana Transactions**: Agents execute actual value transfers with **On-Chain Encrypted Memos** for privacy.
+- **🔐 Wallet-Derived Privacy**: Zero-knowledge architecture where all local data is encrypted using a key derived from your wallet signature.
 - **🧠 Dual-Protocol Coordination**: Integrates **MCP** (Model Context Protocol) and **Edenlayer** for advanced task composition.
-- **🛡️ Dynamic Risk Assessment**: Real-time threat monitoring adjusts pricing and availability based on "corporate surveillance" levels.
+- **🛡️ Dynamic Risk Assessment**: Real-time threat monitoring based on **actual network latency** and congestion.
 - **📟 Immersive Terminal Interface**: Retro-cyberpunk UI that feels like hacking into a 1991 resistance network.
 
 ## 🏗️ Technical Architecture

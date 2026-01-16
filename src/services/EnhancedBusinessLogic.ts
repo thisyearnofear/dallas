@@ -148,7 +148,7 @@ export class EnhancedBusinessLogic {
     }
 
     // ENHANCE: Add to transaction history with full workflow details
-    this.txHistory.addTransaction({
+    await this.txHistory.addTransaction({
       from: params.walletAddress || 'unknown_wallet',
       to: SOLANA_CONFIG.treasuryAddress,
       signature: transaction.id || `pending_${Date.now()}`,

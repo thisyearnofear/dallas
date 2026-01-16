@@ -215,12 +215,34 @@ const {
 - Danger level display
 - Terminal interface for commands
 
+## Privacy Architecture
+
+### 1. Wallet-Derived Key Encryption
+We implement a zero-knowledge data privacy model where all sensitive mission data (orders, agent logs, history) is encrypted locally using a key derived from the user's wallet signature.
+
+**Flow:**
+1. User connects wallet.
+2. User clicks "Decrypt Logs" and signs a deterministic message: `"Authenticate Dallas Buyers Club Identity Node"`.
+3. System uses PBKDF2 (SHA-256) on the signature to derive an AES-GCM-256 encryption key.
+4. This key encrypts/decrypts `localStorage` data via the `EncryptionService`.
+5. The key is never stored persistently; it exists only in memory for the session.
+
+### 2. Confidential Transfer Layer
+To support the "Underground Network" theme, we implement an **On-Chain Encrypted Memo Protocol** that allows secure communication between nodes.
+
+**Implementation:**
+- **Service**: `ConfidentialTransferService.ts`
+- **Mechanism**: Attaches a real `SPL Memo` instruction to transactions containing AES-GCM encrypted metadata (Order ID, Amount, Timestamp).
+- **Security**: The memo payload is encrypted using the sender's wallet-derived key, ensuring only the owner can decrypt their on-chain history.
+- **UX**: Toggle switch in `SolanaTransfer` component enables "Shielded" mode, which wraps standard SOL transfers with this encrypted layer.
+
 ### Wallet Integration
 
 **Solana Web3.js integration** via `WalletContext`:
 - Connect/disconnect Phantom wallet
-- Sign and send real blockchain transactions
-- Track transaction history
+- **Message Signing**: `signMessage` for key derivation authentication
+- **Transaction Signing**: Support for both standard and custom (confidential) transaction payloads
+- Track transaction history (encrypted locally)
 - Handle payment confirmations
 
 ## Protocol Integration

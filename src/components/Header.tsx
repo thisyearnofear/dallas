@@ -1,7 +1,42 @@
 import { meta } from "./constants";
 import { WalletButton } from "./WalletButton";
+import { useWallet } from "../context/WalletContext";
+import { encryptionService } from "../services/EncryptionService";
+import { useState, useEffect } from "preact/hooks";
 
 export function Header() {
+    const { connected, signMessage } = useWallet();
+    const [isEncrypted, setIsEncrypted] = useState(false);
+    const [isDecrypting, setIsDecrypting] = useState(false);
+
+    useEffect(() => {
+        // Check if we're using a temporary session key or a wallet-derived key
+        const checkEncryption = () => {
+             setIsEncrypted(encryptionService.isWalletKeyActive());
+        };
+        // Initial check
+        checkEncryption();
+        // Poll for changes (simple way to keep sync without complex context for now)
+        const interval = setInterval(checkEncryption, 1000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const handleDecrypt = async () => {
+        if (!connected) return;
+        setIsDecrypting(true);
+        try {
+            const message = new TextEncoder().encode("Authenticate Dallas Buyers Club Identity Node");
+            const signature = await signMessage(message);
+            await encryptionService.initializeWithSignature(signature);
+            setIsEncrypted(true);
+        } catch (error) {
+            console.error("Decryption failed:", error);
+            alert("Authentication failed. " + error.message);
+        } finally {
+            setIsDecrypting(false);
+        }
+    };
+
     return (
         <header class="header-separator flex pt-2 pb-1 items-center px-2 sm:px-4 overflow-hidden">
             <a href="/">
@@ -27,6 +62,26 @@ export function Header() {
                     <a class="text-brand text-lg sm:text-xl cursor-not-allowed whitespace-nowrap">
                         account <b>&#8383;80085</b>
                     </a>
+                    {connected && !isEncrypted && (
+                        <>
+                            <div class="w-[2px] h-5 bg-gray-dark mx-1 sm:mx-3"></div>
+                            <button 
+                                onClick={handleDecrypt}
+                                disabled={isDecrypting}
+                                class="bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-3 py-1 rounded shadow-md transition-colors animate-pulse"
+                            >
+                                {isDecrypting ? "DECRYPTING..." : "🔓 DECRYPT LOGS"}
+                            </button>
+                        </>
+                    )}
+                    {connected && isEncrypted && (
+                         <>
+                            <div class="w-[2px] h-5 bg-gray-dark mx-1 sm:mx-3"></div>
+                            <span class="text-green-600 text-sm font-bold flex items-center gap-1">
+                                🔐 SECURE
+                            </span>
+                        </>
+                    )}
                 </div>
                 <div class="flex items-center flex-wrap gap-2">
                     <label class="text-gray-dark text-lg sm:text-[20px] font-bold mr-2 sm:mr-[20px] whitespace-nowrap">
