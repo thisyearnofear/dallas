@@ -1,9 +1,13 @@
 import { LiveActivityFeed } from "./LiveActivityFeed";
+import { NetworkIntelWidget } from "./NetworkIntelWidget";
 
 export function ViralSidebar() {
     return (
         <div class="fixed right-4 top-1/2 transform -translate-y-1/2 w-80 z-40 hidden lg:block">
             <div class="space-y-6">
+                {/* Network Intel */}
+                <NetworkIntelWidget />
+
                 {/* Live Activity Feed */}
                 <LiveActivityFeed />
                 

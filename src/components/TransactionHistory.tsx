@@ -1,18 +1,44 @@
 import { useWallet } from '../context/WalletContext';
 import { TransactionRecord } from '../services/transactionHistory';
-import { useState } from 'preact/hooks';
+import { encryptionService } from '../services/EncryptionService';
+import { useState, useEffect } from 'preact/hooks';
 
 export function TransactionHistory() {
   const { getTransactionHistory } = useWallet();
   const [filter, setFilter] = useState<'all' | 'donation' | 'membership' | 'other'>('all');
   const [showHistory, setShowHistory] = useState(false);
+  const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
+  const [isLocked, setIsLocked] = useState(false);
 
-  const transactions = getTransactionHistory().filter(tx => 
+  useEffect(() => {
+    const loadTransactions = async () => {
+      // Check if data exists but key is missing
+      const hasData = localStorage.getItem('dallas-club-transactions');
+      const isDecrypted = encryptionService.isWalletKeyActive();
+      
+      if (hasData && !isDecrypted) {
+        setIsLocked(true);
+        setTransactions([]);
+      } else {
+        setIsLocked(false);
+        const txs = await getTransactionHistory();
+        setTransactions(txs);
+      }
+    };
+    
+    if (showHistory) {
+      loadTransactions();
+      const interval = setInterval(loadTransactions, 2000); // Poll for updates/decryption
+      return () => clearInterval(interval);
+    }
+  }, [showHistory]);
+
+  const filteredTransactions = transactions.filter(tx => 
     filter === 'all' || tx.type === filter
   );
 
   // Sort by most recent
-  const sortedTransactions = [...transactions].sort((a, b) => b.timestamp - a.timestamp);
+  const sortedTransactions = [...filteredTransactions].sort((a, b) => b.timestamp - a.timestamp);
 
   if (!showHistory) {
     return (
@@ -51,7 +77,17 @@ export function TransactionHistory() {
         </select>
       </div>
 
-      {sortedTransactions.length === 0 ? (
+      {isLocked ? (
+        <div class="flex flex-col items-center justify-center h-48 space-y-4 border-2 border-red-500/30 bg-red-500/5 rounded p-4 animate-pulse">
+          <div class="text-4xl">🔒</div>
+          <h4 class="text-xl font-bold text-red-500">MISSION LOGS ENCRYPTED</h4>
+          <p class="text-center text-sm text-gray-600">
+            History data is secured with your wallet signature.
+            <br />
+            Please authenticate to decrypt.
+          </p>
+        </div>
+      ) : sortedTransactions.length === 0 ? (
         <p class="text-gray-500 italic">No transactions found</p>
       ) : (
         <div class="space-y-3">
