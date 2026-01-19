@@ -91,6 +91,36 @@ export function Home() {
                 </div>
             </div>
 
+            {/* Health Sovereignty Section */}
+            <div class="bg-gradient-to-r from-blue-900/30 via-green-900/30 to-purple-900/30 border-2 border-green-500/50 text-white p-8 rounded-lg mb-8">
+                <h2 class="text-3xl font-bold mb-4 flex items-center gap-2">
+                    🔐 Health Sovereignty Platform
+                </h2>
+                <p class="text-xl mb-6">
+                    We're building what the Dallas Buyers Club needed: a decentralized platform for health autonomy.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-black/30 p-4 rounded border border-green-500/30">
+                        <h3 class="font-bold mb-2">🔒 Your Data, Your Control</h3>
+                        <p class="text-sm text-gray-300">Share health journeys encrypted with your wallet key. Only you decrypt.</p>
+                    </div>
+                    <div class="bg-black/30 p-4 rounded border border-blue-500/30">
+                        <h3 class="font-bold mb-2">👥 Community Validated</h3>
+                        <p class="text-sm text-gray-300">Validators stake tokens. False claims get caught. Accuracy rewarded.</p>
+                    </div>
+                    <div class="bg-black/30 p-4 rounded border border-purple-500/30">
+                        <h3 class="font-bold mb-2">⛓️ On-Chain Permanent</h3>
+                        <p class="text-sm text-gray-300">Health journeys live on Solana. Immutable, transparent, global.</p>
+                    </div>
+                </div>
+                <a 
+                    class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded hover:scale-105 transition-all duration-300" 
+                    href="/experiences"
+                >
+                    🚀 Explore Health Sovereignty
+                </a>
+            </div>
+
             {/* Call to Action Section */}
             <div class="bg-gradient-to-r from-brand/90 to-brand text-white p-8 rounded-lg mb-8">
                 <h2 class="text-3xl font-bold mb-4">Join the Movement</h2>
@@ -106,9 +136,9 @@ export function Home() {
                     </a>
                     <a 
                         class="border-2 border-white text-white font-bold py-3 px-6 rounded hover:bg-white hover:text-brand transition-all duration-300 hover:scale-105 text-center" 
-                        href="/products"
+                        href="/experiences"
                     >
-                        💊 View Products
+                        🔍 Discover Protocols
                     </a>
                     <a 
                         class="border-2 border-white text-white font-bold py-3 px-6 rounded hover:bg-white hover:text-brand transition-all duration-300 hover:scale-105 text-center" 

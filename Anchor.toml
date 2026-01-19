@@ -1,0 +1,32 @@
+[toolchain]
+anchor_version = "0.29.0"
+
+[build]
+shell = "/bin/bash"
+
+[build.shell]
+cmd = "cargo"
+args = ["build-sbf", "--manifest-path", "{dir}/Cargo.toml", "--sbf-out-dir", "{out_dir}"]
+
+[features]
+seeds = true
+skip-lint = false
+
+[programs.devnet]
+case_study = "11111111111111111111111111111111"
+experience_token = "22222222222222222222222222222222"
+
+[programs.testnet]
+case_study = "11111111111111111111111111111111"
+experience_token = "22222222222222222222222222222222"
+
+[programs.mainnet]
+case_study = "11111111111111111111111111111111"
+experience_token = "22222222222222222222222222222222"
+
+[provider]
+cluster = "Devnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "cargo test"

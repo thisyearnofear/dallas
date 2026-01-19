@@ -1,7 +1,7 @@
 import { createContext, h } from 'preact';
 import { useContext, useState, useEffect } from 'preact/hooks';
 import { PublicKey, Connection, LAMPORTS_PER_SOL, SystemProgram } from '@solana/web3.js';
-import { getRpcEndpoint } from '../config/solana';
+import { getRpcEndpoint, validateBlockchainConfig } from '../config/solana';
 import { transactionHistoryService, TransactionRecord } from '../services/transactionHistory';
 
 export const WalletContext = createContext(null);
@@ -29,7 +29,20 @@ export function WalletProvider({ children }: { children: any }) {
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [lastTransaction, setLastTransaction] = useState<number>(0);
+  const [blockchainConfigError, setBlockchainConfigError] = useState<string | null>(null);
   const connection = new Connection(NETWORK);
+
+  // Validate blockchain configuration on startup
+  useEffect(() => {
+    try {
+      validateBlockchainConfig();
+      setBlockchainConfigError(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown blockchain config error';
+      setBlockchainConfigError(message);
+      console.warn('⚠️ Blockchain config incomplete:', message);
+    }
+  }, []);
 
   // Check if Phantom is installed
   const getProvider = () => {
