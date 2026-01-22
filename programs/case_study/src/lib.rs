@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Mint};
 
-declare_id!("CaseStudyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+declare_id!("EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6");
 
 #[program]
 pub mod case_study {
@@ -56,10 +56,15 @@ pub mod case_study {
         let clock = Clock::get()?;
         
         // Generate ephemeral PDA identifier (not linked to user wallet)
+        let timestamp_bytes = clock.unix_timestamp.to_le_bytes();
+        let padded_timestamp = [
+            timestamp_bytes[0], timestamp_bytes[1], timestamp_bytes[2], timestamp_bytes[3],
+            timestamp_bytes[4], timestamp_bytes[5], timestamp_bytes[6], timestamp_bytes[7], 0
+        ];
         let ephemeral_seed = &[
             b"ephemeral",
-            &clock.unix_timestamp.to_le_bytes(),
-            &metadata_hash[..8],
+            &padded_timestamp,
+            &metadata_hash[..9],
         ];
         let (ephemeral_id, _bump) = Pubkey::find_program_address(
             ephemeral_seed,
@@ -216,6 +221,9 @@ pub mod case_study {
             proof_hash,
             validation_type,
             reputation_score: case_study.reputation_score,
+            noir_circuit_id,
+            circuit_params_hash,
+            noir_verification_hash,
         });
 
         Ok(())
@@ -756,7 +764,7 @@ pub const CRITICAL_RISK_THRESHOLD: u8 = 75;
 // ============= HELPER FUNCTIONS =============
 
 fn calculate_validator_weight(reputation: &Account<ValidatorReputation>) -> Result<u32> {
-    let accuracy_rate = if reputation.total_validations > 0 {
+    let _accuracy_rate = if reputation.total_validations > 0 {
         (reputation.accurate_validations * 100) / reputation.total_validations
     } else {
         50 // Neutral for new validators

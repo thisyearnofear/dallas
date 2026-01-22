@@ -10,22 +10,29 @@
 1. **Read this file** (5 minutes)
 2. Follow [Solana Playground Quick Start](#solana-playground-quick-start) (12 minutes)
 
-## 📋 Deployment Checklist
+## 📋 Deployment Status
+
+### ✅ Completed Deployments
+- ✅ **Case Study Program**: Deployed to Devnet
+  - Program ID: `EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6`
+  - Status: Live on Solana Devnet
+- 🔄 **Experience Token Program**: Pending deployment
+- 🔄 **EXPERIENCE Token Mint**: Pending creation
 
 ### Pre-Deployment
 - ✅ System check: `cargo --version && solana --version && anchor --version`
 - ✅ Code review: Look at smart contracts in `programs/*/src/lib.rs`
 - ✅ All smart contracts compile
 
-### Deployment Options
+### Remaining Deployment Tasks
 
 #### Option 1: Solana Playground (RECOMMENDED)
 **Best for:** Quick testing, hackathon submission
 
 ```bash
-1. Go to https://beta.solpg.io/
-2. Create new project (Anchor template)
-3. Paste case_study/src/lib.rs → Click Deploy (3 min)
+1. ✅ Case Study Program already deployed
+2. Go to https://beta.solpg.io/
+3. Create new project: `dallas-experience-token`
 4. Paste experience_token/src/lib.rs → Click Deploy (3 min)
 5. Get token mint address (1 min)
 6. Update src/config/solana.ts with IDs (1 min)
@@ -113,14 +120,17 @@ npm run dev
 
 ## What Gets Deployed
 
-### On Blockchain
+### ✅ On Blockchain (Deployed)
 ```
-Case Study Program
+Case Study Program (EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6)
 ├─ 4 instructions (submit, validate, slash, grant_access)
 ├─ 3 account types (CaseStudy, ValidatorStake, AccessPermission)
 ├─ 4 events (submitted, validated, slashed, access_granted)
 └─ All data encrypted before storage
+```
 
+### 🔄 Pending Deployment
+```
 EXPERIENCE Token Program
 ├─ 1M token supply (hard cap)
 ├─ 6 instructions (init, reward_submit, reward_validate, burn, freeze, etc)

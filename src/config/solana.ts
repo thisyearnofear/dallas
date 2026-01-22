@@ -8,7 +8,7 @@
 export const SOLANA_CONFIG = {
   // Network: 'devnet', 'testnet', or 'mainnet-beta'
   network: 'devnet' as const,
-  
+
   // RPC endpoints
   rpcEndpoint: {
     devnet: 'https://api.devnet.solana.com',
@@ -19,11 +19,9 @@ export const SOLANA_CONFIG = {
   // Your wallet address where donations/payments go
   treasuryAddress: 'BpHqwwKRqhNRzyZHT5U4un9vfyivcbvcgrmFRfboGJsK',
 
-  // Smart contract program IDs (from solpgf deployment)
-  // Update these after deploying to solpgf
-  // See SOLPGF_DEPLOYMENT.md for instructions
+  // Smart contract program IDs (from deployment)
   blockchain: {
-    caseStudyProgramId: 'CaseStudyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    caseStudyProgramId: 'EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6',
     experienceTokenProgramId: 'ExperienceTokenXXXXXXXXXXXXXXXXXXXXXXXX',
     experienceMintAddress: 'ExperienceMintXXXXXXXXXXXXXXXXXXXXXXXXX',
   },
@@ -50,21 +48,21 @@ export function getRpcEndpoint(): string {
  */
 export function validateBlockchainConfig(): void {
   const { blockchain } = SOLANA_CONFIG;
-  
+
   const isPlaceholder = (addr: string) => addr.includes('XXXX') || addr.includes('XXX');
-  
+
   if (isPlaceholder(blockchain.caseStudyProgramId)) {
     throw new Error(
       'Case Study Program ID not configured. Deploy to solpgf and update SOLANA_CONFIG.blockchain.caseStudyProgramId'
     );
   }
-  
+
   if (isPlaceholder(blockchain.experienceTokenProgramId)) {
     throw new Error(
       'Experience Token Program ID not configured. Deploy to solpgf and update SOLANA_CONFIG.blockchain.experienceTokenProgramId'
     );
   }
-  
+
   if (isPlaceholder(blockchain.experienceMintAddress)) {
     throw new Error(
       'Experience Mint Address not configured. Create mint on solpgf and update SOLANA_CONFIG.blockchain.experienceMintAddress'
