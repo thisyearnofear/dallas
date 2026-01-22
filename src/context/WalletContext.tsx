@@ -14,6 +14,7 @@ export interface WalletContextType {
   disconnect: () => Promise<void>;
   sendTransaction: (destination: PublicKey, amount: number, type?: TransactionRecord['type']) => Promise<string>;
   signMessage: (message: Uint8Array) => Promise<Uint8Array>;
+  signTransaction: (transaction: any) => Promise<any>;
   connection: Connection;
   getTransactionHistory: () => TransactionRecord[];
 }
@@ -268,6 +269,27 @@ export function WalletProvider({ children }: { children: any }) {
     }
   };
 
+  const signTransaction = async (transaction: any): Promise<any> => {
+    if (!publicKey || !connected) {
+      throw new Error('Wallet not connected');
+    }
+
+    const provider = getProvider();
+    if (!provider || !provider.signTransaction) {
+      throw new Error('Wallet does not support transaction signing');
+    }
+
+    try {
+      return await provider.signTransaction(transaction);
+    } catch (error: any) {
+      console.error('Transaction signing error:', error);
+      if (error.message?.includes('User rejected')) {
+        throw new Error('Transaction was rejected by user');
+      }
+      throw new Error(error.message || 'Failed to sign transaction');
+    }
+  };
+
   const signMessage = async (message: Uint8Array): Promise<Uint8Array> => {
     if (!publicKey || !connected) {
       throw new Error('Wallet not connected');
@@ -287,10 +309,6 @@ export function WalletProvider({ children }: { children: any }) {
     }
   };
 
-  const getTransactionHistory = async (): Promise<TransactionRecord[]> => {
-    return await transactionHistoryService.getTransactions();
-  };
-
   const value: WalletContextType = {
     publicKey,
     connected,
@@ -299,6 +317,7 @@ export function WalletProvider({ children }: { children: any }) {
     disconnect,
     sendTransaction,
     signMessage,
+    signTransaction,
     connection,
     getTransactionHistory,
   };

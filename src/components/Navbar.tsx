@@ -4,6 +4,7 @@ import { useState } from "preact/hooks";
 const navigationItems = [
     { href: "/", label: "Home", icon: "🏠", description: "Welcome to the club" },
     { href: "/experiences", label: "Health Journeys", icon: "🔍", description: "Discover & share", highlight: true },
+    { href: "/validators", label: "Validators", icon: "⚖️", description: "Earn by validating", highlight: true },
     { href: "/products", label: "Products", icon: "💊", description: "Treatment options" },
     { href: "/membership", label: "Join Us", icon: "🤝", description: "Become a fighter", highlight: true },
     { href: "/achievements", label: "Achievements", icon: "🏆", description: "Track your progress" },
@@ -16,7 +17,7 @@ const navigationItems = [
 
 export function Navbar() {
     const [isCollapsed, setIsCollapsed] = useState(false);
-    
+
     return (
         <nav class={`
             transition-all duration-300 pt-3 border-r-2 border-r-gray-dark box-border bg-gradient-to-b from-white to-gray-50
@@ -27,7 +28,7 @@ export function Navbar() {
                 {!isCollapsed && (
                     <h2 class="font-bold text-gray-dark text-lg">Navigation</h2>
                 )}
-                <button 
+                <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
                     class="p-2 hover:bg-gray-100 rounded-lg transition-colors text-brand"
                     title={isCollapsed ? "Expand menu" : "Collapse menu"}
@@ -39,7 +40,7 @@ export function Navbar() {
             <ul class="space-y-2 px-2">
                 {navigationItems.map((item, index) => (
                     <li key={item.href}>
-                        <a 
+                        <a
                             href={item.href}
                             class={`
                                 flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200
@@ -52,7 +53,7 @@ export function Navbar() {
                             title={isCollapsed ? `${item.label} - ${item.description}` : ''}
                         >
                             <span class="text-xl flex-shrink-0">{item.icon}</span>
-                            
+
                             {!isCollapsed && (
                                 <div class="flex-grow min-w-0">
                                     <div class="font-semibold text-lg">{item.label}</div>
@@ -106,7 +107,7 @@ export function Navbar() {
             {/* Mobile CTA */}
             {!isCollapsed && (
                 <div class="mt-6 px-4">
-                    <a 
+                    <a
                         href="/membership"
                         class="block bg-gradient-to-r from-brand to-brand-accent text-white text-center font-bold py-3 px-4 rounded-lg hover:scale-105 transition-transform duration-300"
                     >

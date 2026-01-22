@@ -2,6 +2,8 @@ import { FunctionalComponent } from 'preact';
 import { useState, useContext } from 'preact/hooks';
 import { WalletContext } from '../context/WalletContext';
 import { deriveEncryptionKey, encryptHealthData } from '../utils/encryption';
+import { submitCaseStudyToBlockchain } from '../services/BlockchainIntegration';
+import { validateBlockchainConfig } from '../config/solana';
 
 interface HealthMetrics {
   symptomSeverity: number; // 1-10
@@ -28,10 +30,19 @@ interface CaseStudyFormData {
 }
 
 export const EncryptedCaseStudyForm: FunctionalComponent = () => {
-  const { publicKey, signMessage } = useContext(WalletContext);
+  const walletContext = useContext(WalletContext);
+  const { publicKey, signMessage } = walletContext;
   const [encryptionKey, setEncryptionKey] = useState<Uint8Array | null>(null);
   const [keyDeriving, setKeyDeriving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [blockchainConfigValid, setBlockchainConfigValid] = useState(false);
+
+  // Privacy sponsor options
+  const [privacyOptions, setPrivacyOptions] = useState({
+    usePrivacyCash: true,
+    useShadowWire: false,
+    compressionRatio: 5,
+  });
 
   const [formData, setFormData] = useState<CaseStudyFormData>({
     treatmentProtocol: '',
@@ -54,6 +65,20 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
     type: 'success' | 'error' | 'info' | null;
     message: string;
   }>({ type: null, message: '' });
+
+  // Check blockchain configuration on mount
+  useState(() => {
+    try {
+      validateBlockchainConfig();
+      setBlockchainConfigValid(true);
+    } catch (error) {
+      setBlockchainConfigValid(false);
+      setSubmitStatus({
+        type: 'error',
+        message: `⚠️ Blockchain not configured: ${error instanceof Error ? error.message : 'Unknown error'}. Please deploy contracts to devnet first.`,
+      });
+    }
+  });
 
   // Step 1: Derive encryption key from wallet
   const handleDeriveKey = async () => {
@@ -84,7 +109,7 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
     }
   };
 
-  // Step 2: Encrypt and submit case study
+  // Step 2: Encrypt and submit case study to blockchain
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
 
@@ -92,6 +117,14 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
       setSubmitStatus({
         type: 'error',
         message: 'Please derive encryption key first',
+      });
+      return;
+    }
+
+    if (!blockchainConfigValid) {
+      setSubmitStatus({
+        type: 'error',
+        message: 'Blockchain configuration invalid. Please deploy contracts first.',
       });
       return;
     }
@@ -104,57 +137,57 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      // Encrypt sensitive metrics locally (before any network request)
-      const encryptedBaseline = encryptHealthData(
-        JSON.stringify(formData.baselineMetrics),
-        encryptionKey
-      );
-      const encryptedOutcome = encryptHealthData(
-        JSON.stringify(formData.outcomeMetrics),
-        encryptionKey
-      );
-      const encryptedSideEffects = encryptHealthData(
-        JSON.stringify(formData.sideEffects),
-        encryptionKey
-      );
-
-      // Log what would be sent (in real version, this submits to Solana blockchain)
-      console.log('Case Study Encrypted Submission:', {
-        treatmentProtocol: formData.treatmentProtocol,
-        durationDays: formData.durationDays,
-        costUSD: formData.costUSD,
-        baselineEncrypted: encryptedBaseline,
-        outcomeEncrypted: encryptedOutcome,
-        sideEffectsEncrypted: encryptedSideEffects,
-        contextEncrypted: formData.context
-          ? encryptHealthData(formData.context, encryptionKey)
-          : undefined,
-        submittedAt: new Date().toISOString(),
-        wallet: publicKey?.toString(),
-      });
-
-      setSubmitStatus({
-        type: 'success',
-        message:
-          '✅ Case study submitted encrypted! Your health data is encrypted with your wallet key. Only you can decrypt it. Community validators can request access.',
-      });
-
-      // Reset form
-      setFormData({
-        treatmentProtocol: '',
-        durationDays: 8,
-        costUSD: 0,
-        baselineMetrics: { symptomSeverity: 5, energyLevel: 5 },
-        outcomeMetrics: { symptomSeverity: 5, energyLevel: 5 },
-        sideEffects: [],
-        context: '',
-      });
-    } catch (error) {
+    if (!publicKey) {
       setSubmitStatus({
         type: 'error',
-        message: `Encryption/submission failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        message: 'Wallet not connected',
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitStatus({
+      type: 'info',
+      message: '🔄 Submitting to blockchain... Please approve the transaction in your wallet.',
+    });
+
+    try {
+      // Submit to blockchain with privacy sponsor integrations
+      const result = await submitCaseStudyToBlockchain(
+        publicKey,
+        walletContext.signTransaction,
+        formData,
+        encryptionKey,
+        privacyOptions
+      );
+
+      if (result.success) {
+        setSubmitStatus({
+          type: 'success',
+          message: result.message,
+        });
+
+        // Reset form on success
+        setFormData({
+          treatmentProtocol: '',
+          durationDays: 8,
+          costUSD: 0,
+          baselineMetrics: { symptomSeverity: 5, energyLevel: 5 },
+          outcomeMetrics: { symptomSeverity: 5, energyLevel: 5 },
+          sideEffects: [],
+          context: '',
+        });
+      } else {
+        setSubmitStatus({
+          type: 'error',
+          message: result.message,
+        });
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      setSubmitStatus({
+        type: 'error',
+        message: `❌ Submission failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
       });
     } finally {
       setIsSubmitting(false);
@@ -175,13 +208,12 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
       {/* Status Messages */}
       {submitStatus.type && (
         <div
-          class={`mb-6 p-4 rounded border-l-4 ${
-            submitStatus.type === 'success'
-              ? 'bg-green-900/30 border-green-500 text-green-300'
-              : submitStatus.type === 'error'
+          class={`mb-6 p-4 rounded border-l-4 ${submitStatus.type === 'success'
+            ? 'bg-green-900/30 border-green-500 text-green-300'
+            : submitStatus.type === 'error'
               ? 'bg-red-900/30 border-red-500 text-red-300'
               : 'bg-blue-900/30 border-blue-500 text-blue-300'
-          }`}
+            }`}
         >
           {submitStatus.message}
         </div>
@@ -506,11 +538,82 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
             </div>
           </div>
 
-          {/* Privacy Notice */}
-          <div class="p-4 bg-blue-900/20 border border-blue-600 rounded text-sm text-gray-300">
-            🔒 <strong>Privacy Guarantee:</strong> Your health metrics are encrypted with your
-            wallet key before leaving your device. Dallas Buyers Club servers never see your
-            unencrypted data. Only you can decrypt it.
+          {/* Privacy Sponsor Options */}
+          <div class="p-6 bg-purple-900/20 border border-purple-600 rounded-lg">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+              <span class="text-2xl">🔐</span>
+              Privacy Sponsor Integrations
+            </h3>
+
+            <div class="space-y-4">
+              {/* Privacy Cash */}
+              <div class="flex items-center justify-between p-3 bg-gray-800 rounded">
+                <div>
+                  <div class="font-bold text-green-400">Privacy Cash</div>
+                  <div class="text-sm text-gray-400">Confidential reward transfers</div>
+                </div>
+                <label class="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={privacyOptions.usePrivacyCash}
+                    onChange={(e) =>
+                      setPrivacyOptions({
+                        ...privacyOptions,
+                        usePrivacyCash: (e.target as HTMLInputElement).checked,
+                      })
+                    }
+                    class="mr-2"
+                  />
+                  <span class="text-sm">Enable</span>
+                </label>
+              </div>
+
+              {/* ShadowWire */}
+              <div class="flex items-center justify-between p-3 bg-gray-800 rounded">
+                <div>
+                  <div class="font-bold text-blue-400">ShadowWire</div>
+                  <div class="text-sm text-gray-400">Private payment flows</div>
+                </div>
+                <label class="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={privacyOptions.useShadowWire}
+                    onChange={(e) =>
+                      setPrivacyOptions({
+                        ...privacyOptions,
+                        useShadowWire: (e.target as HTMLInputElement).checked,
+                      })
+                    }
+                    class="mr-2"
+                  />
+                  <span class="text-sm">Enable</span>
+                </label>
+              </div>
+
+              {/* Light Protocol Compression */}
+              <div class="p-3 bg-gray-800 rounded">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="font-bold text-purple-400">Light Protocol Compression</div>
+                  <span class="text-sm text-gray-400">{privacyOptions.compressionRatio}x</span>
+                </div>
+                <input
+                  type="range"
+                  min="2"
+                  max="20"
+                  value={privacyOptions.compressionRatio}
+                  onChange={(e) =>
+                    setPrivacyOptions({
+                      ...privacyOptions,
+                      compressionRatio: parseInt((e.target as HTMLInputElement).value),
+                    })
+                  }
+                  class="w-full"
+                />
+                <div class="text-xs text-gray-500 mt-1">
+                  Higher compression = lower storage costs
+                </div>
+              </div>
+            </div>
           </div>
         </form>
       )}
