@@ -1,6 +1,6 @@
 import { FunctionalComponent } from 'preact';
 import { useState, useContext, useEffect } from 'preact/hooks';
-import { WalletContext } from '../context/WalletContext';
+import { WalletContext, WalletContextType, TIER_STYLES } from '../context/WalletContext';
 import { submitValidatorApproval, fetchUserCaseStudies } from '../services/BlockchainIntegration';
 import { PublicKey } from '@solana/web3.js';
 
@@ -14,8 +14,9 @@ interface CaseStudyForValidation {
 }
 
 export const ValidatorDashboard: FunctionalComponent = () => {
-    const walletContext = useContext(WalletContext);
-    const { publicKey } = walletContext;
+    const walletContext = useContext(WalletContext) as WalletContextType;
+    const { publicKey, experienceBalance, reputationTier, validationCount, accuracyRate, refreshExperienceData } = walletContext;
+    const [refreshing, setRefreshing] = useState(false);
     const [caseStudies, setCaseStudies] = useState<CaseStudyForValidation[]>([]);
     const [loading, setLoading] = useState(false);
     const [validating, setValidating] = useState<string | null>(null);
@@ -148,7 +149,14 @@ export const ValidatorDashboard: FunctionalComponent = () => {
         <div class="w-full max-w-6xl mx-auto bg-gray-900 text-white p-8 rounded-lg border-2 border-yellow-500">
             {/* Header */}
             <div class="mb-8">
-                <h2 class="text-3xl font-bold mb-2">🔍 Validator Dashboard</h2>
+                <div class="flex items-center gap-3 mb-2">
+                    <h2 class="text-3xl font-bold">🔍 Validator Dashboard</h2>
+                    {reputationTier && (
+                        <span class={`${TIER_STYLES[reputationTier]} px-3 py-1 rounded-full text-sm font-bold`}>
+                            {reputationTier}
+                        </span>
+                    )}
+                </div>
                 <p class="text-gray-300">
                     Review case studies and earn EXPERIENCE tokens for accurate validations.
                     Your stake is at risk if you provide false validations.
@@ -170,21 +178,34 @@ export const ValidatorDashboard: FunctionalComponent = () => {
             )}
 
             {/* Validator Stats */}
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                    <div class="text-2xl font-bold text-green-400">--</div>
-                    <div class="text-sm text-gray-400">EXPERIENCE Tokens</div>
-                    <div class="text-xs text-gray-500 mt-1">Connect wallet to view balance</div>
+            <div class="mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-300">Your Stats</h3>
+                    <button
+                        onClick={async () => {
+                            setRefreshing(true);
+                            await refreshExperienceData();
+                            setRefreshing(false);
+                        }}
+                        disabled={refreshing}
+                        class="bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 px-3 py-1 rounded text-sm font-bold transition flex items-center gap-2"
+                    >
+                        {refreshing ? '⏳' : '🔄'} Refresh
+                    </button>
                 </div>
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                    <div class="text-2xl font-bold text-blue-400">--</div>
-                    <div class="text-sm text-gray-400">Validations Completed</div>
-                    <div class="text-xs text-gray-500 mt-1">Based on blockchain history</div>
-                </div>
-                <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                    <div class="text-2xl font-bold text-purple-400">--</div>
-                    <div class="text-sm text-gray-400">Accuracy Rating</div>
-                    <div class="text-xs text-gray-500 mt-1">Calculated from consensus</div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                        <div class="text-2xl font-bold text-green-400">{experienceBalance.toLocaleString()}</div>
+                        <div class="text-sm text-gray-400">EXPERIENCE Tokens</div>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                        <div class="text-2xl font-bold text-blue-400">{validationCount}</div>
+                        <div class="text-sm text-gray-400">Validations Completed</div>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                        <div class="text-2xl font-bold text-purple-400">{accuracyRate}%</div>
+                        <div class="text-sm text-gray-400">Accuracy Rating</div>
+                    </div>
                 </div>
             </div>
 

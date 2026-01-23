@@ -1,11 +1,13 @@
 import { render } from "preact";
 import { LocationProvider, Router, Route } from "preact-iso";
 import { WalletProvider } from "./context/WalletContext";
+import { SettingsProvider } from "./context/SettingsContext";
 
 import { Header } from "./components/Header";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { ViralSidebar } from "./components/ViralSidebar";
+import { SettingsPanel } from "./components/SettingsPanel";
 import {
     FloatingActionButton,
     ScrollToTop,
@@ -38,6 +40,7 @@ export function App() {
     const { notification, showNotification } = useNotification();
 
     return (
+        <SettingsProvider>
         <WalletProvider>
             <LocationProvider>
                 <SwipeGestures>
@@ -76,9 +79,13 @@ export function App() {
                     <Authentic90sPopups />
                     <LiveActivityNotifications />
                     <WinnerPopup />
+
+                    {/* Settings */}
+                    <SettingsPanel />
                 </SwipeGestures>
             </LocationProvider>
         </WalletProvider>
+        </SettingsProvider>
     );
 }
 

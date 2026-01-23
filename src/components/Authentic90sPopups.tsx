@@ -1,4 +1,5 @@
 import { useState, useEffect } from "preact/hooks";
+import { useSettings } from "../context/SettingsContext";
 
 interface PopupAd {
     id: string;
@@ -75,8 +76,11 @@ const popupAds: PopupAd[] = [
 ];
 
 export function Authentic90sPopups() {
+    const { settings } = useSettings();
     const [activePopups, setActivePopups] = useState<PopupAd[]>([]);
     const [positions, setPositions] = useState<{[key: string]: {x: number, y: number}}>({});
+
+    if (!settings.popupsEnabled) return null;
 
     useEffect(() => {
         const showRandomPopup = () => {
@@ -253,7 +257,10 @@ export function Authentic90sPopups() {
 
 // Live activity notifications that appear more prominently
 export function LiveActivityNotifications() {
+    const { settings } = useSettings();
     const [currentNotification, setCurrentNotification] = useState<string | null>(null);
+
+    if (!settings.liveNotificationsEnabled) return null;
     
     const activities = [
         "🚨 Patient #420 just ordered AZT from Mexico!",
@@ -313,7 +320,10 @@ export function LiveActivityNotifications() {
 
 // Authentic 90s "You've won!" style popup
 export function WinnerPopup() {
+    const { settings } = useSettings();
     const [isVisible, setIsVisible] = useState(false);
+
+    if (!settings.popupsEnabled) return null;
 
     useEffect(() => {
         // Show after 25 seconds (like old websites)

@@ -1,10 +1,19 @@
 import { createContext, h } from 'preact';
-import { useContext, useState, useEffect } from 'preact/hooks';
+import { useContext, useState, useEffect, useCallback } from 'preact/hooks';
 import { PublicKey, Connection, LAMPORTS_PER_SOL, SystemProgram } from '@solana/web3.js';
-import { getRpcEndpoint, validateBlockchainConfig } from '../config/solana';
+import { getRpcEndpoint, validateBlockchainConfig, SOLANA_CONFIG } from '../config/solana';
 import { transactionHistoryService, TransactionRecord } from '../services/transactionHistory';
 
 export const WalletContext = createContext(null);
+
+export type ReputationTier = 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | null;
+
+export const TIER_STYLES: Record<Exclude<ReputationTier, null>, string> = {
+  Bronze: 'bg-amber-700 text-white',
+  Silver: 'bg-gray-400 text-gray-900',
+  Gold: 'bg-yellow-500 text-gray-900',
+  Platinum: 'bg-gradient-to-r from-purple-400 to-blue-400 text-white',
+};
 
 export interface WalletContextType {
   publicKey: PublicKey | null;
@@ -17,6 +26,11 @@ export interface WalletContextType {
   signTransaction: (transaction: any) => Promise<any>;
   connection: Connection;
   getTransactionHistory: () => TransactionRecord[];
+  experienceBalance: number;
+  reputationTier: ReputationTier;
+  validationCount: number;
+  accuracyRate: number;
+  refreshExperienceData: () => Promise<void>;
 }
 
 const NETWORK = getRpcEndpoint();
@@ -25,13 +39,68 @@ const MIN_TRANSACTION_AMOUNT = 0.001; // Minimum SOL amount to prevent spam
 const MAX_TRANSACTION_AMOUNT = 100; // Maximum SOL amount per transaction
 const TRANSACTION_COOLDOWN_MS = 5000; // 5 seconds cooldown between transactions
 
+function calculateReputationTier(validationCount: number, accuracyRate: number): ReputationTier {
+  if (validationCount === 0) return null;
+  
+  if (validationCount >= 76 && accuracyRate >= 85) return 'Platinum';
+  if (validationCount >= 51 && accuracyRate >= 75) return 'Gold';
+  if (validationCount >= 26 && accuracyRate >= 60) return 'Silver';
+  return 'Bronze';
+}
+
 export function WalletProvider({ children }: { children: any }) {
   const [publicKey, setPublicKey] = useState<PublicKey | null>(null);
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [lastTransaction, setLastTransaction] = useState<number>(0);
   const [blockchainConfigError, setBlockchainConfigError] = useState<string | null>(null);
+  const [experienceBalance, setExperienceBalance] = useState<number>(0);
+  const [validationCount, setValidationCount] = useState<number>(0);
+  const [accuracyRate, setAccuracyRate] = useState<number>(0);
   const connection = new Connection(NETWORK);
+
+  const reputationTier = calculateReputationTier(validationCount, accuracyRate);
+
+  const fetchExperienceData = useCallback(async (walletPublicKey: PublicKey) => {
+    try {
+      const mintAddress = SOLANA_CONFIG.blockchain.experienceMintAddress;
+      const isPlaceholder = mintAddress.includes('XXXX') || mintAddress.includes('XXX');
+
+      if (isPlaceholder) {
+        console.warn('EXPERIENCE token mint not configured, using mock data');
+        setExperienceBalance(150);
+        setValidationCount(35);
+        setAccuracyRate(72);
+        return;
+      }
+
+      const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+      const mintPubkey = new PublicKey(mintAddress);
+      const tokenAccount = await getAssociatedTokenAddress(mintPubkey, walletPublicKey);
+
+      try {
+        const accountInfo = await connection.getTokenAccountBalance(tokenAccount);
+        setExperienceBalance(Number(accountInfo.value.uiAmount) || 0);
+      } catch (error) {
+        console.warn('No EXPERIENCE token account found, balance is 0');
+        setExperienceBalance(0);
+      }
+
+      setValidationCount(0);
+      setAccuracyRate(0);
+    } catch (error) {
+      console.error('Error fetching EXPERIENCE data:', error);
+      setExperienceBalance(0);
+      setValidationCount(0);
+      setAccuracyRate(0);
+    }
+  }, [connection]);
+
+  const refreshExperienceData = useCallback(async () => {
+    if (publicKey && connected) {
+      await fetchExperienceData(publicKey);
+    }
+  }, [publicKey, connected, fetchExperienceData]);
 
   // Validate blockchain configuration on startup
   useEffect(() => {
@@ -95,6 +164,9 @@ export function WalletProvider({ children }: { children: any }) {
     const onDisconnect = () => {
       setPublicKey(null);
       setConnected(false);
+      setExperienceBalance(0);
+      setValidationCount(0);
+      setAccuracyRate(0);
     };
 
     provider.on('accountChanged', onAccountChanged);
@@ -105,6 +177,13 @@ export function WalletProvider({ children }: { children: any }) {
       provider.removeAllListeners();
     };
   }, []);
+
+  // Fetch EXPERIENCE data when wallet connects
+  useEffect(() => {
+    if (publicKey && connected) {
+      fetchExperienceData(publicKey);
+    }
+  }, [publicKey, connected, fetchExperienceData]);
 
   const connect = async () => {
     setConnecting(true);
@@ -320,6 +399,11 @@ export function WalletProvider({ children }: { children: any }) {
     signTransaction,
     connection,
     getTransactionHistory,
+    experienceBalance,
+    reputationTier,
+    validationCount,
+    accuracyRate,
+    refreshExperienceData,
   };
 
   return h(WalletContext.Provider, { value }, children);
