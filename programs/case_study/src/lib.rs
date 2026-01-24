@@ -86,6 +86,8 @@ pub mod case_study {
         case_study.threshold_shares_required = 3; // K-of-N for Arcium MPC
         case_study.light_proof_hash = light_proof_hash;
         case_study.compression_ratio = compression_ratio;
+        case_study.attention_token_mint = None;
+        case_study.attention_token_created_at = None;
         case_study.bump = ctx.bumps.case_study;
 
         emit!(CaseStudySubmitted {
@@ -435,6 +437,55 @@ pub mod case_study {
 
         Ok(())
     }
+
+    /// Link attention token to case study (after creation via Bags API)
+    /// Only submitter can link their attention token
+    pub fn link_attention_token(
+        ctx: Context<LinkAttentionToken>,
+        attention_token_mint: Pubkey,
+    ) -> Result<()> {
+        let case_study = &mut ctx.accounts.case_study;
+        
+        // Verify submitter is linking token
+        require!(
+            case_study.submitter == ctx.accounts.submitter.key(),
+            CaseStudyError::UnauthorizedTokenLink
+        );
+
+        // Verify case study is approved and meets quality threshold
+        require!(
+            case_study.validation_status == ValidationStatus::Approved,
+            CaseStudyError::CaseStudyNotApproved
+        );
+        require!(
+            case_study.reputation_score >= 75,
+            CaseStudyError::InsufficientReputationForToken
+        );
+        require!(
+            case_study.approval_count >= 5,
+            CaseStudyError::InsufficientValidatorsForToken
+        );
+
+        // Verify no existing attention token
+        require!(
+            case_study.attention_token_mint.is_none(),
+            CaseStudyError::AttentionTokenAlreadyExists
+        );
+
+        // Link the attention token
+        case_study.attention_token_mint = Some(attention_token_mint);
+        case_study.attention_token_created_at = Some(Clock::get()?.unix_timestamp);
+
+        emit!(AttentionTokenLinked {
+            case_study: case_study.key(),
+            attention_token_mint,
+            submitter: ctx.accounts.submitter.key(),
+            reputation_score: case_study.reputation_score,
+            created_at: Clock::get()?.unix_timestamp,
+        });
+
+        Ok(())
+    }
 }
 
 // ============= ACCOUNTS =============
@@ -456,6 +507,8 @@ pub struct CaseStudy {
     pub threshold_shares_required: u8,     // K-of-N for MPC access
     pub light_proof_hash: [u8; 32],        // Light Protocol compression proof
     pub compression_ratio: u16,            // ZK compression ratio achieved
+    pub attention_token_mint: Option<Pubkey>, // Attention token (if created via Bags API)
+    pub attention_token_created_at: Option<i64>, // When attention token was created
     pub bump: u8,
 }
 
@@ -546,7 +599,7 @@ pub struct SubmitCaseStudy<'info> {
     #[account(
         init,
         payer = submitter,
-        space = 8 + 32 + 32 + (4 + 46) + 32 + 1 + 2 + 8 + 1 + 4 + 4 + 1 + 1 + 1 + 1 + 32 + 2,
+        space = 8 + 32 + 32 + (4 + 46) + 32 + 1 + 2 + 8 + 1 + 4 + 4 + 1 + 1 + 1 + 1 + 32 + 2 + (1 + 32) + (1 + 8),
         seeds = [b"case_study", submitter.key().as_ref(), &Clock::get().unwrap().unix_timestamp.to_le_bytes()],
         bump
     )]
@@ -623,6 +676,16 @@ pub struct SlashValidator<'info> {
     )]
     pub governance_authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
+}
+
+#[derive(Accounts)]
+pub struct LinkAttentionToken<'info> {
+    #[account(mut)]
+    pub case_study: Account<'info, CaseStudy>,
+    #[account(
+        constraint = submitter.key() == case_study.submitter
+    )]
+    pub submitter: Signer<'info>,
 }
 
 // ============= EVENTS =============
@@ -704,6 +767,15 @@ pub struct ArciumDecryptionComplete {
     pub final_share_proof_hash: [u8; 32],
 }
 
+#[event]
+pub struct AttentionTokenLinked {
+    pub case_study: Pubkey,
+    pub attention_token_mint: Pubkey,
+    pub submitter: Pubkey,
+    pub reputation_score: u8,
+    pub created_at: i64,
+}
+
 // ============= ERRORS =============
 
 #[error_code]
@@ -754,6 +826,16 @@ pub enum CaseStudyError {
     InvalidSlashPercentage,
     #[msg("Validator already slashed")]
     AlreadySlashed,
+    #[msg("Unauthorized to link attention token")]
+    UnauthorizedTokenLink,
+    #[msg("Case study not approved")]
+    CaseStudyNotApproved,
+    #[msg("Insufficient reputation score for attention token (need 75+)")]
+    InsufficientReputationForToken,
+    #[msg("Insufficient validators for attention token (need 5+)")]
+    InsufficientValidatorsForToken,
+    #[msg("Attention token already exists for this case study")]
+    AttentionTokenAlreadyExists,
 }
 
 // ============= CONSTANTS =============

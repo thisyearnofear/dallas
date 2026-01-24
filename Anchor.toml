@@ -1,28 +1,21 @@
 [toolchain]
 anchor_version = "0.29.0"
 
-[build]
-shell = "/bin/bash"
-
-[build.shell]
-cmd = "cargo"
-args = ["build-sbf", "--manifest-path", "{dir}/Cargo.toml", "--sbf-out-dir", "{out_dir}"]
-
 [features]
 seeds = true
 skip-lint = false
 
 [programs.devnet]
 case_study = "EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6"
-experience_token = "22222222222222222222222222222222"
+experience_token = "7mdSmYYPVfGmbnSRQ7kiwXVW9BHnefKRdZ6PJmwt4fga"
 
 [programs.testnet]
 case_study = "11111111111111111111111111111111"
-experience_token = "22222222222222222222222222222222"
+experience_token = "7mdSmYYPVfGmbnSRQ7kiwXVW9BHnefKRdZ6PJmwt4fga"
 
 [programs.mainnet]
 case_study = "11111111111111111111111111111111"
-experience_token = "22222222222222222222222222222222"
+experience_token = "7mdSmYYPVfGmbnSRQ7kiwXVW9BHnefKRdZ6PJmwt4fga"
 
 [provider]
 cluster = "Devnet"

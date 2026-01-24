@@ -16,8 +16,11 @@
 - ✅ **Case Study Program**: Deployed to Devnet
   - Program ID: `EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6`
   - Status: Live on Solana Devnet
-- 🔄 **Experience Token Program**: Pending deployment
+- ✅ **Experience Token Program**: Deployed to Devnet
+  - Program ID: `E6Cc4TX3H2ikxmmztsvRTB8rrYaiTZdaNFd1PBPWCjE4`
+  - Status: Live on Solana Devnet
 - 🔄 **EXPERIENCE Token Mint**: Pending creation
+=======
 
 ### Pre-Deployment
 - ✅ System check: `cargo --version && solana --version && anchor --version`
@@ -65,25 +68,36 @@
 8. **Copy Program ID**
 
 #### Step 2: Deploy Experience Token Program (3 min)
-1. New solpgf project: `dallas-experience-token`
-2. Paste `programs/experience_token/src/lib.rs` content
-3. Build and deploy
-4. **Copy Program ID**
+✅ **COMPLETED** - Program ID: `E6Cc4TX3H2ikxmmztsvRTB8rrYaiTZdaNFd1PBPWCjE4`
 
-#### Step 3: Get Token Mint Address (1 min)
-In solpgf terminal:
+#### Step 3: Create EXPERIENCE Token Mint (2 min)
+In solpgf terminal or local CLI:
 ```bash
-spl-token create-token --decimals 9
-```
-**Copy the token address**
+# Create the token mint with 6 decimals (for EXPERIENCE tokens)
+spl-token create-token --decimals 6
 
-#### Step 4: Update Frontend Config (1 min)
+# Copy the mint address and update src/config/solana.ts
+experienceMintAddress: 'YOUR_MINT_ADDRESS_HERE'
+
+# Create associated token accounts for treasury and governance
+spl-token create-account <MINT_ADDRESS> --owner BpHqwwKRqhNRzyZHT5U4un9vfyivcbvcgrmFRfboGJsK
+spl-token create-account <MINT_ADDRESS> --owner <GOVERNANCE_ADDRESS>
+```
+
+#### Step 4: Initialize Token Configuration (1 min)
+Call the `initialize_token` instruction on the Experience Token program:
+```bash
+# Using the deployed program to initialize token configuration
+# This sets up allocations, governance, and treasury accounts
+```
+
+#### Step 5: Update Frontend Config (1 min)
 File: `src/config/solana.ts`
 ```typescript
 blockchain: {
-  caseStudyProgramId: 'PASTE_CASE_STUDY_ID_HERE',
-  experienceTokenProgramId: 'PASTE_TOKEN_ID_HERE',
-  experienceMintAddress: 'PASTE_MINT_ADDRESS_HERE',
+  caseStudyProgramId: 'EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6',
+  experienceTokenProgramId: 'E6Cc4TX3H2ikxmmztsvRTB8rrYaiTZdaNFd1PBPWCjE4',
+  experienceMintAddress: 'YOUR_ACTUAL_MINT_ADDRESS', // Replace with real mint address
 }
 ```
 
@@ -118,6 +132,87 @@ npm run dev
 # Submit case study → See transaction on blockchain
 ```
 
+### Test Token Flow
+```bash
+# 1. Test case study submission with token rewards
+# 2. Test validator staking
+# 3. Test token balance updates
+# 4. Test privacy features (Privacy Cash, ShadowWire)
+```
+
+### Comprehensive Testing Checklist
+
+#### ✅ Token Integration Tests
+- [ ] Case study submission rewards EXPERIENCE tokens
+- [ ] Validator staking works correctly
+- [ ] Token balances update in real-time
+- [ ] Privacy Cash confidential transfers work
+- [ ] ShadowWire private payments work
+- [ ] Slashing mechanism functions properly
+- [ ] Treasury distributions work
+
+#### ✅ UI Integration Tests
+- [ ] EXPERIENCE token balance displays correctly
+- [ ] Transaction history shows token activities
+- [ ] Wallet integration works with Phantom
+- [ ] Error handling for failed transactions
+- [ ] Loading states during token operations
+
+#### ✅ Network Integration Tests
+- [ ] Explorer links work for all transactions
+- [ ] Network status updates correctly
+- [ ] RPC endpoint connectivity
+- [ ] Blockchain config validation
+
+## Tokenomics Testing
+
+### Test Case Study Rewards
+```typescript
+// Submit a case study and verify reward
+const result = await submitCaseStudyToBlockchain(
+  walletAddress,
+  signTransaction,
+  formData,
+  encryptionKey,
+  { usePrivacyCash: true }
+);
+
+// Check reward was received
+const balance = await getExperienceTokenBalance(walletAddress);
+console.log('EXPERIENCE balance:', balance);
+```
+
+### Test Validator Staking
+```typescript
+// Stake tokens for validation
+const stakeResult = await submitValidatorApproval(
+  validatorAddress,
+  signTransaction,
+  caseStudyPubkey,
+  'quality',
+  true,
+  10
+);
+
+// Verify stake was recorded
+const transactions = await getExperienceTokenTransactions(validatorAddress);
+console.log('Stake transaction:', transactions.find(t => t.type === 'stake'));
+```
+
+### Test Privacy Features
+```typescript
+// Test Privacy Cash confidential transfer
+const result = await submitCaseStudyToBlockchain(
+  walletAddress,
+  signTransaction,
+  formData,
+  encryptionKey,
+  { usePrivacyCash: true, useShadowWire: true }
+);
+
+// Verify confidential transfer event was emitted
+```
+
 ## What Gets Deployed
 
 ### ✅ On Blockchain (Deployed)
@@ -127,15 +222,22 @@ Case Study Program (EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6)
 ├─ 3 account types (CaseStudy, ValidatorStake, AccessPermission)
 ├─ 4 events (submitted, validated, slashed, access_granted)
 └─ All data encrypted before storage
+
+EXPERIENCE Token Program (E6Cc4TX3H2ikxmmztsvRTB8rrYaiTZdaNFd1PBPWCjE4)
+├─ 1M token supply (hard cap)
+├─ 8 instructions (init, reward_submit, reward_validate, stake, unstake, slash, freeze, distribute)
+├─ 3 account types (TokenConfig, ValidatorReputation, StakeAccount)
+├─ 12 events (initialized, rewarded, staked, slashed, frozen, etc)
+└─ Privacy Cash & ShadowWire integration ready
 ```
 
 ### 🔄 Pending Deployment
 ```
-EXPERIENCE Token Program
-├─ 1M token supply (hard cap)
-├─ 6 instructions (init, reward_submit, reward_validate, burn, freeze, etc)
-├─ 2 account types (ExperienceConfig, FrozenStake)
-└─ 3 events (awarded, burned, frozen)
+EXPERIENCE Token Mint
+├─ SPL Token with 6 decimals
+├─ 1M max supply
+├─ Governance-controlled allocations
+└─ Ready for tokenomics activation
 ```
 
 ### On Frontend
@@ -197,7 +299,25 @@ After deployment, you should see:
 
 ## Next Steps
 
-1. **Deploy to devnet** (Jan 29)
-2. **Wire frontend to blockchain** (Jan 31)
-3. **Test end-to-end flow** (Feb 1)
-4. **Submit Privacy Hackathon entry** (Feb 1)
+### 🚀 Immediate Actions
+1. **Create EXPERIENCE Token Mint** - Run `spl-token create-token --decimals 6`
+2. **Update Configuration** - Add mint address to `src/config/solana.ts`
+3. **Initialize Token Configuration** - Call `initialize_token` instruction
+4. **Test Token Flow** - Verify rewards, staking, and privacy features
+
+### 🎯 Short-Term Goals
+1. **Complete UI Integration** - Add token balance displays and transaction history
+2. **Enhance Privacy Features** - Test Privacy Cash and ShadowWire integrations
+3. **User Testing** - Onboard test users to validate the complete flow
+4. **Performance Optimization** - Optimize token operations for speed and cost
+
+### 📅 Timeline
+- **Today**: Create token mint and update configuration
+- **Next 24h**: Test complete tokenomics flow
+- **Next 48h**: UI integration and user testing
+- **Next 72h**: Privacy feature validation and optimization
+
+### 🏆 Hackathon Submission
+- **Complete Documentation** - Update all docs with final addresses
+- **Final Testing** - End-to-end validation
+- **Submit Entry** - Privacy Hackathon submission

@@ -12,6 +12,10 @@ export interface BlockchainSubmissionResult {
   success: boolean;
   caseStudyPubkey?: PublicKey;
   transactionSignature?: string;
+  rewardSignature?: string;
+  rewardAmount?: number;
+  stakeSignature?: string;
+  stakeAmount?: number;
   error?: string;
   message: string;
   estimatedFee?: number;
@@ -94,23 +98,61 @@ export async function submitCaseStudyToBlockchain(
     );
 
     if (result.success) {
-      return {
-        success: true,
-        caseStudyPubkey: result.accountPubkey,
-        transactionSignature: result.signature,
-        message: `✅ Case study submitted to blockchain! 
+      // After successful case study submission, reward with EXPERIENCE tokens
+      try {
+        const qualityScore = 75; // This would come from validation in production
+        const rewardAmount = 15; // Base reward amount
+        
+        const rewardSignature = await service.rewardExperienceTokens(
+          walletAddress,
+          signTransaction,
+          walletAddress,
+          rewardAmount,
+          'case_study_submission',
+          qualityScore,
+          privacyOptions?.usePrivacyCash,
+          privacyOptions?.useShadowWire
+        );
+        
+        return {
+          success: true,
+          caseStudyPubkey: result.accountPubkey,
+          transactionSignature: result.signature,
+          rewardSignature,
+          rewardAmount,
+          message: `✅ Case study submitted to blockchain! 
 
 🔗 Transaction: ${result.signature.slice(0, 20)}...
 🏥 Case Study ID: ${result.accountPubkey?.toString().slice(0, 20)}...
+💰 Reward: +${rewardAmount} EXPERIENCE tokens
+🎯 Quality Score: ${qualityScore}/100
 🔐 Privacy: Encrypted with your wallet key
 📊 Compression: ${privacyOptions?.compressionRatio || 2}x via Light Protocol
 ${privacyOptions?.usePrivacyCash ? '💰 Privacy Cash: Confidential rewards enabled' : ''}
 ${privacyOptions?.useShadowWire ? '🌐 ShadowWire: Private payments enabled' : ''}
 
+🔍 View Submission: https://explorer.solana.com/tx/${result.signature}?cluster=devnet
+💰 View Reward: https://explorer.solana.com/tx/${rewardSignature}?cluster=devnet
+
+Your health data is now on-chain but encrypted. Only you can decrypt it. You've earned ${rewardAmount} EXPERIENCE tokens!`,
+        };
+      } catch (rewardError) {
+        console.error('Reward distribution failed, but case study was submitted:', rewardError);
+        return {
+          success: true,
+          caseStudyPubkey: result.accountPubkey,
+          transactionSignature: result.signature,
+          message: `✅ Case study submitted to blockchain! 
+
+🔗 Transaction: ${result.signature.slice(0, 20)}...
+🏥 Case Study ID: ${result.accountPubkey?.toString().slice(0, 20)}...
+⚠️ Reward distribution failed: ${rewardError instanceof Error ? rewardError.message : 'Unknown error'}
+
 🔍 View on Explorer: https://explorer.solana.com/tx/${result.signature}?cluster=devnet
 
 Your health data is now on-chain but encrypted. Only you can decrypt it.`,
-      };
+        };
+      }
     } else {
       return {
         success: false,
@@ -159,10 +201,22 @@ export async function submitValidatorApproval(
     );
 
     if (result.success) {
-      return {
-        success: true,
-        transactionSignature: result.signature,
-        message: `✅ Validation submitted! 
+      // After successful validation, stake EXPERIENCE tokens
+      try {
+        const stakeSignature = await service.stakeExperienceTokens(
+          validator,
+          signTransaction,
+          stakeAmount,
+          caseStudyPubkey,
+          false // shieldAmount - could be made configurable
+        );
+        
+        return {
+          success: true,
+          transactionSignature: result.signature,
+          stakeSignature,
+          stakeAmount,
+          message: `✅ Validation submitted! 
 
 🔗 Transaction: ${result.signature.slice(0, 20)}...
 💰 Staked: ${stakeAmount} EXPERIENCE tokens
@@ -170,10 +224,29 @@ export async function submitValidatorApproval(
 ${approved ? '✅ Approved: Case study meets quality standards' : '⚠️ Concerns: Issues flagged for review'}
 🔐 ZK Proof: Validation without data decryption
 
+🔍 View Validation: https://explorer.solana.com/tx/${result.signature}?cluster=devnet
+💰 View Stake: https://explorer.solana.com/tx/${stakeSignature}?cluster=devnet
+
+Your stake is locked until consensus is reached. You've earned validation rewards!`,
+        };
+      } catch (stakeError) {
+        console.error('Staking failed, but validation was submitted:', stakeError);
+        return {
+          success: true,
+          transactionSignature: result.signature,
+          message: `✅ Validation submitted! 
+
+🔗 Transaction: ${result.signature.slice(0, 20)}...
+💰 Staked: ${stakeAmount} EXPERIENCE tokens
+🎯 Type: ${validationType} validation
+${approved ? '✅ Approved: Case study meets quality standards' : '⚠️ Concerns: Issues flagged for review'}
+⚠️ Staking failed: ${stakeError instanceof Error ? stakeError.message : 'Unknown error'}
+
 🔍 View on Explorer: https://explorer.solana.com/tx/${result.signature}?cluster=devnet
 
-Your stake is locked until consensus is reached.`,
-      };
+Your validation was recorded but staking failed.`,
+        };
+      }
     } else {
       return {
         success: false,
@@ -340,6 +413,38 @@ export async function fetchUserCaseStudies(
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
     };
+  }
+}
+
+/**
+ * Get EXPERIENCE token balance for a wallet
+ */
+export async function getExperienceTokenBalance(walletPubkey: PublicKey): Promise<number> {
+  try {
+    const service = getBlockchainService();
+    return await service.getExperienceTokenBalance(walletPubkey);
+  } catch (error) {
+    console.error('Error getting EXPERIENCE token balance:', error);
+    return 0;
+  }
+}
+
+/**
+ * Get EXPERIENCE token transaction history
+ */
+export async function getExperienceTokenTransactions(walletPubkey: PublicKey, limit: number = 10): Promise<Array<{
+  signature: string;
+  amount: number;
+  type: 'reward' | 'stake' | 'slash' | 'transfer';
+  timestamp: number;
+  status: 'success' | 'failed';
+}>> {
+  try {
+    const service = getBlockchainService();
+    return await service.getExperienceTokenTransactions(walletPubkey, limit);
+  } catch (error) {
+    console.error('Error getting EXPERIENCE token transactions:', error);
+    return [];
   }
 }
 

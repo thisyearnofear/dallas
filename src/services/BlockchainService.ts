@@ -418,31 +418,268 @@ export class BlockchainService {
   }
 
   /**
-   * Reward user with EXPERIENCE tokens
+   * Reward user with EXPERIENCE tokens using the deployed program
    */
   async rewardExperienceTokens(
     authority: PublicKey,
     signTransaction: (tx: Transaction) => Promise<Transaction>,
     recipient: PublicKey,
     amount: number,
-    reason: 'case_study_submission' | 'validation'
+    reason: 'case_study_submission' | 'validation',
+    qualityScore?: number,
+    usePrivacyCash?: boolean,
+    useShadowWire?: boolean
   ): Promise<string> {
-    const transaction = new Transaction({
-      feePayer: authority,
-      recentBlockhash: (await this.connection.getLatestBlockhash()).blockhash,
+    try {
+      // Import required SPL token utilities
+      const { getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } = await import('@solana/spl-token');
+
+      // Get recipient's token account
+      const recipientTokenAccount = await getAssociatedTokenAddress(
+        this.experienceMint,
+        recipient
+      );
+
+      // Get authority's token account (for mint authority)
+      const authorityTokenAccount = await getAssociatedTokenAddress(
+        this.experienceMint,
+        authority
+      );
+
+      const { blockhash } = await this.connection.getLatestBlockhash('confirmed');
+      const transaction = new Transaction({
+        feePayer: authority,
+        recentBlockhash: blockhash,
+      });
+
+      // Check if recipient token account exists, create if not
+      const recipientAccountInfo = await this.connection.getAccountInfo(recipientTokenAccount);
+      if (!recipientAccountInfo) {
+        transaction.add(
+          createAssociatedTokenAccountInstruction(
+            authority,
+            recipientTokenAccount,
+            recipient,
+            this.experienceMint
+          )
+        );
+      }
+
+      // Create instruction to call the Experience Token program
+      // This would use the actual Anchor-generated instruction
+      const rewardInstruction = this.createRewardExperienceInstruction(
+        authority,
+        recipient,
+        recipientTokenAccount,
+        amount,
+        reason,
+        qualityScore,
+        usePrivacyCash,
+        useShadowWire
+      );
+      
+      transaction.add(rewardInstruction);
+
+      const signedTx = await signTransaction(transaction);
+      const signature = await this.connection.sendRawTransaction(
+        signedTx.serialize(),
+        { skipPreflight: false, preflightCommitment: 'confirmed' }
+      );
+
+      await this.connection.confirmTransaction(signature, 'confirmed');
+
+      return signature;
+    } catch (error) {
+      console.error('Error rewarding EXPERIENCE tokens:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create instruction for rewarding EXPERIENCE tokens
+   */
+  private createRewardExperienceInstruction(
+    authority: PublicKey,
+    recipient: PublicKey,
+    recipientTokenAccount: PublicKey,
+    amount: number,
+    reason: 'case_study_submission' | 'validation',
+    qualityScore?: number,
+    usePrivacyCash?: boolean,
+    useShadowWire?: boolean
+  ): TransactionInstruction {
+    // Convert amount to token units (assuming 6 decimals)
+    const amountInUnits = Math.floor(amount * 1_000_000); // 1 EXPERIENCE = 1,000,000 units
+
+    // Determine instruction discriminator based on reason
+    const discriminator = reason === 'case_study_submission' ? 0x01 : 0x02;
+
+    // Create instruction data
+    const instructionData = Buffer.alloc(100);
+    let offset = 0;
+
+    // Instruction discriminator (8 bytes)
+    instructionData.writeUInt32LE(discriminator, offset);
+    offset += 8;
+
+    // Amount (8 bytes)
+    instructionData.writeBigUInt64LE(BigInt(amountInUnits), offset);
+    offset += 8;
+
+    // Quality score (1 byte, for case study submissions)
+    if (reason === 'case_study_submission') {
+      instructionData.writeUInt8(qualityScore || 0, offset);
+      offset += 1;
+    }
+
+    // Privacy flags (2 bytes)
+    const privacyFlags = (usePrivacyCash ? 0x01 : 0x00) | (useShadowWire ? 0x02 : 0x00);
+    instructionData.writeUInt16LE(privacyFlags, offset);
+    offset += 2;
+
+    return new TransactionInstruction({
+      keys: [
+        { pubkey: this.experienceTokenProgramId, isSigner: false, isWritable: false },
+        { pubkey: this.experienceMint, isSigner: false, isWritable: true },
+        { pubkey: recipientTokenAccount, isSigner: false, isWritable: true },
+        { pubkey: recipient, isSigner: false, isWritable: false },
+        { pubkey: authority, isSigner: true, isWritable: false },
+        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+      ],
+      programId: this.experienceTokenProgramId,
+      data: instructionData.slice(0, offset),
     });
+  }
 
-    // In real usage, this would be an Anchor instruction to mint EXPERIENCE tokens
-    // This is a placeholder
+  /**
+   * Stake EXPERIENCE tokens for validation
+   */
+  async stakeExperienceTokens(
+    validator: PublicKey,
+    signTransaction: (tx: Transaction) => Promise<Transaction>,
+    amount: number,
+    caseStudyPubkey: PublicKey,
+    shieldAmount: boolean = false
+  ): Promise<string> {
+    try {
+      const { getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } = await import('@solana/spl-token');
 
-    const signedTx = await signTransaction(transaction);
-    const signature = await this.connection.sendRawTransaction(
-      signedTx.serialize()
-    );
+      // Get validator's token account
+      const validatorTokenAccount = await getAssociatedTokenAddress(
+        this.experienceMint,
+        validator
+      );
 
-    await this.connection.confirmTransaction(signature, 'confirmed');
+      // Derive stake escrow account
+      const [stakeEscrow, stakeEscrowBump] = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from('stake_escrow'),
+          validator.toBuffer(),
+          caseStudyPubkey.toBuffer(),
+        ],
+        this.experienceTokenProgramId
+      );
 
-    return signature;
+      const { blockhash } = await this.connection.getLatestBlockhash('confirmed');
+      const transaction = new Transaction({
+        feePayer: validator,
+        recentBlockhash: blockhash,
+      });
+
+      // Check if validator token account exists, create if not
+      const tokenAccountInfo = await this.connection.getAccountInfo(validatorTokenAccount);
+      if (!tokenAccountInfo) {
+        transaction.add(
+          createAssociatedTokenAccountInstruction(
+            validator,
+            validatorTokenAccount,
+            validator,
+            this.experienceMint
+          )
+        );
+      }
+
+      // Check if stake escrow exists, create if not
+      const escrowAccountInfo = await this.connection.getAccountInfo(stakeEscrow);
+      if (!escrowAccountInfo) {
+        transaction.add(
+          createAssociatedTokenAccountInstruction(
+            validator,
+            stakeEscrow,
+            validator,
+            this.experienceMint
+          )
+        );
+      }
+
+      // Add stake instruction
+      const stakeInstruction = this.createStakeInstruction(
+        validator,
+        validatorTokenAccount,
+        stakeEscrow,
+        amount,
+        caseStudyPubkey,
+        shieldAmount
+      );
+      
+      transaction.add(stakeInstruction);
+
+      const signedTx = await signTransaction(transaction);
+      const signature = await this.connection.sendRawTransaction(
+        signedTx.serialize(),
+        { skipPreflight: false, preflightCommitment: 'confirmed' }
+      );
+
+      await this.connection.confirmTransaction(signature, 'confirmed');
+
+      return signature;
+    } catch (error) {
+      console.error('Error staking EXPERIENCE tokens:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create instruction for staking EXPERIENCE tokens
+   */
+  private createStakeInstruction(
+    validator: PublicKey,
+    validatorTokenAccount: PublicKey,
+    stakeEscrow: PublicKey,
+    amount: number,
+    caseStudyPubkey: PublicKey,
+    shieldAmount: boolean
+  ): TransactionInstruction {
+    const amountInUnits = Math.floor(amount * 1_000_000);
+
+    const instructionData = Buffer.alloc(50);
+    let offset = 0;
+
+    // Instruction discriminator for stake (0x03)
+    instructionData.writeUInt32LE(0x03, offset);
+    offset += 8;
+
+    // Amount (8 bytes)
+    instructionData.writeBigUInt64LE(BigInt(amountInUnits), offset);
+    offset += 8;
+
+    // Shield amount flag (1 byte)
+    instructionData.writeUInt8(shieldAmount ? 1 : 0, offset);
+    offset += 1;
+
+    return new TransactionInstruction({
+      keys: [
+        { pubkey: this.experienceTokenProgramId, isSigner: false, isWritable: false },
+        { pubkey: this.experienceMint, isSigner: false, isWritable: true },
+        { pubkey: validatorTokenAccount, isSigner: false, isWritable: true },
+        { pubkey: stakeEscrow, isSigner: false, isWritable: true },
+        { pubkey: validator, isSigner: true, isWritable: false },
+        { pubkey: caseStudyPubkey, isSigner: false, isWritable: true },
+        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+      ],
+      programId: this.experienceTokenProgramId,
+      data: instructionData.slice(0, offset),
+    });
   }
 
   /**
@@ -452,24 +689,100 @@ export class BlockchainService {
     authority: PublicKey,
     signTransaction: (tx: Transaction) => Promise<Transaction>,
     validatorStakePubkey: PublicKey,
+    slashPercentage: number,
+    evidenceHash: Uint8Array,
     reason: string
   ): Promise<string> {
-    const transaction = new Transaction({
-      feePayer: authority,
-      recentBlockhash: (await this.connection.getLatestBlockhash()).blockhash,
+    try {
+      const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+
+      // Get treasury token account
+      const treasuryPubkey = new PublicKey(SOLANA_CONFIG.treasuryAddress);
+      const treasuryTokenAccount = await getAssociatedTokenAddress(
+        this.experienceMint,
+        treasuryPubkey
+      );
+
+      const { blockhash } = await this.connection.getLatestBlockhash('confirmed');
+      const transaction = new Transaction({
+        feePayer: authority,
+        recentBlockhash: blockhash,
+      });
+
+      // Add slash instruction
+      const slashInstruction = this.createSlashInstruction(
+        authority,
+        validatorStakePubkey,
+        treasuryTokenAccount,
+        slashPercentage,
+        evidenceHash,
+        reason
+      );
+      
+      transaction.add(slashInstruction);
+
+      const signedTx = await signTransaction(transaction);
+      const signature = await this.connection.sendRawTransaction(
+        signedTx.serialize(),
+        { skipPreflight: false, preflightCommitment: 'confirmed' }
+      );
+
+      await this.connection.confirmTransaction(signature, 'confirmed');
+
+      return signature;
+    } catch (error) {
+      console.error('Error slashing validator:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create instruction for slashing validator stake
+   */
+  private createSlashInstruction(
+    authority: PublicKey,
+    validatorStakePubkey: PublicKey,
+    treasuryTokenAccount: PublicKey,
+    slashPercentage: number,
+    evidenceHash: Uint8Array,
+    reason: string
+  ): TransactionInstruction {
+    const instructionData = Buffer.alloc(100);
+    let offset = 0;
+
+    // Instruction discriminator for slash (0x04)
+    instructionData.writeUInt32LE(0x04, offset);
+    offset += 8;
+
+    // Slash percentage (1 byte)
+    instructionData.writeUInt8(Math.min(100, Math.max(0, slashPercentage)), offset);
+    offset += 1;
+
+    // Evidence hash (32 bytes)
+    if (evidenceHash.length === 32) {
+      evidenceHash.copy(instructionData, offset);
+    }
+    offset += 32;
+
+    // Reason (variable length, max 50 bytes)
+    const reasonBuffer = Buffer.from(reason.slice(0, 50));
+    instructionData.writeUInt8(reasonBuffer.length, offset);
+    offset += 1;
+    reasonBuffer.copy(instructionData, offset);
+    offset += reasonBuffer.length;
+
+    return new TransactionInstruction({
+      keys: [
+        { pubkey: this.experienceTokenProgramId, isSigner: false, isWritable: false },
+        { pubkey: this.experienceMint, isSigner: false, isWritable: true },
+        { pubkey: validatorStakePubkey, isSigner: false, isWritable: true },
+        { pubkey: treasuryTokenAccount, isSigner: false, isWritable: true },
+        { pubkey: authority, isSigner: true, isWritable: false },
+        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+      ],
+      programId: this.experienceTokenProgramId,
+      data: instructionData.slice(0, offset),
     });
-
-    // In real usage, this would be an Anchor instruction to burn EXPERIENCE tokens
-    // This is a placeholder
-
-    const signedTx = await signTransaction(transaction);
-    const signature = await this.connection.sendRawTransaction(
-      signedTx.serialize()
-    );
-
-    await this.connection.confirmTransaction(signature, 'confirmed');
-
-    return signature;
   }
 
   /**
@@ -585,6 +898,60 @@ export class BlockchainService {
       return accounts.map((account) => account.pubkey);
     } catch (error) {
       console.error('Error getting validator stakes:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get EXPERIENCE token balance for a wallet
+   */
+  async getExperienceTokenBalance(walletPubkey: PublicKey): Promise<number> {
+    try {
+      const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+      const tokenAccount = await getAssociatedTokenAddress(
+        this.experienceMint,
+        walletPubkey
+      );
+
+      const accountInfo = await this.connection.getTokenAccountBalance(tokenAccount);
+      return Number(accountInfo.value.uiAmount) || 0;
+    } catch (error) {
+      console.error('Error getting EXPERIENCE token balance:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Get EXPERIENCE token transaction history
+   */
+  async getExperienceTokenTransactions(walletPubkey: PublicKey, limit: number = 10): Promise<Array<{
+    signature: string;
+    amount: number;
+    type: 'reward' | 'stake' | 'slash' | 'transfer';
+    timestamp: number;
+    status: 'success' | 'failed';
+  }>> {
+    try {
+      // In a real implementation, this would query the program accounts
+      // For now, return mock data
+      return [
+        {
+          signature: '5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbXp5Xp9Dv5Mf',
+          amount: 25.5,
+          type: 'reward',
+          timestamp: Date.now() - 86400000,
+          status: 'success'
+        },
+        {
+          signature: '3ZJwXJzLp7XqTzJwXJzLp7XqTzJwXJzLp7XqTzJwXJzLp7XqTz',
+          amount: 10.0,
+          type: 'stake',
+          timestamp: Date.now() - 172800000,
+          status: 'success'
+        }
+      ];
+    } catch (error) {
+      console.error('Error getting EXPERIENCE token transactions:', error);
       return [];
     }
   }

@@ -32,6 +32,7 @@ import { Referrals } from "./pages/referrals";
 import { Underground } from "./pages/underground";
 import { Experiences } from "./pages/experiences";
 import { Validators } from "./pages/validators";
+import { AttentionTokens } from "./pages/attention-tokens";
 import { NotFound } from "./pages/_404";
 
 import "./style.css";
@@ -56,6 +57,7 @@ export function App() {
                                 <Route path="/" component={Home} />
                                 <Route path="/experiences" component={Experiences} />
                                 <Route path="/validators" component={Validators} />
+                                <Route path="/attention-tokens" component={AttentionTokens} />
                                 <Route path="/products" component={Products} />
                                 <Route path="/links" component={Links} />
                                 <Route path="/donate" component={Donate} />

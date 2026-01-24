@@ -1,14 +1,15 @@
 # Dallas Buyers Club: Strategy & Tokenomics
 
 ## Executive Summary
-Dallas Buyers Club is building a **decentralized health research platform** where:
+Dallas Buyers Club is building a **decentralized health research platform** with a **dual-token economy** where:
 1. **Users share health experiences privately** (encrypted with wallet keys)
 2. **Agents match experiences without exposing PII** (privacy tooling on Solana)
-3. **Community validates with aligned incentives** (tokens reward accuracy, penalize fraud)
-4. **Researchers get funded and own their protocols** (via tokenized IP rights)
-5. **Platform generates sustainable revenue** (data licensing, markets, API access)
+3. **Community validates with aligned incentives** (EXPERIENCE tokens reward accuracy, penalize fraud)
+4. **Market discovers valuable treatments** (Attention Tokens via Bags API enable price discovery)
+5. **Submitters earn ongoing revenue** (trading fees from Attention Tokens)
+6. **Platform generates sustainable revenue** (protocol fees, attention token launches, API access)
 
-**Why now?** Solana Privacy Hackathon provides perfect funding/timeline. DeSci (decentralized science) is ready. Health sovereignty is trending. Tokenomics align incentives better than traditional platforms.
+**Why now?** Solana Privacy Hackathon provides perfect funding/timeline. DeSci (decentralized science) is ready. Health sovereignty is trending. Bags API enables treatment-specific markets. Dual tokenomics align incentives better than traditional platforms.
 
 ## The Three Phases
 
@@ -32,48 +33,93 @@ Dallas Buyers Club is building a **decentralized health research platform** wher
 ### Phase 2: TOKEN LAUNCH (Feb - May, 2026)
 **Goal:** Build Sustainable Incentive Structure
 
-**Three-token system:**
+**Dual-token system:**
 
-#### 1. EXPERIENCE (Governance + Accountability)
-- Non-tradeable governance token
+#### 1. EXPERIENCE (Protocol Integrity + Governance)
+- Native platform token for staking and validation
 - Validators stake to review claims; lose tokens for fraud
-- Vote on which protocols to feature
-- Max supply: 1,000,000
+- Vote on protocol parameters (thresholds, fee splits, etc.)
+- Protocol fee distribution to stakers
+- Max supply: 1,000,000,000
 
 **Earning:**
-- Submit a case study → +1 EXPERIENCE
-- Validate another's case study → +0.1 EXPERIENCE
-- Find fraud → +10 EXPERIENCE
-- Early airdrop → 10-100 EXPERIENCE
+- Submit a case study → Earn from validation rewards
+- Validate another's case study → Staking rewards in EXPERIENCE
+- Find fraud → Slashing penalties distributed to whistleblowers
+- Early airdrop → Initial community distribution
 
 **Slashing mechanism:**
 ```
 If you validate a fraudulent case study:
 ├─ Lose 50% of staked EXPERIENCE → burned
-├─ DAO treasury gets 50% → used for bounties
-└─ Whistleblower gets 10% bounty
+├─ DAO treasury gets 30% → used for bounties
+├─ Whistleblower gets 20% → fraud detection incentive
+└─ Reputation score → permanently damaged
 ```
 
-#### 2. PROTOCOL (IP Ownership + Revenue)
-- Created when a protocol gets 5+ validated case studies
-- Tradeable after 6+ months of proven track record
-- Generates revenue from data licensing, API access, research grants
+#### 2. ATTENTION TOKENS (Treatment-Specific Markets)
+- Created via Bags API when case study reaches quality threshold (75+ reputation, 5+ validators)
+- Tradeable immediately on bonding curve
+- Generates revenue from trading fees (2% per trade)
+- Enables market-driven treatment discovery
 
-**Distribution:**
-- 40% → Original case study author(s)
-- 30% → Validators who confirmed it works
-- 20% → Protocol development fund
-- 10% → DAO Treasury
+**Creation Flow:**
+```
+Case Study Validated → Reputation >= 75 → Submitter Creates Token
+├─ 50% allocated to submitter (vested 12 months)
+├─ 30% on bonding curve (public market)
+├─ 10% to validators (proportional to contribution)
+└─ 10% to platform treasury (EXPERIENCE holders)
+```
 
-#### 3. OUTCOME (Prediction Markets + Accountability)
-- On-demand tokens for prediction markets
-- Users stake SOL on health outcomes; loser's tokens burn
-- Markets settle when validators verify outcomes
+**Revenue Split (Trading Fees):**
+```
+Every trade generates 2% fee:
+├─ 50% (1.0%) → Case study submitter
+├─ 10% (0.2%) → Validators who approved
+├─ 10% (0.2%) → EXPERIENCE token stakers
+└─ 30% (0.6%) → Liquidity pool
+```
+
+**Graduation Mechanism:**
+```
+When Attention Token reaches threshold:
+├─ Market cap > $100k
+├─ Volume > $10k/day for 7 consecutive days
+└─ Graduates to full DEX listing (Raydium/Orca)
+    ├─ Bonus rewards to early holders
+    └─ Submitter receives additional allocation
+```
+
+**Example Attention Tokens:**
+- $PEPTIDE-XYZ → Cancer treatment protocol
+- $KETO-PROTOCOL → Metabolic health solution  
+- $SUPPLEMENT-ABC → Specific compound/stack
+- $THERAPY-METHOD → Alternative therapy approach
+
+**Why Attention Tokens Work:**
+- Community signals which treatments deserve attention (market vs. bureaucracy)
+- Submitters earn ongoing revenue (not just one-time)
+- Validators incentivized to approve quality submissions
+- EXPERIENCE holders benefit from all attention token activity
+- Price discovery happens organically through trading
+
+**Bags API Integration:**
+- Bonding curves handle token pricing automatically
+- Fee distribution configured at creation
+- Analytics track token performance
+- Automatic graduation to DEX at thresholds
+
+#### 3. Future: OUTCOME Markets (Prediction Markets + Accountability - Phase 3)
+- On-demand tokens for health outcome predictions
+- Users stake on outcomes; markets settle when validators verify
+- Creates accountability layer for treatment efficacy
 
 **Safety guardrails:**
 - Market size cap: 100 SOL initially
 - 3 independent validators required for settlement
 - 7-day dispute period
+- Insurance fund for edge cases
 
 **Success = 500 case studies, 50+ protocols, $5k-10k/month revenue**
 
@@ -201,3 +247,136 @@ The governance is democratic.
 The future is community-owned.
 
 That's Dallas Buyers Club 2.0.
+
+## Dual-Token Economic Model
+
+### Why Two Token Types?
+
+**EXPERIENCE Token (Protocol Layer):**
+- Purpose: Honesty, governance, protocol integrity
+- Holders: Validators, long-term community members
+- Value Driver: Protocol usage, fee revenue
+- Liquidity: Lower (staked for validation)
+
+**Attention Tokens (Market Layer):**
+- Purpose: Treatment discovery, speculation, utility
+- Holders: Community, traders, treatment seekers
+- Value Driver: Treatment efficacy, community belief
+- Liquidity: Higher (active trading)
+
+### Economic Flows
+
+```
+User Journey:
+1. Pay EXPERIENCE → Submit case study
+2. Validators stake EXPERIENCE → Validate
+3. High reputation (75+) → Create Attention Token
+4. Community trades → Fees distributed
+5. Submitter earns passive income
+6. Validators earn from allocations
+7. EXPERIENCE holders earn protocol fees
+```
+
+### Revenue Streams
+
+**For Platform (EXPERIENCE Holders):**
+- Case study submission fees: 1-5 EXPERIENCE per submission
+- Validation fees: 0.1 EXPERIENCE per validation
+- Attention token creation fees: 0.5 SOL per token launch
+- Trading fees: 10% of all attention token trading fees
+- API access: Researchers pay EXPERIENCE for data access
+- **Total Addressable**: $10k-50k/month at scale
+
+**For Case Study Submitters:**
+- Validation rewards: EXPERIENCE tokens
+- Attention token allocation: 50% of supply (vested)
+- Trading fee share: 50% of all trading activity
+- Graduation bonus: Extra allocation when token graduates
+- **Total Addressable**: $100-10k/month per quality submission
+
+**For Validators:**
+- Staking rewards: EXPERIENCE token emissions
+- Attention token allocation: 10% split proportionally
+- Trading fee share: 10% of trading activity
+- Reputation bonuses: Extra rewards for accuracy
+- **Total Addressable**: $50-500/month per active validator
+
+### Comparative Advantage
+
+**Traditional Healthcare Data:**
+- Value captured by: Pharmaceutical companies, insurance
+- Patient earns: $0
+- Timeline: 5-10 years to market
+- Privacy: Minimal
+
+**Dallas Buyers Club:**
+- Value captured by: Submitters, validators, community
+- Patient earns: Ongoing trading fees + attention token allocation
+- Timeline: Immediate market feedback
+- Privacy: End-to-end encryption, zero-knowledge proofs
+
+### Market Size
+
+**Target Addressable Market:**
+- Alternative health market: $80B annually
+- DeSci funding: $500M+ (growing rapidly)
+- Health data licensing: $50B industry
+- Prediction markets: $10B+ TAM
+
+**Our Niche:**
+- Crypto-native health sovereignty: ~$100M TAM (2026)
+- Growing 3-5x annually
+- First mover advantage in privacy-first health data
+
+### Token Value Drivers
+
+**EXPERIENCE Token:**
+- Staking demand (validators need to stake)
+- Governance rights (parameter voting)
+- Fee distribution (protocol revenue)
+- Scarcity (fixed/capped supply)
+- Network effects (more case studies = more value)
+
+**Attention Tokens:**
+- Treatment efficacy (real-world results)
+- Community size (more believers = higher price)
+- Utility access (token-gated services)
+- Speculation (early adopter gains)
+- Graduation potential (DEX listing bonus)
+
+### Risk Mitigation
+
+**EXPERIENCE Token Risks:**
+- Low initial demand → Mitigated by staking requirements
+- Validator attacks → Mitigated by slashing + reputation
+- Governance capture → Mitigated by time-locks + quadratic voting
+
+**Attention Token Risks:**
+- Pump and dump → Mitigated by vesting + bonding curves
+- Low quality submissions → Mitigated by reputation thresholds
+- Market manipulation → Mitigated by Bags API safeguards
+- Regulatory concerns → Mitigated by privacy layer + no medical claims
+
+### Success Metrics
+
+**Phase 1 (Hackathon - Feb 2026):**
+- 100+ case studies submitted
+- 20+ validators active
+- Win $15k-20k prize money
+- 1,000+ wallet connections
+
+**Phase 2 (Token Launch - May 2026):**
+- 500+ case studies
+- 50+ validators
+- 10+ attention tokens created
+- $50k+ monthly trading volume
+- $5k-10k/month platform revenue
+
+**Phase 3 (DeSci Integration - Aug 2026):**
+- 2,000+ case studies
+- 200+ validators
+- 50+ attention tokens
+- $500k+ monthly trading volume
+- $25k-50k/month platform revenue
+- Partnership with 1+ major DeSci protocol
+

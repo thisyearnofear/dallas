@@ -5,6 +5,7 @@ const navigationItems = [
     { href: "/", label: "Home", icon: "🏠", description: "Welcome to the club" },
     { href: "/experiences", label: "Health Journeys", icon: "🔍", description: "Discover & share", highlight: true },
     { href: "/validators", label: "Validators", icon: "⚖️", description: "Earn by validating", highlight: true },
+    { href: "/attention-tokens", label: "Token Market", icon: "💎", description: "Trade treatment tokens", highlight: true },
     { href: "/products", label: "Products", icon: "💊", description: "Treatment options" },
     { href: "/membership", label: "Join Us", icon: "🤝", description: "Become a fighter", highlight: true },
     { href: "/achievements", label: "Achievements", icon: "🏆", description: "Track your progress" },

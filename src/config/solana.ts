@@ -22,8 +22,41 @@ export const SOLANA_CONFIG = {
   // Smart contract program IDs (from deployment)
   blockchain: {
     caseStudyProgramId: 'EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6',
-    experienceTokenProgramId: 'ExperienceTokenXXXXXXXXXXXXXXXXXXXXXXXX',
-    experienceMintAddress: 'ExperienceMintXXXXXXXXXXXXXXXXXXXXXXXXX',
+    experienceTokenProgramId: 'E6Cc4TX3H2ikxmmztsvRTB8rrYaiTZdaNFd1PBPWCjE4',
+    experienceMintAddress: 'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm', // Temporary mock address - replace with actual after creation
+    attentionTokenFactoryProgramId: 'XXXX', // To be deployed
+  },
+
+  // Bags API configuration for attention tokens
+  bagsApi: {
+    url: import.meta.env.VITE_BAGS_API_URL || 'https://public-api-v2.bags.fm/api/v1',
+    key: import.meta.env.VITE_BAGS_API_KEY || '',
+    rateLimit: parseInt(import.meta.env.VITE_BAGS_RATE_LIMIT || '1000'),
+  },
+
+  // Attention token configuration
+  attentionToken: {
+    minReputationScore: 75,
+    minValidators: 5,
+    initialLiquidity: 1_000_000, // 1 SOL in lamports
+    feePercentage: 2, // 2% trading fee
+    distribution: {
+      submitter: 50, // 50%
+      bondingCurve: 30, // 30%
+      validators: 10, // 10%
+      platform: 10, // 10%
+    },
+    feeDistribution: {
+      submitter: 50, // 50% of trading fees
+      validators: 10, // 10% of trading fees
+      platform: 10, // 10% of trading fees
+      liquidity: 30, // 30% of trading fees
+    },
+    graduationThreshold: {
+      marketCap: 100_000, // $100k
+      dailyVolume: 10_000, // $10k/day
+      consecutiveDays: 7, // 7 days
+    },
   },
 
   // Default amounts for various operations

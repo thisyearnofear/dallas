@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Mint, MintTo, Burn, Transfer};
 
-declare_id!("ExperienceTokenXXXXXXXXXXXXXXXXXXXXXXXXXX");
+declare_id!("7mdSmYYPVfGmbnSRQ7kiwXVW9BHnefKRdZ6PJmwt4fga");
 
 #[program]
 pub mod experience_token {
@@ -377,7 +377,7 @@ pub mod experience_token {
             ExperienceError::InvalidPurpose
         );
 
-        let config = &ctx.accounts.token_config;
+        let _config = &ctx.accounts.token_config;
         
         require!(
             amount <= ctx.accounts.treasury_token_account.amount,
@@ -521,7 +521,9 @@ pub struct InitializeToken<'info> {
     pub token_config: Account<'info, TokenConfig>,
     #[account(mut)]
     pub mint: Account<'info, Mint>,
+    /// CHECK: This is the treasury account that receives funds
     pub treasury: UncheckedAccount<'info>,
+    /// CHECK: This is the authority that can manage governance
     pub governance_authority: UncheckedAccount<'info>,
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -537,6 +539,7 @@ pub struct RewardCaseStudy<'info> {
     pub mint: Account<'info, Mint>,
     #[account(mut)]
     pub recipient_token_account: Account<'info, TokenAccount>,
+    /// CHECK: This is the recipient account
     pub recipient: UncheckedAccount<'info>,
     pub mint_authority: Signer<'info>,
     pub token_program: Program<'info, Token>,
@@ -787,7 +790,7 @@ fn mint_tokens<'info>(
 }
 
 pub fn derive_agent_pda(agent_type: AgentType, program_id: &Pubkey) -> (Pubkey, u8) {
-    let seed = match agent_type {
+    let seed: &[u8] = match agent_type {
         AgentType::Supply => b"agent_supply",
         AgentType::Risk => b"agent_risk",
         AgentType::Community => b"agent_community",
