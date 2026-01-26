@@ -1,0 +1,454 @@
+/* Dark Mode Styles for Dallas Buyers Club */
+
+/* Dark mode color scheme */
+:root[data-theme="dark"] {
+  --gray: #e5e5e5;
+  --gray-dark: #f8f8f8;
+  --gray-light: #4a4a4a;
+  --white-secondary: #1a1a1a;
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #2a2a2a;
+  --text-primary: #f5f5f5;
+  --text-secondary: #d4d4d4;
+  --text-muted: #a0a0a0;
+  --border-color: #404040;
+  --border-light: #333333;
+  --shadow-color: rgba(0, 0, 0, 0.8);
+  --accent-red: #ff4444;
+  --accent-green: #44ff44;
+  --accent-yellow: #ffff44;
+}
+
+/* Dark mode specific styles */
+:root[data-theme="dark"] body {
+  background-color: #0a0a0a;
+  color: #f5f5f5;
+}
+
+:root[data-theme="dark"] #app {
+  background-color: #1a1a1a;
+  color: #f5f5f5;
+  box-shadow: 15px 0 50px rgba(0, 0, 0, 0.9), -15px 0 50px rgba(0, 0, 0, 0.9);
+}
+
+:root[data-theme="dark"] .header-separator {
+  background: linear-gradient(180deg, #1a1a1a 0%, #2a2a2a 85%, #333333 95%);
+}
+
+:root[data-theme="dark"] .search-bar {
+  background-color: #2a2a2a;
+  color: #f5f5f5;
+  border-color: #404040;
+  box-shadow: inset 2px 2px 2px 0px #1a1a1a;
+}
+
+:root[data-theme="dark"] .search-button {
+  background: linear-gradient(180deg, #2a2a2a 50%, #333333 100%);
+  color: #f5f5f5;
+  border-color: #404040;
+}
+
+:root[data-theme="dark"] .background-white-secondary {
+  background-color: #2a2a2a !important;
+}
+
+:root[data-theme="dark"] .text-gray-dark {
+  color: #f8f8f8 !important;
+}
+
+:root[data-theme="dark"] .text-gray {
+  color: #e5e5e5 !important;
+}
+
+:root[data-theme="dark"] .text-gray-600 {
+  color: #d4d4d4 !important;
+}
+
+:root[data-theme="dark"] .text-gray-500 {
+  color: #a0a0a0 !important;
+}
+
+:root[data-theme="dark"] .border-gray-600 {
+  border-color: #606060 !important;
+}
+
+:root[data-theme="dark"] .border-gray-700 {
+  border-color: #505050 !important;
+}
+
+:root[data-theme="dark"] .bg-gray-50 {
+  background-color: #2a2a2a !important;
+}
+
+:root[data-theme="dark"] .bg-gray-100 {
+  background-color: #2a2a2a !important;
+}
+
+:root[data-theme="dark"] .bg-gray-200 {
+  background-color: #333333 !important;
+}
+
+:root[data-theme="dark"] .bg-gray-300 {
+  background-color: #404040 !important;
+}
+
+:root[data-theme="dark"] .bg-gray-800 {
+  background-color: #1a1a1a !important;
+}
+
+:root[data-theme="dark"] .bg-gray-900 {
+  background-color: #0a0a0a !important;
+}
+
+/* Dark mode for specific components */
+:root[data-theme="dark"] .bg-white {
+  background-color: #1a1a1a !important;
+  color: #f5f5f5 !important;
+}
+
+:root[data-theme="dark"] .border-gray-300 {
+  border-color: #505050 !important;
+}
+
+:root[data-theme="dark"] .border-gray-200 {
+  border-color: #404040 !important;
+}
+
+/* Dark mode for buttons and interactive elements */
+:root[data-theme="dark"] .bg-blue-500 {
+  background-color: #3b82f6 !important;
+}
+
+:root[data-theme="dark"] .bg-green-500 {
+  background-color: #10b981 !important;
+}
+
+:root[data-theme="dark"] .bg-red-500 {
+  background-color: #ef4444 !important;
+}
+
+:root[data-theme="dark"] .bg-yellow-500 {
+  background-color: #f59e0b !important;
+}
+
+/* Dark mode for popup components */
+:root[data-theme="dark"] .bg-yellow-300 {
+  background-color: #92400e !important;
+  color: #f5f5f5 !important;
+}
+
+:root[data-theme="dark"] .bg-red-200 {
+  background-color: #7f1d1d !important;
+  color: #f5f5f5 !important;
+}
+
+:root[data-theme="dark"] .bg-blue-200 {
+  background-color: #1e3a8a !important;
+  color: #f5f5f5 !important;
+}
+
+:root[data-theme="dark"] .bg-green-200 {
+  background-color: #14532d !important;
+  color: #f5f5f5 !important;
+}
+
+/* Dark mode for navigation - fixing contrast issues */
+:root[data-theme="dark"] nav {
+  background: linear-gradient(to bottom, #1a1a1a, #2a2a2a) !important;
+  border-right-color: #404040 !important;
+}
+
+:root[data-theme="dark"] .bg-gradient-to-b.from-white {
+  background: linear-gradient(to bottom, #1a1a1a, #2a2a2a) !important;
+}
+
+:root[data-theme="dark"] .bg-gradient-to-b.to-gray-50 {
+  background: linear-gradient(to bottom, #1a1a1a, #2a2a2a) !important;
+}
+
+/* Navigation text colors */
+:root[data-theme="dark"] .text-brand {
+  color: #fbbf24 !important; /* Brighter brand color for dark mode */
+}
+
+:root[data-theme="dark"] .text-gray-dark {
+  color: #f8f8f8 !important;
+}
+
+:root[data-theme="dark"] .text-gray {
+  color: #e5e5e5 !important;
+}
+
+:root[data-theme="dark"] .text-gray-600 {
+  color: #d4d4d4 !important;
+}
+
+:root[data-theme="dark"] .text-gray-700 {
+  color: #e5e5e5 !important;
+}
+
+/* Navigation hover states */
+:root[data-theme="dark"] nav a:hover {
+  background-color: #404040 !important;
+  color: #ffffff !important;
+}
+
+:root[data-theme="dark"] nav a:hover .text-brand {
+  color: #ffffff !important;
+}
+
+/* Navigation highlight items */
+:root[data-theme="dark"] .bg-gradient-to-r.from-brand\/10 {
+  background: linear-gradient(to right, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1)) !important;
+  border-color: rgba(251, 191, 36, 0.5) !important;
+}
+
+:root[data-theme="dark"] .bg-gradient-to-r.from-brand\/5 {
+  background: linear-gradient(to right, rgba(251, 191, 36, 0.1), rgba(251, 191, 36, 0.05)) !important;
+}
+
+/* Navigation secret items */
+:root[data-theme="dark"] .bg-gradient-to-r.from-red-900\/20 {
+  background: linear-gradient(to right, rgba(239, 68, 68, 0.3), rgba(0, 0, 0, 0.2)) !important;
+  border-color: rgba(239, 68, 68, 0.5) !important;
+}
+
+:root[data-theme="dark"] .bg-gradient-to-r.from-red-900\/20:hover {
+  background: #7f1d1d !important;
+}
+
+/* Navigation stats section */
+:root[data-theme="dark"] .bg-gradient-to-br.from-brand\/10 {
+  background: linear-gradient(to bottom right, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1)) !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+:root[data-theme="dark"] .bg-gray-200 {
+  background-color: #404040 !important;
+}
+
+:root[data-theme="dark"] .bg-red-50 {
+  background-color: #7f1d1d !important;
+  border-color: #ef4444 !important;
+}
+
+:root[data-theme="dark"] .text-red-800 {
+  color: #fecaca !important;
+}
+
+:root[data-theme="dark"] .text-red-700 {
+  color: #fecaca !important;
+}
+
+:root[data-theme="dark"] .bg-red-600 {
+  background-color: #dc2626 !important;
+}
+
+:root[data-theme="dark"] .hover\:bg-red-700:hover {
+  background-color: #b91c1c !important;
+}
+
+/* Navigation NEW badges */
+:root[data-theme="dark"] .bg-brand {
+  background-color: #fbbf24 !important;
+  color: #1a1a1a !important;
+}
+
+/* Navigation progress bars */
+:root[data-theme="dark"] .bg-gray-200 {
+  background-color: #404040 !important;
+}
+
+/* Navigation buttons */
+:root[data-theme="dark"] .from-brand {
+  background: linear-gradient(to right, #fbbf24, #f59e0b) !important;
+  color: #1a1a1a !important;
+}
+
+:root[data-theme="dark"] .to-brand-accent {
+  background: linear-gradient(to right, #fbbf24, #ff007f) !important;
+  color: #ffffff !important;
+}
+
+/* Sidebar/Viral Components - LiveActivityFeed fixes */
+:root[data-theme="dark"] .bg-white {
+  background-color: #1a1a1a !important;
+  border-color: #404040 !important;
+}
+
+:root[data-theme="dark"] .bg-gray-50 {
+  background-color: #2a2a2a !important;
+  border-color: #505050 !important;
+}
+
+:root[data-theme="dark"] .bg-gray-100 {
+  background-color: #333333 !important;
+  border-color: #505050 !important;
+}
+
+:root[data-theme="dark"] .bg-gray-200 {
+  background-color: #404040 !important;
+}
+
+:root[data-theme="dark"] .bg-yellow-50 {
+  background-color: #92400e !important;
+  border-color: #f59e0b !important;
+}
+
+:root[data-theme="dark"] .bg-yellow-200 {
+  background-color: #92400e !important;
+  color: #f5f5f5 !important;
+}
+
+:root[data-theme="dark"] .bg-red-50 {
+  background-color: #7f1d1d !important;
+  border-color: #ef4444 !important;
+}
+
+/* Sidebar text colors */
+:root[data-theme="dark"] .text-gray-dark {
+  color: #f8f8f8 !important;
+}
+
+:root[data-theme="dark"] .text-gray-500 {
+  color: #d4d4d4 !important;
+}
+
+:root[data-theme="dark"] .text-gray-700 {
+  color: #e5e5e5 !important;
+}
+
+:root[data-theme="dark"] .text-gray-400 {
+  color: #a0a0a0 !important;
+}
+
+:root[data-theme="dark"] .text-yellow-800 {
+  color: #fef3c7 !important;
+}
+
+:root[data-theme="dark"] .text-yellow-700 {
+  color: #fef3c7 !important;
+}
+
+:root[data-theme="dark"] .text-red-800 {
+  color: #fecaca !important;
+}
+
+:root[data-theme="dark"] .text-red-700 {
+  color: #fecaca !important;
+}
+
+/* Sidebar border colors */
+:root[data-theme="dark"] .border-gray-200 {
+  border-color: #505050 !important;
+}
+
+:root[data-theme="dark"] .border-gray-300 {
+  border-color: #606060 !important;
+}
+
+:root[data-theme="dark"] .border-yellow-200 {
+  border-color: #92400e !important;
+}
+
+:root[data-theme="dark"] .border-red-200 {
+  border-color: #7f1d1d !important;
+}
+
+/* NetworkIntelWidget dark mode */
+:root[data-theme="dark"] .bg-black {
+  background-color: #0a0a0a !important;
+  border-color: #10b981 !important;
+}
+
+:root[data-theme="dark"] .text-green-500 {
+  color: #10b981 !important;
+}
+
+:root[data-theme="dark"] .text-green-400 {
+  color: #34d399 !important;
+}
+
+:root[data-theme="dark"] .text-yellow-400 {
+  color: #fbbf24 !important;
+}
+
+:root[data-theme="dark"] .text-red-400 {
+  color: #f87171 !important;
+}
+
+:root[data-theme="dark"] .text-green-600 {
+  color: #10b981 !important;
+}
+
+:root[data-theme="dark"] .text-red-500 {
+  color: #ef4444 !important;
+}
+
+:root[data-theme="dark"] .text-blue-400 {
+  color: #60a5fa !important;
+}
+
+:root[data-theme="dark"] .text-purple-400 {
+  color: #a78bfa !important;
+}
+
+:root[data-theme="dark"] .border-green-800 {
+  border-color: #10b981 !important;
+}
+
+:root[data-theme="dark"] .border-green-900 {
+  border-color: #059669 !important;
+}
+
+/* Dark mode for text colors */
+:root[data-theme="dark"] .text-black {
+  color: #f5f5f5 !important;
+}
+
+:root[data-theme="dark"] .text-gray-800 {
+  color: #e5e5e5 !important;
+}
+
+:root[data-theme="dark"] .text-gray-700 {
+  color: #d4d4d4 !important;
+}
+
+:root[data-theme="dark"] .text-gray-600 {
+  color: #a0a0a0 !important;
+}
+
+/* Dark mode for gradients */
+:root[data-theme="dark"] .bg-gradient-to-br.from-brand\/10 {
+  background: linear-gradient(to bottom right, rgba(201, 163, 131, 0.2), rgba(201, 163, 131, 0.05)) !important;
+}
+
+/* Dark mode for shadows */
+:root[data-theme="dark"] .shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3) !important;
+}
+
+:root[data-theme="dark"] .shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root[data-theme="dark"] {
+    --text-primary: #ffffff;
+    --text-secondary: #e0e0e0;
+    --bg-primary: #000000;
+    --bg-secondary: #1a1a1a;
+    --border-color: #ffffff;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="dark"] * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

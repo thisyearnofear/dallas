@@ -29,8 +29,8 @@ export const SOLANA_CONFIG = {
 
   // Bags API configuration for attention tokens
   bagsApi: {
-    url: import.meta.env.VITE_BAGS_API_URL || 'https://public-api-v2.bags.fm/api/v1',
-    key: import.meta.env.VITE_BAGS_API_KEY || '',
+    url: '/api/bags',
+    key: 'proxied', // Handled server-side via API route
     rateLimit: parseInt(import.meta.env.VITE_BAGS_RATE_LIMIT || '1000'),
   },
 

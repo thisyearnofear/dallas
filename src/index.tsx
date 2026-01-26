@@ -2,6 +2,10 @@ import { render } from "preact";
 import { LocationProvider, Router, Route } from "preact-iso";
 import { WalletProvider } from "./context/WalletContext";
 import { SettingsProvider } from "./context/SettingsContext";
+import { ThemeProvider } from "./context/ThemeContext";
+
+// Import polyfills for browser compatibility
+import "./polyfills";
 
 import { Header } from "./components/Header";
 import { Navbar } from "./components/Navbar";
@@ -41,6 +45,7 @@ export function App() {
     const { notification, showNotification } = useNotification();
 
     return (
+        <ThemeProvider>
         <SettingsProvider>
         <WalletProvider>
             <LocationProvider>
@@ -88,6 +93,7 @@ export function App() {
             </LocationProvider>
         </WalletProvider>
         </SettingsProvider>
+        </ThemeProvider>
     );
 }
 

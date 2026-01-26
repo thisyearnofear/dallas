@@ -286,9 +286,9 @@ export class AttentionTokenService {
   }> {
     try {
       const { parseCaseStudyAccount } = await import('../utils/solanaUtils');
-      
+
       const accountInfo = await connection.getAccountInfo(caseStudyPda);
-      
+
       if (!accountInfo) {
         throw new Error('Case study not found on blockchain');
       }
@@ -315,11 +315,15 @@ export class AttentionTokenService {
     }
 
     const url = `${this.bagsApiUrl}${endpoint}`;
-    const headers = {
-      'x-api-key': this.bagsApiKey,
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...(options.headers as Record<string, string> || {}),
     };
+
+    // Only add API key header if not using server-side proxy
+    if (this.bagsApiKey !== 'proxied') {
+      headers['x-api-key'] = this.bagsApiKey;
+    }
 
     const response = await fetch(url, {
       ...options,

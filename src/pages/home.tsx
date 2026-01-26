@@ -155,17 +155,6 @@ export function Home() {
                 </div>
             </div>
 
-            {/* Social Proof */}
-            <div class="text-center mb-16">
-                <h3 class="text-xl font-semibold mb-4 text-gray-600">Trusted by the community</h3>
-                <div class="flex justify-center items-center space-x-8 opacity-60">
-                    <span class="text-lg">⭐⭐⭐⭐⭐</span>
-                    <span class="text-sm">420+ members</span>
-                    <span class="text-sm">69+ success stories</span>
-                    <span class="text-sm">Since 1985</span>
-                </div>
-            </div>
-
             {/* Secret Underground Access */}
             {showUndergroundAccess && (
                 <div class="mb-16 bg-gradient-to-br from-black via-red-900 to-black text-white p-8 rounded-lg border-2 border-red-500 shadow-2xl animate-fadeIn">

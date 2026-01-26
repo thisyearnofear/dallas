@@ -1,0 +1,212 @@
+/* Navigation Enhancement Styles */
+
+/* Improved contrast for navigation items */
+nav a {
+  position: relative;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* Enhanced hover states */
+nav a:hover {
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Active state indicator */
+nav a[aria-current="page"] {
+  background: linear-gradient(135deg, rgba(201, 163, 131, 0.2), rgba(201, 163, 131, 0.1));
+  border-left: 3px solid #c9a383;
+  font-weight: 700;
+}
+
+/* Improved focus states for accessibility */
+nav a:focus {
+  outline: 2px solid #c9a383;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Better contrast for NEW badges */
+nav .bg-brand {
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Enhanced secret items */
+nav .bg-gradient-to-r.from-red-900\/20 {
+  position: relative;
+  overflow: hidden;
+}
+
+nav .bg-gradient-to-r.from-red-900\/20::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+nav .bg-gradient-to-r.from-red-900\/20:hover::before {
+  left: 100%;
+}
+
+/* Stats section improvements */
+nav .bg-gradient-to-br.from-brand\/10 {
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(201, 163, 131, 0.3);
+}
+
+/* Progress bar enhancements */
+nav .bg-gray-200 {
+  background: linear-gradient(90deg, #e5e7eb 0%, #d1d5db 100%);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+nav .bg-brand {
+  background: linear-gradient(90deg, #c9a383 0%, #e6b887 100%);
+  border-radius: 9999px;
+  position: relative;
+  overflow: hidden;
+}
+
+nav .bg-brand::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Emergency contact improvements */
+nav .bg-red-50 {
+  border-left: 4px solid #dc2626;
+  position: relative;
+}
+
+nav .bg-red-50::before {
+  content: '🚨';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 1.2em;
+  animation: pulse 2s infinite;
+}
+
+/* Collapse button enhancement */
+nav button[title*="Collapse"], nav button[title*="Expand"] {
+  transition: all 0.3s ease;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+nav button[title*="Collapse"]:hover, nav button[title*="Expand"]:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Icon enhancements */
+nav .text-xl {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  transition: transform 0.2s ease;
+}
+
+nav a:hover .text-xl {
+  transform: scale(1.1);
+}
+
+/* Description text improvements */
+nav .text-xs {
+  line-height: 1.4;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+nav a:hover .text-xs {
+  opacity: 1;
+}
+
+/* Better spacing and rhythm */
+nav ul.space-y-2 > li {
+  margin-bottom: 0.25rem;
+}
+
+nav ul.space-y-2 > li:last-child {
+  margin-bottom: 0;
+}
+
+/* Improved typography */
+nav .font-semibold {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* Dark mode specific navigation improvements */
+:root[data-theme="dark"] nav a[aria-current="page"] {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(251, 191, 36, 0.15));
+  border-left-color: #fbbf24;
+}
+
+:root[data-theme="dark"] nav button[title*="Collapse"],
+:root[data-theme="dark"] nav button[title*="Expand"] {
+  background-color: #404040;
+  color: #fbbf24;
+}
+
+:root[data-theme="dark"] nav button[title*="Collapse"]:hover,
+:root[data-theme="dark"] nav button[title*="Expand"]:hover {
+  background-color: #505050;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  nav a {
+    border: 1px solid transparent;
+  }
+  
+  nav a:hover {
+    border-color: #c9a383;
+  }
+  
+  nav .text-brand {
+    font-weight: 700;
+  }
+  
+  nav .bg-brand {
+    font-weight: 900;
+    letter-spacing: 0.1em;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  nav a:hover {
+    transform: none;
+  }
+  
+  nav .bg-brand::after {
+    display: none;
+  }
+  
+  nav .bg-gradient-to-r.from-red-900\/20::before {
+    display: none;
+  }
+}

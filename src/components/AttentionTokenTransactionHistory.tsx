@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { PublicKey } from '@solana/web3.js';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { useWallet } from '../context/WalletContext';
 import { attentionTokenTradingService } from '../services/AttentionTokenTradingService';
 
 interface Transaction {
@@ -22,7 +22,7 @@ interface Transaction {
 }
 
 export const AttentionTokenTransactionHistory: React.FC = () => {
-  const wallet = useWallet();
+  const { publicKey, connection } = useWallet();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'buy' | 'sell' | 'fee_claim'>('all');
@@ -30,13 +30,13 @@ export const AttentionTokenTransactionHistory: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
-    if (wallet.publicKey) {
+    if (publicKey) {
       loadTransactions();
     }
-  }, [wallet.publicKey]);
+  }, [publicKey]);
 
   const loadTransactions = async () => {
-    if (!wallet.publicKey) return;
+    if (!publicKey) return;
 
     setLoading(true);
     try {
@@ -65,7 +65,7 @@ export const AttentionTokenTransactionHistory: React.FC = () => {
 
           const trades = await attentionTokenTradingService.getTradeHistory(
             parsed.attentionTokenMint,
-            wallet.publicKey!,
+            publicKey!,
             50
           );
 
@@ -149,7 +149,7 @@ export const AttentionTokenTransactionHistory: React.FC = () => {
     a.click();
   };
 
-  if (!wallet.publicKey) {
+  if (!publicKey) {
     return (
       <div className="bg-gray-800 p-12 rounded-lg border border-gray-700 text-center">
         <p className="text-gray-400 text-lg mb-4">Connect your wallet to view transaction history</p>

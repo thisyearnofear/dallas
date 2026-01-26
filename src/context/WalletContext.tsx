@@ -25,7 +25,7 @@ export interface WalletContextType {
   signMessage: (message: Uint8Array) => Promise<Uint8Array>;
   signTransaction: (transaction: any) => Promise<any>;
   connection: Connection;
-  getTransactionHistory: () => TransactionRecord[];
+  getTransactionHistory: () => Promise<TransactionRecord[]>;
   experienceBalance: number;
   reputationTier: ReputationTier;
   validationCount: number;
@@ -385,6 +385,19 @@ export function WalletProvider({ children }: { children: any }) {
     } catch (error: any) {
       console.error('Signing error:', error);
       throw new Error(error.message || 'Failed to sign message');
+    }
+  };
+
+  const getTransactionHistory = async (): Promise<TransactionRecord[]> => {
+    if (!publicKey || !connected) {
+      return [];
+    }
+
+    try {
+      return await transactionHistoryService.getTransactions();
+    } catch (error) {
+      console.error('Error getting transaction history:', error);
+      return [];
     }
   };
 

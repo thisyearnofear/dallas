@@ -8,9 +8,9 @@ export function WalletButton() {
       <button
         onClick={connect}
         disabled={connecting}
-        class="bg-brand hover:bg-brand-accent text-white font-bold py-2 px-4 rounded transition-colors disabled:opacity-50"
+        class="bg-brand hover:bg-brand-accent text-white font-bold py-2 px-3 sm:px-4 rounded transition-colors disabled:opacity-50 text-sm sm:text-base whitespace-nowrap"
       >
-        {connecting ? 'Connecting...' : '🔗 Connect Wallet'}
+        {connecting ? 'Connecting...' : '🔗 Connect'}
       </button>
     );
   }
@@ -20,13 +20,13 @@ export function WalletButton() {
   };
 
   return (
-    <div class="flex items-center gap-2">
-      <span class="text-sm text-gray-600">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2">
+      <span class="text-xs sm:text-sm text-gray-600 font-mono">
         {shortenAddress(publicKey!.toString())}
       </span>
       <button
         onClick={disconnect}
-        class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-3 rounded transition-colors text-sm"
+        class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-1 px-2 sm:py-2 sm:px-3 rounded transition-colors text-xs sm:text-sm"
       >
         Disconnect
       </button>

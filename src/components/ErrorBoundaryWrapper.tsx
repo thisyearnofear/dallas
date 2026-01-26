@@ -3,11 +3,11 @@
  * Gracefully handles API failures and blockchain errors
  */
 
-import React, { Component, ReactNode } from 'react';
+import { Component } from 'preact';
 
 interface Props {
-  children: ReactNode;
-  fallback?: ReactNode;
+  children: any;
+  fallback?: any;
   componentName?: string;
 }
 
@@ -26,7 +26,7 @@ export class ErrorBoundaryWrapper extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: any) {
     console.error(`Error in ${this.props.componentName || 'component'}:`, error, errorInfo);
   }
 
@@ -37,14 +37,14 @@ export class ErrorBoundaryWrapper extends Component<Props, State> {
       }
 
       return (
-        <div className="bg-red-900/20 border border-red-600 p-6 rounded-lg">
-          <h3 className="text-xl font-bold text-red-400 mb-2">⚠️ Something went wrong</h3>
-          <p className="text-gray-300 mb-4">
+        <div class="bg-red-900/20 border border-red-600 p-6 rounded-lg">
+          <h3 class="text-xl font-bold text-red-400 mb-2">⚠️ Something went wrong</h3>
+          <p class="text-gray-300 mb-4">
             {this.state.error?.message || 'An unexpected error occurred'}
           </p>
           <button
             onClick={() => this.setState({ hasError: false, error: undefined })}
-            className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded font-bold transition"
+            class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded font-bold transition"
           >
             Try Again
           </button>

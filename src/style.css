@@ -1,5 +1,8 @@
-/* Import enhanced animations */
+/* Import enhanced animations, dark mode, mobile optimizations, and navigation */
 @import './styles/animations.css';
+@import './styles/dark-mode.css';
+@import './styles/mobile.css';
+@import './styles/navigation.css';
 
 @tailwind base;
 @tailwind components;

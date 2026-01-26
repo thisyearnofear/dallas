@@ -1,0 +1,333 @@
+/* Mobile Optimization Styles for Dallas Buyers Club */
+
+/* Base mobile breakpoints and improvements */
+@media (max-width: 640px) {
+  /* Navigation improvements for mobile */
+  nav {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+  
+  nav .w-72 {
+    width: 100% !important;
+  }
+  
+  nav .w-16 {
+    width: 60px !important;
+  }
+  
+  /* Navigation text scaling */
+  nav .text-lg {
+    font-size: 1rem !important; /* 16px */
+  }
+  
+  nav .text-xs {
+    font-size: 0.75rem !important; /* 12px */
+  }
+  
+  /* Navigation touch targets */
+  nav a {
+    min-height: 44px !important;
+    padding: 0.75rem 0.5rem !important;
+  }
+  
+  /* Navigation spacing */
+  nav .space-y-2 > * + * {
+    margin-top: 0.25rem !important;
+  }
+  
+  /* Header improvements */
+  .header-separator {
+    padding: 0.5rem 0.5rem;
+    gap: 0.5rem;
+  }
+  
+  /* Typography scaling */
+  h1 {
+    font-size: 1.5rem !important; /* 24px */
+    line-height: 1.2 !important;
+  }
+  
+  h2 {
+    font-size: 1.25rem !important; /* 20px */
+  }
+  
+  h3 {
+    font-size: 1.125rem !important; /* 18px */
+  }
+  
+  p, span, div {
+    font-size: 0.875rem !important; /* 14px */
+  }
+  
+  /* Button improvements */
+  button, .btn, .button {
+    min-height: 44px !important; /* iOS touch target */
+    min-width: 44px !important;
+    font-size: 1rem !important;
+    padding: 0.75rem 1rem !important;
+  }
+  
+  /* Form elements */
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    min-height: 44px !important;
+  }
+  
+  /* Touch target improvements */
+  .touch-target {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  /* Popup improvements for mobile */
+  .fixed.inset-0 {
+    padding: 1rem !important;
+  }
+  
+  .fixed.inset-0 > div {
+    max-height: 90vh !important;
+    max-width: 95vw !important;
+    margin: auto !important;
+  }
+  
+  /* Settings panel mobile optimization */
+  .fixed.inset-0.bg-black\/70 {
+    padding: 0.5rem !important;
+  }
+  
+  .fixed.inset-0.bg-black\/70 > div {
+    max-height: 95vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  /* Wallet button mobile optimization */
+  .wallet-button-mobile {
+    font-size: 0.875rem !important;
+    padding: 0.5rem 0.75rem !important;
+    min-height: 36px !important;
+  }
+  
+  /* Navigation improvements */
+  nav, .nav, .navigation {
+    padding: 0.5rem !important;
+  }
+  
+  /* Grid improvements */
+  .grid {
+    gap: 0.5rem !important;
+  }
+  
+  .grid-cols-1, .grid-cols-2, .grid-cols-3, .grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Flex improvements */
+  .flex {
+    gap: 0.5rem !important;
+  }
+  
+  .flex-wrap {
+    gap: 0.25rem !important;
+  }
+  
+  /* Card improvements */
+  .bg-white, .bg-gray-50, .bg-gray-100 {
+    margin: 0.25rem !important;
+    padding: 0.75rem !important;
+    border-radius: 0.5rem !important;
+  }
+  
+  /* Modal improvements */
+  .modal, .popup, .dialog {
+    margin: 0.5rem !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  /* Scroll improvements */
+  .overflow-auto, .overflow-scroll {
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  /* Text readability improvements */
+  .text-xs {
+    font-size: 0.75rem !important; /* 12px */
+    line-height: 1.4 !important;
+  }
+  
+  .text-sm {
+    font-size: 0.875rem !important; /* 14px */
+    line-height: 1.5 !important;
+  }
+  
+  /* Contrast improvements for mobile */
+  .text-gray-400 {
+    color: #6b7280 !important; /* Darker gray for better mobile contrast */
+  }
+  
+  .text-gray-500 {
+    color: #4b5563 !important; /* Darker gray for better mobile contrast */
+  }
+  
+  .text-gray-600 {
+    color: #374151 !important; /* Darker gray for better mobile contrast */
+  }
+  
+  /* Border improvements */
+  .border, .border-2, .border-4 {
+    border-width: 1px !important; /* Thinner borders on mobile */
+  }
+  
+  /* Shadow improvements */
+  .shadow-lg {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  }
+  
+  .shadow-xl {
+    box-shadow: 0 8px 10px -6px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  }
+  
+  /* Animation performance improvements */
+  .animate-pulse,
+  .animate-bounce,
+  .animate-fadeIn {
+    animation-duration: 2s !important; /* Slower animations on mobile for performance */
+  }
+  
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Tablet optimizations */
+@media (max-width: 768px) and (min-width: 641px) {
+  .grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .grid-cols-4 {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+/* Small mobile optimizations */
+@media (max-width: 375px) {
+  /* Extra small screen improvements */
+  h1 {
+    font-size: 1.25rem !important; /* 20px */
+  }
+  
+  h2 {
+    font-size: 1.125rem !important; /* 18px */
+  }
+  
+  h3 {
+    font-size: 1rem !important; /* 16px */
+  }
+  
+  button, .btn, .button {
+    font-size: 0.875rem !important; /* 14px */
+    padding: 0.5rem 0.75rem !important;
+  }
+  
+  /* Reduce spacing */
+  .p-4 {
+    padding: 0.75rem !important;
+  }
+  
+  .p-6 {
+    padding: 1rem !important;
+  }
+  
+  .m-4 {
+    margin: 0.75rem !important;
+  }
+  
+  .gap-4 {
+    gap: 0.75rem !important;
+  }
+}
+
+/* Landscape mobile optimizations */
+@media (max-width: 640px) and (orientation: landscape) {
+  /* Reduce vertical spacing in landscape */
+  .py-4, .py-6, .py-8 {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+  
+  .my-4, .my-6, .my-8 {
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  /* Smaller text in landscape */
+  h1 {
+    font-size: 1.375rem !important; /* 22px */
+  }
+  
+  h2 {
+    font-size: 1.125rem !important; /* 18px */
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets for touch devices */
+  button, .btn, .button, 
+  a, .link,
+  input, select, textarea,
+  [role="button"], [onclick] {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+  
+  /* Remove hover effects on touch devices */
+  .hover\:bg-gray-700:hover {
+    background-color: inherit !important;
+  }
+  
+  .hover\:scale-105:hover {
+    transform: none !important;
+  }
+  
+  /* Add active states for touch */
+  button:active, .btn:active {
+    transform: scale(0.95) !important;
+  }
+}
+
+/* Safe area improvements for notched devices */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .pt-safe {
+    padding-top: env(safe-area-inset-top) !important;
+  }
+  
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+  
+  .pl-safe {
+    padding-left: env(safe-area-inset-left) !important;
+  }
+  
+  .pr-safe {
+    padding-right: env(safe-area-inset-right) !important;
+  }
+}
