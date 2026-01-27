@@ -361,11 +361,11 @@ export function SubmissionConsentCheckboxes({
 // Terms of Service modal content
 export function TermsOfServiceContent() {
   return (
-    <div class="text-gray-800 text-sm space-y-4 max-h-96 overflow-y-auto pr-2">
+    <div class="text-sm space-y-4 pr-2">
       {TERMS_OF_SERVICE.sections.map((section, i) => (
         <div key={i}>
-          <h4 class="font-bold text-gray-900 mb-1">{section.heading}</h4>
-          <p class="whitespace-pre-line text-gray-700">{section.content}</p>
+          <h4 class="font-bold text-green-400 mb-1">{section.heading}</h4>
+          <p class="whitespace-pre-line text-gray-300">{section.content}</p>
         </div>
       ))}
     </div>
@@ -375,11 +375,11 @@ export function TermsOfServiceContent() {
 // Privacy Policy modal content
 export function PrivacyPolicyContent() {
   return (
-    <div class="text-gray-800 text-sm space-y-4 max-h-96 overflow-y-auto pr-2">
+    <div class="text-sm space-y-4 pr-2">
       {PRIVACY_POLICY.sections.map((section, i) => (
         <div key={i}>
-          <h4 class="font-bold text-gray-900 mb-1">{section.heading}</h4>
-          <p class="whitespace-pre-line text-gray-700">{section.content}</p>
+          <h4 class="font-bold text-green-400 mb-1">{section.heading}</h4>
+          <p class="whitespace-pre-line text-gray-300">{section.content}</p>
         </div>
       ))}
     </div>
@@ -401,35 +401,35 @@ export function TermsAcceptanceModal({
   
   return (
     <>
-      <div class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 font-mono">
-        <div class="bg-gray-200 border-4 border-gray-400 shadow-2xl max-w-md w-full">
+      <div class="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 font-mono">
+        <div class="bg-gray-900 border-2 border-green-500 shadow-2xl shadow-green-500/20 max-w-md w-full rounded-lg">
           {/* Title Bar */}
-          <div class="bg-blue-800 text-white px-4 py-2">
+          <div class="bg-green-600 text-white px-4 py-3 rounded-t-md">
             <div class="flex items-center gap-2">
-              <div class="w-3 h-3 bg-white border border-black"></div>
-              <span class="font-bold text-sm">Welcome to Dallas Buyers Club</span>
+              <span class="text-lg">🏥</span>
+              <span class="font-bold">Welcome to Dallas Buyers Club</span>
             </div>
           </div>
           
           {/* Content */}
-          <div class="p-6 bg-gray-100">
-            <p class="text-gray-700 text-sm mb-4">
+          <div class="p-6">
+            <p class="text-white text-base mb-4">
               A privacy-first community for sharing wellness experiments. 
-              This is <strong>not medical advice</strong>.
+              This is <strong class="text-yellow-400">not medical advice</strong>.
             </p>
             
-            <p class="text-gray-600 text-sm mb-6">
+            <p class="text-gray-300 text-sm mb-6">
               By continuing, you agree to our{' '}
               <button 
                 onClick={() => setShowTerms(true)} 
-                class="text-blue-600 underline hover:text-blue-800"
+                class="text-green-400 underline hover:text-green-300 font-medium"
               >
                 Terms of Service
               </button>
               {' '}and{' '}
               <button 
                 onClick={() => setShowPrivacy(true)} 
-                class="text-blue-600 underline hover:text-blue-800"
+                class="text-green-400 underline hover:text-green-300 font-medium"
               >
                 Privacy Policy
               </button>.
@@ -437,7 +437,7 @@ export function TermsAcceptanceModal({
             
             <button
               onClick={onAccept}
-              class="w-full py-3 font-bold text-lg rounded bg-green-600 text-white hover:bg-green-700 transition"
+              class="w-full py-3 font-bold text-lg rounded bg-green-600 text-white hover:bg-green-500 transition border border-green-400"
             >
               Continue
             </button>
@@ -447,13 +447,13 @@ export function TermsAcceptanceModal({
 
       {/* Expandable Terms Modal */}
       {showTerms && (
-        <div class="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4 font-mono">
-          <div class="bg-white border-4 border-gray-400 shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
-            <div class="bg-blue-800 text-white px-4 py-2 flex justify-between items-center">
-              <span class="font-bold text-sm">Terms of Service</span>
-              <button onClick={() => setShowTerms(false)} class="text-white hover:text-gray-300">✕</button>
+        <div class="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4 font-mono">
+          <div class="bg-gray-900 border-2 border-green-500 shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col rounded-lg">
+            <div class="bg-green-600 text-white px-4 py-3 flex justify-between items-center rounded-t-md">
+              <span class="font-bold">Terms of Service</span>
+              <button onClick={() => setShowTerms(false)} class="text-white hover:text-green-200 text-xl leading-none">&times;</button>
             </div>
-            <div class="p-4 overflow-y-auto flex-1">
+            <div class="p-6 overflow-y-auto flex-1 text-gray-200">
               <TermsOfServiceContent />
             </div>
           </div>
@@ -462,13 +462,13 @@ export function TermsAcceptanceModal({
 
       {/* Expandable Privacy Modal */}
       {showPrivacy && (
-        <div class="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4 font-mono">
-          <div class="bg-white border-4 border-gray-400 shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
-            <div class="bg-blue-800 text-white px-4 py-2 flex justify-between items-center">
-              <span class="font-bold text-sm">Privacy Policy</span>
-              <button onClick={() => setShowPrivacy(false)} class="text-white hover:text-gray-300">✕</button>
+        <div class="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4 font-mono">
+          <div class="bg-gray-900 border-2 border-green-500 shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col rounded-lg">
+            <div class="bg-green-600 text-white px-4 py-3 flex justify-between items-center rounded-t-md">
+              <span class="font-bold">Privacy Policy</span>
+              <button onClick={() => setShowPrivacy(false)} class="text-white hover:text-green-200 text-xl leading-none">&times;</button>
             </div>
-            <div class="p-4 overflow-y-auto flex-1">
+            <div class="p-6 overflow-y-auto flex-1 text-gray-200">
               <PrivacyPolicyContent />
             </div>
           </div>

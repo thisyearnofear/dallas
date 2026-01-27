@@ -80,9 +80,9 @@ export function Home() {
                         </p>
                     </div>
                     <div class="space-y-4">
-                        <h3 class="text-2xl font-bold text-brand">Now: Your Turn</h3>
+                        <h3 class="text-2xl font-bold text-brand">Now: Our Turn</h3>
                         <p class="text-lg">
-                            We're that network—for wellness experiments. Share your 30-day collagen trial. Track your cold exposure protocol. Discover what's working for others.
+                            We're that network—for wellness experiments. Share that 30-day collagen trial. Track a cold exposure protocol. Discover what's working for others. Heal the world.
                         </p>
                         <div class="bg-brand text-white p-4 rounded">
                             <p class="font-semibold">🧪 Real experiences. Community validated. Privacy protected.</p>

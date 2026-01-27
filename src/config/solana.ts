@@ -31,6 +31,7 @@ export const SOLANA_CONFIG = {
   bagsApi: {
     url: '/api/bags',
     key: 'proxied', // Handled server-side via API route
+    partnerConfig: import.meta.env.VITE_BAGS_PARTNER_CONFIG || '', // For referral fee sharing
     rateLimit: parseInt(import.meta.env.VITE_BAGS_RATE_LIMIT || '1000'),
   },
 

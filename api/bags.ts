@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    const { BAGS_API_KEY, VITE_BAGS_API_URL } = process.env;
+    const { BAGS_API_KEY, BAGS_PARTNER_CONFIG, VITE_BAGS_API_URL } = process.env;
 
     if (!BAGS_API_KEY) {
         return res.status(500).json({ error: 'BAGS_API_KEY not configured' });
@@ -25,14 +25,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
         }
 
+        // Prepare request body
+        let body = req.method !== 'GET' && req.body ? req.body : undefined;
+
+        // Auto-inject partnerConfig for token launches if available and not already provided
+        if (path === 'token/launch' && req.method === 'POST' && BAGS_PARTNER_CONFIG && body) {
+            if (typeof body === 'string') {
+                try {
+                    body = JSON.parse(body);
+                } catch (e) {
+                    // Ignore parse errors
+                }
+            }
+            
+            if (typeof body === 'object' && !body.partnerConfig) {
+                body.partnerConfig = BAGS_PARTNER_CONFIG;
+            }
+        }
+
         const response = await fetch(targetUrl, {
             method: req.method,
             headers: {
-                'Authorization': `Bearer ${BAGS_API_KEY}`,
+                'x-api-key': BAGS_API_KEY,
                 'Content-Type': 'application/json',
                 ...safeHeaders,
             },
-            body: req.method !== 'GET' && req.body ? JSON.stringify(req.body) : undefined,
+            body: body ? JSON.stringify(body) : undefined,
         });
 
         const data = await response.json();

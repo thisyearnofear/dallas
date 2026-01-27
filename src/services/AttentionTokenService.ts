@@ -23,6 +23,7 @@ import {
 export class AttentionTokenService {
   private readonly bagsApiUrl: string;
   private readonly bagsApiKey: string;
+  private readonly bagsPartnerConfig: string;
   private readonly rateLimit: number;
   private requestCount: number = 0;
   private rateLimitResetTime: number = Date.now() + 3600000; // 1 hour from now
@@ -30,6 +31,7 @@ export class AttentionTokenService {
   constructor() {
     this.bagsApiUrl = SOLANA_CONFIG.bagsApi.url;
     this.bagsApiKey = SOLANA_CONFIG.bagsApi.key;
+    this.bagsPartnerConfig = SOLANA_CONFIG.bagsApi.partnerConfig;
     this.rateLimit = SOLANA_CONFIG.bagsApi.rateLimit;
 
     if (!this.bagsApiKey) {
@@ -88,6 +90,7 @@ export class AttentionTokenService {
       symbol,
       description: params.description,
       imageUrl: params.imageUrl,
+      partnerConfig: this.bagsPartnerConfig || undefined,
       metadata: {
         caseStudyPda: params.caseStudyPda.toString(),
         submitter: params.submitter.toString(),

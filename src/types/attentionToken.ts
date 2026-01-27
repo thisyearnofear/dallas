@@ -81,6 +81,7 @@ export interface BagsTokenLaunchRequest {
   symbol: string;
   description: string;
   imageUrl: string;
+  partnerConfig?: string; // Optional partner config for fee sharing
   metadata: {
     caseStudyPda: string;
     submitter: string;
