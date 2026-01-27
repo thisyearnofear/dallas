@@ -1,9 +1,11 @@
 import { FunctionalComponent } from 'preact';
-import { useState, useContext } from 'preact/hooks';
+import { useState, useContext, useCallback } from 'preact/hooks';
 import { WalletContext } from '../context/WalletContext';
 import { deriveEncryptionKey, encryptHealthData } from '../utils/encryption';
 import { submitCaseStudyToBlockchain } from '../services/BlockchainIntegration';
 import { validateBlockchainConfig } from '../config/solana';
+import { SubmissionConsentCheckboxes } from './SharedUIComponents';
+import { LEGAL_CONFIG } from '../config/legal';
 
 interface HealthMetrics {
   symptomSeverity: number; // 1-10
@@ -65,6 +67,11 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
     type: 'success' | 'error' | 'info' | null;
     message: string;
   }>({ type: null, message: '' });
+
+  const [consentGiven, setConsentGiven] = useState(false);
+  const handleConsentChange = useCallback((allChecked: boolean) => {
+    setConsentGiven(allChecked);
+  }, []);
 
   // Check blockchain configuration on mount
   useState(() => {
@@ -508,15 +515,26 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
             />
           </div>
 
+          {/* Legal Consent - Required before submission */}
+          <SubmissionConsentCheckboxes onAllChecked={handleConsentChange} />
+
+          {/* Wellness experiment examples */}
+          <div class="p-3 bg-gray-800/50 border border-gray-700 rounded text-xs text-gray-400">
+            <span class="text-gray-300 font-medium">Examples of wellness experiments: </span>
+            {LEGAL_CONFIG.positioning.examples.slice(0, 4).join(', ')}
+          </div>
+
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={isSubmitting || !formData.treatmentProtocol.trim()}
+            disabled={isSubmitting || !formData.treatmentProtocol.trim() || !consentGiven}
             class="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 px-6 py-4 rounded font-bold text-lg transition"
           >
             {isSubmitting
               ? '⏳ Submitting encrypted case study...'
-              : '🚀 Submit Encrypted Case Study'}
+              : !consentGiven 
+                ? '⚠️ Please confirm the checkboxes above'
+                : '🚀 Submit Encrypted Case Study'}
           </button>
 
           {/* Privacy Sponsor Integrations */}

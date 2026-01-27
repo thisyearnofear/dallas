@@ -68,24 +68,24 @@ export function Home() {
             <div class="mb-12">
                 <div class="bg-gray-50 p-8 border-l-4 border-brand mb-8">
                     <p class="text-xl leading-relaxed">
-                        Diagnosed with AIDS in 1985 and given 30 days to live, Ron Woodroof wasn't the kind of man to go down without a fight. He smuggled unapproved, life-saving drugs into Texas and started the Dallas Buyers Club.
+                        Diagnosed with AIDS in 1985 and given 30 days to live, Ron Woodroof smuggled unapproved treatments into Texas and started the Dallas Buyers Club—a community where people shared what worked.
                     </p>
                 </div>
                 
                 <div class="grid md:grid-cols-2 gap-8 mb-8">
                     <div class="space-y-4">
-                        <h3 class="text-2xl font-bold text-brand">The Revolution</h3>
+                        <h3 class="text-2xl font-bold text-brand">Then: Underground Network</h3>
                         <p class="text-lg">
-                            This wasn't just about survival; it was a revolution. A middle finger to a system that had left them for dead. The club became a lifeline for hundreds of people, providing hope when there was none.
+                            Hundreds of people shared treatment experiences, bypassing a system that had left them behind. Real outcomes from real people.
                         </p>
                     </div>
                     <div class="space-y-4">
-                        <h3 class="text-2xl font-bold text-brand">The Impact</h3>
+                        <h3 class="text-2xl font-bold text-brand">Now: Your Turn</h3>
                         <p class="text-lg">
-                            "Sometimes I feel like I'm fighting for a life I ain't got time to live."
+                            We're that network—for wellness experiments. Share your 30-day collagen trial. Track your cold exposure protocol. Discover what's working for others.
                         </p>
                         <div class="bg-brand text-white p-4 rounded">
-                            <p class="font-semibold">💊 Fighting for access to life-saving treatments</p>
+                            <p class="font-semibold">🧪 Real experiences. Community validated. Privacy protected.</p>
                         </div>
                     </div>
                 </div>

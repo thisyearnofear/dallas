@@ -4,18 +4,22 @@
 import { useState, useEffect } from "preact/hooks";
 
 // CONSOLIDATE: All modal/dialog functionality into one reusable component
-export function AgentEnhancedModal({ isOpen, onClose, title, children, agentStatus }: {
+export function AgentEnhancedModal({ isOpen, onClose, title, children, agentStatus, size = 'default', closeable = true }: {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   children: any;
   agentStatus?: 'analyzing' | 'coordinating' | 'complete';
+  size?: 'default' | 'large' | 'full';
+  closeable?: boolean;
 }) {
   if (!isOpen) return null;
 
+  const sizeClass = size === 'large' ? 'max-w-4xl' : size === 'full' ? 'max-w-6xl max-h-[90vh]' : 'max-w-2xl';
+
   return (
     <div class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 font-mono">
-      <div class="bg-gray-200 border-4 border-gray-400 shadow-2xl max-w-2xl w-full relative">
+      <div class={`bg-gray-200 border-4 border-gray-400 shadow-2xl ${sizeClass} w-full relative`}>
         {/* Enhanced Title Bar with Agent Status */}
         <div class="bg-blue-800 text-white px-4 py-2 flex justify-between items-center">
           <div class="flex items-center gap-2">
@@ -28,16 +32,18 @@ export function AgentEnhancedModal({ isOpen, onClose, title, children, agentStat
               </span>
             )}
           </div>
-          <button
-            onClick={onClose}
-            class="bg-red-600 hover:bg-red-700 text-white font-bold px-2 py-1 text-xs border border-black"
-          >
-            ✕
-          </button>
+          {closeable && (
+            <button
+              onClick={onClose}
+              class="bg-red-600 hover:bg-red-700 text-white font-bold px-2 py-1 text-xs border border-black"
+            >
+              ✕
+            </button>
+          )}
         </div>
 
         {/* Content */}
-        <div class="p-6 bg-gray-100">
+        <div class={`p-6 bg-gray-100 ${size === 'full' ? 'overflow-y-auto max-h-[calc(90vh-60px)]' : ''}`}>
           {children}
         </div>
       </div>
@@ -271,6 +277,213 @@ export function EnhancedTerminalInterface({
           autoFocus
         />
       </form>
+    </div>
+  );
+}
+
+// LEGAL COMPONENTS - Integrated following Core Principles (enhancing SharedUIComponents)
+
+import { 
+  DISCLAIMER_BANNER, 
+  SUBMISSION_CONSENT, 
+  TERMS_OF_SERVICE, 
+  PRIVACY_POLICY,
+  DISCOVERY_DISCLAIMER 
+} from '../config/legal';
+
+// Persistent disclaimer banner for bottom of screen
+export function DisclaimerBanner({ variant = 'minimal' }: { variant?: 'minimal' | 'full' }) {
+  const [dismissed, setDismissed] = useState(false);
+  
+  if (dismissed && variant === 'minimal') return null;
+  
+  return (
+    <div class="fixed bottom-0 left-0 right-0 bg-yellow-900/95 border-t-2 border-yellow-600 px-4 py-2 z-40">
+      <div class="max-w-6xl mx-auto flex items-center justify-between gap-4">
+        <div class="flex items-center gap-2 text-yellow-200 text-sm">
+          <span class="text-yellow-400">⚠️</span>
+          <span>{variant === 'full' ? DISCLAIMER_BANNER.full : DISCLAIMER_BANNER.short}</span>
+        </div>
+        {variant === 'minimal' && (
+          <button 
+            onClick={() => setDismissed(true)}
+            class="text-yellow-400 hover:text-yellow-200 text-xs px-2 py-1 border border-yellow-600 rounded"
+          >
+            Dismiss
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Pre-submission consent checkboxes (integrates into forms)
+export function SubmissionConsentCheckboxes({ 
+  onAllChecked 
+}: { 
+  onAllChecked: (allChecked: boolean) => void;
+}) {
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
+  
+  useEffect(() => {
+    const allRequired = SUBMISSION_CONSENT.checkboxes
+      .filter(c => c.required)
+      .every(c => checked[c.id]);
+    onAllChecked(allRequired);
+  }, [checked, onAllChecked]);
+  
+  return (
+    <div class="space-y-3 p-4 bg-gray-800 border border-yellow-600 rounded-lg">
+      <div class="text-yellow-400 font-bold text-sm mb-2">
+        ⚠️ {SUBMISSION_CONSENT.title}
+      </div>
+      {SUBMISSION_CONSENT.checkboxes.map((item) => (
+        <label key={item.id} class="flex items-start gap-3 cursor-pointer group">
+          <input
+            type="checkbox"
+            checked={checked[item.id] || false}
+            onChange={(e) => setChecked(prev => ({ 
+              ...prev, 
+              [item.id]: (e.target as HTMLInputElement).checked 
+            }))}
+            class="mt-1 w-4 h-4 accent-green-500"
+          />
+          <span class="text-sm text-gray-300 group-hover:text-white">
+            {item.label}
+            {item.required && <span class="text-red-400 ml-1">*</span>}
+          </span>
+        </label>
+      ))}
+    </div>
+  );
+}
+
+// Terms of Service modal content
+export function TermsOfServiceContent() {
+  return (
+    <div class="text-gray-800 text-sm space-y-4 max-h-96 overflow-y-auto pr-2">
+      {TERMS_OF_SERVICE.sections.map((section, i) => (
+        <div key={i}>
+          <h4 class="font-bold text-gray-900 mb-1">{section.heading}</h4>
+          <p class="whitespace-pre-line text-gray-700">{section.content}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Privacy Policy modal content
+export function PrivacyPolicyContent() {
+  return (
+    <div class="text-gray-800 text-sm space-y-4 max-h-96 overflow-y-auto pr-2">
+      {PRIVACY_POLICY.sections.map((section, i) => (
+        <div key={i}>
+          <h4 class="font-bold text-gray-900 mb-1">{section.heading}</h4>
+          <p class="whitespace-pre-line text-gray-700">{section.content}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// First-time terms acceptance modal - lightweight, non-intrusive
+export function TermsAcceptanceModal({ 
+  isOpen, 
+  onAccept 
+}: { 
+  isOpen: boolean; 
+  onAccept: () => void;
+}) {
+  const [showTerms, setShowTerms] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  
+  if (!isOpen) return null;
+  
+  return (
+    <>
+      <div class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 font-mono">
+        <div class="bg-gray-200 border-4 border-gray-400 shadow-2xl max-w-md w-full">
+          {/* Title Bar */}
+          <div class="bg-blue-800 text-white px-4 py-2">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 bg-white border border-black"></div>
+              <span class="font-bold text-sm">Welcome to Dallas Buyers Club</span>
+            </div>
+          </div>
+          
+          {/* Content */}
+          <div class="p-6 bg-gray-100">
+            <p class="text-gray-700 text-sm mb-4">
+              A privacy-first community for sharing wellness experiments. 
+              This is <strong>not medical advice</strong>.
+            </p>
+            
+            <p class="text-gray-600 text-sm mb-6">
+              By continuing, you agree to our{' '}
+              <button 
+                onClick={() => setShowTerms(true)} 
+                class="text-blue-600 underline hover:text-blue-800"
+              >
+                Terms of Service
+              </button>
+              {' '}and{' '}
+              <button 
+                onClick={() => setShowPrivacy(true)} 
+                class="text-blue-600 underline hover:text-blue-800"
+              >
+                Privacy Policy
+              </button>.
+            </p>
+            
+            <button
+              onClick={onAccept}
+              class="w-full py-3 font-bold text-lg rounded bg-green-600 text-white hover:bg-green-700 transition"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Expandable Terms Modal */}
+      {showTerms && (
+        <div class="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4 font-mono">
+          <div class="bg-white border-4 border-gray-400 shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
+            <div class="bg-blue-800 text-white px-4 py-2 flex justify-between items-center">
+              <span class="font-bold text-sm">Terms of Service</span>
+              <button onClick={() => setShowTerms(false)} class="text-white hover:text-gray-300">✕</button>
+            </div>
+            <div class="p-4 overflow-y-auto flex-1">
+              <TermsOfServiceContent />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Expandable Privacy Modal */}
+      {showPrivacy && (
+        <div class="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4 font-mono">
+          <div class="bg-white border-4 border-gray-400 shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
+            <div class="bg-blue-800 text-white px-4 py-2 flex justify-between items-center">
+              <span class="font-bold text-sm">Privacy Policy</span>
+              <button onClick={() => setShowPrivacy(false)} class="text-white hover:text-gray-300">✕</button>
+            </div>
+            <div class="p-4 overflow-y-auto flex-1">
+              <PrivacyPolicyContent />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// Discovery results disclaimer (inline)
+export function DiscoveryDisclaimer() {
+  return (
+    <div class="bg-yellow-900/30 border border-yellow-600 rounded p-3 text-sm text-yellow-200">
+      <span class="text-yellow-400 mr-1">⚠️</span>
+      {DISCOVERY_DISCLAIMER}
     </div>
   );
 }

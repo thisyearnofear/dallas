@@ -23,6 +23,8 @@ import {
 } from "./components/MobileEnhancements";
 import { InfomercialPopup } from "./components/RetroAesthetics";
 import { Authentic90sPopups, LiveActivityNotifications, WinnerPopup } from "./components/Authentic90sPopups";
+import { TermsAcceptanceModal, DisclaimerBanner } from "./components/SharedUIComponents";
+import { useConsent } from "./hooks/useConsent";
 import { useState, useEffect } from "preact/hooks";
 
 import { Home } from "./pages/home";
@@ -43,6 +45,10 @@ import "./style.css";
 
 export function App() {
     const { notification, showNotification } = useNotification();
+    const { termsAccepted, acceptTerms, needsTermsUpdate, isLoading } = useConsent();
+
+    // Show terms modal if not accepted or needs update
+    const showTermsModal = !isLoading && (!termsAccepted || needsTermsUpdate);
 
     return (
         <ThemeProvider>
@@ -50,6 +56,9 @@ export function App() {
         <WalletProvider>
             <LocationProvider>
                 <SwipeGestures>
+                    {/* Legal: Terms acceptance modal (first-time or version update) */}
+                    <TermsAcceptanceModal isOpen={showTermsModal} onAccept={acceptTerms} />
+
                     {/* Mobile Progress & Live Counter */}
                     <ProgressTracker />
                     <LiveCounter />
@@ -89,6 +98,9 @@ export function App() {
 
                     {/* Settings */}
                     <SettingsPanel />
+
+                    {/* Legal: Persistent disclaimer banner */}
+                    {termsAccepted && <DisclaimerBanner variant="minimal" />}
                 </SwipeGestures>
             </LocationProvider>
         </WalletProvider>
