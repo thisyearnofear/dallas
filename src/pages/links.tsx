@@ -1,186 +1,155 @@
 export function Links() {
     return (
-        <>
+        <div class="min-h-screen transition-colors duration-300">
             {/* Live Activity Feed */}
-            <div class="mb-8 bg-gray-100 border-2 border-gray-400 p-4 font-mono">
-                <h2 class="text-xl font-bold mb-4 bg-blue-800 text-white p-2 border-b-2 border-gray-600">
+            <div class="mb-12 bg-slate-100 dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 p-6 font-mono rounded-2xl shadow-inner">
+                <h2 class="text-xl font-black mb-6 bg-blue-700 dark:bg-blue-900 text-white p-3 border-b-2 border-blue-500 dark:border-blue-700 rounded-t-xl tracking-tighter">
                     📡 LIVE NETWORK ACTIVITY
                 </h2>
                 
                 <div class="space-y-3 text-sm">
-                    <div class="flex items-center justify-between p-2 bg-white border border-gray-400">
-                        <div class="flex items-center gap-3">
-                            <span class="text-lg">🤝</span>
-                            <div>
-                                <div class="font-bold">New Member joined the club</div>
-                                <div class="text-xs text-gray-600">📍 Austin, TX • 5 min ago</div>
+                    {[
+                        { icon: '🤝', label: 'New Member joined the club', loc: 'Austin, TX', time: '5 min ago' },
+                        { icon: '⭐', label: 'Patient #6969 shared success story', time: '8 min ago' },
+                        { icon: '💊', label: 'Patient #1337 ordered Peptide T', loc: 'Houston, TX', time: '12 min ago' },
+                        { icon: '🎉', label: 'Community reached 420 members!', time: '15 min ago' },
+                        { icon: '💊', label: 'Patient #8080 ordered DDC', loc: 'Fort Worth, TX', time: '18 min ago' },
+                        { icon: '🤝', label: 'Patient #1985 joined the fight', loc: 'San Antonio, TX', time: '22 min ago' }
+                    ].map((item, i) => (
+                        <div key={i} class="flex items-center justify-between p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm hover:border-brand/30 transition-colors">
+                            <div class="flex items-center gap-4">
+                                <span class="text-2xl">{item.icon}</span>
+                                <div>
+                                    <div class="font-bold text-slate-900 dark:text-white uppercase tracking-tighter">{item.label}</div>
+                                    <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-0.5">
+                                        {item.loc ? `📍 ${item.loc} • ` : ''}{item.time}
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="flex items-center justify-between p-2 bg-white border border-gray-400">
-                        <div class="flex items-center gap-3">
-                            <span class="text-lg">⭐</span>
-                            <div>
-                                <div class="font-bold">Patient #6969 shared success story</div>
-                                <div class="text-xs text-gray-600">8 min ago</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-center justify-between p-2 bg-white border border-gray-400">
-                        <div class="flex items-center gap-3">
-                            <span class="text-lg">💊</span>
-                            <div>
-                                <div class="font-bold">Patient #1337 ordered Peptide T</div>
-                                <div class="text-xs text-gray-600">📍 Houston, TX • 12 min ago</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-center justify-between p-2 bg-white border border-gray-400">
-                        <div class="flex items-center gap-3">
-                            <span class="text-lg">🎉</span>
-                            <div>
-                                <div class="font-bold">Community reached 420 members!</div>
-                                <div class="text-xs text-gray-600">15 min ago</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-center justify-between p-2 bg-white border border-gray-400">
-                        <div class="flex items-center gap-3">
-                            <span class="text-lg">💊</span>
-                            <div>
-                                <div class="font-bold">Patient #8080 ordered DDC</div>
-                                <div class="text-xs text-gray-600">📍 Fort Worth, TX • 18 min ago</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-center justify-between p-2 bg-white border border-gray-400">
-                        <div class="flex items-center gap-3">
-                            <span class="text-lg">🤝</span>
-                            <div>
-                                <div class="font-bold">Patient #1985 joined the fight</div>
-                                <div class="text-xs text-gray-600">📍 San Antonio, TX • 22 min ago</div>
-                            </div>
-                        </div>
-                    </div>
+                    ))}
                 </div>
 
                 {/* Activity Stats */}
-                <div class="mt-6 grid grid-cols-3 gap-4">
-                    <div class="text-center p-3 bg-green-200 border-2 border-green-600">
-                        <div class="text-2xl font-bold text-green-800">23</div>
-                        <div class="text-xs text-green-700">Orders Today</div>
+                <div class="mt-8 grid grid-cols-3 gap-4">
+                    <div class="text-center p-4 bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 rounded-xl">
+                        <div class="text-3xl font-black text-green-700 dark:text-green-400">23</div>
+                        <div class="text-[10px] font-black uppercase tracking-widest text-green-600 dark:text-green-500 mt-1">Orders Today</div>
                     </div>
-                    <div class="text-center p-3 bg-blue-200 border-2 border-blue-600">
-                        <div class="text-2xl font-bold text-blue-800">12</div>
-                        <div class="text-xs text-blue-700">New Members</div>
+                    <div class="text-center p-4 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl">
+                        <div class="text-3xl font-black text-blue-700 dark:text-blue-400">12</div>
+                        <div class="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-500 mt-1">New Members</div>
                     </div>
-                    <div class="text-center p-3 bg-yellow-200 border-2 border-yellow-600">
-                        <div class="text-2xl font-bold text-yellow-800">420</div>
-                        <div class="text-xs text-yellow-700">Total Members</div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Emergency Support */}
-            <div class="mb-8 bg-red-100 border-4 border-red-600 p-4">
-                <h2 class="text-xl font-bold mb-4 text-red-800">🚨 EMERGENCY SUPPORT</h2>
-                <div class="bg-white border-2 border-red-400 p-4">
-                    <h3 class="font-bold text-red-700 mb-2">Need Help Now?</h3>
-                    <p class="text-sm text-red-600 mb-3">
-                        24/7 emergency support for club members. When the system fails you, we're here.
-                    </p>
-                    <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 border-2 border-black transition-colors">
-                        EMERGENCY CONTACT
-                    </button>
-                </div>
-            </div>
-
-            {/* Spread Hope Section */}
-            <div class="mb-8 bg-yellow-200 border-4 border-orange-600 p-4">
-                <h2 class="text-xl font-bold mb-4 text-orange-800">💯 SPREAD THE WORD</h2>
-                <div class="bg-white border-2 border-orange-400 p-4">
-                    <p class="text-sm text-orange-700 mb-4">
-                        Help others find hope. Share our mission with those who need it most.
-                    </p>
-                    <div class="grid grid-cols-2 gap-3">
-                        <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 border-2 border-black transition-colors">
-                            📱 Share Story
-                        </button>
-                        <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 border-2 border-black transition-colors">
-                            📧 Invite Friend
-                        </button>
-                    </div>
-                    <div class="mt-3 text-xs text-orange-600">
-                        🎁 Share and get exclusive access to new treatments
+                    <div class="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 rounded-xl">
+                        <div class="text-3xl font-black text-yellow-700 dark:text-yellow-400">420</div>
+                        <div class="text-[10px] font-black uppercase tracking-widest text-yellow-600 dark:text-yellow-500 mt-1">Total Members</div>
                     </div>
                 </div>
             </div>
 
-            {/* Traditional Links Section */}
-            <h1 class="text-3xl font-bold mb-5 text-gray-dark">📞 CONTACT NETWORK</h1>
-            <div class="bg-gray-100 border-2 border-gray-400 p-4 mb-6">
-                <p class="text-lg font-mono">
-                    Secure Line:{" "}
-                    <a
-                        class="text-brand hover:underline font-bold"
-                        href="mailto:underground@dallasbuyers.club"
-                    >
-                        underground@dallasbuyers.club
-                    </a>
-                </p>
-                <p class="text-sm text-gray-600 mt-2">
-                    ⚠️ All communications are encrypted and monitored for security
-                </p>
+            <div class="grid md:grid-cols-2 gap-8 mb-12">
+                {/* Emergency Support */}
+                <div class="bg-red-50 dark:bg-red-900/20 border-4 border-red-600 p-6 rounded-2xl shadow-lg flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-2xl font-black mb-4 text-red-700 dark:text-red-400 uppercase tracking-tighter">🚨 EMERGENCY SUPPORT</h2>
+                        <div class="bg-white dark:bg-slate-900 border-2 border-red-200 dark:border-red-800 p-6 rounded-xl shadow-inner">
+                            <h3 class="font-black text-red-600 dark:text-red-500 mb-2 uppercase tracking-widest text-sm">Need Help Now?</h3>
+                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-6 leading-relaxed">
+                                24/7 emergency support for club members. When the system fails you, we're here to fight for your right to live.
+                            </p>
+                            <button class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-4 px-6 rounded-lg transition-all transform hover:scale-105 shadow-md uppercase tracking-widest text-xs">
+                                EMERGENCY CONTACT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Spread Hope Section */}
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 border-4 border-orange-500 p-6 rounded-2xl shadow-lg flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-2xl font-black mb-4 text-orange-700 dark:text-orange-400 uppercase tracking-tighter">💯 SPREAD THE WORD</h2>
+                        <div class="bg-white dark:bg-slate-900 border-2 border-orange-200 dark:border-orange-800 p-6 rounded-xl shadow-inner">
+                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-6 leading-relaxed">
+                                Help others find hope. Share our mission with those who need it most. Every referral is a life potentially saved.
+                            </p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-4 rounded-lg transition-all transform hover:scale-105 shadow-md uppercase tracking-tighter text-[10px]">
+                                    📱 Share Story
+                                </button>
+                                <button class="bg-green-600 hover:bg-green-700 text-white font-black py-3 px-4 rounded-lg transition-all transform hover:scale-105 shadow-md uppercase tracking-tighter text-[10px]">
+                                    📧 Invite Friend
+                                </button>
+                            </div>
+                            <div class="mt-4 text-[10px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-widest text-center animate-pulse">
+                                🎁 Share and get exclusive access
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <h1 class="text-3xl font-bold mb-5 text-gray-dark">📚 TREATMENT RESOURCES</h1>
-            <div class="space-y-3 mb-6">
-                <div class="bg-white border-2 border-gray-400 p-3 hover:bg-gray-50">
-                    <a class="text-brand hover:underline font-bold text-lg" href="#">
-                        🇲🇽 Mexican Pharmacy Network
-                    </a>
-                    <p class="text-sm text-gray-600">Direct access to Dr. Vass laboratory</p>
-                </div>
-                <div class="bg-white border-2 border-gray-400 p-3 hover:bg-gray-50">
-                    <a class="text-brand hover:underline font-bold text-lg" href="#">
-                        💊 Alternative Treatment Database
-                    </a>
-                    <p class="text-sm text-gray-600">Comprehensive guide to unapproved therapies</p>
-                </div>
-                <div class="bg-white border-2 border-gray-400 p-3 hover:bg-gray-50">
-                    <a class="text-brand hover:underline font-bold text-lg" href="#">
-                        🧪 Underground Testing Reports
-                    </a>
-                    <p class="text-sm text-gray-600">Latest purity and effectiveness data</p>
-                </div>
-            </div>
+            {/* Traditional Links Sections */}
+            <div class="space-y-12">
+                <section>
+                    <h1 class="text-3xl font-black mb-6 text-slate-900 dark:text-white uppercase tracking-tighter flex items-center gap-3">
+                        <span class="bg-brand text-white p-2 rounded-lg text-xl">📞</span>
+                        <span>CONTACT NETWORK</span>
+                    </h1>
+                    <div class="bg-slate-100 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 p-8 rounded-2xl shadow-sm">
+                        <p class="text-2xl font-mono font-black text-brand break-all tracking-tighter">
+                            <a class="hover:underline" href="mailto:underground@dallasbuyers.club">
+                                underground@dallasbuyers.club
+                            </a>
+                        </p>
+                        <p class="text-xs font-bold text-slate-500 dark:text-slate-400 mt-4 uppercase tracking-widest flex items-center gap-2">
+                            <span>⚠️</span>
+                            <span>All communications are encrypted and monitored for security</span>
+                        </p>
+                    </div>
+                </section>
 
-            <h1 class="text-3xl font-bold mb-5 text-gray-dark" id="press">📰 PRESS COVERAGE</h1>
-            <div class="space-y-3">
-                <div class="bg-white border-2 border-gray-400 p-3 hover:bg-gray-50">
-                    <a class="text-brand hover:underline font-bold text-lg" href="#">
-                        Dallas Voice - "The Club That Saved Lives"
-                    </a>
-                    <p class="text-sm text-gray-600">How Ron Woodroof changed everything • March 1987</p>
-                </div>
-                <div class="bg-white border-2 border-gray-400 p-3 hover:bg-gray-50">
-                    <a class="text-brand hover:underline font-bold text-lg" href="#">
-                        Texas Monthly - "Ron Woodroof's Last Stand"
-                    </a>
-                    <p class="text-sm text-gray-600">The fight against the system • June 1991</p>
-                </div>
-                <div class="bg-white border-2 border-gray-400 p-3 hover:bg-gray-50">
-                    <a class="text-brand hover:underline font-bold text-lg" href="#">
-                        The New York Times - "A Renegade's Risky Remedy"
-                    </a>
-                    <p class="text-sm text-gray-600">National coverage of the underground network • August 1990</p>
-                </div>
+                <section>
+                    <h1 class="text-3xl font-black mb-6 text-slate-900 dark:text-white uppercase tracking-tighter flex items-center gap-3">
+                        <span class="bg-brand text-white p-2 rounded-lg text-xl">📚</span>
+                        <span>TREATMENT RESOURCES</span>
+                    </h1>
+                    <div class="grid gap-4">
+                        {[
+                            { label: '🇲🇽 Mexican Pharmacy Network', desc: 'Direct access to Dr. Vass laboratory' },
+                            { label: '💊 Alternative Treatment Database', desc: 'Comprehensive guide to unapproved therapies' },
+                            { label: '🧪 Underground Testing Reports', desc: 'Latest purity and effectiveness data' }
+                        ].map((link, i) => (
+                            <div key={i} class="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 p-5 rounded-xl hover:border-brand/50 transition-all group shadow-sm">
+                                <a class="text-brand hover:underline font-black text-xl uppercase tracking-tighter block mb-1" href="#">
+                                    {link.label}
+                                </a>
+                                <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{link.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
+                <section id="press">
+                    <h1 class="text-3xl font-black mb-6 text-slate-900 dark:text-white uppercase tracking-tighter flex items-center gap-3">
+                        <span class="bg-brand text-white p-2 rounded-lg text-xl">📰</span>
+                        <span>PRESS COVERAGE</span>
+                    </h1>
+                    <div class="grid gap-4">
+                        {[
+                            { label: 'Dallas Voice - "The Club That Saved Lives"', desc: 'How Ron Woodroof changed everything • March 1987' },
+                            { label: 'Texas Monthly - "Ron Woodroof\'s Last Stand"', desc: 'The fight against the system • June 1991' },
+                            { label: 'The New York Times - "A Renegade\'s Risky Remedy"', desc: 'National coverage of the underground network • August 1990' }
+                        ].map((link, i) => (
+                            <div key={i} class="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 p-5 rounded-xl hover:border-brand/50 transition-all group shadow-sm">
+                                <a class="text-brand hover:underline font-black text-xl uppercase tracking-tighter block mb-1" href="#">
+                                    {link.label}
+                                </a>
+                                <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{link.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </section>
             </div>
-        </>
+        </div>
     );
 }

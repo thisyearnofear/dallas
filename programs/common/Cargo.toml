@@ -1,0 +1,15 @@
+[package]
+name = "dbc-common"
+version = "0.1.0"
+description = "Common library for Dallas Buyers Club programs"
+edition = "2021"
+
+[lib]
+crate-type = ["lib"]
+name = "dbc_common"
+
+[features]
+default = []
+
+[dependencies]
+anchor-lang = "0.29.0"

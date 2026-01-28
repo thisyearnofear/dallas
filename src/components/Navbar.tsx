@@ -21,17 +21,17 @@ export function Navbar() {
 
     return (
         <nav class={`
-            transition-all duration-300 pt-3 border-r-2 border-r-gray-dark box-border bg-gradient-to-b from-white to-gray-50
+            transition-all duration-300 pt-3 border-r-2 border-r-gray-dark box-border bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800
             ${isCollapsed ? 'w-16' : 'w-72'}
         `}>
             {/* Collapse Toggle */}
             <div class="flex justify-between items-center px-3 mb-4">
                 {!isCollapsed && (
-                    <h2 class="font-bold text-gray-dark text-lg">Navigation</h2>
+                    <h2 class="font-bold text-gray-dark dark:text-gray-200 text-lg">Navigation</h2>
                 )}
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
-                    class="p-2 hover:bg-gray-100 rounded-lg transition-colors text-brand"
+                    class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors text-brand dark:text-blue-400"
                     title={isCollapsed ? "Expand menu" : "Collapse menu"}
                 >
                     {isCollapsed ? '📖' : '📋'}
@@ -45,10 +45,10 @@ export function Navbar() {
                             href={item.href}
                             class={`
                                 flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200
-                                text-brand hover:bg-brand hover:text-white
+                                text-brand dark:text-blue-400 hover:bg-brand hover:text-white
                                 group relative overflow-hidden
                                 ${item.highlight ? 'bg-gradient-to-r from-brand/10 to-brand/5 border border-brand/30' : ''}
-                                ${item.secret ? 'bg-gradient-to-r from-red-900/20 to-black border border-red-600/30 hover:bg-red-800' : ''}
+                                ${item.secret ? 'bg-gradient-to-r from-red-100/40 dark:from-red-900/20 to-gray-200 dark:to-black border border-red-400 dark:border-red-600/30 hover:bg-red-800' : ''}
                                 ${isCollapsed ? 'justify-center' : ''}
                             `}
                             title={isCollapsed ? `${item.label} - ${item.description}` : ''}
@@ -85,22 +85,22 @@ export function Navbar() {
                         <h3 class="font-bold text-brand mb-3 text-sm">🔥 Your Stats</h3>
                         <div class="space-y-2 text-xs">
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Level:</span>
-                                <span class="font-bold text-brand">3</span>
+                                <span class="text-gray-600 dark:text-gray-400">Level:</span>
+                                <span class="font-bold text-brand dark:text-blue-400">3</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Achievements:</span>
-                                <span class="font-bold text-brand">5/15</span>
+                                <span class="text-gray-600 dark:text-gray-400">Achievements:</span>
+                                <span class="font-bold text-brand dark:text-blue-400">5/15</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Referrals:</span>
-                                <span class="font-bold text-brand">2</span>
+                                <span class="text-gray-600 dark:text-gray-400">Referrals:</span>
+                                <span class="font-bold text-brand dark:text-blue-400">2</span>
                             </div>
                         </div>
-                        <div class="mt-3 w-full bg-gray-200 rounded-full h-2">
+                        <div class="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                             <div class="bg-brand rounded-full h-2 w-3/4 transition-all duration-500"></div>
                         </div>
-                        <p class="text-xs text-gray-600 mt-2">83% to Level 4</p>
+                        <p class="text-xs text-gray-600 dark:text-gray-400 mt-2">83% to Level 4</p>
                     </div>
                 </div>
             )}
@@ -120,9 +120,9 @@ export function Navbar() {
             {/* Emergency Contact */}
             {!isCollapsed && (
                 <div class="mt-4 px-4 pb-4">
-                    <div class="bg-red-50 border border-red-200 p-3 rounded-lg">
-                        <div class="text-red-800 text-xs font-semibold mb-1">🚨 Need Help?</div>
-                        <div class="text-red-700 text-xs">24/7 support available</div>
+                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 p-3 rounded-lg">
+                        <div class="text-red-800 dark:text-red-300 text-xs font-semibold mb-1">🚨 Need Help?</div>
+                        <div class="text-red-700 dark:text-red-400 text-xs">24/7 support available</div>
                         <button class="mt-2 text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors">
                             Contact Now
                         </button>

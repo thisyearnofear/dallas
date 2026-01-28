@@ -135,87 +135,97 @@ export const ValidationDashboard: FunctionalComponent = () => {
   };
 
   return (
-    <div class="w-full max-w-4xl mx-auto bg-gray-900 text-white p-8 rounded-lg border-2 border-blue-500">
+    <div class="w-full max-w-4xl mx-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-8 rounded-2xl border-2 border-blue-500 shadow-xl transition-all duration-300">
       {/* Header */}
-      <div class="mb-8">
-        <h2 class="text-3xl font-bold mb-2">✓ Validation Dashboard</h2>
-        <p class="text-gray-300">
-          Review case studies and stake EXPERIENCE tokens. Accurate validators accumulate tokens.
+      <div class="mb-10">
+        <h2 class="text-3xl font-black mb-2 uppercase tracking-tighter flex items-center gap-3">
+          <span class="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-lg text-2xl">✓</span>
+          <span>Validation Dashboard</span>
+        </h2>
+        <p class="text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+          Review case studies and stake EXPERIENCE tokens. Accurate validators accumulate tokens and reputation.
         </p>
         {publicKey && (
-          <p class="text-blue-300 text-sm mt-2">Validator: {publicKey.toString().slice(0, 20)}...</p>
+          <div class="bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-lg inline-flex items-center gap-2 mt-4 border border-blue-100 dark:border-blue-800/50">
+            <span class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Validator</span>
+            <span class="font-mono text-sm text-blue-700 dark:text-blue-300 font-bold">{publicKey.toString().slice(0, 20)}...</span>
+          </div>
         )}
       </div>
 
       {/* Status Messages */}
       {submitStatus.type && (
         <div
-          class={`mb-6 p-4 rounded border-l-4 ${
+          class={`mb-8 p-5 rounded-xl border-l-4 transition-colors shadow-sm font-bold text-sm ${
             submitStatus.type === 'success'
-              ? 'bg-green-900/30 border-green-500 text-green-300'
+              ? 'bg-green-50 dark:bg-green-900/30 border-green-500 text-green-700 dark:text-green-300'
               : submitStatus.type === 'error'
-              ? 'bg-red-900/30 border-red-500 text-red-300'
-              : 'bg-blue-900/30 border-blue-500 text-blue-300'
+              ? 'bg-red-50 dark:bg-red-900/30 border-red-500 text-red-700 dark:text-red-300'
+              : 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-700 dark:text-blue-300'
           }`}
         >
           {submitStatus.message}
         </div>
       )}
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left: Pending Validations */}
         <div class="lg:col-span-2">
-          <div class="bg-gray-800 border border-gray-700 rounded-lg p-6">
-            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-              <span>📋</span>
-              Pending Validations ({state.tasks.length})
+          <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 shadow-inner">
+            <h3 class="text-xl font-black mb-6 flex items-center gap-3 uppercase tracking-wider text-slate-800 dark:text-white">
+              <span class="text-2xl bg-white dark:bg-slate-700 p-2 rounded-lg shadow-sm">📋</span>
+              <span>Pending Validations ({state.tasks.length})</span>
             </h3>
 
             <div class="space-y-4">
               {state.tasks.length === 0 ? (
-                <p class="text-gray-400">No pending validations. Check back later.</p>
+                <p class="text-slate-500 dark:text-slate-400 font-medium italic">No pending validations. Check back later.</p>
               ) : (
                 state.tasks.map((task) => (
                   <div
                     key={task.caseStudyId}
-                    class={`p-4 border rounded cursor-pointer transition ${
+                    class={`p-5 border-2 rounded-xl cursor-pointer transition-all transform hover:scale-[1.01] shadow-sm ${
                       state.selected?.caseStudyId === task.caseStudyId
-                        ? 'border-blue-500 bg-blue-900/20'
-                        : 'border-gray-700 hover:border-gray-500 bg-gray-700/30'
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                        : 'border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700 bg-white dark:bg-slate-800'
                     }`}
                     onClick={() => selectCaseStudy(task)}
                   >
-                    <div class="flex justify-between items-start mb-2">
+                    <div class="flex justify-between items-start mb-3">
                       <div>
-                        <h4 class="font-bold text-blue-300">{task.protocol}</h4>
-                        <p class="text-xs text-gray-400 mt-1">
-                          Case Study: {task.caseStudyId}
+                        <h4 class="font-black text-slate-900 dark:text-blue-300 uppercase tracking-tight">{task.protocol}</h4>
+                        <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">
+                          ID: {task.caseStudyId}
                         </p>
                       </div>
                       <span
-                        class={`text-xs px-3 py-1 rounded ${
+                        class={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-sm ${
                           task.status === 'approved'
-                            ? 'bg-green-900/50 text-green-300'
+                            ? 'bg-green-500 text-white'
                             : task.status === 'rejected'
-                            ? 'bg-red-900/50 text-red-300'
-                            : 'bg-yellow-900/50 text-yellow-300'
+                            ? 'bg-red-500 text-white'
+                            : 'bg-yellow-500 text-white'
                         }`}
                       >
-                        {task.status.toUpperCase()}
+                        {task.status}
                       </span>
                     </div>
 
-                    <div class="text-sm text-gray-400 space-y-1">
-                      <p>
-                        Submitted: {task.submittedAt.toLocaleDateString()}
-                      </p>
-                      <p>
-                        Approvals: {task.approvalCount}/3
-                        <span class="ml-2">
-                          {'█'.repeat(task.approvalCount)}
-                          {'░'.repeat(3 - task.approvalCount)}
-                        </span>
-                      </p>
+                    <div class="text-xs font-medium text-slate-600 dark:text-slate-400 space-y-2 pt-3 border-t border-slate-100 dark:border-slate-700">
+                      <div class="flex justify-between">
+                        <span class="uppercase tracking-tighter opacity-70">Submitted:</span>
+                        <span class="font-bold text-slate-800 dark:text-slate-300">{task.submittedAt.toLocaleDateString()}</span>
+                      </div>
+                      <div class="flex justify-between items-center">
+                        <span class="uppercase tracking-tighter opacity-70">Approvals:</span>
+                        <div class="flex items-center gap-2">
+                          <span class="font-bold text-blue-600 dark:text-blue-400">{task.approvalCount}/3</span>
+                          <span class="font-mono text-xs opacity-30 dark:opacity-50 tracking-tight">
+                            {'█'.repeat(task.approvalCount)}
+                            {'░'.repeat(3 - task.approvalCount)}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))
@@ -225,24 +235,29 @@ export const ValidationDashboard: FunctionalComponent = () => {
         </div>
 
         {/* Right: Validation Form */}
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-6">
-          <h3 class="text-xl font-bold mb-4">🔍 Review & Validate</h3>
+        <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 shadow-inner">
+          <h3 class="text-xl font-black mb-6 uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-3">
+            <span class="text-2xl bg-white dark:bg-slate-700 p-2 rounded-lg shadow-sm">🔍</span>
+            Review
+          </h3>
 
           {!state.selected ? (
-            <p class="text-gray-400">Select a case study to review</p>
+            <div class="text-center py-10 bg-white dark:bg-slate-800 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700">
+              <p class="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest text-xs">Select a case study</p>
+            </div>
           ) : (
-            <div class="space-y-4">
+            <div class="space-y-6 animate-fadeIn">
               {/* Protocol Info */}
-              <div class="bg-gray-900 p-3 rounded text-sm">
-                <p class="text-gray-400 mb-1">Protocol</p>
-                <p class="font-bold text-white">{state.selected.protocol}</p>
+              <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Protocol</p>
+                <p class="font-black text-slate-900 dark:text-white uppercase tracking-tight">{state.selected.protocol}</p>
               </div>
 
               {/* Validation Type */}
               <div>
-                <label class="text-sm text-gray-400 block mb-2">Validation Type</label>
+                <label class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-2 ml-1">Validation Type</label>
                 <select
-                  class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm"
+                  class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm font-bold outline-none focus:border-brand transition-all shadow-sm"
                   value={state.validationType}
                   onChange={(e) =>
                     setState((s) => ({
@@ -258,11 +273,11 @@ export const ValidationDashboard: FunctionalComponent = () => {
               </div>
 
               {/* Expert Mode Toggle */}
-              <div class="mt-4 p-3 bg-gray-800 rounded border border-gray-700">
-                <label class="flex items-center gap-2 cursor-pointer">
+              <div class="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <label class="flex items-center gap-3 cursor-pointer">
                   <input
                     type="checkbox"
-                    class="sr-only"
+                    class="sr-only peer"
                     checked={state.expertMode}
                     onChange={(e) =>
                       setState((s) => ({
@@ -271,26 +286,21 @@ export const ValidationDashboard: FunctionalComponent = () => {
                       }))
                     }
                   />
-                  <div class={`w-10 h-5 flex items-center rounded-full p-1 ${state.expertMode ? 'bg-blue-600' : 'bg-gray-600'}`}>
-                    <div class={`bg-white w-3 h-3 rounded-full shadow-md transform ${state.expertMode ? 'translate-x-5' : ''}`}></div>
-                  </div>
-                  <span class="text-sm">
-                    {state.expertMode ? '🛠️ Expert Mode: ON' : '🔒 Standard Mode'}
+                  <div class="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  <span class="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    {state.expertMode ? '🛠️ Expert Mode' : '🔒 Standard'}
                   </span>
                 </label>
-                <p class="text-xs text-gray-500 mt-1">
-                  {state.expertMode ? 'Advanced privacy controls unlocked' : 'Simple, secure validation'}
-                </p>
               </div>
 
               {/* Expert Mode Features */}
               {state.expertMode && (
-                <div class="mt-3 space-y-3">
+                <div class="space-y-4 animate-slideIn">
                   {/* Circuit Selection */}
-                  <div class="p-2 bg-gray-700/30 rounded border border-gray-600">
-                    <label class="text-xs text-gray-400 block mb-1">Noir Circuit</label>
+                  <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800/50">
+                    <label class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest block mb-2">Noir Circuit</label>
                     <select
-                      class="w-full bg-gray-800 border border-gray-600 rounded px-2 py-1 text-xs text-white"
+                      class="w-full bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-700 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 dark:text-white outline-none"
                       value={state.noirCircuit}
                       onChange={(e) =>
                         setState((s) => ({
@@ -304,54 +314,28 @@ export const ValidationDashboard: FunctionalComponent = () => {
                       <option value="accuracy-v2">Accuracy Circuit v2</option>
                       <option value="safety-v1">Safety Circuit v1</option>
                     </select>
-                    <p class="text-xs text-gray-500 mt-1">
-                      Advanced: Choose specific Noir circuit for validation
-                    </p>
-                  </div>
-
-                  {/* Compression Inspection */}
-                  <div class="p-2 bg-gray-700/30 rounded border border-gray-600">
-                    <label class="text-xs text-gray-400 block mb-1">Light Protocol</label>
-                    <div class="flex items-center gap-2">
-                      <span class="text-xs">Compression:</span>
-                      <span class="text-xs font-bold text-green-400">10x</span>
-                      <button
-                        class="text-xs text-blue-400 hover:text-blue-300"
-                        onClick={() => alert('Light Protocol compression verified: 10x ratio achieved')}
-                      >
-                        🔍 Verify
-                      </button>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1">
-                      Data compressed using Light Protocol ZK compression
-                    </p>
                   </div>
 
                   {/* MPC Threshold Adjustment */}
-                  <div class="p-2 bg-gray-700/30 rounded border border-gray-600">
-                    <label class="text-xs text-gray-400 block mb-1">Arcium MPC</label>
-                    <div class="flex items-center gap-2">
-                      <span class="text-xs">Threshold:</span>
-                      <span class="text-xs font-bold">3/5 validators</span>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-1">
-                      Requires 3 out of 5 validators to approve decryption
-                    </p>
+                  <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800/50 flex justify-between items-center">
+                    <div class="text-[10px] font-black text-green-700 dark:text-green-400 uppercase tracking-widest">MPC Threshold</div>
+                    <span class="text-xs font-black text-green-800 dark:text-green-200 bg-white/50 dark:bg-black/20 px-2 py-1 rounded">3/5 Committee</span>
                   </div>
                 </div>
               )}
 
               {/* Stake Amount */}
-              <div>
-                <label class="text-sm text-gray-400 block mb-2">
-                  EXPERIENCE Stake: {state.stakeAmount}
-                </label>
+              <div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div class="flex justify-between items-center mb-4">
+                  <label class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">XP Stake</label>
+                  <span class="text-lg font-black text-brand tracking-tighter">{state.stakeAmount} XP</span>
+                </div>
                 <input
                   type="range"
                   min="10"
                   max="100"
                   step="10"
-                  class="w-full"
+                  class="w-full accent-brand"
                   value={state.stakeAmount}
                   onChange={(e) =>
                     setState((s) => ({
@@ -360,14 +344,13 @@ export const ValidationDashboard: FunctionalComponent = () => {
                     }))
                   }
                 />
-                <p class="text-xs text-gray-500 mt-1">Min 10, max 100 tokens</p>
               </div>
 
               {/* Feedback */}
               <div>
-                <label class="text-sm text-gray-400 block mb-2">Feedback (Optional)</label>
+                <label class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-2 ml-1">Feedback (Optional)</label>
                 <textarea
-                  class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white text-sm h-24 resize-none"
+                  class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm font-medium h-24 resize-none outline-none focus:border-brand shadow-sm"
                   placeholder="Any concerns or observations?"
                   value={state.feedback}
                   onChange={(e) =>
@@ -380,16 +363,16 @@ export const ValidationDashboard: FunctionalComponent = () => {
               </div>
 
               {/* Action Buttons */}
-              <div class="space-y-2 pt-4 border-t border-gray-700">
+              <div class="grid gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
                 <button
-                  class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-4 rounded-xl shadow-lg transition-all transform hover:scale-[1.02] active:scale-95 disabled:opacity-50 uppercase tracking-widest text-xs"
                   onClick={() => handleApproval(true)}
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Submitting...' : '✓ Approve'}
+                  {isLoading ? 'Submitting...' : '✓ Approve Protocol'}
                 </button>
                 <button
-                  class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-4 rounded-xl shadow-lg transition-all transform hover:scale-[1.02] active:scale-95 disabled:opacity-50 uppercase tracking-widest text-xs"
                   onClick={() => handleApproval(false)}
                   disabled={isLoading}
                 >
@@ -398,12 +381,15 @@ export const ValidationDashboard: FunctionalComponent = () => {
               </div>
 
               {/* Risk Info */}
-              <div class="bg-yellow-900/20 border border-yellow-700/50 rounded p-3 text-xs text-yellow-300">
-                <p class="font-bold mb-1">⚠️ Validator Responsibility</p>
-                <ul class="list-disc list-inside space-y-1">
-                  <li>False approvals = 50% token loss</li>
-                  <li>Verify timeline consistency</li>
-                  <li>Check metrics make sense</li>
+              <div class="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800/50 rounded-xl p-4">
+                <p class="font-black text-yellow-800 dark:text-yellow-300 text-[10px] uppercase tracking-widest mb-2 flex items-center gap-2">
+                  <span>⚠️</span>
+                  <span>Validator Responsibility</span>
+                </p>
+                <ul class="text-[10px] font-bold text-yellow-700 dark:text-yellow-400/80 space-y-1 ml-1">
+                  <li class="flex items-start gap-2"><span>•</span> <span>False approvals = 50% token loss</span></li>
+                  <li class="flex items-start gap-2"><span>•</span> <span>Verify timeline consistency</span></li>
+                  <li class="flex items-start gap-2"><span>•</span> <span>Check metrics make sense</span></li>
                 </ul>
               </div>
             </div>
@@ -411,36 +397,42 @@ export const ValidationDashboard: FunctionalComponent = () => {
         </div>
       </div>
 
-      {/* Privacy Sponsor Integrations */}
-      <div class="mt-8 p-4 bg-purple-900/20 border border-purple-700/50 rounded text-sm text-purple-300">
-        <p class="font-bold mb-2">🎯 Privacy Sponsor Integrations</p>
-        <div class="space-y-2">
-          <div class="flex items-center gap-2">
-            <span class="text-green-400">●</span>
-            <span><strong>Light Protocol:</strong> ZK compression for scalable private state</span>
+      {/* Privacy Sponsor Stack */}
+      <div class="mt-12 p-8 bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-200 dark:border-purple-800/50 rounded-2xl shadow-sm">
+        <p class="font-black text-purple-800 dark:text-purple-300 mb-6 uppercase tracking-widest text-xs flex items-center gap-2">
+          <span class="text-xl">🎯</span>
+          <span>Privacy Sponsor Tech Stack</span>
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="flex items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-purple-100 dark:border-purple-900/50">
+            <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-sm shadow-green-500 shrink-0"></span>
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300"><strong>Light Protocol:</strong> ZK compression for scalable private state</span>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="text-blue-400">●</span>
-            <span><strong>Noir/Aztec:</strong> ZK-SNARK circuits for validation proofs</span>
+          <div class="flex items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-purple-100 dark:border-purple-900/50">
+            <span class="w-3 h-3 bg-blue-500 rounded-full animate-pulse shadow-sm shadow-blue-500 shrink-0"></span>
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300"><strong>Noir/Aztec:</strong> ZK-SNARK circuits for validation proofs</span>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="text-yellow-400">●</span>
-            <span><strong>Arcium MPC:</strong> Threshold decryption for validator committees</span>
+          <div class="flex items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-purple-100 dark:border-purple-900/50">
+            <span class="w-3 h-3 bg-yellow-500 rounded-full animate-pulse shadow-sm shadow-yellow-500 shrink-0"></span>
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300"><strong>Arcium MPC:</strong> Threshold decryption for committees</span>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="text-purple-400">●</span>
-            <span><strong>Privacy Cash:</strong> Confidential token transfers for rewards</span>
+          <div class="flex items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-purple-100 dark:border-purple-900/50">
+            <span class="w-3 h-3 bg-purple-500 rounded-full animate-pulse shadow-sm shadow-purple-500 shrink-0"></span>
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300"><strong>Privacy Cash:</strong> Confidential token transfers</span>
           </div>
         </div>
       </div>
 
       {/* Privacy Notice */}
-      <div class="mt-4 p-4 bg-blue-900/20 border border-blue-700/50 rounded text-sm text-blue-300">
-        <p class="font-bold mb-1">🔐 Privacy Guarantee</p>
-        <p>
-          Encrypted case study data is only visible if the patient grants you access. You cannot
-          see raw health metrics without explicit permission on the blockchain.
-        </p>
+      <div class="mt-6 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 rounded-2xl flex gap-4 items-center">
+        <div class="text-3xl">🔐</div>
+        <div>
+          <p class="font-black text-blue-800 dark:text-blue-300 uppercase tracking-widest text-xs mb-1">Privacy Guarantee</p>
+          <p class="text-xs font-medium text-blue-700 dark:text-slate-400 leading-relaxed">
+            Encrypted case study data is only visible if the patient grants you access. You cannot
+            see raw health metrics without explicit permission on the blockchain.
+          </p>
+        </div>
       </div>
     </div>
   );

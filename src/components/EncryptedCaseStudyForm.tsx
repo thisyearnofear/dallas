@@ -202,11 +202,11 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
   };
 
   return (
-    <div class="w-full max-w-2xl mx-auto bg-gray-900 text-white p-8 rounded-lg border-2 border-green-500">
+    <div class="w-full max-w-2xl mx-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-8 rounded-2xl border-2 border-green-500 shadow-xl transition-all duration-300">
       {/* Header */}
-      <div class="mb-8">
-        <h2 class="text-3xl font-bold mb-2">📋 Share Your Health Journey</h2>
-        <p class="text-gray-300">
+      <div class="mb-10">
+        <h2 class="text-3xl font-black mb-2 uppercase tracking-tighter">📋 Share Your Health Journey</h2>
+        <p class="text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
           Document your experimental treatment and share your experience with the community.
           Your data stays encrypted.
         </p>
@@ -215,60 +215,63 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
       {/* Status Messages */}
       {submitStatus.type && (
         <div
-          class={`mb-6 p-4 rounded border-l-4 ${submitStatus.type === 'success'
-            ? 'bg-green-900/30 border-green-500 text-green-300'
+          class={`mb-8 p-5 rounded-xl border-l-4 transition-colors shadow-sm font-bold text-sm ${
+            submitStatus.type === 'success'
+            ? 'bg-green-50 dark:bg-green-900/30 border-green-500 text-green-700 dark:text-green-300'
             : submitStatus.type === 'error'
-              ? 'bg-red-900/30 border-red-500 text-red-300'
-              : 'bg-blue-900/30 border-blue-500 text-blue-300'
-            }`}
+              ? 'bg-red-50 dark:bg-red-900/30 border-red-500 text-red-700 dark:text-red-300'
+              : 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-700 dark:text-blue-300'
+          }`}
         >
           {submitStatus.message}
         </div>
       )}
 
       {/* Step 1: Encryption Key */}
-      <div class="mb-8 p-6 bg-gray-800 border border-gray-700 rounded-lg">
-        <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-          <span class="text-2xl">🔐</span>
+      <div class="mb-10 p-8 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-inner">
+        <h3 class="text-xl font-black mb-4 flex items-center gap-3 uppercase tracking-wider text-slate-800 dark:text-white">
+          <span class="text-2xl bg-white dark:bg-slate-700 p-2 rounded-lg shadow-sm">🔐</span>
           Step 1: Encrypt Your Data
         </h3>
         {!encryptionKey ? (
           <>
-            <p class="text-gray-300 mb-4">
+            <p class="text-slate-600 dark:text-slate-300 mb-6 font-medium">
               First, we'll derive an encryption key from your wallet. This key stays on your
               device and controls who can see your health data.
             </p>
             <button
               onClick={handleDeriveKey}
               disabled={keyDeriving}
-              class="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 px-6 py-3 rounded font-bold text-lg transition"
+              class="w-full bg-green-600 hover:bg-green-700 text-white disabled:bg-slate-300 dark:disabled:bg-slate-700 px-6 py-4 rounded-xl font-black text-lg transition-all transform hover:scale-[1.02] active:scale-95 shadow-lg"
             >
               {keyDeriving ? '⏳ Deriving key...' : '🔐 Derive Encryption Key from Wallet'}
             </button>
           </>
         ) : (
-          <div class="bg-green-900/30 border border-green-600 p-4 rounded">
-            ✅ <strong>Encryption key ready</strong>
-            <br />
-            <span class="text-sm text-gray-400">
-              Your health metrics will be encrypted with this key before submission.
-            </span>
+          <div class="bg-green-50 dark:bg-green-900/20 border border-green-500 dark:border-green-600 p-5 rounded-xl flex items-center gap-4">
+            <div class="text-3xl">✅</div>
+            <div>
+              <div class="font-black text-green-800 dark:text-green-300 uppercase tracking-widest text-xs">Encryption key ready</div>
+              <div class="text-sm text-green-700 dark:text-slate-400 font-medium">
+                Your health metrics will be encrypted before submission.
+              </div>
+            </div>
           </div>
         )}
       </div>
 
       {/* Step 2: Case Study Form */}
       {encryptionKey && (
-        <form onSubmit={handleSubmit} class="space-y-6">
-          <div class="p-6 bg-gray-800 border border-gray-700 rounded-lg">
-            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
-              <span class="text-2xl">💊</span>
+        <form onSubmit={handleSubmit} class="space-y-8 animate-fadeIn">
+          <div class="p-8 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-inner">
+            <h3 class="text-xl font-black mb-6 flex items-center gap-3 uppercase tracking-wider text-slate-800 dark:text-white">
+              <span class="text-2xl bg-white dark:bg-slate-700 p-2 rounded-lg shadow-sm">💊</span>
               Step 2: Your Treatment
             </h3>
 
             {/* Treatment Protocol */}
-            <div class="mb-4">
-              <label class="block text-sm font-bold mb-2">
+            <div class="mb-6">
+              <label class="block text-xs font-black mb-2 uppercase tracking-widest text-slate-500 dark:text-slate-400">
                 What treatment did you try? *
               </label>
               <input
@@ -281,15 +284,15 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
                     treatmentProtocol: (e.target as HTMLInputElement).value,
                   })
                 }
-                class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500"
+                class="w-full px-4 py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:border-brand transition-all shadow-sm"
                 required
               />
             </div>
 
             {/* Duration & Cost */}
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-2 gap-6 mb-4">
               <div>
-                <label class="block text-sm font-bold mb-2">Duration (days)</label>
+                <label class="block text-xs font-black mb-2 uppercase tracking-widest text-slate-500 dark:text-slate-400">Duration (days)</label>
                 <input
                   type="number"
                   min="1"
@@ -300,11 +303,11 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
                       durationDays: parseInt((e.target as HTMLInputElement).value),
                     })
                   }
-                  class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                  class="w-full px-4 py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white font-bold outline-none focus:border-brand shadow-sm"
                 />
               </div>
               <div>
-                <label class="block text-sm font-bold mb-2">Total Cost (USD)</label>
+                <label class="block text-xs font-black mb-2 uppercase tracking-widest text-slate-500 dark:text-slate-400">Total Cost (USD)</label>
                 <input
                   type="number"
                   min="0"
@@ -315,18 +318,21 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
                       costUSD: parseFloat((e.target as HTMLInputElement).value),
                     })
                   }
-                  class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white"
+                  class="w-full px-4 py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white font-bold outline-none focus:border-brand shadow-sm"
                 />
               </div>
             </div>
           </div>
 
           {/* Baseline Metrics */}
-          <div class="p-6 bg-gray-800 border border-gray-700 rounded-lg">
-            <h3 class="text-lg font-bold mb-4">📊 Before Treatment (Baseline)</h3>
-            <div class="grid grid-cols-2 gap-4">
+          <div class="p-8 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-inner">
+            <h3 class="text-lg font-black mb-6 uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-2">
+              <span class="w-2 h-6 bg-blue-500 rounded-full"></span>
+              Before Treatment (Baseline)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <label class="block text-sm font-bold mb-2">
+                <label class="block text-xs font-black mb-3 uppercase tracking-widest text-slate-500 dark:text-slate-400">
                   Symptom Severity (1-10)
                 </label>
                 <input
@@ -343,14 +349,18 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
                       },
                     })
                   }
-                  class="w-full"
+                  class="w-full accent-brand"
                 />
-                <span class="text-sm text-gray-400">
-                  {formData.baselineMetrics.symptomSeverity}/10
-                </span>
+                <div class="flex justify-between mt-2">
+                  <span class="text-[10px] font-black text-slate-400 uppercase">Mild</span>
+                  <span class="text-sm font-black text-brand">
+                    {formData.baselineMetrics.symptomSeverity}/10
+                  </span>
+                  <span class="text-[10px] font-black text-slate-400 uppercase">Severe</span>
+                </div>
               </div>
               <div>
-                <label class="block text-sm font-bold mb-2">Energy Level (1-10)</label>
+                <label class="block text-xs font-black mb-3 uppercase tracking-widest text-slate-500 dark:text-slate-400">Energy Level (1-10)</label>
                 <input
                   type="range"
                   min="1"
@@ -365,19 +375,28 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
                       },
                     })
                   }
-                  class="w-full"
+                  class="w-full accent-brand"
                 />
-                <span class="text-sm text-gray-400">{formData.baselineMetrics.energyLevel}/10</span>
+                <div class="flex justify-between mt-2">
+                  <span class="text-[10px] font-black text-slate-400 uppercase">Low</span>
+                  <span class="text-sm font-black text-brand">
+                    {formData.baselineMetrics.energyLevel}/10
+                  </span>
+                  <span class="text-[10px] font-black text-slate-400 uppercase">High</span>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Outcome Metrics */}
-          <div class="p-6 bg-gray-800 border border-gray-700 rounded-lg">
-            <h3 class="text-lg font-bold mb-4">✅ After Treatment (Outcome)</h3>
-            <div class="grid grid-cols-2 gap-4">
+          <div class="p-8 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-inner">
+            <h3 class="text-lg font-black mb-6 uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-2">
+              <span class="w-2 h-6 bg-green-500 rounded-full"></span>
+              After Treatment (Outcome)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <label class="block text-sm font-bold mb-2">
+                <label class="block text-xs font-black mb-3 uppercase tracking-widest text-slate-500 dark:text-slate-400">
                   Symptom Severity (1-10)
                 </label>
                 <input
@@ -394,14 +413,18 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
                       },
                     })
                   }
-                  class="w-full"
+                  class="w-full accent-brand"
                 />
-                <span class="text-sm text-gray-400">
-                  {formData.outcomeMetrics.symptomSeverity}/10
-                </span>
+                <div class="flex justify-between mt-2">
+                  <span class="text-[10px] font-black text-slate-400 uppercase">Mild</span>
+                  <span class="text-sm font-black text-brand">
+                    {formData.outcomeMetrics.symptomSeverity}/10
+                  </span>
+                  <span class="text-[10px] font-black text-slate-400 uppercase">Severe</span>
+                </div>
               </div>
               <div>
-                <label class="block text-sm font-bold mb-2">Energy Level (1-10)</label>
+                <label class="block text-xs font-black mb-3 uppercase tracking-widest text-slate-500 dark:text-slate-400">Energy Level (1-10)</label>
                 <input
                   type="range"
                   min="1"
@@ -416,26 +439,35 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
                       },
                     })
                   }
-                  class="w-full"
+                  class="w-full accent-brand"
                 />
-                <span class="text-sm text-gray-400">{formData.outcomeMetrics.energyLevel}/10</span>
+                <div class="flex justify-between mt-2">
+                  <span class="text-[10px] font-black text-slate-400 uppercase">Low</span>
+                  <span class="text-sm font-black text-brand">
+                    {formData.outcomeMetrics.energyLevel}/10
+                  </span>
+                  <span class="text-[10px] font-black text-slate-400 uppercase">High</span>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Side Effects */}
-          <div class="p-6 bg-gray-800 border border-gray-700 rounded-lg">
-            <h3 class="text-lg font-bold mb-4">⚠️ Side Effects</h3>
+          <div class="p-8 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-inner">
+            <h3 class="text-lg font-black mb-6 uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-2">
+              <span class="w-2 h-6 bg-red-500 rounded-full"></span>
+              Side Effects
+            </h3>
             {formData.sideEffects.length > 0 && (
-              <div class="mb-4 space-y-2">
+              <div class="mb-6 space-y-3">
                 {formData.sideEffects.map((effect, idx) => (
-                  <div key={idx} class="flex justify-between items-center p-3 bg-gray-700 rounded">
+                  <div key={idx} class="flex justify-between items-center p-4 bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 rounded-xl shadow-sm">
                     <div>
-                      <span class="font-bold">{effect.name}</span>
-                      <span class="text-sm text-gray-400 ml-2">
-                        (Day {effect.dayOccurred}, Severity {effect.severity}/10)
-                      </span>
-                      {effect.resolved && <span class="ml-2 text-green-400">✓ Resolved</span>}
+                      <div class="font-black text-slate-900 dark:text-white uppercase tracking-tighter">{effect.name}</div>
+                      <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mt-0.5">
+                        Day {effect.dayOccurred} • Severity {effect.severity}/10
+                      </div>
+                      {effect.resolved && <div class="text-[10px] font-black text-green-600 uppercase mt-1 flex items-center gap-1"><span>✓</span> Resolved</div>}
                     </div>
                     <button
                       type="button"
@@ -445,7 +477,7 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
                           sideEffects: formData.sideEffects.filter((_, i) => i !== idx),
                         })
                       }
-                      class="text-red-400 hover:text-red-300"
+                      class="text-red-500 hover:text-red-600 font-black text-[10px] uppercase tracking-widest bg-red-50 dark:bg-red-900/20 p-2 rounded-lg transition-colors"
                     >
                       Remove
                     </button>
@@ -454,10 +486,10 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
               </div>
             )}
 
-            <div class="grid grid-cols-3 gap-2 mb-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <input
                 type="text"
-                placeholder="Side effect (e.g., nausea)"
+                placeholder="Effect (e.g. nausea)"
                 value={newSideEffect.name}
                 onInput={(e) =>
                   setNewSideEffect({
@@ -465,43 +497,48 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
                     name: (e.target as HTMLInputElement).value,
                   })
                 }
-                class="px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm"
+                class="px-4 py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-sm font-medium outline-none focus:border-brand shadow-sm"
               />
-              <input
-                type="number"
-                min="1"
-                max="10"
-                placeholder="Day"
-                value={newSideEffect.dayOccurred}
-                onInput={(e) =>
-                  setNewSideEffect({
-                    ...newSideEffect,
-                    dayOccurred: parseInt((e.target as HTMLInputElement).value),
-                  })
-                }
-                class="px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  if (newSideEffect.name.trim()) {
-                    setFormData({
-                      ...formData,
-                      sideEffects: [...formData.sideEffects, newSideEffect],
-                    });
-                    setNewSideEffect({ name: '', severity: 1, dayOccurred: 1, resolved: false });
+              <div class="flex gap-2">
+                <input
+                  type="number"
+                  min="1"
+                  max="100"
+                  placeholder="Day"
+                  value={newSideEffect.dayOccurred}
+                  onInput={(e) =>
+                    setNewSideEffect({
+                      ...newSideEffect,
+                      dayOccurred: parseInt((e.target as HTMLInputElement).value),
+                    })
                   }
-                }}
-                class="bg-blue-600 hover:bg-blue-700 rounded text-white font-bold text-sm"
-              >
-                Add
-              </button>
+                  class="w-20 px-4 py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-sm font-bold outline-none focus:border-brand shadow-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (newSideEffect.name.trim()) {
+                      setFormData({
+                        ...formData,
+                        sideEffects: [...formData.sideEffects, newSideEffect],
+                      });
+                      setNewSideEffect({ name: '', severity: 1, dayOccurred: 1, resolved: false });
+                    }
+                  }}
+                  class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black text-sm uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-95"
+                >
+                  Add
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Additional Context */}
-          <div class="p-6 bg-gray-800 border border-gray-700 rounded-lg">
-            <h3 class="text-lg font-bold mb-4">📝 Additional Context</h3>
+          <div class="p-8 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-inner">
+            <h3 class="text-lg font-black mb-6 uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-2">
+              <span class="w-2 h-6 bg-yellow-500 rounded-full"></span>
+              Additional Context
+            </h3>
             <textarea
               placeholder="Any other details? (Diet changes, concurrent treatments, dosages, etc.)"
               value={formData.context || ''}
@@ -511,7 +548,7 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
                   context: (e.target as HTMLTextAreaElement).value,
                 })
               }
-              class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500 h-24 resize-none"
+              class="w-full px-4 py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 font-medium h-32 resize-none outline-none focus:border-brand transition-all shadow-sm"
             />
           </div>
 
@@ -519,8 +556,8 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
           <SubmissionConsentCheckboxes onAllChecked={handleConsentChange} />
 
           {/* Wellness experiment examples */}
-          <div class="p-3 bg-gray-800/50 border border-gray-700 rounded text-xs text-gray-400">
-            <span class="text-gray-300 font-medium">Examples of wellness experiments: </span>
+          <div class="p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider leading-relaxed">
+            <span class="text-slate-700 dark:text-slate-300">Wellness Examples: </span>
             {LEGAL_CONFIG.positioning.examples.slice(0, 4).join(', ')}
           </div>
 
@@ -528,107 +565,109 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
           <button
             type="submit"
             disabled={isSubmitting || !formData.treatmentProtocol.trim() || !consentGiven}
-            class="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 px-6 py-4 rounded font-bold text-lg transition"
+            class="w-full bg-green-600 hover:bg-green-700 text-white disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 px-6 py-5 rounded-2xl font-black text-xl transition-all transform hover:scale-[1.01] active:scale-95 shadow-xl disabled:transform-none disabled:shadow-none uppercase tracking-tighter"
           >
             {isSubmitting
               ? '⏳ Submitting encrypted case study...'
               : !consentGiven 
-                ? '⚠️ Please confirm the checkboxes above'
+                ? '⚠️ Confirm the checkboxes above'
                 : '🚀 Submit Encrypted Case Study'}
           </button>
 
-          {/* Privacy Sponsor Integrations */}
-          <div class="p-4 bg-purple-900/20 border border-purple-600 rounded text-sm text-purple-300 mb-4">
-            <p class="font-bold mb-2">🎯 Privacy Sponsor Integrations</p>
-            <div class="space-y-2">
-              <div class="flex items-center gap-2">
-                <span class="text-green-400">●</span>
-                <span><strong>Light Protocol:</strong> ZK compression for your case study data</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-blue-400">●</span>
-                <span><strong>Noir/Aztec:</strong> ZK-SNARK proofs for data integrity</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="text-purple-400">●</span>
-                <span><strong>Privacy Cash:</strong> Confidential rewards for your contribution</span>
+          {/* Privacy Sponsor Integrations Section */}
+          <div class="space-y-6">
+            <div class="p-6 bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-200 dark:border-purple-600/50 rounded-2xl shadow-sm">
+              <p class="font-black text-purple-800 dark:text-purple-300 mb-4 uppercase tracking-widest text-xs">🎯 Privacy Sponsor Tech Stack</p>
+              <div class="space-y-3">
+                <div class="flex items-center gap-3">
+                  <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-sm shadow-green-500"></span>
+                  <span class="text-xs font-bold text-slate-700 dark:text-slate-300"><strong>Light Protocol:</strong> ZK compression for efficient data storage</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-sm shadow-blue-500"></span>
+                  <span class="text-xs font-bold text-slate-700 dark:text-slate-300"><strong>Noir/Aztec:</strong> ZK-SNARK proofs for medical data integrity</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="w-2 h-2 bg-purple-500 rounded-full animate-pulse shadow-sm shadow-purple-500"></span>
+                  <span class="text-xs font-bold text-slate-700 dark:text-slate-300"><strong>Privacy Cash:</strong> Confidential token rewards for contributors</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Privacy Sponsor Options */}
-          <div class="p-6 bg-purple-900/20 border border-purple-600 rounded-lg">
-            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
-              <span class="text-2xl">🔐</span>
-              Privacy Sponsor Integrations
-            </h3>
+            {/* Privacy Sponsor Options */}
+            <div class="p-8 bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-200 dark:border-purple-600/50 rounded-2xl shadow-sm">
+              <h3 class="text-lg font-black mb-6 flex items-center gap-3 uppercase tracking-wider text-purple-900 dark:text-purple-200">
+                <span class="text-2xl bg-white dark:bg-slate-800 p-2 rounded-lg shadow-sm">🛡️</span>
+                Privacy Options
+              </h3>
 
-            <div class="space-y-4">
-              {/* Privacy Cash */}
-              <div class="flex items-center justify-between p-3 bg-gray-800 rounded">
-                <div>
-                  <div class="font-bold text-green-400">Privacy Cash</div>
-                  <div class="text-sm text-gray-400">Confidential reward transfers</div>
+              <div class="space-y-4">
+                {/* Privacy Cash */}
+                <div class="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                  <div>
+                    <div class="font-black text-green-700 dark:text-green-400 uppercase tracking-tighter">Privacy Cash</div>
+                    <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Confidential reward transfers</div>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={privacyOptions.usePrivacyCash}
+                      onChange={(e) =>
+                        setPrivacyOptions({
+                          ...privacyOptions,
+                          usePrivacyCash: (e.target as HTMLInputElement).checked,
+                        })
+                      }
+                      class="sr-only peer"
+                    />
+                    <div class="w-11 h-6 bg-slate-200 dark:bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                  </label>
                 </div>
-                <label class="flex items-center">
+
+                {/* ShadowWire */}
+                <div class="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                  <div>
+                    <div class="font-black text-blue-700 dark:text-blue-400 uppercase tracking-tighter">ShadowWire</div>
+                    <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Private payment flows</div>
+                  </div>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={privacyOptions.useShadowWire}
+                      onChange={(e) =>
+                        setPrivacyOptions({
+                          ...privacyOptions,
+                          useShadowWire: (e.target as HTMLInputElement).checked,
+                        })
+                      }
+                      class="sr-only peer"
+                    />
+                    <div class="w-11 h-6 bg-slate-200 dark:bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+
+                {/* Light Protocol Compression */}
+                <div class="p-5 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                  <div class="flex items-center justify-between mb-4">
+                    <div class="font-black text-purple-700 dark:text-purple-400 uppercase tracking-tighter">Compression Level</div>
+                    <span class="text-sm font-black text-brand bg-brand/10 px-2 py-0.5 rounded-full">{privacyOptions.compressionRatio}x</span>
+                  </div>
                   <input
-                    type="checkbox"
-                    checked={privacyOptions.usePrivacyCash}
+                    type="range"
+                    min="2"
+                    max="20"
+                    value={privacyOptions.compressionRatio}
                     onChange={(e) =>
                       setPrivacyOptions({
                         ...privacyOptions,
-                        usePrivacyCash: (e.target as HTMLInputElement).checked,
+                        compressionRatio: parseInt((e.target as HTMLInputElement).value),
                       })
                     }
-                    class="mr-2"
+                    class="w-full accent-brand"
                   />
-                  <span class="text-sm">Enable</span>
-                </label>
-              </div>
-
-              {/* ShadowWire */}
-              <div class="flex items-center justify-between p-3 bg-gray-800 rounded">
-                <div>
-                  <div class="font-bold text-blue-400">ShadowWire</div>
-                  <div class="text-sm text-gray-400">Private payment flows</div>
-                </div>
-                <label class="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={privacyOptions.useShadowWire}
-                    onChange={(e) =>
-                      setPrivacyOptions({
-                        ...privacyOptions,
-                        useShadowWire: (e.target as HTMLInputElement).checked,
-                      })
-                    }
-                    class="mr-2"
-                  />
-                  <span class="text-sm">Enable</span>
-                </label>
-              </div>
-
-              {/* Light Protocol Compression */}
-              <div class="p-3 bg-gray-800 rounded">
-                <div class="flex items-center justify-between mb-2">
-                  <div class="font-bold text-purple-400">Light Protocol Compression</div>
-                  <span class="text-sm text-gray-400">{privacyOptions.compressionRatio}x</span>
-                </div>
-                <input
-                  type="range"
-                  min="2"
-                  max="20"
-                  value={privacyOptions.compressionRatio}
-                  onChange={(e) =>
-                    setPrivacyOptions({
-                      ...privacyOptions,
-                      compressionRatio: parseInt((e.target as HTMLInputElement).value),
-                    })
-                  }
-                  class="w-full"
-                />
-                <div class="text-xs text-gray-500 mt-1">
-                  Higher compression = lower storage costs
+                  <div class="text-[10px] font-black text-slate-400 dark:text-slate-500 mt-3 uppercase tracking-widest">
+                    Higher compression = lower blockchain storage fees
+                  </div>
                 </div>
               </div>
             </div>

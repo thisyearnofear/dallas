@@ -8,7 +8,11 @@ interface NetworkStatusData {
     tps: number;
 }
 
-export const NetworkStatus: FunctionalComponent = () => {
+interface NetworkStatusProps {
+    compact?: boolean;
+}
+
+export const NetworkStatus: FunctionalComponent<NetworkStatusProps> = ({ compact = false }) => {
     const [status, setStatus] = useState<NetworkStatusData>({
         blockHeight: 0,
         health: 'unknown',
@@ -40,11 +44,11 @@ export const NetworkStatus: FunctionalComponent = () => {
     const getHealthColor = (health: string) => {
         switch (health) {
             case 'ok':
-                return 'text-green-400';
+                return 'text-green-600 dark:text-green-400';
             case 'behind':
-                return 'text-yellow-400';
+                return 'text-yellow-600 dark:text-yellow-400';
             default:
-                return 'text-red-400';
+                return 'text-red-600 dark:text-red-400';
         }
     };
 
@@ -60,58 +64,68 @@ export const NetworkStatus: FunctionalComponent = () => {
     };
 
     return (
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-white">🌐 Network Status</h3>
+        <div class={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm ${compact ? 'p-3' : 'p-4'}`}>
+            <div class={`flex items-center justify-between ${compact ? 'mb-2' : 'mb-4'}`}>
+                <h3 class={`font-bold text-slate-900 dark:text-white ${compact ? 'text-base' : 'text-lg'}`}>🌐 Network Status</h3>
                 <button
                     onClick={loadNetworkStatus}
                     disabled={loading}
-                    class="text-xs bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 px-2 py-1 rounded transition"
+                    class="text-xs bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white px-2 py-1 rounded transition shadow-sm"
                 >
                     {loading ? '⏳' : '🔄'}
                 </button>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class={`grid ${compact ? 'grid-cols-3 gap-2' : 'grid-cols-1 md:grid-cols-3 gap-4'}`}>
                 {/* Network Health */}
                 <div class="text-center">
-                    <div class="text-2xl mb-1">
+                    <div class={`${compact ? 'text-lg' : 'text-2xl'} mb-1`}>
                         {getHealthIcon(status.health)}
                     </div>
-                    <div class={`text-sm font-bold ${getHealthColor(status.health)}`}>
+                    <div class={`font-bold ${getHealthColor(status.health)} ${compact ? 'text-xs' : 'text-sm'}`}>
                         {status.health.toUpperCase()}
                     </div>
-                    <div class="text-xs text-gray-400">Health</div>
+                    {!compact && <div class="text-xs text-slate-500 dark:text-slate-400">Health</div>}
                 </div>
 
                 {/* Block Height */}
                 <div class="text-center">
-                    <div class="text-lg font-bold text-blue-400">
-                        {status.blockHeight.toLocaleString()}
+                    <div class={`font-bold text-blue-600 dark:text-blue-400 ${compact ? 'text-sm' : 'text-lg'}`}>
+                        {compact 
+                            ? (status.blockHeight > 999999 ? (status.blockHeight / 1000000).toFixed(1) + 'M' : status.blockHeight.toLocaleString())
+                            : status.blockHeight.toLocaleString()
+                        }
                     </div>
-                    <div class="text-xs text-gray-400">Block Height</div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400">{compact ? 'Height' : 'Block Height'}</div>
                 </div>
 
                 {/* TPS */}
                 <div class="text-center">
-                    <div class="text-lg font-bold text-purple-400">
+                    <div class={`font-bold text-purple-600 dark:text-purple-400 ${compact ? 'text-sm' : 'text-lg'}`}>
                         {status.tps}
                     </div>
-                    <div class="text-xs text-gray-400">TPS</div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400">TPS</div>
                 </div>
             </div>
 
-            {lastUpdated && (
-                <div class="text-xs text-gray-500 text-center mt-3">
+            {!compact && lastUpdated && (
+                <div class="text-xs text-slate-500 dark:text-slate-500 text-center mt-3">
                     Last updated: {lastUpdated.toLocaleTimeString()}
                 </div>
             )}
 
             {/* Network Info */}
-            <div class="mt-4 text-xs text-gray-400 space-y-1">
-                <div>🔗 Solana Devnet</div>
-                <div>⚡ Fast finality (~400ms)</div>
-                <div>💰 Low fees (~$0.00025)</div>
+            <div class={`text-xs text-slate-500 dark:text-slate-400 space-y-1 ${compact ? 'mt-2' : 'mt-4'}`}>
+                <div class="flex items-center gap-1">
+                    <span>🔗</span>
+                    <span>Solana Devnet</span>
+                </div>
+                {!compact && (
+                    <>
+                        <div>⚡ Fast finality (~400ms)</div>
+                        <div>💰 Low fees (~$0.00025)</div>
+                    </>
+                )}
             </div>
         </div>
     );

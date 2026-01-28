@@ -9,60 +9,63 @@ export function SettingsPanel() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        class="fixed bottom-20 right-4 z-40 bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-full shadow-lg border-2 border-gray-600"
+        class="fixed bottom-20 right-4 z-40 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-900 dark:text-white p-4 rounded-2xl shadow-xl border-2 border-slate-200 dark:border-slate-700 transition-all transform hover:scale-110 active:scale-95"
         aria-label="Settings"
       >
-        ⚙️
+        <span class="text-xl">⚙️</span>
       </button>
 
       {isOpen && (
-        <div class="fixed inset-0 bg-black/70 z-[10001] flex items-center justify-center p-4">
-          <div class="bg-gray-900 border-4 border-yellow-500 rounded-lg shadow-2xl max-w-md w-full font-mono">
+        <div class="fixed inset-0 bg-slate-900/80 dark:bg-black/80 z-[10001] flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
+          <div class="bg-white dark:bg-slate-900 border-4 border-yellow-500 rounded-2xl shadow-2xl max-w-md w-full font-mono overflow-hidden animate-scaleIn transition-colors duration-300">
             {/* Header */}
-            <div class="bg-yellow-600 text-black px-4 py-2 flex justify-between items-center">
-              <span class="font-bold text-lg">⚙️ SETTINGS</span>
+            <div class="bg-yellow-500 dark:bg-yellow-600 text-black px-6 py-4 flex justify-between items-center border-b-2 border-yellow-600">
+              <span class="font-black text-xs uppercase tracking-[0.2em]">⚙️ Protocol_Settings</span>
               <button
                 onClick={() => setIsOpen(false)}
-                class="bg-red-600 hover:bg-red-700 text-white font-bold px-2 py-1 text-sm border border-black rounded"
+                class="bg-red-500 hover:bg-red-600 text-white font-black px-3 py-1 rounded border-2 border-red-700 shadow-md transition-all active:scale-90"
               >
                 ✕
               </button>
             </div>
 
             {/* Settings */}
-            <div class="p-4 space-y-4">
-              <div class="text-yellow-400 text-sm mb-4">
-                🎛️ Customize your Dallas Buyers Club experience
+            <div class="p-8 space-y-6">
+              <div class="text-yellow-700 dark:text-yellow-400 text-[10px] font-black uppercase tracking-widest mb-6 flex items-center gap-2">
+                <span class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
+                Customize your Dallas Network experience
               </div>
 
-              {/* 90s Popups Toggle */}
-              <SettingToggle
-                label="90s Spam Popups"
-                description="Authentic retro popup ads (VISITOR #420!, etc.)"
-                enabled={settings.popupsEnabled}
-                onToggle={() => toggleSetting("popupsEnabled")}
-              />
+              <div class="space-y-4">
+                {/* 90s Popups Toggle */}
+                <SettingToggle
+                  label="90s Spam Popups"
+                  description="Authentic retro popup ads (VISITOR #420!, etc.)"
+                  enabled={settings.popupsEnabled}
+                  onToggle={() => toggleSetting("popupsEnabled")}
+                />
 
-              {/* Live Notifications Toggle */}
-              <SettingToggle
-                label="Live Activity Notifications"
-                description="Real-time network activity feed"
-                enabled={settings.liveNotificationsEnabled}
-                onToggle={() => toggleSetting("liveNotificationsEnabled")}
-              />
+                {/* Live Notifications Toggle */}
+                <SettingToggle
+                  label="Live Activity Notifications"
+                  description="Real-time network activity feed"
+                  enabled={settings.liveNotificationsEnabled}
+                  onToggle={() => toggleSetting("liveNotificationsEnabled")}
+                />
 
-              {/* Sound Toggle */}
-              <SettingToggle
-                label="Sound Effects"
-                description="Retro computer sounds (coming soon)"
-                enabled={settings.soundEnabled}
-                onToggle={() => toggleSetting("soundEnabled")}
-                disabled
-              />
+                {/* Sound Toggle */}
+                <SettingToggle
+                  label="Sound Effects"
+                  description="Retro computer sounds (coming soon)"
+                  enabled={settings.soundEnabled}
+                  onToggle={() => toggleSetting("soundEnabled")}
+                  disabled
+                />
+              </div>
 
               {/* Footer */}
-              <div class="pt-4 border-t border-gray-700 text-xs text-gray-500 text-center">
-                Settings are saved locally in your browser
+              <div class="pt-6 border-t border-slate-100 dark:border-slate-800 text-[9px] font-bold text-slate-400 dark:text-slate-500 text-center uppercase tracking-[0.2em]">
+                Configurations saved to local state
               </div>
             </div>
           </div>
@@ -82,20 +85,20 @@ interface SettingToggleProps {
 
 function SettingToggle({ label, description, enabled, onToggle, disabled }: SettingToggleProps) {
   return (
-    <div class={`flex items-center justify-between p-3 rounded ${disabled ? "opacity-50" : "hover:bg-gray-800"}`}>
-      <div class="flex-1">
-        <div class="text-white font-bold text-sm">{label}</div>
-        <div class="text-gray-400 text-xs">{description}</div>
+    <div class={`flex items-center justify-between p-4 rounded-xl transition-all border border-transparent ${disabled ? "opacity-40" : "bg-slate-50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 border-slate-100 dark:border-slate-700 hover:shadow-sm"}`}>
+      <div class="flex-1 pr-4">
+        <div class="text-slate-900 dark:text-white font-black text-xs uppercase tracking-tighter mb-1">{label}</div>
+        <div class="text-slate-500 dark:text-slate-400 text-[10px] font-medium leading-tight">{description}</div>
       </div>
       <button
         onClick={onToggle}
         disabled={disabled}
-        class={`relative w-12 h-6 rounded-full transition-colors ${
-          enabled ? "bg-green-600" : "bg-gray-600"
-        } ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
+        class={`relative w-12 h-6 rounded-full transition-all shadow-inner ${
+          enabled ? "bg-green-500" : "bg-slate-300 dark:bg-slate-700"
+        } ${disabled ? "cursor-not-allowed" : "cursor-pointer hover:brightness-110"}`}
       >
         <div
-          class={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
+          class={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-md transition-transform ${
             enabled ? "translate-x-7" : "translate-x-1"
           }`}
         />

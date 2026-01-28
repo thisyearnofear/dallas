@@ -1,5 +1,11 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Mint};
+use anchor_spl::token_2022::Token2022;
+
+// DBC Treasury Program Integration
+// The treasury handles all DBC token operations (rewards, staking, slashing)
+pub const DBC_TREASURY_PROGRAM_ID: &str = "Treasu1ryDBCpRoGramJ4q4vfHwe57x7hRjcQMJfV3Y";
+pub const DBC_MINT: &str = "J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump";
 
 declare_id!("EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6");
 
@@ -383,11 +389,11 @@ pub mod case_study {
         Ok(())
     }
 
-    /// DAO governance slashes validator for proven fraud
-    /// Requires multi-sig from governance authority
-    pub fn slash_validator(
-        ctx: Context<SlashValidator>,
-        slash_percentage: u8,                // 1-100
+    /// Request slash via Treasury Program
+    /// Case study program validates the slash, treasury executes it
+    pub fn request_slash_validator(
+        ctx: Context<RequestSlash>,
+        slash_percentage: u8,
         evidence_hash: [u8; 32],
     ) -> Result<()> {
         require!(
@@ -395,44 +401,58 @@ pub mod case_study {
             CaseStudyError::InvalidSlashPercentage
         );
 
-        let validator_stake = &mut ctx.accounts.validator_stake;
+        let validator_stake = &ctx.accounts.validator_stake;
         require!(
             !validator_stake.is_slashed,
             CaseStudyError::AlreadySlashed
         );
 
-        // Calculate slash amount
-        let slash_amount = (validator_stake.stake_amount as u128 
-            * slash_percentage as u128 / 100) as u64;
+        // Mark as pending slash (actual slash happens in treasury)
+        let validator_reputation = &mut ctx.accounts.validator_reputation;
+        validator_reputation.pending_slash = Some(PendingSlash {
+            percentage: slash_percentage,
+            evidence_hash,
+            requested_at: Clock::get()?.unix_timestamp,
+        });
 
-        // Burn slashed tokens (remove from circulation)
-        let cpi_accounts = token::Burn {
-            mint: ctx.accounts.experience_mint.to_account_info(),
-            from: ctx.accounts.stake_escrow.to_account_info(),
-            authority: ctx.accounts.governance_authority.to_account_info(),
-        };
-        let cpi_ctx = CpiContext::new(
-            ctx.accounts.token_program.to_account_info(),
-            cpi_accounts
+        emit!(SlashRequested {
+            validator: validator_stake.validator,
+            case_study: validator_stake.case_study,
+            slash_percentage,
+            evidence_hash,
+            treasury_program: ctx.accounts.treasury_program.key(),
+        });
+
+        Ok(())
+    }
+
+    /// Confirm slash completed by treasury
+    pub fn confirm_slash(
+        ctx: Context<ConfirmSlash>,
+        slash_amount: u64,
+    ) -> Result<()> {
+        let validator_stake = &mut ctx.accounts.validator_stake;
+        let validator_reputation = &mut ctx.accounts.validator_reputation;
+
+        require!(
+            validator_reputation.pending_slash.is_some(),
+            CaseStudyError::NoPendingSlash
         );
-        token::burn(cpi_ctx, slash_amount)?;
 
         validator_stake.is_slashed = true;
         validator_stake.slashed_amount = slash_amount;
 
-        // Update validator reputation (permanent penalty)
-        let validator_reputation = &mut ctx.accounts.validator_reputation;
         validator_reputation.total_slashes = validator_reputation.total_slashes
             .checked_add(1)
             .ok_or(CaseStudyError::OverflowError)?;
         validator_reputation.reputation_score = validator_reputation.reputation_score
-            .saturating_sub(20); // -20 points per slash
+            .saturating_sub(20);
+        validator_reputation.pending_slash = None;
 
-        emit!(ValidatorSlashed {
+        emit!(SlashConfirmed {
             validator: validator_stake.validator,
             case_study: validator_stake.case_study,
             slash_amount,
-            evidence_hash,
         });
 
         Ok(())
@@ -537,6 +557,14 @@ pub struct ValidatorReputation {
     pub total_slashes: u32,
     pub reputation_score: u8,              // 0-100
     pub tier: ValidatorTier,               // Bronze/Silver/Gold/Platinum
+    pub pending_slash: Option<PendingSlash>, // Slash requested, awaiting treasury
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+pub struct PendingSlash {
+    pub percentage: u8,
+    pub evidence_hash: [u8; 32],
+    pub requested_at: i64,
 }
 
 #[account]
@@ -661,21 +689,40 @@ pub struct AgentAction<'info> {
 }
 
 #[derive(Accounts)]
-pub struct SlashValidator<'info> {
+pub struct RequestSlash<'info> {
     #[account(mut)]
     pub validator_stake: Account<'info, ValidatorStake>,
-    #[account(mut)]
+    #[account(
+        mut,
+        seeds = [b"reputation", validator_stake.validator.as_ref()],
+        bump
+    )]
     pub validator_reputation: Account<'info, ValidatorReputation>,
-    #[account(mut)]
-    pub stake_escrow: Account<'info, TokenAccount>,
-    #[account(mut)]
-    pub experience_mint: Account<'info, Mint>,
     pub governance_config: Account<'info, GovernanceConfig>,
     #[account(
         constraint = governance_authority.key() == governance_config.governance_authority
     )]
     pub governance_authority: Signer<'info>,
-    pub token_program: Program<'info, Token>,
+    /// CHECK: Treasury program for slash execution
+    pub treasury_program: AccountInfo<'info>,
+}
+
+#[derive(Accounts)]
+pub struct ConfirmSlash<'info> {
+    #[account(mut)]
+    pub validator_stake: Account<'info, ValidatorStake>,
+    #[account(
+        mut,
+        seeds = [b"reputation", validator_stake.validator.as_ref()],
+        bump
+    )]
+    pub validator_reputation: Account<'info, ValidatorReputation>,
+    /// CHECK: Treasury program that confirms the slash
+    pub treasury_program: AccountInfo<'info>,
+    #[account(
+        constraint = treasury_signer.key() == treasury_program.key()
+    )]
+    pub treasury_signer: Signer<'info>,
 }
 
 #[derive(Accounts)]
@@ -745,11 +792,19 @@ pub struct ValidationPaused {
 }
 
 #[event]
-pub struct ValidatorSlashed {
+pub struct SlashRequested {
+    pub validator: Pubkey,
+    pub case_study: Pubkey,
+    pub slash_percentage: u8,
+    pub evidence_hash: [u8; 32],
+    pub treasury_program: Pubkey,
+}
+
+#[event]
+pub struct SlashConfirmed {
     pub validator: Pubkey,
     pub case_study: Pubkey,
     pub slash_amount: u64,
-    pub evidence_hash: [u8; 32],
 }
 
 #[event]
@@ -826,6 +881,8 @@ pub enum CaseStudyError {
     InvalidSlashPercentage,
     #[msg("Validator already slashed")]
     AlreadySlashed,
+    #[msg("No pending slash for this validator")]
+    NoPendingSlash,
     #[msg("Unauthorized to link attention token")]
     UnauthorizedTokenLink,
     #[msg("Case study not approved")]
@@ -840,7 +897,9 @@ pub enum CaseStudyError {
 
 // ============= CONSTANTS =============
 
-pub const MINIMUM_VALIDATOR_STAKE: u64 = 10_000_000; // 10 EXPERIENCE tokens (6 decimals)
+// Minimum stake is now enforced by Treasury Program
+// Case study program validates stake exists but doesn't handle token amounts
+pub const MINIMUM_VALIDATOR_STAKE: u64 = 100_000_000; // 100 DBC (enforced by treasury)
 pub const CRITICAL_RISK_THRESHOLD: u8 = 75;
 
 // ============= HELPER FUNCTIONS =============

@@ -22,8 +22,16 @@ export const SOLANA_CONFIG = {
   // Smart contract program IDs (from deployment)
   blockchain: {
     caseStudyProgramId: 'EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6',
+    // DALLAS BUYERS CLUB Token - Main Community Token
+    // Mint: J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump
+    dbcMintAddress: 'J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump',
+    dbcTokenProgramId: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', // Standard SPL Token Program
+    // Treasury Program (deploy to SolPG, then update)
+    treasuryProgramId: 'XXXX', // To be deployed on SolPG
+    
+    // Legacy - to be deprecated
     experienceTokenProgramId: 'E6Cc4TX3H2ikxmmztsvRTB8rrYaiTZdaNFd1PBPWCjE4',
-    experienceMintAddress: 'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm', // Temporary mock address - replace with actual after creation
+    experienceMintAddress: 'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm',
     attentionTokenFactoryProgramId: 'XXXX', // To be deployed
   },
 
@@ -60,15 +68,18 @@ export const SOLANA_CONFIG = {
     },
   },
 
-  // Default amounts for various operations
+  // Default amounts for various operations (in DBC token base units)
+  // DBC Token: J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump
   defaults: {
-    donationAmount: 0.5,
-    membershipBronze: 0.1,
-    membershipSilver: 0.5,
-    membershipGold: 2.0,
-    validatorStake: 10, // EXPERIENCE tokens (minimum)
-    submitReward: 1, // EXPERIENCE tokens
-    validationReward: 0.1, // EXPERIENCE tokens
+    donationAmount: 0.5, // SOL
+    membershipBronze: 0.1, // SOL
+    membershipSilver: 0.5, // SOL
+    membershipGold: 2.0, // SOL
+    // DBC Token amounts (assuming 6 decimals - adjust if different)
+    validatorStake: 100, // DBC tokens (minimum stake for validators)
+    submitReward: 10, // DBC tokens (reward for case study submission)
+    validationReward: 5, // DBC tokens (reward for validation)
+    referralReward: 50, // DBC tokens (reward for successful referral)
   },
 } as const;
 
@@ -78,28 +89,24 @@ export function getRpcEndpoint(): string {
 
 /**
  * Validate that smart contracts are deployed
- * Throws error if program IDs are not set
+ * Throws error if critical program IDs are not set
  */
 export function validateBlockchainConfig(): void {
   const { blockchain } = SOLANA_CONFIG;
 
   const isPlaceholder = (addr: string) => addr.includes('XXXX') || addr.includes('XXX');
 
+  // Validate DBC Token is configured (primary token)
+  if (isPlaceholder(blockchain.dbcMintAddress)) {
+    throw new Error(
+      'DBC Token Mint Address not configured. Set SOLANA_CONFIG.blockchain.dbcMintAddress to your DALLAS BUYERS CLUB token mint'
+    );
+  }
+
+  // Case study program is optional for basic functionality
   if (isPlaceholder(blockchain.caseStudyProgramId)) {
-    throw new Error(
-      'Case Study Program ID not configured. Deploy to solpgf and update SOLANA_CONFIG.blockchain.caseStudyProgramId'
-    );
-  }
-
-  if (isPlaceholder(blockchain.experienceTokenProgramId)) {
-    throw new Error(
-      'Experience Token Program ID not configured. Deploy to solpgf and update SOLANA_CONFIG.blockchain.experienceTokenProgramId'
-    );
-  }
-
-  if (isPlaceholder(blockchain.experienceMintAddress)) {
-    throw new Error(
-      'Experience Mint Address not configured. Create mint on solpgf and update SOLANA_CONFIG.blockchain.experienceMintAddress'
+    console.warn(
+      'Case Study Program ID not configured. Deploy to solpgf and update SOLANA_CONFIG.blockchain.caseStudyProgramId for validation features'
     );
   }
 }

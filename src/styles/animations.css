@@ -218,6 +218,34 @@
   80%, 100% { content: '...'; }
 }
 
+/* Scrollbar Customization */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #6b21a8; /* purple-800 */
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #9333ea; /* purple-600 */
+}
+
+/* Card Enhancements */
+.initiative-card-glow {
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.initiative-card-glow:hover {
+  box-shadow: 0 0 25px rgba(168, 85, 247, 0.2);
+}
+
 /* Responsive animations - reduce motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
   * {

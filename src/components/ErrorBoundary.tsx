@@ -31,36 +31,39 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             }
 
             return (
-                <div class="min-h-screen bg-black text-white flex items-center justify-center p-8">
-                    <div class="max-w-2xl mx-auto text-center">
-                        <div class="text-6xl mb-4">💥</div>
-                        <h1 class="text-3xl font-bold mb-4 text-red-400">Something went wrong</h1>
-                        <p class="text-gray-300 mb-6">
-                            An unexpected error occurred while loading the application.
+                <div class="min-h-screen bg-slate-50 dark:bg-black text-slate-900 dark:text-white flex items-center justify-center p-8 transition-colors duration-500">
+                    <div class="max-w-2xl mx-auto text-center animate-fadeIn">
+                        <div class="text-7xl mb-6 drop-shadow-lg">💥</div>
+                        <h1 class="text-4xl font-black mb-4 text-red-600 dark:text-red-400 uppercase tracking-tighter">System Critical Error</h1>
+                        <p class="text-slate-600 dark:text-slate-300 mb-8 font-medium text-lg leading-relaxed">
+                            An unexpected fragmentation occurred while accessing the Dallas network.
                         </p>
 
-                        <div class="bg-gray-900 border border-red-600 rounded-lg p-4 mb-6 text-left">
-                            <div class="text-sm font-bold text-red-400 mb-2">Error Details:</div>
-                            <div class="text-xs text-gray-400 font-mono break-all">
+                        <div class="bg-white dark:bg-slate-900 border-2 border-red-500/30 rounded-2xl p-6 mb-10 text-left shadow-xl shadow-red-500/5">
+                            <div class="text-xs font-black text-red-600 dark:text-red-400 mb-3 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                                Error Stack Trace:
+                            </div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 font-mono break-all p-4 bg-slate-50 dark:bg-black/40 rounded-xl border border-slate-100 dark:border-white/5 shadow-inner">
                                 {this.state.error.message}
                             </div>
                         </div>
 
-                        <div class="space-y-4">
+                        <div class="space-y-8">
                             <button
                                 onClick={() => window.location.reload()}
-                                class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded font-bold transition"
+                                class="bg-blue-600 hover:bg-blue-700 text-white font-black py-4 px-10 rounded-2xl transition-all transform hover:scale-105 active:scale-95 shadow-xl uppercase tracking-widest text-sm"
                             >
-                                🔄 Reload Page
+                                🔄 Reboot Application
                             </button>
 
-                            <div class="text-sm text-gray-400">
-                                If the problem persists, please check:
-                                <ul class="mt-2 space-y-1 text-left max-w-md mx-auto">
-                                    <li>• Wallet connection (Phantom installed?)</li>
-                                    <li>• Network connection</li>
-                                    <li>• Blockchain configuration</li>
-                                    <li>• Browser console for additional errors</li>
+                            <div class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                                Protocol Check:
+                                <ul class="mt-4 grid grid-cols-2 gap-4 text-left max-w-md mx-auto">
+                                    <li class="flex items-center gap-2"><span class="text-blue-500">●</span> Wallet Connection</li>
+                                    <li class="flex items-center gap-2"><span class="text-blue-500">●</span> Network Latency</li>
+                                    <li class="flex items-center gap-2"><span class="text-blue-500">●</span> Node Accessibility</li>
+                                    <li class="flex items-center gap-2"><span class="text-blue-500">●</span> Permission Levels</li>
                                 </ul>
                             </div>
                         </div>

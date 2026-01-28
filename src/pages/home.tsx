@@ -92,7 +92,7 @@ export function Home() {
             </div>
 
             {/* Health Sovereignty Section */}
-            <div class="bg-gradient-to-r from-blue-900/30 via-green-900/30 to-purple-900/30 border-2 border-green-500/50 text-white p-8 rounded-lg mb-8">
+            <div class="bg-gradient-to-r from-blue-100/50 via-green-100/50 to-purple-100/50 dark:from-blue-900/30 dark:via-green-900/30 dark:to-purple-900/30 border-2 border-green-500/50 text-gray-900 dark:text-white p-8 rounded-lg mb-8">
                 <h2 class="text-3xl font-bold mb-4 flex items-center gap-2">
                     🔐 Health Sovereignty Platform
                 </h2>
@@ -100,17 +100,17 @@ export function Home() {
                     We're building what the Dallas Buyers Club needed: a decentralized platform for health autonomy.
                 </p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-black/30 p-4 rounded border border-green-500/30">
-                        <h3 class="font-bold mb-2">🔒 Your Data, Your Control</h3>
-                        <p class="text-sm text-gray-300">Share health journeys encrypted with your wallet key. Only you decrypt.</p>
+                    <div class="bg-white/60 dark:bg-black/30 p-4 rounded border border-green-500/50 dark:border-green-500/30">
+                        <h3 class="font-bold mb-2 text-gray-900 dark:text-white">🔒 Your Data, Your Control</h3>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">Share health journeys encrypted with your wallet key. Only you decrypt.</p>
                     </div>
-                    <div class="bg-black/30 p-4 rounded border border-blue-500/30">
-                        <h3 class="font-bold mb-2">👥 Community Validated</h3>
-                        <p class="text-sm text-gray-300">Validators stake tokens. False claims get caught. Accuracy rewarded.</p>
+                    <div class="bg-white/60 dark:bg-black/30 p-4 rounded border border-blue-500/50 dark:border-blue-500/30">
+                        <h3 class="font-bold mb-2 text-gray-900 dark:text-white">👥 Community Validated</h3>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">Validators stake tokens. False claims get caught. Accuracy rewarded.</p>
                     </div>
-                    <div class="bg-black/30 p-4 rounded border border-purple-500/30">
-                        <h3 class="font-bold mb-2">⛓️ On-Chain Permanent</h3>
-                        <p class="text-sm text-gray-300">Health journeys live on Solana. Immutable, transparent, global.</p>
+                    <div class="bg-white/60 dark:bg-black/30 p-4 rounded border border-purple-500/50 dark:border-purple-500/30">
+                        <h3 class="font-bold mb-2 text-gray-900 dark:text-white">⛓️ On-Chain Permanent</h3>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">Health journeys live on Solana. Immutable, transparent, global.</p>
                     </div>
                 </div>
                 <a 
@@ -157,7 +157,7 @@ export function Home() {
 
             {/* Secret Underground Access */}
             {showUndergroundAccess && (
-                <div class="mb-16 bg-gradient-to-br from-black via-red-900 to-black text-white p-8 rounded-lg border-2 border-red-500 shadow-2xl animate-fadeIn">
+                <div class="mb-16 bg-gradient-to-br from-gray-900 via-red-900 to-gray-900 dark:from-black dark:via-red-900 dark:to-black text-white p-8 rounded-lg border-2 border-red-500 shadow-2xl animate-fadeIn">
                     <div class="text-center">
                         <div class="text-6xl mb-4 animate-pulse">🕋</div>
                         <h2 class="text-3xl font-bold mb-4 text-red-400">ACCESS GRANTED</h2>

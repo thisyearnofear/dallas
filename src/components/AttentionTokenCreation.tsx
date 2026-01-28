@@ -263,11 +263,63 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
           </div>
         </div>
 
+        {/* Next Steps - Galvanize Community */}
+        <div className="bg-black/20 p-4 rounded mb-4 border border-green-700/50">
+          <h4 className="text-sm font-bold text-green-400 uppercase tracking-wider mb-3">
+            🎯 Next: Galvanize Your Cell
+          </h4>
+          <div className="space-y-2">
+            <a
+              href={`/tokens/${tokenMint.toString()}`}
+              className="flex items-center justify-between p-3 bg-purple-600 hover:bg-purple-700 rounded-lg transition group"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">☣️</span>
+                <div>
+                  <div className="font-bold">Enter War Room</div>
+                  <div className="text-xs text-purple-200">Set up your Cell HQ</div>
+                </div>
+              </div>
+              <span className="text-purple-300 group-hover:translate-x-1 transition-transform">→</span>
+            </a>
+            <button
+              onClick={() => onTokenCreated?.(tokenMint)}
+              className="w-full flex items-center justify-between p-3 bg-gray-800 hover:bg-gray-700 rounded-lg transition group text-left"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">📢</span>
+                <div>
+                  <div className="font-bold text-white">Publish First Intel</div>
+                  <div className="text-xs text-gray-400">Share research update</div>
+                </div>
+              </div>
+              <span className="text-gray-500 group-hover:translate-x-1 transition-transform">→</span>
+            </button>
+            <button
+              onClick={() => {
+                const url = `${window.location.origin}/tokens/${tokenMint.toString()}`;
+                navigator.clipboard.writeText(url);
+                toast.success('Cell link copied!');
+              }}
+              className="w-full flex items-center justify-between p-3 bg-gray-800 hover:bg-gray-700 rounded-lg transition group text-left"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">🔗</span>
+                <div>
+                  <div className="font-bold text-white">Share Recruit Link</div>
+                  <div className="text-xs text-gray-400">Invite supporters</div>
+                </div>
+              </div>
+              <span className="text-gray-500 group-hover:translate-x-1 transition-transform">→</span>
+            </button>
+          </div>
+        </div>
+
         <a
           href={`https://solscan.io/token/${tokenMint.toString()}?cluster=devnet`}
           target="_blank"
           rel="noopener noreferrer"
-          className="block w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-center transition"
+          className="block w-full bg-green-600/50 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg text-center transition text-sm"
         >
           View on Solscan →
         </a>

@@ -1,45 +1,60 @@
-# Dallas Buyers Club: Privacy-Preserving Health Data Sovereignty
+# Dallas Buyers Club: Health Community Tokenization Platform
 
-**Solana Privacy Hackathon 2026 Submission**  
-*Decentralized health research platform where encrypted patient experiences enable privacy-preserving treatment discovery through cryptoeconomic validation*
+**A platform for forming communities around health causes, wellness initiatives, and ailments.**
 
-🎯 **Hackathon-Specific Enhancements**
-- Explicit alignment with Privacy Hack tracks and sponsor bounties
-- Targeted at $86,000+ in potential prizes across 8+ sponsor categories
-- 3-minute demo video script included
-- Architecture diagram showing privacy stack integration
+*Privacy-preserving infrastructure for decentralized health research. Communities launch their own tokens, validate contributions with zero-knowledge proofs, and fund research through decentralized treasuries.*
 
 ---
 
 ## 🎯 Problem Statement
 
-Health information is trapped in walled gardens. Pharmaceutical companies own trial data. Insurance platforms harvest user metrics. Patients experimenting with treatments have nowhere to share outcomes without sacrificing privacy or facing legal risk.
+**Patients are isolated.** People with rare diseases, chronic conditions, or wellness goals struggle to find others facing similar challenges.
 
-**The current system fails on two fronts:**
-1. **Informational asymmetry**: Valuable treatment experiences are siloed, preventing collective learning
-2. **Privacy violation**: Sharing health data requires trusting centralized platforms that monetize user information
+**Data is siloed.** Valuable treatment experiences are scattered across forums, lost to time, or trapped in proprietary databases.
 
-## 💡 Solution Architecture
+**Research is slow.** It takes 10-15 years to bring discoveries to patients. Centralized gatekeepers control access.
 
-A privacy-first coordination layer for health sovereignty, built on three core innovations:
+**Privacy is compromised.** Sharing health data means trusting platforms that monetize your information.
 
-### 1. Zero-Knowledge Treatment Matching
-- Users encrypt health metrics with **wallet-derived keys** (no server-side storage)
-- **Light Protocol ZK compression** enables private queries across encrypted case studies
-- Validators prove data integrity **without decryption** using ZK-SNARKs (Noir)
-- Selective disclosure through **threshold cryptography** (Arcium MPC)
+## 💡 Solution: Community Tokenization Platform
 
-### 2. Cryptoeconomic Truth Markets
-- Validators stake **EXPERIENCE tokens** to approve case studies
-- **Reputation scoring** based on historical accuracy (slashing for false claims)
-- **Privacy Cash SDK** integration for confidential incentive payments
-- DAO governance for dispute resolution and slashing decisions
+We provide infrastructure that enables anyone to form communities around health causes. Each community:
 
-### 3. Autonomous Agent Coordination
-- **Supply Agent**: Monitors treatment availability, updates pricing via oracles
-- **Risk Agent**: Scans for Sybil attacks, pauses suspicious validations
-- **Community Agent**: Aggregates validator signals, adjusts trust scores
-- **Identity Agent**: Manages privacy-preserving credential verification
+- **Launches their own token** (via Bags API bonding curves)
+- **Validates contributions privately** (ZK proofs, no data exposure)
+- **Funds research collectively** (community treasuries, not handouts)
+- **Owns their destiny** (governance, not platform control)
+
+### Core Innovation: Separation of Concerns
+
+| Layer | Function | Example |
+|-------|----------|---------|
+| **Platform (DBC)** | Shared infrastructure, governance | Validation, privacy tech |
+| **Communities** | Specific causes, research | LupusDAO, LongevityCoin |
+| **Validators** | Quality assurance | Medical experts, researchers |
+
+**We don't fund communities. We enable them to fund themselves.**
+
+### Privacy Stack
+
+- **Noir (Aztec)**: ZK-SNARK proofs for validation without data exposure
+- **Light Protocol**: ZK compression for scalable private state
+- **Arcium MPC**: Threshold decryption for selective access
+- **IPFS/Arweave**: Encrypted off-chain storage
+
+### Token Economics
+
+**DBC (Platform Token):**
+- Fixed supply: 1B tokens (burned mint authority)
+- Team ownership: 1.74% (17.4M DBC)
+- Utility: Governance, coordination, fee burns
+- No inflation: Value from utility, not handouts
+
+**Community Tokens (Per Cause):**
+- Launch via Bags API bonding curves
+- Self-funding through trading volume
+- Creator earns 1% of volume forever
+- Communities control their own treasuries
 
 ---
 
@@ -75,21 +90,22 @@ A privacy-first coordination layer for health sovereignty, built on three core i
 ## 🎨 Key Features
 
 ### For Patients
-✅ **Encrypt & Share**: Submit treatment experiences encrypted with your wallet  
+✅ **Find Your Community**: Discover others with the same condition or wellness goals  
+✅ **Encrypt & Share**: Submit treatment experiences with wallet-derived encryption  
 ✅ **Private Discovery**: Query similar cases without revealing your identity  
-✅ **Selective Disclosure**: Grant access only to trusted validators or researchers  
-✅ **Earn Rewards**: Receive EXPERIENCE tokens for validated contributions  
+✅ **Earn Community Tokens**: Get rewarded for contributions to your community  
+
+### For Community Creators
+✅ **Launch in Minutes**: Create your community token with no code (Bags API)  
+✅ **Built-in Privacy**: ZK validation, encrypted storage included  
+✅ **Sustainable Funding**: Community treasury funded by trading volume  
+✅ **Ongoing Revenue**: Earn 1% of trading volume forever  
 
 ### For Validators
-✅ **Stake to Validate**: Lock tokens to review case study quality  
-✅ **Prove Without Seeing**: Use ZK proofs to verify data integrity  
-✅ **Build Reputation**: Earn higher weights through accurate validations  
-✅ **Slash Protection**: Disputes resolved by DAO governance  
-
-### For Researchers
-✅ **Privacy-Preserving Analytics**: Run federated queries across encrypted datasets  
-✅ **Outcome Tracking**: Monitor treatment efficacy without patient re-identification  
-✅ **Funding Mechanisms**: Crowdfund trials through transparent treasury  
+✅ **Monetize Expertise**: Validate across communities, earn fees  
+✅ **Prove Without Seeing**: Use ZK proofs (no sensitive data exposure)  
+✅ **Build Reputation**: On-chain accuracy tracking  
+✅ **Stake DBC**: Coordinate across communities, earn platform fees  
 
 🎯 **Presentation**:
 - Professional submission format

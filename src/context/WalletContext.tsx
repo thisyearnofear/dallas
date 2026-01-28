@@ -26,11 +26,16 @@ export interface WalletContextType {
   signTransaction: (transaction: any) => Promise<any>;
   connection: Connection;
   getTransactionHistory: () => Promise<TransactionRecord[]>;
+  // DBC Token (DALLAS BUYERS CLUB) - Primary community token
+  dbcBalance: number;
+  dbcTokenAccount: PublicKey | null;
+  // Legacy - EXPERIENCE token (to be deprecated)
   experienceBalance: number;
   reputationTier: ReputationTier;
   validationCount: number;
   accuracyRate: number;
   refreshExperienceData: () => Promise<void>;
+  refreshDbcBalance: () => Promise<void>;
 }
 
 const NETWORK = getRpcEndpoint();
@@ -55,12 +60,48 @@ export function WalletProvider({ children }: { children: any }) {
   const [lastTransaction, setLastTransaction] = useState<number>(0);
   const [blockchainConfigError, setBlockchainConfigError] = useState<string | null>(null);
   const [experienceBalance, setExperienceBalance] = useState<number>(0);
+  const [dbcBalance, setDbcBalance] = useState<number>(0);
+  const [dbcTokenAccount, setDbcTokenAccount] = useState<PublicKey | null>(null);
   const [validationCount, setValidationCount] = useState<number>(0);
   const [accuracyRate, setAccuracyRate] = useState<number>(0);
   const connection = new Connection(NETWORK);
 
   const reputationTier = calculateReputationTier(validationCount, accuracyRate);
 
+  // Fetch DBC (DALLAS BUYERS CLUB) token balance
+  const fetchDbcBalance = useCallback(async (walletPublicKey?: PublicKey) => {
+    const targetKey = walletPublicKey || publicKey;
+    if (!targetKey) return;
+
+    try {
+      const mintAddress = SOLANA_CONFIG.blockchain.dbcMintAddress;
+      const { getAssociatedTokenAddress } = await import('@solana/spl-token');
+      const mintPubkey = new PublicKey(mintAddress);
+      const tokenAccount = await getAssociatedTokenAddress(mintPubkey, targetKey);
+      
+      setDbcTokenAccount(tokenAccount);
+
+      try {
+        const accountInfo = await connection.getTokenAccountBalance(tokenAccount);
+        setDbcBalance(Number(accountInfo.value.uiAmount) || 0);
+      } catch (error) {
+        // Token account doesn't exist yet - balance is 0
+        setDbcBalance(0);
+      }
+    } catch (error) {
+      console.error('Error fetching DBC balance:', error);
+      setDbcBalance(0);
+      setDbcTokenAccount(null);
+    }
+  }, [connection, publicKey]);
+
+  const refreshDbcBalance = useCallback(async () => {
+    if (publicKey && connected) {
+      await fetchDbcBalance(publicKey);
+    }
+  }, [publicKey, connected, fetchDbcBalance]);
+
+  // Legacy: Fetch EXPERIENCE token data (to be deprecated)
   const fetchExperienceData = useCallback(async (walletPublicKey: PublicKey) => {
     try {
       const mintAddress = SOLANA_CONFIG.blockchain.experienceMintAddress;
@@ -68,9 +109,9 @@ export function WalletProvider({ children }: { children: any }) {
 
       if (isPlaceholder) {
         console.warn('EXPERIENCE token mint not configured, using mock data');
-        setExperienceBalance(150);
-        setValidationCount(35);
-        setAccuracyRate(72);
+        setExperienceBalance(0); // Set to 0 since we're migrating to DBC
+        setValidationCount(0);
+        setAccuracyRate(0);
         return;
       }
 
@@ -82,7 +123,6 @@ export function WalletProvider({ children }: { children: any }) {
         const accountInfo = await connection.getTokenAccountBalance(tokenAccount);
         setExperienceBalance(Number(accountInfo.value.uiAmount) || 0);
       } catch (error) {
-        console.warn('No EXPERIENCE token account found, balance is 0');
         setExperienceBalance(0);
       }
 
@@ -99,8 +139,9 @@ export function WalletProvider({ children }: { children: any }) {
   const refreshExperienceData = useCallback(async () => {
     if (publicKey && connected) {
       await fetchExperienceData(publicKey);
+      await fetchDbcBalance(publicKey);
     }
-  }, [publicKey, connected, fetchExperienceData]);
+  }, [publicKey, connected, fetchExperienceData, fetchDbcBalance]);
 
   // Validate blockchain configuration on startup
   useEffect(() => {
@@ -182,8 +223,9 @@ export function WalletProvider({ children }: { children: any }) {
   useEffect(() => {
     if (publicKey && connected) {
       fetchExperienceData(publicKey);
+      fetchDbcBalance(publicKey);
     }
-  }, [publicKey, connected, fetchExperienceData]);
+  }, [publicKey, connected, fetchExperienceData, fetchDbcBalance]);
 
   const connect = async () => {
     setConnecting(true);
@@ -412,11 +454,16 @@ export function WalletProvider({ children }: { children: any }) {
     signTransaction,
     connection,
     getTransactionHistory,
+    // DBC Token
+    dbcBalance,
+    dbcTokenAccount,
+    // Legacy
     experienceBalance,
     reputationTier,
     validationCount,
     accuracyRate,
     refreshExperienceData,
+    refreshDbcBalance,
   };
 
   return h(WalletContext.Provider, { value }, children);

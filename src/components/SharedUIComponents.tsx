@@ -18,16 +18,16 @@ export function AgentEnhancedModal({ isOpen, onClose, title, children, agentStat
   const sizeClass = size === 'large' ? 'max-w-4xl' : size === 'full' ? 'max-w-6xl max-h-[90vh]' : 'max-w-2xl';
 
   return (
-    <div class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 font-mono">
-      <div class={`bg-gray-200 border-4 border-gray-400 shadow-2xl ${sizeClass} w-full relative`}>
+    <div class="fixed inset-0 bg-slate-900/80 dark:bg-black/80 z-50 flex items-center justify-center p-4 font-mono backdrop-blur-sm">
+      <div class={`bg-slate-50 dark:bg-slate-900 border-4 border-slate-400 dark:border-slate-700 shadow-2xl ${sizeClass} w-full relative rounded-xl overflow-hidden transition-colors duration-300`}>
         {/* Enhanced Title Bar with Agent Status */}
-        <div class="bg-blue-800 text-white px-4 py-2 flex justify-between items-center">
-          <div class="flex items-center gap-2">
-            <div class="w-3 h-3 bg-white border border-black"></div>
-            <span class="font-bold text-sm">{title}</span>
+        <div class="bg-blue-700 dark:bg-blue-900 text-white px-4 py-3 flex justify-between items-center border-b-2 border-slate-300 dark:border-slate-800">
+          <div class="flex items-center gap-3">
+            <div class="w-3 h-3 bg-white border border-black rounded-sm shadow-sm"></div>
+            <span class="font-black text-xs uppercase tracking-widest">{title}</span>
             {/* NEW: Agent status indicator */}
             {agentStatus && (
-              <span class="text-xs bg-green-600 px-2 py-1 rounded">
+              <span class="text-[10px] font-black bg-green-500 text-white px-2 py-0.5 rounded-full shadow-sm animate-pulse">
                 🤖 {agentStatus.toUpperCase()}
               </span>
             )}
@@ -35,7 +35,7 @@ export function AgentEnhancedModal({ isOpen, onClose, title, children, agentStat
           {closeable && (
             <button
               onClick={onClose}
-              class="bg-red-600 hover:bg-red-700 text-white font-bold px-2 py-1 text-xs border border-black"
+              class="bg-red-500 hover:bg-red-600 text-white font-black px-3 py-1 rounded border border-red-700 shadow-md transition-all active:scale-95"
             >
               ✕
             </button>
@@ -43,7 +43,7 @@ export function AgentEnhancedModal({ isOpen, onClose, title, children, agentStat
         </div>
 
         {/* Content */}
-        <div class={`p-6 bg-gray-100 ${size === 'full' ? 'overflow-y-auto max-h-[calc(90vh-60px)]' : ''}`}>
+        <div class={`p-8 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-200 ${size === 'full' ? 'overflow-y-auto max-h-[calc(90vh-60px)]' : ''}`}>
           {children}
         </div>
       </div>
@@ -66,25 +66,29 @@ export function AgentLoadingScreen({ message = "Processing...", agentActivity }:
   }, []);
 
   return (
-    <div class="fixed inset-0 bg-black flex items-center justify-center z-50">
-      <div class="bg-green-900 border-2 border-green-400 p-8 font-mono text-green-400">
+    <div class="fixed inset-0 bg-slate-100/90 dark:bg-black/95 flex items-center justify-center z-[100] backdrop-blur-md">
+      <div class="bg-white dark:bg-slate-900 border-2 border-green-500 p-10 rounded-2xl shadow-2xl font-mono text-green-600 dark:text-green-400 max-w-md w-full transition-all">
         <div class="text-center">
-          <div class="text-lg mb-4">{message}{dots}</div>
+          <div class="text-xl font-black mb-6 uppercase tracking-tighter">{message}{dots}</div>
 
           {/* NEW: Agent activity feed */}
           {agentActivity && (
-            <div class="mt-4 text-xs space-y-1">
-              <div class="text-yellow-400">🤖 AGENT COORDINATION:</div>
+            <div class="mt-6 text-[10px] space-y-2 bg-slate-50 dark:bg-black/40 p-4 rounded-xl border border-slate-100 dark:border-white/5 text-left shadow-inner">
+              <div class="text-yellow-600 dark:text-yellow-400 font-black tracking-widest mb-2 border-b border-yellow-500/20 pb-1">🤖 Agent Coordination:</div>
               {agentActivity.map((activity, i) => (
-                <div key={i} class="text-green-300">→ {activity}</div>
+                <div key={i} class="text-slate-600 dark:text-green-300 font-bold flex items-start gap-2">
+                  <span class="animate-pulse">→</span>
+                  <span>{activity}</span>
+                </div>
               ))}
             </div>
           )}
 
           {/* Animated progress */}
-          <div class="mt-4 w-full bg-black h-2 border border-green-400">
-            <div class="bg-green-400 h-full animate-pulse" style="width: 60%"></div>
+          <div class="mt-8 w-full bg-slate-200 dark:bg-black h-3 border border-slate-300 dark:border-green-900 rounded-full overflow-hidden shadow-inner">
+            <div class="bg-green-500 h-full animate-pulse shadow-sm shadow-green-500" style="width: 65%"></div>
           </div>
+          <div class="mt-4 text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em]">Dallas Identity Restoration Protocol</div>
         </div>
       </div>
     </div>
@@ -123,25 +127,25 @@ export function EnhancedNetworkStatus() {
   }, []);
 
   return (
-    <div class="bg-black text-green-400 p-4 font-mono border border-green-600">
-      <div class="flex items-center gap-2 mb-2">
-        <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-        <span class="text-sm font-bold">UNDERGROUND NETWORK STATUS</span>
+    <div class="bg-white dark:bg-black text-slate-900 dark:text-green-400 p-5 font-mono border-2 border-slate-200 dark:border-green-600 rounded-xl shadow-sm transition-colors">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-sm shadow-green-500"></div>
+        <span class="text-xs font-black uppercase tracking-widest">Network Status</span>
       </div>
 
-      <div class="text-xs h-4">
+      <div class="text-xs font-bold h-6 flex items-center bg-slate-50 dark:bg-white/5 p-3 rounded-lg border border-slate-100 dark:border-white/5 shadow-inner overflow-hidden">
         {isDecrypting ? (
-          <span class="animate-pulse">⚡ DECRYPTING...</span>
+          <span class="animate-pulse text-blue-600 dark:text-blue-400 uppercase">⚡ Decrypting Signal...</span>
         ) : (
-          <span>{networkMessages[currentMessage]}</span>
+          <span class="text-slate-700 dark:text-green-300 transition-all duration-500 italic">"{networkMessages[currentMessage]}"</span>
         )}
       </div>
 
       {/* NEW: Agent coordination indicator */}
-      <div class="mt-2 flex gap-2 text-xs">
-        <span class="bg-blue-900 px-2 py-1 rounded">🤖 4 AGENTS</span>
-        <span class="bg-green-900 px-2 py-1 rounded">✅ COORDINATED</span>
-        <span class="bg-yellow-900 px-2 py-1 rounded">⚡ OPTIMIZING</span>
+      <div class="mt-4 flex flex-wrap gap-2 text-[9px] font-black uppercase tracking-tighter">
+        <span class="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-1 rounded border border-blue-200 dark:border-blue-800">🤖 4 Agents</span>
+        <span class="bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 px-2 py-1 rounded border border-green-200 dark:border-green-800">✅ Coordinated</span>
+        <span class="bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300 px-2 py-1 rounded border border-yellow-200 dark:border-yellow-800">⚡ Optimizing</span>
       </div>
     </div>
   );
@@ -160,10 +164,10 @@ export function AgentEnhancedDangerIndicator({
   };
 }) {
   const getDangerColor = (level: number) => {
-    if (level < 30) return "bg-green-600";
-    if (level < 60) return "bg-yellow-600";
-    if (level < 80) return "bg-orange-600";
-    return "bg-red-600";
+    if (level < 30) return "bg-green-500";
+    if (level < 60) return "bg-yellow-500";
+    if (level < 80) return "bg-orange-500";
+    return "bg-red-500";
   };
 
   const getDangerLabel = (level: number) => {
@@ -174,37 +178,39 @@ export function AgentEnhancedDangerIndicator({
   };
 
   return (
-    <div class="bg-gray-900 p-4 border border-gray-600 font-mono">
-      <div class="flex justify-between items-center mb-2">
-        <span class="text-white text-sm font-bold">THREAT ASSESSMENT</span>
+    <div class="bg-white dark:bg-slate-950 p-6 border-2 border-slate-200 dark:border-slate-800 rounded-2xl font-mono shadow-sm transition-colors">
+      <div class="flex justify-between items-center mb-4">
+        <span class="text-slate-900 dark:text-white text-xs font-black uppercase tracking-widest">Threat Assessment</span>
         {agentAnalysis && (
-          <span class="text-xs text-blue-400">🤖 AI ANALYSIS: {agentAnalysis.confidence}% CONFIDENCE</span>
+          <span class="text-[10px] font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-full border border-blue-100 dark:border-blue-800">🤖 AI Analysis: {agentAnalysis.confidence}%</span>
         )}
       </div>
 
       {/* Danger Level Bar */}
-      <div class="flex items-center gap-2 mb-2">
-        <span class="text-white text-xs w-16">{getDangerLabel(level)}</span>
-        <div class="flex-1 bg-gray-700 h-4 border border-gray-500">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-slate-700 dark:text-white text-[10px] font-black w-16 uppercase tracking-tighter">{getDangerLabel(level)}</span>
+        <div class="flex-1 bg-slate-100 dark:bg-slate-800 h-4 border border-slate-200 dark:border-slate-700 rounded-full overflow-hidden shadow-inner">
           <div
-            class={`h-full ${getDangerColor(level)} transition-all duration-500`}
+            class={`h-full ${getDangerColor(level)} transition-all duration-700 shadow-md`}
             style={`width: ${level}%`}
           ></div>
         </div>
-        <span class="text-white text-xs w-8">{level}%</span>
+        <span class="text-slate-900 dark:text-white text-xs font-black w-10 text-right">{level}%</span>
       </div>
 
       {/* NEW: Agent analysis details */}
       {agentAnalysis && (
-        <div class="mt-2 space-y-1 text-xs">
+        <div class="mt-4 space-y-2 text-[10px] font-bold border-t border-slate-100 dark:border-slate-800 pt-4">
           {agentAnalysis.threats.length > 0 && (
-            <div class="text-red-400">
-              ⚠️ THREATS: {agentAnalysis.threats.slice(0, 2).join(", ")}
+            <div class="text-red-600 dark:text-red-400 flex items-start gap-2 uppercase">
+              <span>⚠️</span>
+              <span>Threats: {agentAnalysis.threats.slice(0, 2).join(", ")}</span>
             </div>
           )}
           {agentAnalysis.recommendations.length > 0 && (
-            <div class="text-green-400">
-              💡 RECOMMEND: {agentAnalysis.recommendations[0]}
+            <div class="text-green-600 dark:text-green-400 flex items-start gap-2 uppercase">
+              <span>💡</span>
+              <span>Recommend: {agentAnalysis.recommendations[0]}</span>
             </div>
           )}
         </div>
@@ -239,11 +245,11 @@ export function EnhancedTerminalInterface({
   };
 
   return (
-    <div class="bg-black text-green-400 p-4 font-mono text-sm border-2 border-green-600 min-h-[400px]">
+    <div class="bg-slate-950 dark:bg-black text-green-500 dark:text-green-400 p-6 font-mono text-sm border-2 border-green-500/30 rounded-2xl shadow-2xl min-h-[450px] flex flex-col transition-colors duration-500">
       {/* Terminal Output */}
-      <div class="mb-4 space-y-1">
+      <div class="flex-grow mb-6 space-y-1 overflow-y-auto max-h-[350px] custom-scrollbar scrollbar-thin scrollbar-thumb-green-900">
         {history.map((line, i) => (
-          <div key={i} class={line.startsWith(">") ? "text-yellow-400" : ""}>
+          <div key={i} class={`${line.startsWith(">") ? "text-yellow-400 font-black" : "font-medium"} leading-tight`}>
             {line}
           </div>
         ))}
@@ -251,29 +257,34 @@ export function EnhancedTerminalInterface({
 
       {/* NEW: Agent Suggestions */}
       {agentSuggestions.length > 0 && (
-        <div class="mb-2 p-2 bg-blue-900/30 border border-blue-600">
-          <div class="text-blue-400 text-xs mb-1">🤖 AGENT SUGGESTIONS:</div>
-          {agentSuggestions.map((suggestion, i) => (
-            <div
-              key={i}
-              class="text-blue-300 text-xs cursor-pointer hover:text-white"
-              onClick={() => setInput(suggestion)}
-            >
-              → {suggestion}
-            </div>
-          ))}
+        <div class="mb-4 p-4 bg-blue-900/20 border border-blue-500/30 rounded-xl shadow-inner">
+          <div class="text-blue-400 text-[10px] font-black uppercase tracking-widest mb-3 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
+            🤖 Agent Suggestions:
+          </div>
+          <div class="flex flex-wrap gap-2">
+            {agentSuggestions.map((suggestion, i) => (
+              <div
+                key={i}
+                class="text-blue-300 text-[10px] font-bold cursor-pointer hover:text-white bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20 hover:border-blue-400 transition-all hover:bg-blue-500/30 uppercase tracking-tighter"
+                onClick={() => setInput(suggestion)}
+              >
+                {suggestion}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
       {/* Command Input */}
-      <form onSubmit={handleSubmit} class="flex items-center">
-        <span class="text-green-400 mr-2">&gt;</span>
+      <form onSubmit={handleSubmit} class="flex items-center gap-3 bg-black/40 p-3 rounded-xl border border-white/5 shadow-inner group">
+        <span class="text-green-500 font-black animate-pulse">$</span>
         <input
           type="text"
           value={input}
           onChange={(e) => setInput((e.target as HTMLInputElement).value)}
-          class="flex-1 bg-transparent text-green-400 outline-none"
-          placeholder="Enter command..."
+          class="flex-1 bg-transparent text-green-400 outline-none font-bold placeholder:opacity-20 placeholder:text-green-900"
+          placeholder="Enter command (e.g. HELP, SCAN, SYNC)"
           autoFocus
         />
       </form>
@@ -298,16 +309,16 @@ export function DisclaimerBanner({ variant = 'minimal' }: { variant?: 'minimal' 
   if (dismissed && variant === 'minimal') return null;
   
   return (
-    <div class="fixed bottom-0 left-0 right-0 bg-yellow-900/95 border-t-2 border-yellow-600 px-4 py-2 z-40">
-      <div class="max-w-6xl mx-auto flex items-center justify-between gap-4">
-        <div class="flex items-center gap-2 text-yellow-200 text-sm">
-          <span class="text-yellow-400">⚠️</span>
-          <span>{variant === 'full' ? DISCLAIMER_BANNER.full : DISCLAIMER_BANNER.short}</span>
+    <div class="fixed bottom-0 left-0 right-0 bg-yellow-100 dark:bg-yellow-900/95 border-t-2 border-yellow-400 dark:border-yellow-600 px-6 py-3 z-40 shadow-2xl backdrop-blur-md transition-all">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-6">
+        <div class="flex items-center gap-4 text-yellow-800 dark:text-yellow-200 text-xs sm:text-sm font-bold">
+          <span class="text-2xl animate-bounce">⚠️</span>
+          <span class="leading-relaxed">{variant === 'full' ? DISCLAIMER_BANNER.full : DISCLAIMER_BANNER.short}</span>
         </div>
         {variant === 'minimal' && (
           <button 
             onClick={() => setDismissed(true)}
-            class="text-yellow-400 hover:text-yellow-200 text-xs px-2 py-1 border border-yellow-600 rounded"
+            class="bg-yellow-200 dark:bg-yellow-800/50 text-yellow-800 dark:text-yellow-400 hover:bg-yellow-300 dark:hover:text-yellow-200 text-[10px] font-black uppercase tracking-widest px-4 py-2 border border-yellow-400 dark:border-yellow-600 rounded-lg transition-all transform hover:scale-105 active:scale-95"
           >
             Dismiss
           </button>
@@ -333,27 +344,36 @@ export function SubmissionConsentCheckboxes({
   }, [checked, onAllChecked]);
   
   return (
-    <div class="space-y-3 p-4 bg-gray-800 border border-yellow-600 rounded-lg">
-      <div class="text-yellow-400 font-bold text-sm mb-2">
-        ⚠️ {SUBMISSION_CONSENT.title}
+    <div class="space-y-4 p-6 bg-slate-50 dark:bg-slate-800/50 border-2 border-yellow-500/30 rounded-2xl shadow-inner transition-colors">
+      <div class="text-yellow-700 dark:text-yellow-400 font-black text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
+        <span class="text-lg">⚠️</span>
+        <span>{SUBMISSION_CONSENT.title}</span>
       </div>
-      {SUBMISSION_CONSENT.checkboxes.map((item) => (
-        <label key={item.id} class="flex items-start gap-3 cursor-pointer group">
-          <input
-            type="checkbox"
-            checked={checked[item.id] || false}
-            onChange={(e) => setChecked(prev => ({ 
-              ...prev, 
-              [item.id]: (e.target as HTMLInputElement).checked 
-            }))}
-            class="mt-1 w-4 h-4 accent-green-500"
-          />
-          <span class="text-sm text-gray-300 group-hover:text-white">
-            {item.label}
-            {item.required && <span class="text-red-400 ml-1">*</span>}
-          </span>
-        </label>
-      ))}
+      <div class="space-y-3">
+        {SUBMISSION_CONSENT.checkboxes.map((item) => (
+          <label key={item.id} class="flex items-start gap-4 cursor-pointer group p-2 hover:bg-white dark:hover:bg-black/20 rounded-lg transition-all">
+            <div class="relative flex items-center">
+              <input
+                type="checkbox"
+                checked={checked[item.id] || false}
+                onChange={(e) => setChecked(prev => ({ 
+                  ...prev, 
+                  [item.id]: (e.target as HTMLInputElement).checked 
+                }))}
+                class="sr-only peer"
+              />
+              <div class="w-5 h-5 bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 rounded-md peer-checked:bg-green-500 peer-checked:border-green-600 transition-all shadow-sm"></div>
+              <svg class="absolute w-3.5 h-3.5 text-white left-[3px] top-[3px] opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <span class="text-xs font-bold text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white leading-relaxed">
+              {item.label}
+              {item.required && <span class="text-red-500 ml-1.5 font-black">*</span>}
+            </span>
+          </label>
+        ))}
+      </div>
     </div>
   );
 }
@@ -361,11 +381,14 @@ export function SubmissionConsentCheckboxes({
 // Terms of Service modal content
 export function TermsOfServiceContent() {
   return (
-    <div class="text-sm space-y-4 pr-2">
+    <div class="text-sm space-y-6 pr-4 font-medium leading-relaxed">
       {TERMS_OF_SERVICE.sections.map((section, i) => (
-        <div key={i}>
-          <h4 class="font-bold text-green-400 mb-1">{section.heading}</h4>
-          <p class="whitespace-pre-line text-gray-300">{section.content}</p>
+        <div key={i} class="bg-slate-50 dark:bg-black/20 p-5 rounded-xl border border-slate-100 dark:border-white/5">
+          <h4 class="font-black text-green-700 dark:text-green-400 mb-3 uppercase tracking-tighter flex items-center gap-2">
+            <span class="w-1.5 h-4 bg-green-500 rounded-full"></span>
+            {section.heading}
+          </h4>
+          <p class="whitespace-pre-line text-slate-700 dark:text-slate-300 text-xs sm:text-sm">{section.content}</p>
         </div>
       ))}
     </div>
@@ -375,11 +398,14 @@ export function TermsOfServiceContent() {
 // Privacy Policy modal content
 export function PrivacyPolicyContent() {
   return (
-    <div class="text-sm space-y-4 pr-2">
+    <div class="text-sm space-y-6 pr-4 font-medium leading-relaxed">
       {PRIVACY_POLICY.sections.map((section, i) => (
-        <div key={i}>
-          <h4 class="font-bold text-green-400 mb-1">{section.heading}</h4>
-          <p class="whitespace-pre-line text-gray-300">{section.content}</p>
+        <div key={i} class="bg-slate-50 dark:bg-black/20 p-5 rounded-xl border border-slate-100 dark:border-white/5">
+          <h4 class="font-black text-blue-700 dark:text-blue-400 mb-3 uppercase tracking-tighter flex items-center gap-2">
+            <span class="w-1.5 h-4 bg-blue-500 rounded-full"></span>
+            {section.heading}
+          </h4>
+          <p class="whitespace-pre-line text-slate-700 dark:text-slate-300 text-xs sm:text-sm">{section.content}</p>
         </div>
       ))}
     </div>
@@ -401,35 +427,36 @@ export function TermsAcceptanceModal({
   
   return (
     <>
-      <div class="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 font-mono">
-        <div class="bg-gray-900 border-2 border-green-500 shadow-2xl shadow-green-500/20 max-w-md w-full rounded-lg">
+      <div class="fixed inset-0 bg-slate-900/90 dark:bg-black/95 z-[100] flex items-center justify-center p-4 font-mono backdrop-blur-xl transition-all duration-500">
+        <div class="bg-white dark:bg-slate-900 border-2 border-green-500/50 shadow-2xl max-w-md w-full rounded-2xl overflow-hidden transform animate-scaleIn">
           {/* Title Bar */}
-          <div class="bg-green-600 text-white px-4 py-3 rounded-t-md">
-            <div class="flex items-center gap-2">
-              <span class="text-lg">🏥</span>
-              <span class="font-bold">Welcome to Dallas Buyers Club</span>
+          <div class="bg-green-600 text-white px-6 py-5 border-b border-green-700 flex items-center gap-3">
+            <div class="text-2xl bg-white/20 p-2 rounded-xl backdrop-blur-sm">🏥</div>
+            <div>
+              <span class="font-black uppercase tracking-[0.2em] text-sm block">Verification Protocol</span>
+              <span class="text-[9px] font-bold opacity-70 uppercase tracking-widest">Dallas_Buyers_Club_Mainnet</span>
             </div>
           </div>
           
           {/* Content */}
-          <div class="p-6">
-            <p class="text-white text-base mb-4">
+          <div class="p-8">
+            <p class="text-slate-900 dark:text-white text-lg font-bold leading-tight mb-6 tracking-tight">
               A privacy-first community for sharing wellness experiments. 
-              This is <strong class="text-yellow-400">not medical advice</strong>.
+              This is <strong class="text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/30 px-1 rounded">not medical advice</strong>.
             </p>
             
-            <p class="text-gray-300 text-sm mb-6">
-              By continuing, you agree to our{' '}
+            <p class="text-slate-600 dark:text-slate-400 text-xs font-medium mb-8 leading-relaxed">
+              By continuing, you acknowledge our mission and agree to our{' '}
               <button 
                 onClick={() => setShowTerms(true)} 
-                class="text-green-400 underline hover:text-green-300 font-medium"
+                class="text-green-600 dark:text-green-400 underline decoration-dotted underline-offset-4 hover:text-green-700 dark:hover:text-green-300 font-black transition-colors"
               >
                 Terms of Service
               </button>
               {' '}and{' '}
               <button 
                 onClick={() => setShowPrivacy(true)} 
-                class="text-green-400 underline hover:text-green-300 font-medium"
+                class="text-green-600 dark:text-green-400 underline decoration-dotted underline-offset-4 hover:text-green-700 dark:hover:text-green-300 font-black transition-colors"
               >
                 Privacy Policy
               </button>.
@@ -437,9 +464,9 @@ export function TermsAcceptanceModal({
             
             <button
               onClick={onAccept}
-              class="w-full py-3 font-bold text-lg rounded bg-green-600 text-white hover:bg-green-500 transition border border-green-400"
+              class="w-full py-4 font-black text-lg rounded-xl bg-green-600 text-white hover:bg-green-700 transition-all transform hover:scale-[1.02] active:scale-95 shadow-xl border border-green-500 uppercase tracking-widest"
             >
-              Continue
+              Enter Club
             </button>
           </div>
         </div>
@@ -447,14 +474,24 @@ export function TermsAcceptanceModal({
 
       {/* Expandable Terms Modal */}
       {showTerms && (
-        <div class="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4 font-mono">
-          <div class="bg-gray-900 border-2 border-green-500 shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col rounded-lg">
-            <div class="bg-green-600 text-white px-4 py-3 flex justify-between items-center rounded-t-md">
-              <span class="font-bold">Terms of Service</span>
-              <button onClick={() => setShowTerms(false)} class="text-white hover:text-green-200 text-xl leading-none">&times;</button>
+        <div class="fixed inset-0 bg-slate-900/95 dark:bg-black/90 z-[110] flex items-center justify-center p-4 font-mono backdrop-blur-md">
+          <div class="bg-white dark:bg-slate-900 border-2 border-green-500 shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col rounded-2xl overflow-hidden animate-slideUp">
+            <div class="bg-green-600 text-white px-6 py-4 flex justify-between items-center border-b border-green-700 shadow-md">
+              <span class="font-black uppercase tracking-[0.2em] text-sm">Terms of Service</span>
+              <button 
+                onClick={() => setShowTerms(false)} 
+                class="bg-white/20 hover:bg-white/30 p-1.5 rounded-lg transition-all"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
             </div>
-            <div class="p-6 overflow-y-auto flex-1 text-gray-200">
+            <div class="p-8 overflow-y-auto flex-1 custom-scrollbar scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
               <TermsOfServiceContent />
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-black/20 border-t border-slate-100 dark:border-white/5 text-center">
+              <button onClick={() => setShowTerms(false)} class="text-[10px] font-black text-green-600 uppercase tracking-widest hover:underline">Close Document</button>
             </div>
           </div>
         </div>
@@ -462,14 +499,24 @@ export function TermsAcceptanceModal({
 
       {/* Expandable Privacy Modal */}
       {showPrivacy && (
-        <div class="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4 font-mono">
-          <div class="bg-gray-900 border-2 border-green-500 shadow-2xl max-w-2xl w-full max-h-[80vh] flex flex-col rounded-lg">
-            <div class="bg-green-600 text-white px-4 py-3 flex justify-between items-center rounded-t-md">
-              <span class="font-bold">Privacy Policy</span>
-              <button onClick={() => setShowPrivacy(false)} class="text-white hover:text-green-200 text-xl leading-none">&times;</button>
+        <div class="fixed inset-0 bg-slate-900/95 dark:bg-black/90 z-[110] flex items-center justify-center p-4 font-mono backdrop-blur-md">
+          <div class="bg-white dark:bg-slate-900 border-2 border-green-500 shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col rounded-2xl overflow-hidden animate-slideUp">
+            <div class="bg-green-600 text-white px-6 py-4 flex justify-between items-center border-b border-green-700 shadow-md">
+              <span class="font-black uppercase tracking-[0.2em] text-sm">Privacy Policy</span>
+              <button 
+                onClick={() => setShowPrivacy(false)} 
+                class="bg-white/20 hover:bg-white/30 p-1.5 rounded-lg transition-all"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
             </div>
-            <div class="p-6 overflow-y-auto flex-1 text-gray-200">
+            <div class="p-8 overflow-y-auto flex-1 custom-scrollbar scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
               <PrivacyPolicyContent />
+            </div>
+            <div class="p-4 bg-slate-50 dark:bg-black/20 border-t border-slate-100 dark:border-white/5 text-center">
+              <button onClick={() => setShowPrivacy(false)} class="text-[10px] font-black text-green-600 uppercase tracking-widest hover:underline">Close Document</button>
             </div>
           </div>
         </div>
@@ -481,9 +528,11 @@ export function TermsAcceptanceModal({
 // Discovery results disclaimer (inline)
 export function DiscoveryDisclaimer() {
   return (
-    <div class="bg-yellow-900/30 border border-yellow-600 rounded p-3 text-sm text-yellow-200">
-      <span class="text-yellow-400 mr-1">⚠️</span>
-      {DISCOVERY_DISCLAIMER}
+    <div class="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 p-5 rounded-2xl text-xs sm:text-sm text-yellow-800 dark:text-yellow-200 shadow-sm transition-all animate-fadeIn">
+      <div class="flex items-start gap-4">
+        <span class="text-2xl animate-pulse">⚠️</span>
+        <div class="font-bold leading-relaxed">{DISCOVERY_DISCLAIMER}</div>
+      </div>
     </div>
   );
 }

@@ -124,43 +124,43 @@ export function ReferralSystem() {
         <div class="max-w-4xl mx-auto space-y-6">
             {/* Success Message */}
             {showSuccess && (
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg animate-fadeIn">
+                <div class="bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-300 px-4 py-3 rounded-lg animate-fadeIn shadow-sm">
                     <div class="flex items-center gap-2">
                         <span class="text-xl">✅</span>
-                        <span class="font-medium">Shared successfully! Keep spreading hope.</span>
+                        <span class="font-bold">Shared successfully! Keep spreading hope.</span>
                     </div>
                 </div>
             )}
 
             {/* Header with Stats */}
-            <div class="bg-gradient-to-br from-brand to-brand-accent text-white p-6 rounded-lg">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="bg-gradient-to-br from-brand to-brand-accent text-white p-8 rounded-2xl shadow-lg">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
                         <h1 class="text-3xl font-bold mb-2">🤝 Spread Hope</h1>
-                        <p class="opacity-90">
+                        <p class="text-white/90 text-lg">
                             Help others find the treatments they need. Every referral saves lives.
                         </p>
                     </div>
-                    <div class="text-center">
+                    <div class="text-center bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30 min-w-[120px]">
                         <div class="text-4xl font-bold">{totalReferrals}</div>
-                        <div class="text-sm opacity-75">People Helped</div>
+                        <div class="text-sm font-bold opacity-90 uppercase tracking-wider">People Helped</div>
                     </div>
                 </div>
             </div>
 
             {/* Referral Progress */}
-            <div class="bg-white p-6 rounded-lg border border-gray-200">
-                <h2 class="text-2xl font-bold mb-4">🏆 Your Referral Journey</h2>
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+                <h2 class="text-2xl font-bold mb-6 text-slate-900 dark:text-white">🏆 Your Referral Journey</h2>
                 
                 {/* Progress Bar */}
-                <div class="mb-6">
-                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                <div class="mb-8">
+                    <div class="flex justify-between text-sm font-bold text-slate-600 dark:text-slate-400 mb-3">
                         <span>Progress to {nextReward.title}</span>
                         <span>{totalReferrals}/{nextReward.referralsNeeded} referrals</span>
                     </div>
-                    <div class="w-full bg-gray-200 rounded-full h-4">
+                    <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-4 shadow-inner">
                         <div 
-                            class="bg-gradient-to-r from-brand to-brand-accent rounded-full h-4 transition-all duration-500"
+                            class="bg-gradient-to-r from-brand to-brand-accent rounded-full h-4 transition-all duration-700 shadow-sm"
                             style={{ width: `${Math.min((totalReferrals / nextReward.referralsNeeded) * 100, 100)}%` }}
                         ></div>
                     </div>
@@ -172,22 +172,22 @@ export function ReferralSystem() {
                         <div 
                             key={reward.level}
                             class={`
-                                p-4 rounded-lg border-2 transition-all duration-300
+                                p-5 rounded-xl border-2 transition-all duration-300 transform hover:scale-105
                                 ${totalReferrals >= reward.referralsNeeded 
-                                    ? 'bg-gradient-to-br from-green-100 to-green-200 border-green-300' 
+                                    ? 'bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-300 dark:border-green-600 shadow-sm' 
                                     : totalReferrals >= reward.referralsNeeded - 2
-                                    ? 'bg-gradient-to-br from-yellow-100 to-yellow-200 border-yellow-300'
-                                    : 'bg-gray-50 border-gray-200'
+                                    ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border-yellow-300 dark:border-yellow-600 shadow-sm'
+                                    : 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700'
                                 }
                             `}
                         >
                             <div class="text-center">
-                                <div class="text-3xl mb-2">{reward.icon}</div>
-                                <h3 class="font-bold text-sm mb-1">{reward.title}</h3>
-                                <p class="text-xs text-gray-600 mb-2">{reward.referralsNeeded} referrals</p>
+                                <div class="text-3xl mb-3">{reward.icon}</div>
+                                <h3 class={`font-bold text-sm mb-1 ${totalReferrals >= reward.referralsNeeded ? 'text-green-800 dark:text-green-300' : 'text-slate-900 dark:text-white'}`}>{reward.title}</h3>
+                                <p class={`text-xs mb-3 font-medium ${totalReferrals >= reward.referralsNeeded ? 'text-green-700 dark:text-green-400' : 'text-slate-500 dark:text-slate-400'}`}>{reward.referralsNeeded} referrals</p>
                                 <div class="space-y-1">
                                     {reward.rewards.map((r, i) => (
-                                        <div key={i} class="text-xs bg-white/50 px-2 py-1 rounded">
+                                        <div key={i} class={`text-[10px] px-2 py-1 rounded font-bold uppercase tracking-tighter ${totalReferrals >= reward.referralsNeeded ? 'bg-white/60 dark:bg-green-800/40 text-green-800 dark:text-green-200' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}`}>
                                             {r}
                                         </div>
                                     ))}
@@ -199,16 +199,16 @@ export function ReferralSystem() {
             </div>
 
             {/* Your Referral Code */}
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg border border-blue-200">
-                <h2 class="text-xl font-bold mb-4">📋 Your Referral Code</h2>
-                <div class="flex items-center gap-4 p-4 bg-white rounded-lg border-2 border-blue-300">
+            <div class="bg-blue-50 dark:bg-blue-900/20 p-8 rounded-2xl border border-blue-100 dark:border-blue-800/50 shadow-sm transition-colors">
+                <h2 class="text-xl font-bold mb-4 text-blue-900 dark:text-blue-300">📋 Your Referral Code</h2>
+                <div class="flex items-center gap-4 p-5 bg-white dark:bg-slate-900 rounded-xl border-2 border-blue-200 dark:border-blue-700 shadow-inner">
                     <div class="flex-grow">
-                        <div class="font-mono text-2xl font-bold text-brand">{referralCode}</div>
-                        <div class="text-sm text-gray-600">Share this code with friends</div>
+                        <div class="font-mono text-3xl font-bold text-brand">{referralCode}</div>
+                        <div class="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">Share this code with friends</div>
                     </div>
                     <button 
                         onClick={() => handleShare('copy')}
-                        class="bg-brand text-white font-bold py-2 px-6 rounded hover:bg-brand-accent transition-colors"
+                        class="bg-brand text-white font-bold py-3 px-8 rounded-lg hover:bg-brand-accent transition-all transform hover:scale-105 shadow-md"
                     >
                         📋 Copy
                     </button>
@@ -216,121 +216,118 @@ export function ReferralSystem() {
             </div>
 
             {/* Share Methods */}
-            <div class="bg-white p-6 rounded-lg border border-gray-200">
-                <h2 class="text-xl font-bold mb-4">📤 Share with Others</h2>
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+                <h2 class="text-xl font-bold mb-6 text-slate-900 dark:text-white">📤 Share with Others</h2>
                 
                 {/* Method Tabs */}
-                <div class="flex mb-6 bg-gray-100 rounded-lg p-1">
+                <div class="flex mb-8 bg-slate-100 dark:bg-slate-800 rounded-xl p-1.5 shadow-inner">
                     {[
-                        { id: 'link', label: '🔗 Share Link', icon: '🔗' },
-                        { id: 'email', label: '📧 Send Email', icon: '📧' },
-                        { id: 'social', label: '📱 Social Media', icon: '📱' }
+                        { id: 'link', label: 'Share Link', icon: '🔗' },
+                        { id: 'email', label: 'Send Email', icon: '📧' },
+                        { id: 'social', label: 'Social Media', icon: '📱' }
                     ].map((method) => (
                         <button
                             key={method.id}
                             onClick={() => setSelectedMethod(method.id as any)}
                             class={`
-                                flex-1 py-2 px-4 rounded-md font-medium transition-all duration-300
+                                flex-1 py-2.5 px-4 rounded-lg font-bold transition-all duration-300 text-sm flex items-center justify-center gap-2
                                 ${selectedMethod === method.id 
-                                    ? 'bg-white text-brand shadow-md' 
-                                    : 'text-gray-600 hover:text-brand'
+                                    ? 'bg-white dark:bg-slate-700 text-brand shadow-md transform scale-[1.02]' 
+                                    : 'text-slate-500 dark:text-slate-400 hover:text-brand'
                                 }
                             `}
                         >
-                            {method.label}
+                            <span>{method.icon}</span>
+                            <span>{method.label}</span>
                         </button>
                     ))}
                 </div>
 
                 {/* Share Content */}
                 {selectedMethod === 'link' && (
-                    <div class="space-y-4">
-                        <div class="p-4 bg-gray-50 rounded-lg">
-                            <p class="text-sm text-gray-600 mb-3">Share this link with anyone who needs hope:</p>
-                            <div class="flex items-center gap-3">
+                    <div class="space-y-4 animate-fadeIn">
+                        <div class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700">
+                            <p class="text-sm font-bold text-slate-600 dark:text-slate-300 mb-4 italic">Share this link with anyone who needs hope:</p>
+                            <div class="flex flex-col sm:flex-row items-stretch gap-3">
                                 <input 
                                     type="text" 
                                     value={`${window.location.origin}?ref=${referralCode}`}
                                     readonly
-                                    class="flex-grow p-3 border border-gray-300 rounded bg-white font-mono text-sm"
+                                    class="flex-grow p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 font-mono text-sm shadow-inner outline-none focus:border-brand transition-colors text-slate-800 dark:text-slate-200"
                                 />
                                 <button 
                                     onClick={() => handleShare('copy')}
-                                    class="bg-brand text-white font-bold py-3 px-6 rounded hover:bg-brand-accent transition-colors"
+                                    class="bg-brand text-white font-bold py-4 px-8 rounded-lg hover:bg-brand-accent transition-all transform hover:scale-105 shadow-lg whitespace-nowrap"
                                 >
                                     Copy Link
                                 </button>
                             </div>
                         </div>
-                        <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-                            <p class="text-sm text-yellow-800">
-                                💡 <strong>Tip:</strong> Personal messages work better. Share your story about how the club helped you.
+                        <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 p-4 rounded-xl flex gap-3 items-center">
+                            <span class="text-2xl">💡</span>
+                            <p class="text-sm text-yellow-800 dark:text-yellow-200 font-medium">
+                                <strong>Tip:</strong> Personal messages work better. Share your story about how the club helped you.
                             </p>
                         </div>
                     </div>
                 )}
 
                 {selectedMethod === 'email' && (
-                    <div class="space-y-4">
+                    <div class="space-y-5 animate-fadeIn">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Email Address</label>
                             <input 
                                 type="email" 
                                 value={email}
                                 onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
                                 placeholder="friend@example.com"
-                                class="w-full p-3 border border-gray-300 rounded focus:border-brand outline-none"
+                                class="w-full p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 focus:border-brand outline-none transition-colors shadow-inner text-slate-800 dark:text-slate-200"
                             />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Personal Message (Optional)</label>
+                            <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Personal Message (Optional)</label>
                             <textarea 
                                 value={message}
                                 onChange={(e) => setMessage((e.target as HTMLTextAreaElement).value)}
                                 placeholder="Add a personal note about how the club helped you..."
-                                class="w-full p-3 border border-gray-300 rounded focus:border-brand outline-none h-24 resize-none"
+                                class="w-full p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 focus:border-brand outline-none h-32 resize-none transition-colors shadow-inner text-slate-800 dark:text-slate-200"
                             ></textarea>
                         </div>
                         <button 
                             onClick={sendEmail}
                             disabled={!email}
-                            class="w-full bg-brand text-white font-bold py-3 px-6 rounded hover:bg-brand-accent transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                            class="w-full bg-brand text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-accent transition-all transform hover:scale-[1.01] shadow-lg disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed disabled:transform-none"
                         >
                             📧 Send Invitation
                         </button>
-                        <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-                            <p class="text-sm text-blue-800">
-                                📧 We'll send a personalized invitation with your referral code and story.
-                            </p>
-                        </div>
                     </div>
                 )}
 
                 {selectedMethod === 'social' && (
-                    <div class="space-y-4">
+                    <div class="space-y-6 animate-fadeIn">
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <button 
                                 onClick={() => handleShare('twitter')}
-                                class="bg-blue-400 text-white font-bold py-3 px-6 rounded hover:bg-blue-500 transition-colors"
+                                class="bg-[#1DA1F2] text-white font-bold py-4 px-6 rounded-xl hover:brightness-110 transition-all transform hover:scale-105 shadow-md"
                             >
                                 🐦 Twitter
                             </button>
                             <button 
                                 onClick={() => handleShare('facebook')}
-                                class="bg-blue-600 text-white font-bold py-3 px-6 rounded hover:bg-blue-700 transition-colors"
+                                class="bg-[#1877F2] text-white font-bold py-4 px-6 rounded-xl hover:brightness-110 transition-all transform hover:scale-105 shadow-md"
                             >
                                 📘 Facebook
                             </button>
                             <button 
                                 onClick={() => handleShare('copy')}
-                                class="bg-gray-600 text-white font-bold py-3 px-6 rounded hover:bg-gray-700 transition-colors"
+                                class="bg-slate-600 text-white font-bold py-4 px-6 rounded-xl hover:bg-slate-700 transition-all transform hover:scale-105 shadow-md"
                             >
                                 📋 Copy Text
                             </button>
                         </div>
-                        <div class="p-4 bg-gray-50 rounded-lg">
-                            <p class="text-sm text-gray-600 mb-2">Preview of your post:</p>
-                            <div class="p-3 bg-white border rounded text-sm">
+                        <div class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700 shadow-inner">
+                            <p class="text-sm font-bold text-slate-500 dark:text-slate-400 mb-3 italic uppercase tracking-wider">Preview of your post:</p>
+                            <div class="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-800 dark:text-slate-200 font-medium">
                                 {shareText}
                             </div>
                         </div>
@@ -339,39 +336,42 @@ export function ReferralSystem() {
             </div>
 
             {/* Your Referrals */}
-            <div class="bg-white p-6 rounded-lg border border-gray-200">
-                <h2 class="text-xl font-bold mb-4">👥 Your Referrals ({myReferrals.length})</h2>
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+                <h2 class="text-xl font-bold mb-6 text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>👥 Your Referrals</span>
+                    <span class="bg-brand/10 text-brand text-sm px-2 py-0.5 rounded-full">{myReferrals.length}</span>
+                </h2>
                 
                 {myReferrals.length === 0 ? (
-                    <div class="text-center py-8 text-gray-500">
-                        <div class="text-4xl mb-4">🤝</div>
-                        <p>No referrals yet. Start spreading hope!</p>
+                    <div class="text-center py-12 text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/30 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700">
+                        <div class="text-5xl mb-4">🤝</div>
+                        <p class="text-lg font-medium">No referrals yet. Start spreading hope!</p>
                     </div>
                 ) : (
-                    <div class="space-y-3">
+                    <div class="space-y-4">
                         {myReferrals.map((referral) => (
-                            <div key={referral.id} class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                                <div class="flex items-center gap-3">
-                                    <div class="text-2xl">{referral.icon}</div>
+                            <div key={referral.id} class="flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-800/40 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-brand/20">
+                                <div class="flex items-center gap-4">
+                                    <div class="text-3xl bg-white dark:bg-slate-700 p-2 rounded-lg shadow-sm">{referral.icon}</div>
                                     <div>
-                                        <h3 class="font-medium">{referral.name}</h3>
-                                        <p class="text-sm text-gray-600">
+                                        <h3 class="font-bold text-slate-900 dark:text-white">{referral.name}</h3>
+                                        <p class="text-sm text-slate-500 dark:text-slate-400">
                                             {referral.joinedDate ? `Joined ${referral.joinedDate}` : 'Invitation sent'}
                                         </p>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-3">
+                                <div class="flex items-center gap-4">
                                     <span class={`
-                                        px-3 py-1 rounded-full text-xs font-semibold
-                                        ${referral.status === 'active' ? 'bg-green-100 text-green-800' :
-                                          referral.status === 'joined' ? 'bg-blue-100 text-blue-800' :
-                                          'bg-yellow-100 text-yellow-800'}
+                                        px-4 py-1.5 rounded-full text-xs font-bold shadow-sm
+                                        ${referral.status === 'active' ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300' :
+                                          referral.status === 'joined' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300' :
+                                          'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300'}
                                     `}>
                                         {referral.status === 'active' ? '✅ Active' :
                                          referral.status === 'joined' ? '🤝 Joined' :
                                          '⏳ Pending'}
                                     </span>
-                                    <span class="text-sm font-medium text-brand">{referral.reward}</span>
+                                    <span class="text-sm font-bold text-brand">{referral.reward}</span>
                                 </div>
                             </div>
                         ))}
@@ -379,13 +379,28 @@ export function ReferralSystem() {
                 )}
 
                 {/* Referral Tips */}
-                <div class="mt-6 p-4 bg-gradient-to-r from-brand/10 to-brand/5 rounded-lg border border-brand/20">
-                    <h3 class="font-bold text-brand mb-2">💡 Referral Tips</h3>
-                    <ul class="text-sm text-gray-700 space-y-1">
-                        <li>• Share your personal story about how the club helped you</li>
-                        <li>• Focus on people who are actively seeking alternative treatments</li>
-                        <li>• Be genuine - this isn't about making money, it's about saving lives</li>
-                        <li>• Follow up with support after they join</li>
+                <div class="mt-8 p-6 bg-gradient-to-r from-brand/10 to-brand/5 dark:from-brand/20 dark:to-brand/10 rounded-xl border border-brand/20">
+                    <h3 class="font-bold text-brand mb-3 flex items-center gap-2">
+                        <span>💡</span>
+                        <span>Referral Tips</span>
+                    </h3>
+                    <ul class="text-sm text-slate-700 dark:text-slate-300 space-y-2 font-medium">
+                        <li class="flex items-start gap-2">
+                            <span class="text-brand">•</span>
+                            <span>Share your personal story about how the club helped you</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-brand">•</span>
+                            <span>Focus on people who are actively seeking alternative treatments</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-brand">•</span>
+                            <span>Be genuine - this isn't about making money, it's about saving lives</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-brand">•</span>
+                            <span>Follow up with support after they join</span>
+                        </li>
                     </ul>
                 </div>
             </div>

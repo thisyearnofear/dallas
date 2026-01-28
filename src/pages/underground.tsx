@@ -41,24 +41,24 @@ export function Underground() {
 
     if (!isAuthenticated) {
         return (
-            <div class="min-h-screen bg-black text-gray-300 flex items-center justify-center p-4 font-mono">
+            <div class="min-h-screen bg-slate-950 dark:bg-black text-slate-300 flex items-center justify-center p-4 font-mono transition-colors duration-500">
                 <div class="max-w-md w-full">
                     <RetroTerminal>
-                        <div class="text-center mb-6">
-                            <div class="text-2xl mb-4 text-red-400">⚠ ACCESS DENIED ⚠</div>
-                            <div class="text-sm mb-2">DALLAS BUYERS CLUB NETWORK</div>
-                            <div class="text-xs opacity-75">UNAUTHORIZED ACCESS PROHIBITED</div>
+                        <div class="text-center mb-8">
+                            <div class="text-3xl mb-4 text-red-500 font-black tracking-tighter animate-pulse uppercase">⚠ Access Denied ⚠</div>
+                            <div class="text-sm mb-2 font-bold tracking-widest text-slate-400">DALLAS BUYERS CLUB NETWORK</div>
+                            <div class="text-[10px] font-bold opacity-50 uppercase tracking-[0.3em]">Unauthorized Access Prohibited</div>
                         </div>
                         
                         <SecretHandshakeChallenge />
                         
-                        <div class="mt-6 text-center border-t-2 border-green-600 pt-4">
-                            <div class="text-xs text-green-600 mb-2">[DEBUG MODE]</div>
+                        <div class="mt-10 text-center border-t border-green-900/30 pt-6">
+                            <div class="text-[10px] font-black text-green-800 uppercase tracking-widest mb-3">[ Debug Mode Active ]</div>
                             <button 
                                 onClick={() => setIsAuthenticated(true)}
-                                class="text-xs text-green-400 hover:text-green-300 underline"
+                                class="text-[10px] font-black text-green-600 hover:text-green-400 underline decoration-dotted underline-offset-4 transition-colors uppercase tracking-widest"
                             >
-                                BYPASS_AUTH.EXE
+                                bypass_auth.exe
                             </button>
                         </div>
                     </RetroTerminal>
@@ -68,7 +68,7 @@ export function Underground() {
     }
 
     return (
-        <div class="min-h-screen bg-black text-gray-300 font-mono">
+        <div class="min-h-screen bg-slate-50 dark:bg-black text-slate-900 dark:text-slate-300 font-mono transition-colors duration-500">
             <AudioEffects />
 
             {/* Alert */}
@@ -81,22 +81,23 @@ export function Underground() {
             )}
 
             {/* Header */}
-            <div class="bg-blue-900 text-white p-3 border-b-4 border-blue-600">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-4 h-4 bg-green-400 animate-pulse"></div>
-                        <span class="font-bold">DALLAS BUYERS CLUB NETWORK v1.85</span>
+            <div class="bg-blue-800 dark:bg-blue-950 text-white p-4 border-b-4 border-blue-600 shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-white/10 animate-scan"></div>
+                <div class="flex items-center justify-between relative z-10">
+                    <div class="flex items-center gap-4">
+                        <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-sm shadow-green-400"></div>
+                        <span class="font-black tracking-tighter uppercase">Dallas Buyers Club Network <span class="opacity-50 ml-2">v1.85</span></span>
                     </div>
-                    <div class="flex items-center gap-4 text-sm">
-                        <span>USER: PATIENT_#420</span>
-                        <RetroBadge color="green">SECURE</RetroBadge>
+                    <div class="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest">
+                        <span class="hidden sm:inline opacity-70">User: Patient_#420</span>
+                        <RetroBadge color="green">Secure_Connection</RetroBadge>
                     </div>
                 </div>
             </div>
 
             {/* Navigation Tabs */}
-            <div class="p-4 bg-gray-800 border-b-2 border-gray-600">
-                <div class="flex flex-wrap gap-1">
+            <div class="p-2 bg-slate-200 dark:bg-slate-900 border-b-2 border-slate-300 dark:border-slate-800 shadow-inner">
+                <div class="flex flex-wrap gap-1 max-w-7xl mx-auto">
                     {[
                         { id: 'command', label: 'COMMAND', desc: 'HQ' },
                         { id: 'office', label: 'OFFICE', desc: 'RON' },
@@ -109,9 +110,9 @@ export function Underground() {
                             onClick={() => setActiveSection(section.id as any)}
                             variant={activeSection === section.id ? 'success' : 'primary'}
                         >
-                            <div class="text-center text-xs">
-                                <div class="font-bold">{section.label}</div>
-                                <div class="opacity-75">{section.desc}</div>
+                            <div class="text-center px-4 py-1">
+                                <div class="font-black text-xs uppercase tracking-tighter">{section.label}</div>
+                                <div class="text-[8px] font-bold opacity-50 uppercase tracking-widest">{section.desc}</div>
                             </div>
                         </RetroButton>
                     ))}
@@ -120,28 +121,29 @@ export function Underground() {
 
             {/* Command Center */}
             {activeSection === 'command' && (
-                <div class="p-4 space-y-4">
-                    {/* Header */}
-                    <div class="bg-gray-800 border-4 border-gray-600 p-4">
-                        <div class="text-center">
-                            <div class="text-xl font-bold text-green-400 mb-1">COMMAND CENTER</div>
-                            <div class="text-xs text-gray-400">UNDERGROUND_HQ.EXE</div>
+                <div class="p-6 space-y-8 max-w-7xl mx-auto animate-fadeIn">
+                    {/* Page Header */}
+                    <div class="bg-white dark:bg-slate-900 border-4 border-slate-300 dark:border-slate-800 p-6 rounded-xl shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                        <div class="text-center relative z-10">
+                            <div class="text-2xl font-black text-green-600 dark:text-green-400 mb-1 uppercase tracking-[0.2em]">Command Center</div>
+                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">underground_hq.exe_sys_active</div>
                         </div>
                     </div>
 
                     {/* Collapsible Sections */}
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Network Panel */}
-                        <div class="bg-gray-900 border-4 border-gray-600">
+                        <div class="bg-white dark:bg-slate-900 border-4 border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-md">
                             <div 
                                 onClick={() => toggleSection('network')}
-                                class="bg-blue-800 text-white p-2 cursor-pointer hover:bg-blue-700 flex justify-between items-center"
+                                class="bg-blue-700 dark:bg-blue-900 text-white p-3 cursor-pointer hover:bg-blue-600 dark:hover:bg-blue-800 flex justify-between items-center transition-colors"
                             >
-                                <span class="font-bold text-sm">NETWORK STATUS</span>
-                                <span class="text-xs">{collapsedSections.network ? '[+]' : '[-]'}</span>
+                                <span class="font-black text-xs uppercase tracking-widest">Network Status</span>
+                                <span class="text-xs font-mono">{collapsedSections.network ? '[+]' : '[-]'}</span>
                             </div>
                             {!collapsedSections.network && (
-                                <div class="p-4 space-y-4">
+                                <div class="p-6 space-y-6">
                                     <NetworkStatus />
                                     <PatientCodeGenerator />
                                 </div>
@@ -149,16 +151,16 @@ export function Underground() {
                         </div>
 
                         {/* Operations Panel */}
-                        <div class="bg-gray-900 border-4 border-gray-600">
+                        <div class="bg-white dark:bg-slate-900 border-4 border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-md">
                             <div 
                                 onClick={() => toggleSection('operations')}
-                                class="bg-red-800 text-white p-2 cursor-pointer hover:bg-red-700 flex justify-between items-center"
+                                class="bg-red-700 dark:bg-red-900 text-white p-3 cursor-pointer hover:bg-red-600 dark:hover:bg-red-800 flex justify-between items-center transition-colors"
                             >
-                                <span class="font-bold text-sm">OPERATIONS</span>
-                                <span class="text-xs">{collapsedSections.operations ? '[+]' : '[-]'}</span>
+                                <span class="font-black text-xs uppercase tracking-widest">Operations</span>
+                                <span class="text-xs font-mono">{collapsedSections.operations ? '[+]' : '[-]'}</span>
                             </div>
                             {!collapsedSections.operations && (
-                                <div class="p-4 space-y-4">
+                                <div class="p-6 space-y-6">
                                     <SystemResistanceTimer />
                                     <RebellionMeter />
                                 </div>
@@ -166,16 +168,16 @@ export function Underground() {
                         </div>
 
                         {/* Supply Panel */}
-                        <div class="bg-gray-900 border-4 border-gray-600">
+                        <div class="bg-white dark:bg-slate-900 border-4 border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-md">
                             <div 
                                 onClick={() => toggleSection('supply')}
-                                class="bg-green-800 text-white p-2 cursor-pointer hover:bg-green-700 flex justify-between items-center"
+                                class="bg-green-700 dark:bg-green-900 text-white p-3 cursor-pointer hover:bg-green-600 dark:hover:bg-green-800 flex justify-between items-center transition-colors"
                             >
-                                <span class="font-bold text-sm">SUPPLY CHAIN</span>
-                                <span class="text-xs">{collapsedSections.supply ? '[+]' : '[-]'}</span>
+                                <span class="font-black text-xs uppercase tracking-widest">Supply Chain</span>
+                                <span class="text-xs font-mono">{collapsedSections.supply ? '[+]' : '[-]'}</span>
                             </div>
                             {!collapsedSections.supply && (
-                                <div class="p-4 space-y-4">
+                                <div class="p-6 space-y-6">
                                     <SupplyChainStatus />
                                     <MexicanConnectionStatus />
                                 </div>
@@ -184,56 +186,59 @@ export function Underground() {
                     </div>
 
                     {/* Active Operations - 80s Style */}
-                    <div class="bg-gray-900 border-4 border-gray-600">
-                        <div class="bg-yellow-600 text-black p-2">
-                            <span class="font-bold text-sm">ACTIVE OPERATIONS</span>
+                    <div class="bg-white dark:bg-slate-900 border-4 border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-lg">
+                        <div class="bg-yellow-500 dark:bg-yellow-600 text-black p-3 border-b-2 border-slate-200 dark:border-slate-800">
+                            <span class="font-black text-xs uppercase tracking-widest flex items-center gap-2">
+                                <span class="w-2 h-2 bg-black rounded-full animate-ping"></span>
+                                Active Operations Feed
+                            </span>
                         </div>
-                        <div class="p-4">
-                            <div class="grid grid-cols-2 gap-4 text-xs font-mono">
-                                <div class="bg-black p-2 border-2 border-gray-600">
-                                    <div class="text-green-400">PROJECT_PHOENIX:</div>
-                                    <div class="text-white">STATUS: ACTIVE</div>
+                        <div class="p-6 bg-slate-50 dark:bg-black shadow-inner">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-[10px] font-black uppercase tracking-tighter">
+                                <div class="bg-white dark:bg-slate-900 p-4 border-2 border-slate-200 dark:border-slate-800 rounded-lg flex flex-col justify-between">
+                                    <div class="text-green-600 dark:text-green-400 mb-2">Project_Phoenix:</div>
+                                    <div class="text-slate-900 dark:text-white flex justify-between">Status: <span class="text-green-500 animate-glow">Active</span></div>
                                 </div>
-                                <div class="bg-black p-2 border-2 border-gray-600">
-                                    <div class="text-yellow-400">BORDER_RUN_47:</div>
-                                    <div class="text-white">STATUS: IN_TRANSIT</div>
+                                <div class="bg-white dark:bg-slate-900 p-4 border-2 border-slate-200 dark:border-slate-800 rounded-lg flex flex-col justify-between">
+                                    <div class="text-yellow-600 dark:text-yellow-400 mb-2">Border_Run_47:</div>
+                                    <div class="text-slate-900 dark:text-white flex justify-between">Status: <span class="text-yellow-500">In_Transit</span></div>
                                 </div>
-                                <div class="bg-black p-2 border-2 border-gray-600">
-                                    <div class="text-blue-400">LAB_ANALYSIS:</div>
-                                    <div class="text-white">STATUS: PENDING</div>
+                                <div class="bg-white dark:bg-slate-900 p-4 border-2 border-slate-200 dark:border-slate-800 rounded-lg flex flex-col justify-between">
+                                    <div class="text-blue-600 dark:text-blue-400 mb-2">Lab_Analysis:</div>
+                                    <div class="text-slate-900 dark:text-white flex justify-between">Status: <span class="text-blue-500">Pending</span></div>
                                 </div>
-                                <div class="bg-black p-2 border-2 border-gray-600">
-                                    <div class="text-green-400">NETWORK_EXP:</div>
-                                    <div class="text-white">STATUS: ONGOING</div>
+                                <div class="bg-white dark:bg-slate-900 p-4 border-2 border-slate-200 dark:border-slate-800 rounded-lg flex flex-col justify-between">
+                                    <div class="text-green-600 dark:text-green-400 mb-2">Network_Exp:</div>
+                                    <div class="text-slate-900 dark:text-white flex justify-between">Status: <span class="text-green-500">Ongoing</span></div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Quick Actions - 80s Style */}
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pb-12">
                         <RetroButton variant="danger" onClick={() => setShowAlert(true)}>
-                            <div class="text-center text-xs">
-                                <div class="mb-1">EMERGENCY</div>
-                                <div>PROTOCOL</div>
+                            <div class="text-center py-2">
+                                <div class="font-black text-xs mb-1">EMERGENCY</div>
+                                <div class="text-[8px] opacity-70">PROTOCOL</div>
                             </div>
                         </RetroButton>
                         <RetroButton variant="success">
-                            <div class="text-center text-xs">
-                                <div class="mb-1">NEW</div>
-                                <div>SHIPMENT</div>
+                            <div class="text-center py-2">
+                                <div class="font-black text-xs mb-1">NEW</div>
+                                <div class="text-[8px] opacity-70">SHIPMENT</div>
                             </div>
                         </RetroButton>
                         <RetroButton variant="primary">
-                            <div class="text-center text-xs">
-                                <div class="mb-1">SECURE</div>
-                                <div>COMM</div>
+                            <div class="text-center py-2">
+                                <div class="font-black text-xs mb-1">SECURE</div>
+                                <div class="text-[8px] opacity-70">COMM</div>
                             </div>
                         </RetroButton>
                         <RetroButton variant="warning">
-                            <div class="text-center text-xs">
-                                <div class="mb-1">INTEL</div>
-                                <div>REPORT</div>
+                            <div class="text-center py-2">
+                                <div class="font-black text-xs mb-1">INTEL</div>
+                                <div class="text-[8px] opacity-70">REPORT</div>
                             </div>
                         </RetroButton>
                     </div>
@@ -242,53 +247,58 @@ export function Underground() {
 
             {/* Ron's Office */}
             {activeSection === 'office' && (
-                <RonsOfficeExperience />
+                <div class="animate-fadeIn">
+                    <RonsOfficeExperience />
+                </div>
             )}
 
             {/* Black Market */}
             {activeSection === 'market' && (
-                <div class="p-4 space-y-4">
+                <div class="p-6 space-y-8 max-w-7xl mx-auto animate-fadeIn">
                     {/* Market Header */}
-                    <div class="bg-gray-800 border-4 border-gray-600 p-4">
-                        <div class="text-center">
-                            <div class="text-xl font-bold text-green-400 mb-1">UNDERGROUND MARKETPLACE</div>
-                            <div class="text-xs text-gray-400">SECURE_TRADE.EXE v2.1</div>
-                            <RetroBadge color="yellow">ENCRYPTED</RetroBadge>
+                    <div class="bg-white dark:bg-slate-900 border-4 border-slate-300 dark:border-slate-800 p-6 rounded-xl shadow-lg relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                        <div class="text-center relative z-10">
+                            <div class="text-2xl font-black text-yellow-600 dark:text-yellow-400 mb-1 uppercase tracking-[0.2em]">Underground Marketplace</div>
+                            <div class="flex items-center justify-center gap-4">
+                                <div class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">secure_trade.exe_v2.1</div>
+                                <RetroBadge color="yellow">Encrypted</RetroBadge>
+                            </div>
                         </div>
                     </div>
 
                     {/* Warning Banner - 80s Style */}
-                    <div class="bg-red-600 text-white border-4 border-red-800 p-2 animate-pulse">
-                        <div class="text-center font-bold text-sm">
-                            *** WARNING: UNAUTHORIZED PHARMACEUTICAL DISTRIBUTION ***
+                    <div class="bg-red-600 text-white border-4 border-red-800 p-4 rounded-xl shadow-lg animate-pulse flex flex-col items-center justify-center gap-1">
+                        <div class="text-center font-black uppercase tracking-[0.2em] text-lg">
+                            *** Warning: Unauthorized Pharmaceutical Distribution ***
                         </div>
-                        <div class="text-center text-xs">
-                            USE AT YOUR OWN RISK - NOT FDA APPROVED
+                        <div class="text-center text-[10px] font-bold uppercase tracking-widest opacity-80">
+                            Use at your own risk • Not FDA Approved • Club Members Only
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         {/* Terminal & Testing */}
-                        <div class="space-y-4">
-                            <div class="bg-gray-900 border-4 border-gray-600">
-                                <div class="bg-green-800 text-white p-2">
-                                    <span class="font-bold text-sm">TERMINAL ACCESS</span>
+                        <div class="space-y-8">
+                            <div class="bg-white dark:bg-slate-900 border-4 border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                                <div class="bg-green-700 dark:bg-green-900 text-white p-3 border-b-2 border-slate-200 dark:border-slate-800">
+                                    <span class="font-black text-xs uppercase tracking-widest">Terminal Access</span>
                                 </div>
-                                <div class="p-4">
+                                <div class="p-6 bg-slate-50 dark:bg-black shadow-inner">
                                     <Terminal onCommand={(cmd) => console.log('Underground command:', cmd)} />
                                 </div>
                             </div>
 
-                            <div class="bg-gray-900 border-4 border-gray-600">
+                            <div class="bg-white dark:bg-slate-900 border-4 border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                                 <div 
                                     onClick={() => toggleSection('testing')}
-                                    class="bg-purple-800 text-white p-2 cursor-pointer hover:bg-purple-700 flex justify-between items-center"
+                                    class="bg-purple-700 dark:bg-purple-900 text-white p-3 cursor-pointer hover:bg-purple-600 dark:hover:bg-purple-800 flex justify-between items-center transition-colors border-b-2 border-slate-200 dark:border-slate-800"
                                 >
-                                    <span class="font-bold text-sm">LAB TESTING</span>
-                                    <span class="text-xs">{collapsedSections.testing ? '[+]' : '[-]'}</span>
+                                    <span class="font-black text-xs uppercase tracking-widest">Lab Testing Protocol</span>
+                                    <span class="text-xs font-mono">{collapsedSections.testing ? '[+]' : '[-]'}</span>
                                 </div>
                                 {!collapsedSections.testing && (
-                                    <div class="p-4">
+                                    <div class="p-6 bg-slate-50 dark:bg-slate-900 transition-colors">
                                         <DrugTestingSimulator />
                                     </div>
                                 )}
@@ -296,76 +306,68 @@ export function Underground() {
                         </div>
 
                         {/* Payment & Security */}
-                        <div class="space-y-4">
-                            <div class="bg-gray-900 border-4 border-gray-600">
+                        <div class="space-y-8">
+                            <div class="bg-white dark:bg-slate-900 border-4 border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                                 <div 
                                     onClick={() => toggleSection('payment')}
-                                    class="bg-yellow-600 text-black p-2 cursor-pointer hover:bg-yellow-500 flex justify-between items-center"
+                                    class="bg-orange-600 dark:bg-orange-800 text-white p-3 cursor-pointer hover:bg-orange-500 dark:hover:bg-orange-700 flex justify-between items-center transition-colors border-b-2 border-slate-200 dark:border-slate-800"
                                 >
-                                    <span class="font-bold text-sm">PAYMENT SYSTEM</span>
-                                    <span class="text-xs">{collapsedSections.payment ? '[+]' : '[-]'}</span>
+                                    <span class="font-black text-xs uppercase tracking-widest">Secure Payment System</span>
+                                    <span class="text-xs font-mono">{collapsedSections.payment ? '[+]' : '[-]'}</span>
                                 </div>
                                 {!collapsedSections.payment && (
-                                    <div class="p-4">
+                                    <div class="p-6 bg-slate-50 dark:bg-slate-900 transition-colors">
                                         <CryptoPaymentInterface />
                                     </div>
                                 )}
                             </div>
 
                             {/* Security Status - 80s Style */}
-                            <div class="bg-gray-900 border-4 border-gray-600">
-                                <div class="bg-blue-800 text-white p-2">
-                                    <span class="font-bold text-sm">SECURITY STATUS</span>
+                            <div class="bg-white dark:bg-slate-900 border-4 border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                                <div class="bg-blue-700 dark:bg-blue-900 text-white p-3 border-b-2 border-slate-200 dark:border-slate-800">
+                                    <span class="font-black text-xs uppercase tracking-widest">Security Subsystem Status</span>
                                 </div>
-                                <div class="p-4 font-mono text-xs">
-                                    <div class="bg-black border-2 border-gray-600 p-3 space-y-1">
-                                        <div class="flex justify-between">
-                                            <span class="text-green-400">[OK]</span>
-                                            <span class="text-white">ENCRYPTION: ENABLED</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-green-400">[OK]</span>
-                                            <span class="text-white">IDENTITY: PROTECTED</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-green-400">[OK]</span>
-                                            <span class="text-white">PAYMENT: SECURE</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-green-400">[OK]</span>
-                                            <span class="text-white">QUALITY: VERIFIED</span>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <span class="text-red-400">[!!]</span>
-                                            <span class="text-white">FDA_MONITOR: DETECTED</span>
-                                        </div>
+                                <div class="p-6 bg-slate-50 dark:bg-black shadow-inner">
+                                    <div class="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 p-5 rounded-xl space-y-3 font-black text-[10px] uppercase tracking-widest shadow-sm">
+                                        {[
+                                            { label: 'Encryption', status: 'OK', color: 'text-green-600 dark:text-green-400' },
+                                            { label: 'Identity', status: 'Protected', color: 'text-green-600 dark:text-green-400' },
+                                            { label: 'Payment', status: 'Secure', color: 'text-green-600 dark:text-green-400' },
+                                            { label: 'Quality', status: 'Verified', color: 'text-green-600 dark:text-green-400' },
+                                            { label: 'FDA_Monitor', status: 'Detected', color: 'text-red-600 dark:text-red-400 animate-pulse' }
+                                        ].map((stat) => (
+                                            <div key={stat.label} class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-2 last:border-0 last:pb-0">
+                                                <span class="text-slate-500 dark:text-slate-400">{stat.label}:</span>
+                                                <span class={stat.color}>[{stat.status}]</span>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
 
                             {/* Quick Buy - Infomercial Style */}
-                            <div class="bg-yellow-300 border-4 border-red-600 p-4 text-black">
+                            <div class="bg-yellow-300 dark:bg-yellow-400 border-4 border-red-600 p-6 rounded-2xl text-black shadow-2xl transform rotate-1 hover:rotate-0 transition-transform">
                                 <div class="text-center">
-                                    <div class="font-bold text-sm mb-2">⚡ QUICK ORDER ⚡</div>
-                                    <div class="text-xs mb-3">
-                                        CALL NOW! Operators standing by 24/7!
+                                    <div class="font-black text-xl mb-2 uppercase tracking-tighter">⚡ Fast Order Protocol ⚡</div>
+                                    <div class="text-[10px] font-bold mb-4 uppercase tracking-widest opacity-70">
+                                        Operators standing by 24/7! Limited Time!
                                     </div>
-                                    <div class="grid grid-cols-2 gap-2">
+                                    <div class="grid grid-cols-2 gap-4">
                                         <RetroButton variant="danger">
-                                            <div class="text-xs">
-                                                AZT
-                                                <div>$49.95</div>
+                                            <div class="text-xs py-1">
+                                                <div class="font-black">AZT</div>
+                                                <div class="opacity-80">$49.95</div>
                                             </div>
                                         </RetroButton>
                                         <RetroButton variant="success">
-                                            <div class="text-xs">
-                                                PEPTIDE_T
-                                                <div>$29.95</div>
+                                            <div class="text-xs py-1">
+                                                <div class="font-black">Peptide_T</div>
+                                                <div class="opacity-80">$29.95</div>
                                             </div>
                                         </RetroButton>
                                     </div>
-                                    <div class="text-xs mt-2 font-bold animate-pulse">
-                                        LIMITED TIME! ACT NOW!
+                                    <div class="text-[9px] mt-4 font-black animate-pulse uppercase tracking-[0.3em] text-red-700">
+                                        Act Now! Access is Finite!
                                     </div>
                                 </div>
                             </div>
@@ -376,38 +378,42 @@ export function Underground() {
 
             {/* Intelligence */}
             {activeSection === 'intel' && (
-                <div class="p-4 space-y-6">
-                    <div class="text-center mb-8">
-                        <h1 class="text-4xl font-bold text-blue-400 mb-2">📡 INTELLIGENCE CENTER</h1>
-                        <p class="text-gray-300">Monitor the ongoing battle between system and freedom</p>
+                <div class="p-6 space-y-10 max-w-7xl mx-auto animate-fadeIn">
+                    <div class="text-center mb-12">
+                        <h1 class="text-4xl font-black text-blue-700 dark:text-blue-400 mb-3 uppercase tracking-tighter flex items-center justify-center gap-4">
+                            <span class="bg-blue-100 dark:bg-blue-900/50 p-3 rounded-2xl">📡</span>
+                            <span>Intelligence Center</span>
+                        </h1>
+                        <p class="text-slate-600 dark:text-slate-400 font-bold uppercase tracking-widest text-xs">Monitor the ongoing battle between system and freedom</p>
                     </div>
 
-                    <SystemBattleboard />
+                    <div class="bg-white dark:bg-slate-900 border-4 border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl">
+                        <SystemBattleboard />
+                    </div>
                     
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <PropagandaPosters />
-                        <ResistanceQuotes />
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                        <div class="bg-white dark:bg-slate-900 border-4 border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl"><PropagandaPosters /></div>
+                        <div class="bg-white dark:bg-slate-900 border-4 border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl"><ResistanceQuotes /></div>
                     </div>
 
-                    <div class="bg-gradient-to-r from-gray-800 to-gray-900 p-6 rounded-lg border border-gray-600">
-                        <h3 class="text-xl font-bold mb-4 text-gray-200">📈 RESISTANCE METRICS</h3>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div class="text-center p-3 bg-black/30 rounded border border-gray-600">
-                                <div class="text-2xl font-bold text-green-400">420</div>
-                                <div class="text-xs text-gray-400">Active Fighters</div>
-                            </div>
-                            <div class="text-center p-3 bg-black/30 rounded border border-gray-600">
-                                <div class="text-2xl font-bold text-blue-400">23</div>
-                                <div class="text-xs text-gray-400">Secure Nodes</div>
-                            </div>
-                            <div class="text-center p-3 bg-black/30 rounded border border-gray-600">
-                                <div class="text-2xl font-bold text-purple-400">89%</div>
-                                <div class="text-xs text-gray-400">Success Rate</div>
-                            </div>
-                            <div class="text-center p-3 bg-black/30 rounded border border-gray-600">
-                                <div class="text-2xl font-bold text-yellow-400">$2.1M</div>
-                                <div class="text-xs text-gray-400">Lives Saved Value</div>
-                            </div>
+                    <div class="bg-gradient-to-r from-slate-800 to-slate-950 p-10 rounded-3xl border border-slate-700 shadow-2xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-blue-500/10 transition-all duration-1000"></div>
+                        <h3 class="text-xl font-black mb-8 text-white uppercase tracking-[0.3em] flex items-center gap-3 relative z-10">
+                            <span class="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></span>
+                            Resistance Metrics
+                        </h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 relative z-10">
+                            {[
+                                { val: '420', label: 'Active Fighters', color: 'text-green-400' },
+                                { val: '23', label: 'Secure Nodes', color: 'text-blue-400' },
+                                { val: '89%', label: 'Success Rate', color: 'text-purple-400' },
+                                { val: '$2.1M', label: 'Value Saved', color: 'text-yellow-400' }
+                            ].map((stat) => (
+                                <div key={stat.label} class="text-center p-6 bg-black/40 backdrop-blur-sm rounded-2xl border border-white/10 shadow-inner group/stat hover:border-white/20 transition-all">
+                                    <div class={`text-4xl font-black mb-2 tracking-tighter group-hover/stat:scale-110 transition-transform ${stat.color}`}>{stat.val}</div>
+                                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">{stat.label}</div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -415,55 +421,74 @@ export function Underground() {
 
             {/* History/Archives */}
             {activeSection === 'history' && (
-                <div class="p-4">
-                    <div class="text-center mb-8">
-                        <h1 class="text-4xl font-bold text-amber-400 mb-2">📜 UNDERGROUND ARCHIVES</h1>
-                        <p class="text-gray-300">Preserving the memory of our fight for freedom</p>
+                <div class="p-6 max-w-7xl mx-auto animate-fadeIn">
+                    <div class="text-center mb-12">
+                        <h1 class="text-4xl font-black text-amber-600 dark:text-amber-400 mb-3 uppercase tracking-tighter flex items-center justify-center gap-4">
+                            <span class="bg-amber-100 dark:bg-amber-900/50 p-3 rounded-2xl text-3xl">📜</span>
+                            <span>Underground Archives</span>
+                        </h1>
+                        <p class="text-slate-600 dark:text-slate-400 font-bold uppercase tracking-widest text-xs">Preserving the memory of our fight for freedom</p>
                     </div>
                     
-                    <MemoryWall />
+                    <div class="bg-white dark:bg-slate-900 border-4 border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl mb-12">
+                        <MemoryWall />
+                    </div>
 
-                    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="bg-gradient-to-br from-amber-900 to-orange-900 p-4 rounded-lg border border-amber-600/50">
-                            <h3 class="font-bold text-amber-300 mb-3">📚 HISTORICAL DOCUMENTS</h3>
-                            <div class="space-y-2 text-sm">
-                                <div class="flex justify-between">
-                                    <span>Club Charter</span>
-                                    <span class="text-amber-400">1985</span>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-12">
+                        <div class="bg-gradient-to-br from-amber-900 to-slate-900 dark:to-black p-8 rounded-2xl border border-amber-600/30 shadow-xl group">
+                            <h3 class="font-black text-amber-300 mb-6 uppercase tracking-widest text-sm flex items-center gap-2">
+                                <span class="text-xl">📚</span>
+                                Historical Records
+                            </h3>
+                            <div class="space-y-4 text-[10px] font-black uppercase tracking-widest">
+                                {[
+                                    { label: 'Club Charter', year: '1985' },
+                                    { label: 'FDA Warning', year: '1986' },
+                                    { label: 'Medical Logs', year: '85-91' },
+                                    { label: 'Legal Wins', year: '23 Cases' }
+                                ].map((doc) => (
+                                    <div key={doc.label} class="flex justify-between items-center border-b border-white/5 pb-2">
+                                        <span class="text-amber-200/70">{doc.label}</span>
+                                        <span class="text-amber-400">{doc.year}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-green-900 to-slate-900 dark:to-black p-8 rounded-2xl border border-green-600/30 shadow-xl group">
+                            <h3 class="font-black text-green-300 mb-6 uppercase tracking-widest text-sm flex items-center gap-2">
+                                <span class="text-xl">🏆</span>
+                                Achievements
+                            </h3>
+                            <div class="space-y-3 text-[9px] font-black uppercase tracking-widest text-green-200/70">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-green-400">✓</span>
+                                    <span>Saved 847+ lives</span>
                                 </div>
-                                <div class="flex justify-between">
-                                    <span>First FDA Letter</span>
-                                    <span class="text-amber-400">1986</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-green-400">✓</span>
+                                    <span>Challenged FDA</span>
                                 </div>
-                                <div class="flex justify-between">
-                                    <span>Medical Records</span>
-                                    <span class="text-amber-400">1985-1991</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-green-400">✓</span>
+                                    <span>Opened Access</span>
                                 </div>
-                                <div class="flex justify-between">
-                                    <span>Legal Victories</span>
-                                    <span class="text-amber-400">23 Cases</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-green-400">✓</span>
+                                    <span>Changed Law</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="bg-gradient-to-br from-green-900 to-emerald-900 p-4 rounded-lg border border-green-600/50">
-                            <h3 class="font-bold text-green-300 mb-3">🏆 ACHIEVEMENTS</h3>
-                            <div class="space-y-2 text-sm">
-                                <div>✅ Saved 847+ lives</div>
-                                <div>✅ Challenged FDA monopoly</div>
-                                <div>✅ Opened treatment access</div>
-                                <div>✅ Inspired global movement</div>
-                                <div>✅ Changed medical law</div>
-                            </div>
-                        </div>
-
-                        <div class="bg-gradient-to-br from-red-900 to-pink-900 p-4 rounded-lg border border-red-600/50">
-                            <h3 class="font-bold text-red-300 mb-3">💔 NEVER FORGET</h3>
-                            <div class="space-y-2 text-sm">
+                        <div class="bg-gradient-to-br from-red-900 to-slate-900 dark:to-black p-8 rounded-2xl border border-red-600/30 shadow-xl group">
+                            <h3 class="font-black text-red-300 mb-6 uppercase tracking-widest text-sm flex items-center gap-2">
+                                <span class="text-xl">💔</span>
+                                Never Forget
+                            </h3>
+                            <div class="space-y-2 text-[9px] font-bold uppercase tracking-widest text-red-200/60 leading-relaxed italic">
                                 <div>Those lost to the system</div>
-                                <div>Patients denied treatment</div>
+                                <div>Patients denied hope</div>
                                 <div>Families torn apart</div>
-                                <div>Hope almost extinguished</div>
                                 <div>The fight continues...</div>
                             </div>
                         </div>

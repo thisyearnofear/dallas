@@ -107,11 +107,11 @@ export function MCPAgentDashboard() {
   };
 
   return (
-    <div class="bg-gray-900 text-green-400 p-6 font-mono">
+    <div class="bg-white dark:bg-slate-900 text-slate-900 dark:text-green-400 p-6 font-mono border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg transition-colors">
       {/* Header */}
       <div class="mb-6">
-        <h2 class="text-2xl font-bold mb-2 text-yellow-400">🤖 MCP AGENT COORDINATION CENTER</h2>
-        <p class="text-sm text-gray-400">
+        <h2 class="text-2xl font-bold mb-2 text-yellow-600 dark:text-yellow-400">🤖 MCP AGENT COORDINATION CENTER</h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400">
           Model Context Protocol Integration - Dallas Underground Network
         </p>
       </div>
@@ -121,7 +121,7 @@ export function MCPAgentDashboard() {
         {Object.entries(agents).map(([agentType, agentData], index) => (
           <div 
             key={agentType} 
-            class="bg-black p-4 border border-green-600 hover-lift click-scale cursor-pointer animate-slideIn"
+            class="bg-slate-50 dark:bg-black p-4 border border-green-200 dark:border-green-600 hover-lift click-scale cursor-pointer animate-slideIn rounded-lg transition-colors"
             style={`animation-delay: ${index * 0.1}s`}
             onClick={() => setShowCoordinationDetails(!showCoordinationDetails)}
           >
@@ -130,15 +130,15 @@ export function MCPAgentDashboard() {
               agentType={agentType}
               activity={`Processing ${agentType} operations...`}
             />
-            <p class="text-xs text-gray-400 mt-2">{agentData.role}</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">{agentData.role}</p>
             
             {/* Enhanced MCP Status with glow effect */}
             <div class="mt-3 flex items-center justify-between">
               <div class="text-xs">
-                <span class="text-blue-400">🔗 MCP:</span>
-                <span class="text-green-400 animate-glow">LINKED</span>
+                <span class="text-blue-600 dark:text-blue-400">🔗 MCP:</span>
+                <span class="text-green-600 dark:text-green-400 font-bold animate-glow ml-1">LINKED</span>
               </div>
-              <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
             </div>
           </div>
         ))}
@@ -147,15 +147,15 @@ export function MCPAgentDashboard() {
       {/* Current Network Status */}
       <div class="grid md:grid-cols-2 gap-6 mb-6">
         {/* Threat Level */}
-        <div class="bg-black p-4 border border-red-600">
-          <h3 class="font-bold mb-3 text-red-400">🛡️ CURRENT THREAT LEVEL</h3>
+        <div class="bg-slate-50 dark:bg-black p-4 border border-red-200 dark:border-red-600 rounded-lg transition-colors">
+          <h3 class="font-bold mb-3 text-red-600 dark:text-red-400">🛡️ CURRENT THREAT LEVEL</h3>
           <div class="flex items-center gap-2 mb-2">
-            <span class="text-white text-sm w-16">
+            <span class="text-slate-700 dark:text-white text-sm w-16 font-bold">
               {currentDangerLevel < 30 ? 'SAFE' : 
                currentDangerLevel < 60 ? 'CAUTION' : 
                currentDangerLevel < 80 ? 'DANGER' : 'CRITICAL'}
             </span>
-            <div class="flex-1 bg-gray-700 h-4 border border-gray-500">
+            <div class="flex-1 bg-slate-200 dark:bg-slate-700 h-4 border border-slate-300 dark:border-slate-500 rounded-full overflow-hidden">
               <div 
                 class={`h-full transition-all duration-500 ${
                   currentDangerLevel < 30 ? 'bg-green-600' :
@@ -165,32 +165,32 @@ export function MCPAgentDashboard() {
                 style={`width: ${currentDangerLevel}%`}
               ></div>
             </div>
-            <span class="text-white text-sm w-8">{currentDangerLevel}%</span>
+            <span class="text-slate-700 dark:text-white text-sm w-8 font-bold">{currentDangerLevel}%</span>
           </div>
-          <div class="text-xs text-blue-400">
+          <div class="text-xs text-blue-600 dark:text-blue-400 font-bold">
             🤖 MCP-coordinated assessment from all agents
           </div>
         </div>
 
         {/* Coordination Status */}
-        <div class="bg-black p-4 border border-blue-600">
-          <h3 class="font-bold mb-3 text-blue-400">🔗 MCP COORDINATION</h3>
-          <div class="space-y-2 text-sm">
+        <div class="bg-slate-50 dark:bg-black p-4 border border-blue-200 dark:border-blue-600 rounded-lg transition-colors">
+          <h3 class="font-bold mb-3 text-blue-600 dark:text-blue-400">🔗 MCP COORDINATION</h3>
+          <div class="space-y-2 text-sm text-slate-700 dark:text-green-400">
             <div class="flex justify-between">
               <span>Protocol Status:</span>
-              <span class="text-green-400">ACTIVE</span>
+              <span class="text-green-600 dark:text-green-400 font-bold">ACTIVE</span>
             </div>
             <div class="flex justify-between">
               <span>Agent Sync:</span>
-              <span class="text-green-400">100%</span>
+              <span class="text-green-600 dark:text-green-400 font-bold">100%</span>
             </div>
             <div class="flex justify-between">
               <span>Network Health:</span>
-              <span class="text-green-400">OPTIMAL</span>
+              <span class="text-green-600 dark:text-green-400 font-bold">OPTIMAL</span>
             </div>
             <div class="flex justify-between">
               <span>Coordinating:</span>
-              <span class={isCoordinating ? 'text-yellow-400' : 'text-green-400'}>
+              <span class={isCoordinating ? 'text-yellow-600 dark:text-yellow-400 font-bold' : 'text-green-600 dark:text-green-400 font-bold'}>
                 {isCoordinating ? 'YES' : 'STANDBY'}
               </span>
             </div>
@@ -200,7 +200,7 @@ export function MCPAgentDashboard() {
 
       {/* MCP Demonstration Controls */}
       <div class="mb-6">
-        <h3 class="text-lg font-bold mb-4 text-yellow-400">🎯 MCP COORDINATION DEMOS</h3>
+        <h3 class="text-lg font-bold mb-4 text-yellow-600 dark:text-yellow-400">🎯 MCP COORDINATION DEMOS</h3>
         <div class="grid md:grid-cols-2 gap-4">
           {mcpDemos.map((demo) => (
             <DelightfulActionButton
@@ -212,8 +212,8 @@ export function MCPAgentDashboard() {
               icon={demo.icon}
             >
               <div class="text-left">
-                <h4 class="font-bold">{demo.title}</h4>
-                <p class="text-xs text-gray-300 mt-1">{demo.description}</p>
+                <h4 class="font-bold text-slate-900 dark:text-white">{demo.title}</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-300 mt-1">{demo.description}</p>
               </div>
             </DelightfulActionButton>
           ))}
@@ -221,17 +221,17 @@ export function MCPAgentDashboard() {
       </div>
 
       {/* Live Network Activity Feed */}
-      <div class="bg-black p-4 border border-green-600">
-        <h3 class="font-bold mb-3 text-green-400">📡 LIVE NETWORK ACTIVITY</h3>
+      <div class="bg-slate-50 dark:bg-black p-4 border border-green-200 dark:border-green-600 rounded-lg transition-colors">
+        <h3 class="font-bold mb-3 text-green-600 dark:text-green-400">📡 LIVE NETWORK ACTIVITY</h3>
         <div class="space-y-1 text-sm max-h-48 overflow-y-auto">
           {networkActivity.length > 0 ? (
             networkActivity.map((activity, index) => (
-              <div key={index} class="text-green-300 font-mono">
-                <span class="text-gray-500">{new Date().toLocaleTimeString()}</span> {activity}
+              <div key={index} class="text-green-700 dark:text-green-300 font-mono">
+                <span class="text-slate-400 dark:text-gray-500 mr-2">{new Date().toLocaleTimeString()}</span> {activity}
               </div>
             ))
           ) : (
-            <div class="text-gray-500">Network activity will appear here...</div>
+            <div class="text-slate-400 dark:text-gray-500 italic">Network activity will appear here...</div>
           )}
         </div>
       </div>
@@ -251,30 +251,30 @@ export function MCPAgentDashboard() {
             </div>
 
             {isRunningDemo && (
-              <div class="bg-blue-900/30 p-3 rounded border border-blue-600">
-                <div class="text-blue-400 text-sm mb-2">🤖 MCP COORDINATION IN PROGRESS:</div>
+              <div class="bg-blue-50 dark:bg-blue-900/30 p-3 rounded border border-blue-200 dark:border-blue-600">
+                <div class="text-blue-600 dark:text-blue-400 text-sm mb-2 font-bold">🤖 MCP COORDINATION IN PROGRESS:</div>
                 <div class="space-y-1 text-xs">
-                  <div class="text-green-300">→ Coordinating with Supply Chain Agent...</div>
-                  <div class="text-green-300">→ Risk Assessment Agent analyzing...</div>
-                  <div class="text-green-300">→ Community Agent organizing response...</div>
-                  <div class="text-green-300">→ Identity Agent processing requirements...</div>
+                  <div class="text-green-600 dark:text-green-300">→ Coordinating with Supply Chain Agent...</div>
+                  <div class="text-green-600 dark:text-green-300">→ Risk Assessment Agent analyzing...</div>
+                  <div class="text-green-600 dark:text-green-300">→ Community Agent organizing response...</div>
+                  <div class="text-green-600 dark:text-green-300">→ Identity Agent processing requirements...</div>
                 </div>
               </div>
             )}
 
             {demoResult && !isRunningDemo && (
-              <div class="bg-gray-800 p-3 rounded">
-                <h5 class="font-bold mb-2 text-green-400">✅ MCP Coordination Complete</h5>
-                <pre class="text-xs text-gray-300 overflow-auto max-h-48">
+              <div class="bg-slate-100 dark:bg-gray-800 p-3 rounded border border-slate-200 dark:border-slate-700">
+                <h5 class="font-bold mb-2 text-green-600 dark:text-green-400">✅ MCP Coordination Complete</h5>
+                <pre class="text-xs text-slate-700 dark:text-gray-300 overflow-auto max-h-48 font-mono">
                   {JSON.stringify(demoResult, null, 2)}
                 </pre>
               </div>
             )}
 
             {demoResult?.error && (
-              <div class="bg-red-900/30 p-3 rounded border border-red-600">
-                <h5 class="font-bold mb-2 text-red-400">❌ Coordination Error</h5>
-                <p class="text-sm text-red-300">{demoResult.error}</p>
+              <div class="bg-red-50 dark:bg-red-900/30 p-3 rounded border border-red-200 dark:border-red-600">
+                <h5 class="font-bold mb-2 text-red-600 dark:text-red-400">❌ Coordination Error</h5>
+                <p class="text-sm text-red-700 dark:text-red-300 font-bold">{demoResult.error}</p>
               </div>
             )}
           </div>

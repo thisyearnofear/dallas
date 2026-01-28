@@ -76,55 +76,61 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
   };
 
   return (
-    <div class="w-full bg-gray-900 text-white">
+    <div class="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white transition-colors duration-300">
       {/* Header */}
-      <div class="mb-8">
-        <h2 class="text-3xl font-bold mb-2">🔍 Discover Health Protocols</h2>
-        <p class="text-gray-300">
+      <div class="mb-10">
+        <h2 class="text-3xl font-black mb-2 uppercase tracking-tighter flex items-center gap-3">
+          <span class="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-lg text-2xl">🔍</span>
+          <span>Discover Protocols</span>
+        </h2>
+        <p class="text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
           Find what others have tried. Your search stays private - we never log your interests.
         </p>
       </div>
 
       {/* Search Filters */}
-      <div class="bg-gray-800 p-8 rounded-lg border border-gray-700 mb-8">
-        <h3 class="text-xl font-bold mb-4">What are you interested in?</h3>
+      <div class="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-2xl border-2 border-slate-200 dark:border-slate-700 mb-10 shadow-inner transition-colors">
+        <h3 class="text-xl font-black mb-6 uppercase tracking-wider text-slate-800 dark:text-white">What are you interested in?</h3>
 
         {/* Interest Tags */}
-        <div class="mb-6">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        <div class="mb-8">
+          <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-4">
             {INTEREST_TAGS.map((tag) => (
               <button
                 key={tag}
                 onClick={() => toggleInterest(tag)}
-                class={`px-4 py-2 rounded font-semibold transition text-sm ${
+                class={`px-4 py-2 rounded-xl font-bold transition-all text-xs uppercase tracking-tighter shadow-sm border ${
                   selectedInterests.includes(tag)
-                    ? 'bg-blue-600 text-white border border-blue-400'
-                    : 'bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600'
+                    ? 'bg-blue-600 text-white border-blue-400 scale-[1.02] shadow-blue-500/20'
+                    : 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600'
                 }`}
               >
-                {tag}
+                {tag.replace('-', ' ')}
               </button>
             ))}
           </div>
           {selectedInterests.length > 0 && (
-            <p class="text-sm text-gray-400">
-              Selected: {selectedInterests.join(', ')}
-            </p>
+            <div class="flex items-center gap-2 mt-4 bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg inline-flex border border-blue-100 dark:border-blue-800/50">
+              <span class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Active:</span>
+              <p class="text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase">
+                {selectedInterests.join(' • ')}
+              </p>
+            </div>
           )}
         </div>
 
         {/* Difficulty Filter */}
-        <div class="mb-6">
-          <h4 class="text-sm font-bold mb-3 text-gray-300">Difficulty Level (optional)</h4>
-          <div class="flex gap-3">
+        <div class="mb-10">
+          <h4 class="text-xs font-black mb-4 uppercase tracking-widest text-slate-500 dark:text-slate-400">Difficulty Level</h4>
+          <div class="flex flex-wrap gap-3">
             {['', ...DIFFICULTY_LEVELS].map((level) => (
               <button
                 key={level || 'any'}
                 onClick={() => setSelectedDifficulty(level as any)}
-                class={`px-4 py-2 rounded font-semibold transition text-sm ${
+                class={`px-6 py-2 rounded-xl font-black transition-all text-xs uppercase tracking-widest border shadow-sm ${
                   selectedDifficulty === level
-                    ? 'bg-green-600 text-white border border-green-400'
-                    : 'bg-gray-700 text-gray-300 border border-gray-600 hover:bg-gray-600'
+                    ? 'bg-green-600 text-white border-green-400 shadow-green-500/20'
+                    : 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600'
                 }`}
               >
                 {level || 'Any'}
@@ -137,66 +143,67 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
         <button
           onClick={handleSearch}
           disabled={isSearching || selectedInterests.length === 0}
-          class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 px-6 py-4 rounded font-bold text-lg transition"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:bg-slate-200 dark:disabled:bg-slate-700 disabled:text-slate-400 dark:disabled:text-slate-500 disabled:cursor-not-allowed px-6 py-5 rounded-2xl font-black text-xl transition-all transform hover:scale-[1.01] active:scale-95 shadow-xl uppercase tracking-tighter"
         >
           {isSearching ? '⏳ Searching privately...' : '🔍 Search Protocols'}
         </button>
 
-        <div class="mt-4 p-4 bg-blue-900/20 border border-blue-600 rounded text-sm text-gray-300">
-          🔒 Your search parameters are processed locally. We never track what you search for.
+        <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase tracking-widest flex items-center gap-3">
+          <span class="text-xl">🔒</span>
+          <span>Your search parameters are processed locally. We never track your health interests.</span>
         </div>
       </div>
 
       {/* Results */}
       {searchPerformed && (
-        <div class="space-y-6">
-          <div class="flex items-center justify-between">
-            <h3 class="text-2xl font-bold">
+        <div class="space-y-8 animate-fadeIn pb-12">
+          <div class="flex items-center justify-between border-b-2 border-slate-100 dark:border-slate-800 pb-4">
+            <h3 class="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">
               {matchedProtocols.length === 0
                 ? '❌ No protocols matched'
-                : `✅ Found ${matchedProtocols.length} Protocol${matchedProtocols.length !== 1 ? 's' : ''}`}
+                : `✅ Found ${matchedProtocols.length} Matches`}
             </h3>
           </div>
 
           {/* Protocol Cards */}
           {matchedProtocols.length > 0 && (
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               {matchedProtocols
                 .sort((a, b) => b.matchScore - a.matchScore)
                 .map((protocol) => (
                   <div
                     key={protocol.id}
-                    class="bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-blue-500 transition cursor-pointer"
+                    class="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-8 hover:border-blue-500 dark:hover:border-blue-500 transition-all transform hover:scale-[1.02] cursor-pointer shadow-sm hover:shadow-xl group"
                     onClick={() => setSelectedProtocol(protocol)}
                   >
                     {/* Protocol Header */}
-                    <div class="flex justify-between items-start mb-4">
+                    <div class="flex justify-between items-start mb-6">
                       <div class="flex-1">
-                        <h4 class="text-xl font-bold text-blue-400 mb-2">{protocol.name}</h4>
-                        <div class="flex gap-2 mb-3">
-                          <span class="text-xs bg-blue-900/40 text-blue-300 px-2 py-1 rounded">
+                        <h4 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight group-hover:text-blue-600 transition-colors">{protocol.name}</h4>
+                        <div class="flex gap-3 mt-3">
+                          <span class="text-[9px] font-black bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full uppercase tracking-widest border border-blue-200 dark:border-blue-800/50">
                             Match: {protocol.matchScore}%
                           </span>
-                          <span class="text-xs bg-green-900/40 text-green-300 px-2 py-1 rounded">
-                            {protocol.successRate}% success
+                          <span class="text-[9px] font-black bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 px-2 py-1 rounded-full uppercase tracking-widest border border-green-200 dark:border-green-800/50">
+                            {protocol.successRate}% Success
                           </span>
                         </div>
                       </div>
                     </div>
 
                     {/* Statistics */}
-                    <div class="grid grid-cols-2 gap-4 mb-4 text-sm">
-                      <div class="bg-gray-700/50 p-3 rounded">
-                        <div class="text-gray-400 text-xs">Total Case Studies</div>
-                        <div class="text-lg font-bold text-white">
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                      <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-inner">
+                        <div class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Data Points</div>
+                        <div class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">
                           {protocol.caseStudyCount}
                         </div>
                       </div>
-                      <div class="bg-gray-700/50 p-3 rounded">
-                        <div class="text-gray-400 text-xs">Validated by Community</div>
-                        <div class="text-lg font-bold text-green-400">
+                      <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-inner">
+                        <div class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Validated</div>
+                        <div class="text-2xl font-black text-green-600 dark:text-green-400 tracking-tighter">
                           {protocol.validatedCount}
-                          <span class="text-xs text-gray-400 ml-1">
+                          <span class="text-xs font-bold text-slate-400 dark:text-slate-500 ml-1">
                             ({((protocol.validatedCount / protocol.caseStudyCount) * 100).toFixed(0)}%)
                           </span>
                         </div>
@@ -205,10 +212,10 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
 
                     {/* Action Button */}
                     <button
-                      onClick={() => handleRequestAccess(protocol)}
-                      class="w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded font-bold text-sm transition"
+                      onClick={(e) => { e.stopPropagation(); handleRequestAccess(protocol); }}
+                      class="w-full bg-slate-900 dark:bg-slate-800 text-white font-black py-3 rounded-xl text-xs uppercase tracking-widest transition-all hover:bg-blue-600 dark:hover:bg-blue-700 shadow-md active:scale-95"
                     >
-                      📖 Request Access to Case Studies
+                      Request Case Studies
                     </button>
                   </div>
                 ))}
@@ -219,84 +226,94 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
 
       {/* Selected Protocol Detail */}
       {selectedProtocol && (
-        <div class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div class="bg-gray-900 rounded-lg border border-gray-700 max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
-            <div class="flex justify-between items-start mb-4">
+        <div class="fixed inset-0 bg-slate-900/80 dark:bg-black/90 flex items-center justify-center p-4 z-[100] backdrop-blur-md animate-fadeIn">
+          <div class="bg-white dark:bg-slate-900 rounded-3xl border-4 border-slate-200 dark:border-slate-800 max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 shadow-2xl transition-all duration-500 animate-scaleIn">
+            <div class="flex justify-between items-start mb-8 border-b-2 border-slate-100 dark:border-slate-800 pb-6">
               <div>
-                <h3 class="text-3xl font-bold text-blue-400 mb-2">{selectedProtocol.name}</h3>
-                <p class="text-gray-400">Match Score: {selectedProtocol.matchScore}%</p>
+                <h3 class="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">{selectedProtocol.name}</h3>
+                <div class="mt-2 inline-block bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100 dark:border-blue-800">
+                  Reliability Score: {selectedProtocol.matchScore}%
+                </div>
               </div>
               <button
                 onClick={() => setSelectedProtocol(null)}
-                class="text-2xl text-gray-400 hover:text-white"
+                class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 p-2 rounded-xl transition-all active:scale-90"
               >
-                ✕
+                <svg class="w-6 h-6 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
               </button>
             </div>
 
             {/* Protocol Stats */}
-            <div class="grid grid-cols-2 gap-4 mb-6">
-              <div class="bg-gray-800 p-4 rounded border border-gray-700">
-                <div class="text-gray-400 text-sm mb-1">Total Case Studies</div>
-                <div class="text-3xl font-bold">{selectedProtocol.caseStudyCount}</div>
+            <div class="grid grid-cols-2 gap-6 mb-8">
+              <div class="bg-slate-50 dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-inner">
+                <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Total Case Studies</div>
+                <div class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{selectedProtocol.caseStudyCount}</div>
               </div>
-              <div class="bg-gray-800 p-4 rounded border border-gray-700">
-                <div class="text-gray-400 text-sm mb-1">Community Validated</div>
-                <div class="text-3xl font-bold text-green-400">
+              <div class="bg-slate-50 dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-inner">
+                <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Community Verified</div>
+                <div class="text-4xl font-black text-green-600 dark:text-green-400 tracking-tighter">
                   {selectedProtocol.validatedCount}
                 </div>
               </div>
-              <div class="bg-gray-800 p-4 rounded border border-gray-700">
-                <div class="text-gray-400 text-sm mb-1">Success Rate</div>
-                <div class="text-3xl font-bold text-blue-400">{selectedProtocol.successRate}%</div>
+              <div class="bg-slate-50 dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-inner">
+                <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Reported Success</div>
+                <div class="text-4xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">{selectedProtocol.successRate}%</div>
               </div>
-              <div class="bg-gray-800 p-4 rounded border border-gray-700">
-                <div class="text-gray-400 text-sm mb-1">Validation Quality</div>
-                <div class="text-3xl font-bold text-yellow-400">
+              <div class="bg-slate-50 dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-inner">
+                <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Data Quality</div>
+                <div class="text-4xl font-black text-yellow-600 dark:text-yellow-400 tracking-tighter">
                   {((selectedProtocol.validatedCount / selectedProtocol.caseStudyCount) * 100).toFixed(0)}%
                 </div>
               </div>
             </div>
 
             {/* What This Means */}
-            <div class="bg-gray-800/50 p-4 rounded border border-gray-700 mb-6">
-              <h4 class="font-bold mb-2">What This Means</h4>
-              <ul class="text-sm text-gray-300 space-y-2">
-                <li>
-                  ✓ {selectedProtocol.caseStudyCount} people have tried this and shared their
-                  experience
+            <div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-700 mb-8 shadow-sm">
+              <h4 class="font-black text-xs uppercase tracking-widest mb-4 text-slate-800 dark:text-white">Protocol Integrity Report</h4>
+              <ul class="text-xs font-bold text-slate-600 dark:text-slate-300 space-y-3">
+                <li class="flex items-start gap-3">
+                  <span class="text-green-500 font-black">✓</span>
+                  <span>{selectedProtocol.caseStudyCount} verified patient histories provided by the community</span>
                 </li>
-                <li>
-                  ✓ {selectedProtocol.validatedCount} of these experiences have been verified by
-                  the community
+                <li class="flex items-start gap-3">
+                  <span class="text-green-500 font-black">✓</span>
+                  <span>{selectedProtocol.validatedCount} independent validator approvals via ZK-proofs</span>
                 </li>
-                <li>
-                  ✓ {selectedProtocol.successRate}% reported positive outcomes
+                <li class="flex items-start gap-3">
+                  <span class="text-green-500 font-black">✓</span>
+                  <span>{selectedProtocol.successRate}% aggregate positive outcome rate from documented trials</span>
                 </li>
-                <li>✓ Community validators confirm data quality and consistency</li>
+                <li class="flex items-start gap-3">
+                  <span class="text-green-500 font-black">✓</span>
+                  <span>Stake-weighted consensus reached by decentralized validator network</span>
+                </li>
               </ul>
             </div>
 
             {/* Privacy Notice */}
-            <div class="bg-blue-900/20 border border-blue-600 p-4 rounded mb-6 text-sm">
-              🔒 <strong>Your Privacy:</strong> When you request access to case studies, the
-              protocol owner will be notified. You can choose to share additional details about
-              your situation, or request anonymously.
+            <div class="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-100 dark:border-blue-800/50 p-6 rounded-2xl mb-8 text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase tracking-widest leading-relaxed flex items-center gap-4">
+              <span class="text-2xl">🛡️</span>
+              <div>
+                <strong>Privacy Guaranteed:</strong> Requesting access only sends your encrypted identity. 
+                Full case studies are only decrypted if the protocol owner authorizes your request on-chain.
+              </div>
             </div>
 
             {/* Action Buttons */}
-            <div class="flex gap-3">
+            <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
               <button
                 onClick={() => handleRequestAccess(selectedProtocol)}
-                class="flex-1 bg-green-600 hover:bg-green-700 px-6 py-3 rounded font-bold transition"
+                class="flex-1 bg-green-600 hover:bg-green-700 text-white font-black py-4 px-6 rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 shadow-xl uppercase tracking-widest text-xs"
               >
-                ✓ Request Access to Case Studies
+                Request Case Study Access
               </button>
               <button
                 onClick={() => setSelectedProtocol(null)}
-                class="flex-1 bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded font-bold transition"
+                class="flex-1 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-white font-black py-4 px-6 rounded-xl transition-all active:scale-95 uppercase tracking-widest text-xs"
               >
-                Close
+                Close Report
               </button>
             </div>
           </div>

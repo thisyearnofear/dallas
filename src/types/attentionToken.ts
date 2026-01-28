@@ -57,6 +57,21 @@ export interface AttentionTokenAnalytics {
   transactions: number;
   createdAt: number;
   lastTradeAt: number;
+  // Community and Research Metrics
+  communityStats?: {
+    activeSupporters: number;
+    researchUpdates: number;
+    validationMilestones: number;
+    sentiment: number; // 0-100
+  };
+  intelReports?: {
+    id: string;
+    title: string;
+    severity: 'low' | 'medium' | 'high' | 'critical';
+    summary: string;
+    timestamp: number;
+    isEncrypted: boolean;
+  }[];
 }
 
 /**
@@ -259,4 +274,85 @@ export interface SymbolGenerationOptions {
   maxLength?: number;
   prefix?: string;
   suffix?: string;
+}
+
+/**
+ * Cell - Community hub for a token (1:1 with token mint)
+ */
+export interface Cell {
+  id: string;
+  tokenMint: string;
+  caseStudyPda: string;
+  ownerWallet: string;
+  name: string;
+  description: string;
+  policy: CellAccessPolicy;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export type CellAccessPolicy = 'public' | 'token_gated' | 'mixed';
+
+/**
+ * Post - Community content within a Cell
+ */
+export interface CellPost {
+  id: string;
+  cellId: string;
+  authorWallet: string;
+  authorCallsign?: string;
+  type: CellPostType;
+  title: string;
+  summary: string;
+  contentRef?: string;
+  visibility: PostVisibility;
+  severity?: 'low' | 'medium' | 'high' | 'critical';
+  attachments: PostAttachment[];
+  reactions: number;
+  comments: number;
+  createdAt: number;
+  isEncrypted: boolean;
+}
+
+export type CellPostType = 'intel' | 'update' | 'question' | 'media' | 'milestone';
+export type PostVisibility = 'public' | 'token_gated' | 'holders_only';
+
+/**
+ * Post Attachment - Media/files attached to posts
+ */
+export interface PostAttachment {
+  id: string;
+  postId: string;
+  kind: 'image' | 'video' | 'file';
+  storageUrl: string;
+  thumbUrl?: string;
+  mimeType: string;
+  size: number;
+  isEncrypted: boolean;
+}
+
+/**
+ * Create Post params
+ */
+export interface CreatePostParams {
+  cellId: string;
+  type: CellPostType;
+  title: string;
+  summary: string;
+  content?: string;
+  visibility: PostVisibility;
+  severity?: 'low' | 'medium' | 'high' | 'critical';
+  attachments?: File[];
+}
+
+/**
+ * Cell activation checklist
+ */
+export interface CellActivationStatus {
+  hasFirstIntel: boolean;
+  hasFollowUp: boolean;
+  hasQuestion: boolean;
+  hasBounty: boolean;
+  completedSteps: number;
+  totalSteps: number;
 }

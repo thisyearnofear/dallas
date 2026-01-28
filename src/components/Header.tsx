@@ -173,7 +173,7 @@ function ThemeToggle() {
     return (
         <button 
             onClick={toggleTheme}
-            class="text-sm font-bold px-3 py-1 rounded shadow-md transition-colors border-2 bg-gray-800 hover:bg-gray-700 text-white border-gray-600"
+            class="text-sm font-bold px-3 py-1 rounded shadow-md transition-colors border-2 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-900 dark:text-white border-gray-400 dark:border-gray-600"
             title={`Current theme: ${theme}. Click to cycle through light/dark/system.`}
         >
             {getThemeIcon()} {getThemeLabel()}

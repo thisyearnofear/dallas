@@ -413,6 +413,7 @@ Attention Tokens are treatment-specific tokens that enable market-driven discove
 # 3. Add to .env file
 
 echo "BAGS_API_KEY=your_api_key_here" >> .env
+echo "BAGS_PARTNER_CONFIG=your_config_key_here" >> .env
 echo "BAGS_API_URL=https://public-api-v2.bags.fm/api/v1" >> .env
 ```
 
@@ -446,6 +447,7 @@ const createAttentionToken = async (caseStudyData) => {
       symbol: generateSymbol(caseStudyData.treatmentName), // e.g., "PEPTIDE"
       description: `Market token for ${caseStudyData.treatmentName} treatment`,
       imageUrl: caseStudyData.imageUrl,
+      partnerConfig: process.env.BAGS_PARTNER_CONFIG, // Automatically tracks referral fees
       metadata: {
         caseStudyPda: caseStudyData.publicKey.toString(),
         submitter: caseStudyData.submitter.toString(),
@@ -455,19 +457,6 @@ const createAttentionToken = async (caseStudyData) => {
       initialBuy: {
         amount: 1000000, // Initial liquidity in lamports
         buyerPublicKey: wallet.publicKey.toString()
-      },
-      feeSharing: {
-        recipients: [
-          {
-            publicKey: caseStudyData.submitter.toString(),
-            percentage: 50 // 50% to submitter
-          },
-          {
-            publicKey: treasuryAddress.toString(),
-            percentage: 10 // 10% to platform
-          }
-          // Remaining 10% split among validators (configured separately)
-        ]
       }
     })
   });
