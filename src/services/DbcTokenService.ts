@@ -20,8 +20,11 @@ export const DBC_DECIMALS_MULTIPLIER = 10 ** DBC_DECIMALS;
 export const TOKEN_2022_PROGRAM_ID = new PublicKey('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb');
 
 // Treasury Program ID (update after SolPG deployment)
+// Use system program as placeholder if not configured
+const treasuryProgramIdStr = SOLANA_CONFIG.blockchain.treasuryProgramId;
+const isPlaceholder = treasuryProgramIdStr.includes('XXXX') || treasuryProgramIdStr.includes('XXX');
 export const TREASURY_PROGRAM_ID = new PublicKey(
-  SOLANA_CONFIG.blockchain.treasuryProgramId || '11111111111111111111111111111111'
+  isPlaceholder ? '11111111111111111111111111111111' : treasuryProgramIdStr
 );
 
 /**
