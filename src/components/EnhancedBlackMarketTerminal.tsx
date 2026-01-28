@@ -353,7 +353,7 @@ Network coordination may be temporarily unavailable.`;
       {/* Command Input */}
       <form onSubmit={handleSubmit} class="border-t border-green-600 p-4">
         <div class="flex items-center gap-2">
-          <span class="text-green-400">></span>
+          <span class="text-green-400">{'>'}</span>
           <input
             type="text"
             value={input}
