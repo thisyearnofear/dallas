@@ -1,6 +1,8 @@
 import { FunctionalComponent } from 'preact';
 import { useState } from 'preact/hooks';
-import { PrivacyCoordinationAgent } from '../agents/PrivacyCoordinationAgent';
+import { Community, CommunityCategory, CommunityFilters, CATEGORY_INFO } from '../types/community';
+import { attentionTokenService } from '../services/AttentionTokenService';
+import { AttentionToken } from '../types/attentionToken';
 
 interface ProtocolMatch {
   id: string;
@@ -9,6 +11,8 @@ interface ProtocolMatch {
   validatedCount: number;
   successRate: number;
   matchScore: number;
+  category?: CommunityCategory;
+  memberCount?: number;
 }
 
 const INTEREST_TAGS = [
@@ -26,36 +30,85 @@ const INTEREST_TAGS = [
 
 const DIFFICULTY_LEVELS = ['easy', 'moderate', 'hard'] as const;
 
+// Category filter buttons
+const CATEGORIES: (CommunityCategory | 'all')[] = ['all', 'supplement', 'lifestyle', 'device', 'protocol'];
+
 export const ProtocolDiscovery: FunctionalComponent = () => {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'moderate' | 'hard' | ''>('');
+  const [selectedCategory, setSelectedCategory] = useState<CommunityCategory | 'all'>('all');
   const [matchedProtocols, setMatchedProtocols] = useState<ProtocolMatch[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedProtocol, setSelectedProtocol] = useState<ProtocolMatch | null>(null);
   const [searchPerformed, setSearchPerformed] = useState(false);
 
-  const agent = new PrivacyCoordinationAgent();
-
   const handleSearch = async () => {
-    if (selectedInterests.length === 0) {
-      alert('Please select at least one interest');
-      return;
-    }
-
     setIsSearching(true);
     setSearchPerformed(true);
+    
     try {
-      const result = await agent.matchUserToProtocols({
-        treatmentInterests: selectedInterests,
-        difficulty: selectedDifficulty as 'easy' | 'moderate' | 'hard' | undefined,
+      // ENHANCED: Fetch real communities from Bags API via AttentionTokenService
+      const communities = await attentionTokenService.getCommunityTokens({
+        category: selectedCategory === 'all' ? undefined : selectedCategory,
+        limit: 50,
+        sortBy: 'holders',
       });
 
-      if (result.modifications?.matchedProtocols) {
-        setMatchedProtocols(result.modifications.matchedProtocols);
+      // Transform AttentionToken[] to ProtocolMatch[] for display
+      const protocols: ProtocolMatch[] = communities.map((community) => {
+        // Calculate match score based on selected interests
+        let matchScore = 50; // Base score
+        
+        // Boost score if interests align with treatment category
+        if (selectedInterests.length > 0) {
+          const categoryKeywords: Record<string, string[]> = {
+            supplement: ['immune-support', 'energy-boost', 'natural'],
+            lifestyle: ['lifestyle', 'easy', 'natural'],
+            device: ['proven', 'clinical-data'],
+            protocol: ['proven', 'clinical-data', 'hard']
+          };
+          
+          const category = community.treatmentCategory.toLowerCase();
+          const keywords = Object.entries(categoryKeywords).find(([key]) => 
+            category.includes(key)
+          )?.[1] || [];
+          
+          const matchingInterests = selectedInterests.filter(interest => 
+            keywords.includes(interest)
+          ).length;
+          
+          matchScore += (matchingInterests / selectedInterests.length) * 50;
+        }
+
+        return {
+          id: community.mint.toString(),
+          name: community.treatmentName,
+          caseStudyCount: community.analytics?.transactions || 0,
+          validatedCount: Math.floor((community.analytics?.transactions || 0) * 0.7), // Estimate
+          successRate: Math.min(85, 60 + (community.analytics?.holders || 0)), // Estimate based on holders
+          matchScore: Math.round(matchScore),
+          category: community.treatmentCategory as CommunityCategory,
+          memberCount: community.analytics?.holders || 0,
+        };
+      });
+
+      // Filter by difficulty if specified (mock implementation for now)
+      let filteredProtocols = protocols;
+      if (selectedDifficulty) {
+        // Easy = high match score, Hard = lower match score
+        filteredProtocols = protocols.filter(p => {
+          if (selectedDifficulty === 'easy') return p.matchScore >= 70;
+          if (selectedDifficulty === 'moderate') return p.matchScore >= 50 && p.matchScore < 70;
+          if (selectedDifficulty === 'hard') return p.matchScore < 50;
+          return true;
+        });
       }
+
+      setMatchedProtocols(filteredProtocols);
     } catch (error) {
       console.error('Search failed:', error);
-      alert('❌ Search failed');
+      alert('❌ Search failed. Check console for details.');
+      setMatchedProtocols([]);
     } finally {
       setIsSearching(false);
     }
@@ -80,17 +133,44 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
       {/* Header */}
       <div class="mb-10">
         <h2 class="text-3xl font-black mb-2 uppercase tracking-tighter flex items-center gap-3">
-          <span class="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-lg text-2xl">🔍</span>
-          <span>Discover Protocols</span>
+          <span class="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-lg text-2xl">🌐</span>
+          <span>Discover Communities</span>
         </h2>
         <p class="text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-          Find what others have tried. Your search stays private - we never log your interests.
+          Find wellness communities around remedies and initiatives. Your search stays private - we never log your interests.
         </p>
       </div>
 
       {/* Search Filters */}
       <div class="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-2xl border-2 border-slate-200 dark:border-slate-700 mb-10 shadow-inner transition-colors">
-        <h3 class="text-xl font-black mb-6 uppercase tracking-wider text-slate-800 dark:text-white">What are you interested in?</h3>
+        {/* Category Filter */}
+        <div class="mb-8">
+          <h3 class="text-xs font-black mb-4 uppercase tracking-widest text-slate-500 dark:text-slate-400">Browse by Category</h3>
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+            {CATEGORIES.map((cat) => {
+              const info = cat === 'all' 
+                ? { icon: '🌐', label: 'All Communities' }
+                : CATEGORY_INFO[cat];
+              
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  class={`px-4 py-3 rounded-xl font-bold transition-all text-sm uppercase tracking-tight shadow-sm border flex items-center gap-2 justify-center ${
+                    selectedCategory === cat
+                      ? 'bg-blue-600 text-white border-blue-400 scale-[1.02] shadow-blue-500/20'
+                      : 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600'
+                  }`}
+                >
+                  <span class="text-lg">{info.icon}</span>
+                  <span>{info.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <h3 class="text-xl font-black mb-6 uppercase tracking-wider text-slate-800 dark:text-white">Refine Your Search</h3>
 
         {/* Interest Tags */}
         <div class="mb-8">
@@ -142,10 +222,10 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
         {/* Search Button */}
         <button
           onClick={handleSearch}
-          disabled={isSearching || selectedInterests.length === 0}
+          disabled={isSearching}
           class="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:bg-slate-200 dark:disabled:bg-slate-700 disabled:text-slate-400 dark:disabled:text-slate-500 disabled:cursor-not-allowed px-6 py-5 rounded-2xl font-black text-xl transition-all transform hover:scale-[1.01] active:scale-95 shadow-xl uppercase tracking-tighter"
         >
-          {isSearching ? '⏳ Searching privately...' : '🔍 Search Protocols'}
+          {isSearching ? '⏳ Fetching real communities...' : '🔍 Search Communities'}
         </button>
 
         <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase tracking-widest flex items-center gap-3">

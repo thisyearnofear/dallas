@@ -76,20 +76,26 @@ export interface AttentionTokenAnalytics {
 
 /**
  * Attention Token Creation Parameters
+ * ENHANCED: Made case study optional, added community fields
  */
 export interface CreateAttentionTokenParams {
-  caseStudyPda: PublicKey;
+  caseStudyPda?: PublicKey;           // Optional for standalone communities
   treatmentName: string;
   treatmentCategory: string;
   description: string;
   imageUrl: string;
   submitter: PublicKey;
-  validators: ValidatorInfo[];
-  reputationScore: number;
+  validators?: ValidatorInfo[];       // Optional for communities
+  reputationScore?: number;           // Optional for communities
+  // ADDED: Community-specific parameters
+  communityCategory?: 'supplement' | 'lifestyle' | 'device' | 'protocol';
+  isCommunityToken?: boolean;
+  socialEnabled?: boolean;
 }
 
 /**
  * Bags API Token Launch Request
+ * ENHANCED: Added community-specific fields for category taxonomy and social layer
  */
 export interface BagsTokenLaunchRequest {
   name: string;
@@ -98,12 +104,17 @@ export interface BagsTokenLaunchRequest {
   imageUrl: string;
   partnerConfig?: string; // Optional partner config for fee sharing
   metadata: {
-    caseStudyPda: string;
+    caseStudyPda?: string;              // Optional - not required for standalone communities
     submitter: string;
     validators: string[];
     reputationScore: number;
     treatmentName: string;
     treatmentCategory: string;
+    // ADDED: Community-specific metadata
+    communityCategory?: 'supplement' | 'lifestyle' | 'device' | 'protocol';
+    isCommunityToken?: boolean;         // Flag to identify community vs case study tokens
+    socialEnabled?: boolean;            // Whether Farcaster integration is enabled
+    farcasterChannel?: string;          // Farcaster channel ID if social enabled
   };
   initialBuy?: {
     amount: number; // lamports

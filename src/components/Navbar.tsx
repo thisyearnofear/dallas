@@ -3,17 +3,12 @@ import { useState } from "preact/hooks";
 
 const navigationItems = [
     { href: "/", label: "Home", icon: "🏠", description: "Welcome to the club" },
-    { href: "/experiences", label: "Health Journeys", icon: "🔍", description: "Discover & share", highlight: true },
+    { href: "/experiences", label: "Communities", icon: "🌐", description: "Discover & create", highlight: true },
+    { href: "/attention-tokens", label: "Token Market", icon: "💎", description: "Trade community tokens", highlight: true },
     { href: "/validators", label: "Validators", icon: "⚖️", description: "Earn by validating", highlight: true },
-    { href: "/attention-tokens", label: "Token Market", icon: "💎", description: "Trade treatment tokens", highlight: true },
-    { href: "/products", label: "Products", icon: "💊", description: "Treatment options" },
-    { href: "/membership", label: "Join Us", icon: "🤝", description: "Become a fighter", highlight: true },
-    { href: "/achievements", label: "Achievements", icon: "🏆", description: "Track your progress" },
-    { href: "/testimonials", label: "Stories", icon: "⭐", description: "Success stories" },
-    { href: "/referrals", label: "Spread Hope", icon: "📢", description: "Invite others" },
+    { href: "/membership", label: "Join Us", icon: "🤝", description: "Become a fighter" },
     { href: "/underground", label: "Underground", icon: "🕋", description: "Secret operations", secret: true },
-    { href: "/links", label: "Links", icon: "🔗", description: "Resources" },
-    { href: "/donate", label: "Donate", icon: "💰", description: "Support the cause" }
+    { href: "/links", label: "Resources", icon: "🔗", description: "Tools & info" }
 ];
 
 export function Navbar() {

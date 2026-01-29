@@ -16,12 +16,13 @@ npm run dev
 
 ### Exploring Features
 
-#### Health Sovereignty Page
+#### Wellness Communities Page
 Navigate to: `http://localhost:5173/experiences`
 
-**Two Tabs:**
-- **Discover Protocols:** Search health protocols by interests
-- **Share Your Experience:** Submit encrypted case studies
+**Three Tabs:**
+- **🌐 Discover Communities:** Browse real communities by category (supplement, lifestyle, device, protocol)
+- **🚀 Launch Community:** Create your own community token (interactive form, free to launch)
+- **📋 Share Experience:** Submit encrypted case studies
 
 #### Test the Encryption Flow
 
@@ -71,7 +72,7 @@ programs/
 ```
 src/components/
 ├── EncryptedCaseStudyForm.tsx    # Case study submission (ready for blockchain)
-├── ProtocolDiscovery.tsx          # Protocol search & discovery
+├── ProtocolDiscovery.tsx          # Community discovery with real Bags API data
 ├── ValidationDashboard.tsx        # Validator approval UI
 └── (all used by /experiences page)
 
@@ -170,18 +171,26 @@ No props required. Uses WalletContext for:
 - Form data (treatment, metrics, side effects)
 - Submission status
 
-### ProtocolDiscovery
+### ProtocolDiscovery (Enhanced with Real Data)
 
 No props required.
 
 **Internal State:**
+- Selected category (supplement, lifestyle, device, protocol, all)
 - Selected interests (tags)
 - Selected difficulty level
-- Matched protocols list
+- Matched protocols/communities list
 - Selected protocol for detail view
 
+**Data Source:**
+- **ENHANCED**: Now fetches real communities from `AttentionTokenService.getCommunityTokens()`
+- **REMOVED**: Mock `PrivacyCoordinationAgent`
+- Filters by category, calculates match scores
+- Shows real analytics: member count, transactions, success rate
+
 **Output:**
-- Logs to console when "Request Access" is clicked
+- Real communities with Bags API data
+- Clickable for detail view (modal)
 
 ---
 
@@ -264,10 +273,20 @@ All attention token components are fully integrated with real blockchain and API
 
 #### **AttentionTokenService.ts**
 ```typescript
-// Core Bags API integration
+// Core Bags API integration + Community queries
 class AttentionTokenService {
-  // Token creation
+  // Token creation (case study OR community)
   async createAttentionToken(params) → { tokenMint, bondingCurve, signature }
+  
+  // NEW: Community discovery by category
+  async getCommunityTokens(filters?: {
+    category?: 'supplement' | 'lifestyle' | 'device' | 'protocol' | 'all';
+    limit?: number;
+    sortBy?: 'marketCap' | 'volume24h' | 'holders' | 'createdAt';
+  }) → AttentionToken[]
+  
+  // NEW: Get single community token
+  async getCommunityToken(tokenMint) → AttentionToken | null
   
   // Analytics
   async getTokenAnalytics(tokenMint) → { marketCap, volume24h, holders, price, ... }

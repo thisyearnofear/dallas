@@ -18,12 +18,14 @@
 
 ## 💡 Solution: Community Tokenization Platform
 
-We provide infrastructure that enables anyone to form communities around health causes. Each community:
+We provide infrastructure that enables anyone to form communities around wellness remedies and initiatives. Each community:
 
-- **Launches their own token** (via Bags API bonding curves)
+- **Launches their own token** (via Bags API bonding curves - free to create)
+- **Organizes by category** (supplement, lifestyle, device, protocol)
 - **Validates contributions privately** (ZK proofs, no data exposure)
 - **Funds research collectively** (community treasuries, not handouts)
 - **Owns their destiny** (governance, not platform control)
+- **Anonymous by default** (optional Farcaster social layer)
 
 ### Core Innovation: Separation of Concerns
 
@@ -90,16 +92,19 @@ We provide infrastructure that enables anyone to form communities around health 
 ## 🎨 Key Features
 
 ### For Patients
-✅ **Find Your Community**: Discover others with the same condition or wellness goals  
+✅ **Find Your Community**: Discover communities by category (supplement, lifestyle, device, protocol)  
 ✅ **Encrypt & Share**: Submit treatment experiences with wallet-derived encryption  
-✅ **Private Discovery**: Query similar cases without revealing your identity  
+✅ **Private Discovery**: Search communities without revealing your identity  
 ✅ **Earn Community Tokens**: Get rewarded for contributions to your community  
+✅ **Anonymous by Default**: Participate via wallet only, optional social layer (Farcaster)
 
 ### For Community Creators
-✅ **Launch in Minutes**: Create your community token with no code (Bags API)  
+✅ **Launch in Minutes**: Create your community token via interactive form (free to launch)  
+✅ **Category Taxonomy**: Choose from supplement, lifestyle, device, or protocol  
 ✅ **Built-in Privacy**: ZK validation, encrypted storage included  
 ✅ **Sustainable Funding**: Community treasury funded by trading volume  
 ✅ **Ongoing Revenue**: Earn 1% of trading volume forever  
+✅ **Optional Social Layer**: Enable Farcaster integration for community discussions
 
 ### For Validators
 ✅ **Monetize Expertise**: Validate across communities, earn fees  
@@ -333,26 +338,57 @@ npm install
 
 # Configure environment
 cp .env.example .env
-# Add your Phantom wallet private key (devnet)
-# Add Helius API key
-# Add Triton RPC endpoint
+# Add your keys:
+# - VITE_HELIUS_API_KEY
+# - BAGS_API_KEY
+# - BAGS_PARTNER_CONFIG
 ```
 
 ### Run Locally
 ```bash
 npm run dev          # Start frontend (localhost:5173)
 npm run test         # Run test suite
-npm run deploy       # Deploy contracts to devnet
+npm run build        # Build for production
 ```
 
-### Test Privacy Features
-```bash
-# 1. Connect Phantom wallet (devnet)
-# 2. Encrypt health data → wallet signs challenge → AES key derived
-# 3. Submit case study → stored on Light Protocol → ZK proof generated
-# 4. Become validator → stake EXPERIENCE via Privacy Cash
-# 5. Validate case study → Noir circuit proves integrity → earn rewards
-```
+### Discover Communities
+
+1. Visit `http://localhost:5173/experiences`
+2. Click "🌐 Discover Communities" tab
+3. Select category: Supplement, Lifestyle, Device, or Protocol
+4. Optional: Select interests and difficulty
+5. Click "Search Communities"
+6. Browse real communities from Bags API with stats
+
+### Launch a Community
+
+1. Navigate to "🚀 Launch Community" tab
+2. Connect Phantom wallet
+3. Fill out form:
+   - **Name**: Your community name (e.g., "Collagen Community")
+   - **Description**: Mission and goals (500 char max)
+   - **Category**: Supplement, Lifestyle, Device, or Protocol
+   - **Image**: Optional URL (auto-generates if empty)
+   - **Social**: Toggle Farcaster integration (anonymous by default)
+4. Click "Launch Community (Free)"
+5. Token created via Bags API bonding curve
+6. Share your token mint address with members
+
+### Share Your Experience
+
+1. Navigate to "📋 Share Experience" tab
+2. Connect wallet
+3. Fill encrypted case study form
+4. Pay 0.1 SOL submission fee
+5. Your data is encrypted with your wallet key (only you can decrypt)
+
+### Validate Case Studies
+
+1. Navigate to `/validators` page
+2. Stake 1000+ DBC tokens
+3. Review encrypted submissions (via ZK proofs)
+4. Approve/reject based on data quality
+5. Earn SOL fees + community tokens
 
 ---
 

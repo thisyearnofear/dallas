@@ -66,11 +66,16 @@ graph TD
 - **Benefits**: Shielded stablecoin transfers, private payment rails
 - **Implementation**: Modular design for future expansion
 
-#### 6. Bags API Integration (Attention Tokens)
-- **Location**: Frontend + `attention_token_factory.rs` (planned)
-- **Function**: Create treatment-specific tokens for market discovery
-- **Benefits**: Community-driven value signaling, revenue sharing for submitters
-- **Implementation**: Bags API token launches with bonding curves and fee distribution
+#### 6. Bags API Integration (Attention Tokens + Communities)
+- **Location**: `AttentionTokenService.ts` + Interactive form at `/experiences`
+- **Function**: Create community tokens for wellness remedies and initiatives
+- **Benefits**: Free community creation, category-based discovery, sustainable funding
+- **Implementation**: 
+  - Real-time community discovery: `getCommunityTokens(filters)` by category
+  - Interactive creation form with validation and wallet integration
+  - Token launches with bonding curves and fee distribution
+  - Category taxonomy: supplement, lifestyle, device, protocol
+  - Optional Farcaster integration (anonymous by default)
 
 ## Privacy-Enhanced Product Design
 
@@ -491,7 +496,8 @@ All attention token features have been fully implemented with real blockchain an
 #### **Services Layer**
 ```
 src/services/
-  ├─ AttentionTokenService.ts          ✅ Bags API integration
+  ├─ AttentionTokenService.ts          ✅ Bags API integration + Community queries
+  ├─ FarcasterService.ts               ✅ Optional social layer (anonymous by default)
   ├─ AttentionTokenTradingService.ts   ✅ Trading operations
   └─ solanaUtils.ts                    ✅ Blockchain utilities
 ```
@@ -568,6 +574,10 @@ GET /token/{mint}/trades → [{ signature, type, amount, ... }]
 ### **Production Features**
 
 ✅ **Zero Mock Data** - All features use real APIs and blockchain
+✅ **Community Discovery** - Real-time query from Bags API by category
+✅ **Interactive Creation** - Full form with validation and wallet integration
+✅ **Category Taxonomy** - Supplement, Lifestyle, Device, Protocol
+✅ **Anonymous by Default** - Optional Farcaster social layer
 ✅ **Error Handling** - Comprehensive error recovery and user messaging
 ✅ **Empty States** - Helpful guidance when no data exists
 ✅ **Type Safety** - Full TypeScript coverage

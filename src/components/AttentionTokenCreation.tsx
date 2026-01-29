@@ -1,29 +1,34 @@
 /**
- * Attention Token Creation Component
- * Allows case study submitters to create attention tokens via Bags API
+ * Community/Attention Token Creation Component
+ * ENHANCEMENT: Unified flow for creating communities (which ARE attention tokens)
+ * Follows Core Principles: DRY, MODULAR, ENHANCEMENT FIRST
  */
 
 import React, { useEffect, useState } from 'react';
 import { PublicKey } from '@solana/web3.js';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { toast } from 'react-hot-toast';
 import { attentionTokenService } from '../services/AttentionTokenService';
 import {
   AttentionTokenEligibility,
   AttentionTokenCreationStatus,
   CreateAttentionTokenParams,
 } from '../types/attentionToken';
+import { CommunityCategory, CATEGORY_INFO, generateSymbol, validateCommunityName } from '../types/community';
 
 interface AttentionTokenCreationProps {
-  caseStudyPda: PublicKey;
+  caseStudyPda?: PublicKey;          // Optional - standalone community creation doesn't need case study
   treatmentName: string;
   treatmentCategory: string;
   description: string;
   imageUrl?: string;
-  reputationScore: number;
-  validatorCount: number;
-  validators: Array<{ publicKey: PublicKey; reputation: number }>;
+  reputationScore?: number;          // Optional for standalone
+  validatorCount?: number;           // Optional for standalone
+  validators?: Array<{ publicKey: PublicKey; reputation: number }>;  // Optional for standalone
   onTokenCreated?: (tokenMint: PublicKey) => void;
+  // NEW: Community-specific options
+  communityMode?: boolean;           // If true, show community creation flow
+  category?: CommunityCategory;      // Community category
+  enableSocial?: boolean;            // Enable Farcaster integration
 }
 
 export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
@@ -32,10 +37,13 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
   treatmentCategory,
   description,
   imageUrl,
-  reputationScore,
-  validatorCount,
-  validators,
+  reputationScore = 0,
+  validatorCount = 0,
+  validators = [],
   onTokenCreated,
+  communityMode = false,
+  category = 'supplement',
+  enableSocial = false,
 }) => {
   const { connection } = useConnection();
   const wallet = useWallet();
@@ -45,13 +53,29 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
   );
   const [tokenMint, setTokenMint] = useState<PublicKey | null>(null);
   const [error, setError] = useState<string | null>(null);
+  
+  // NEW: Community creation state
+  const [selectedCategory, setSelectedCategory] = useState<CommunityCategory>(category);
+  const [socialEnabled, setSocialEnabled] = useState<boolean>(enableSocial);
 
   useEffect(() => {
-    checkEligibility();
-  }, [caseStudyPda]);
+    // Only check eligibility if we have a case study (attention token mode)
+    if (caseStudyPda && !communityMode) {
+      checkEligibility();
+    } else if (communityMode) {
+      // In community mode, anyone can create (no case study required)
+      setEligibility({
+        isEligible: true,
+        hasSubmittedCaseStudy: true,
+        hasMinimumValidations: true,
+        hasMinimumReputation: true,
+        reason: 'Community creation is free for all users'
+      });
+    }
+  }, [caseStudyPda, communityMode]);
 
   const checkEligibility = async () => {
-    if (!wallet.publicKey) return;
+    if (!wallet.publicKey || !caseStudyPda) return;
 
     try {
       setStatus(AttentionTokenCreationStatus.CHECKING_ELIGIBILITY);
@@ -72,20 +96,24 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
     setError(null);
 
     try {
-      // Step 1: Create token via Bags API
+      // ENHANCED: Support both community and case study token creation
       const params: CreateAttentionTokenParams = {
-        caseStudyPda,
+        caseStudyPda: communityMode ? undefined : caseStudyPda,
         treatmentName,
         treatmentCategory,
         description,
         imageUrl: imageUrl || 'https://via.placeholder.com/400',
         submitter: wallet.publicKey,
-        validators: validators.map((v) => ({
+        validators: communityMode ? [] : validators.map((v) => ({
           publicKey: v.publicKey,
           reputation: v.reputation,
-          contribution: 1 / validators.length, // Equal contribution for now
+          contribution: 1 / validators.length,
         })),
-        reputationScore,
+        reputationScore: communityMode ? 0 : reputationScore,
+        // ADDED: Community-specific parameters
+        communityCategory: communityMode ? selectedCategory : undefined,
+        isCommunityToken: communityMode,
+        socialEnabled: communityMode ? socialEnabled : undefined,
       };
 
       const { tokenMint: mint, bondingCurve, signature } = 

@@ -77,6 +77,7 @@ export class AttentionTokenService {
 
   /**
    * Create attention token via Bags API
+   * ENHANCED: Support for both case study tokens and standalone community tokens
    */
   async createAttentionToken(
     params: CreateAttentionTokenParams
@@ -84,22 +85,33 @@ export class AttentionTokenService {
     this.checkRateLimit();
 
     const symbol = this.generateSymbol(params.treatmentName);
+    
+    // Determine token name based on mode
+    const isCommunity = params.isCommunityToken || !params.caseStudyPda;
+    const tokenName = isCommunity 
+      ? params.treatmentName  // Communities use name directly (e.g., "Collagen Community")
+      : `${params.treatmentName} Attention`; // Case studies append "Attention"
 
     const request: BagsTokenLaunchRequest = {
-      name: `${params.treatmentName} Attention`,
+      name: tokenName,
       symbol,
       description: params.description,
       imageUrl: params.imageUrl,
       partnerConfig: this.bagsPartnerConfig || undefined,
       metadata: {
-        caseStudyPda: params.caseStudyPda.toString(),
+        caseStudyPda: params.caseStudyPda?.toString(),
         submitter: params.submitter.toString(),
-        validators: params.validators.map((v) => v.publicKey.toString()),
-        reputationScore: params.reputationScore,
+        validators: params.validators?.map((v) => v.publicKey.toString()) || [],
+        reputationScore: params.reputationScore || 0,
         treatmentName: params.treatmentName,
         treatmentCategory: params.treatmentCategory,
+        // ADDED: Community-specific metadata
+        communityCategory: params.communityCategory,
+        isCommunityToken: isCommunity,
+        socialEnabled: params.socialEnabled || false,
+        farcasterChannel: undefined, // Will be set after Farcaster channel creation
       },
-      initialBuy: {
+      initialBuy: isCommunity ? undefined : { // Communities don't require initial buy
         amount: SOLANA_CONFIG.attentionToken.initialLiquidity,
         buyerPublicKey: params.submitter.toString(),
       },
@@ -440,6 +452,130 @@ export class AttentionTokenService {
    */
   isConfigured(): boolean {
     return !!this.bagsApiKey && !!this.bagsApiUrl;
+  }
+
+  /**
+   * ADDED: Query community tokens by category
+   * Fetches all tokens created with community metadata via partner config
+   */
+  async getCommunityTokens(filters?: {
+    category?: 'supplement' | 'lifestyle' | 'device' | 'protocol' | 'all';
+    limit?: number;
+    sortBy?: 'marketCap' | 'volume24h' | 'holders' | 'createdAt';
+  }): Promise<AttentionToken[]> {
+    this.checkRateLimit();
+
+    try {
+      // Fetch all tokens created via our partner config
+      // Note: This endpoint may need to be adjusted based on actual Bags API
+      const response = await this.callBagsApi<{ tokens: any[] }>(
+        `/tokens?partnerConfig=${this.bagsPartnerConfig}&limit=${filters?.limit || 100}`
+      );
+
+      if (!response || !Array.isArray(response)) {
+        console.warn('Unexpected response from Bags API:', response);
+        return [];
+      }
+
+      // Parse tokens and filter by category
+      const tokens: AttentionToken[] = (response as any[])
+        .filter((token) => {
+          // Only include tokens with community metadata
+          const metadata = token.metadata || {};
+          const isCommunity = metadata.isCommunityToken;
+          
+          if (!isCommunity) return false;
+          
+          // Filter by category if specified
+          if (filters?.category && filters.category !== 'all') {
+            return metadata.communityCategory === filters.category;
+          }
+          
+          return true;
+        })
+        .map((token) => ({
+          mint: new PublicKey(token.mint),
+          bondingCurve: new PublicKey(token.bondingCurve),
+          caseStudyPda: token.metadata?.caseStudyPda 
+            ? new PublicKey(token.metadata.caseStudyPda)
+            : new PublicKey('11111111111111111111111111111111'), // Default if community token
+          name: token.name,
+          symbol: token.symbol,
+          description: token.description,
+          imageUrl: token.imageUrl || 'https://via.placeholder.com/400',
+          submitter: new PublicKey(token.metadata?.submitter || '11111111111111111111111111111111'),
+          validators: [],
+          treatmentName: token.metadata?.treatmentName || token.name,
+          treatmentCategory: token.metadata?.treatmentCategory || 'Unknown',
+          reputationScore: token.metadata?.reputationScore || 0,
+          createdAt: token.createdAt || Date.now(),
+          analytics: {
+            marketCap: token.marketCap || 0,
+            volume24h: token.volume24h || 0,
+            volumeAll: token.volumeAll || 0,
+            holders: token.holders || 0,
+            price: token.price || 0,
+            priceChange24h: token.priceChange24h || 0,
+            lifetimeFees: token.lifetimeFees || 0,
+            transactions: token.transactions || 0,
+            createdAt: token.createdAt || Date.now(),
+            lastTradeAt: token.lastTradeAt || Date.now(),
+          }
+        }));
+
+      // Sort if requested
+      if (filters?.sortBy) {
+        tokens.sort((a, b) => {
+          const aVal = a.analytics?.[filters.sortBy!] || 0;
+          const bVal = b.analytics?.[filters.sortBy!] || 0;
+          return bVal - aVal; // Descending order
+        });
+      }
+
+      return tokens;
+    } catch (error) {
+      console.error('Error fetching community tokens:', error);
+      // Return empty array rather than throwing - graceful degradation
+      return [];
+    }
+  }
+
+  /**
+   * ADDED: Get single community token by mint
+   */
+  async getCommunityToken(tokenMint: PublicKey): Promise<AttentionToken | null> {
+    this.checkRateLimit();
+
+    try {
+      const analytics = await this.getTokenAnalytics(tokenMint);
+      
+      // Fetch token metadata - adjust endpoint as needed
+      const response = await this.callBagsApi<any>(`/token/${tokenMint.toString()}`);
+      
+      if (!response) return null;
+
+      return {
+        mint: tokenMint,
+        bondingCurve: new PublicKey(response.bondingCurve || '11111111111111111111111111111111'),
+        caseStudyPda: response.metadata?.caseStudyPda 
+          ? new PublicKey(response.metadata.caseStudyPda)
+          : new PublicKey('11111111111111111111111111111111'),
+        name: response.name,
+        symbol: response.symbol,
+        description: response.description,
+        imageUrl: response.imageUrl || 'https://via.placeholder.com/400',
+        submitter: new PublicKey(response.metadata?.submitter || '11111111111111111111111111111111'),
+        validators: [],
+        treatmentName: response.metadata?.treatmentName || response.name,
+        treatmentCategory: response.metadata?.treatmentCategory || 'Unknown',
+        reputationScore: response.metadata?.reputationScore || 0,
+        createdAt: response.createdAt || Date.now(),
+        analytics,
+      };
+    } catch (error) {
+      console.error('Error fetching community token:', error);
+      return null;
+    }
   }
 }
 
