@@ -3,7 +3,7 @@ import { useSettings } from "../context/SettingsContext";
 
 interface PopupAd {
     id: string;
-    type: 'mexpharm' | 'freetrials' | 'winnernotif' | 'adnetwork' | 'newsletter';
+    type: 'mexpharm' | 'freetrials' | 'winnernotif' | 'adnetwork' | 'newsletter' | 'token_promotion';
     title: string;
     content: string;
     buttonText: string;
@@ -12,6 +12,10 @@ interface PopupAd {
     titleBarStyle: string;
     urgent?: boolean;
     blink?: boolean;
+    // Token promotion fields
+    tokenMint?: string;
+    tokenName?: string;
+    isPromotion?: boolean;
 }
 
 const popupAds: PopupAd[] = [
@@ -82,10 +86,58 @@ export function Authentic90sPopups() {
 
     if (!settings.popupsEnabled) return null;
 
+    // Load active promotions from localStorage
+    const loadPromotions = (): PopupAd[] => {
+        try {
+            const stored = localStorage.getItem('dbc-active-promotions');
+            if (!stored) return [];
+            
+            const promotions = JSON.parse(stored);
+            const now = Date.now();
+            const oneDay = 24 * 60 * 60 * 1000;
+            
+            // Filter out promotions older than 24 hours
+            const validPromotions = promotions.filter((p: any) => now - p.timestamp < oneDay);
+            
+            // Clean up expired
+            if (validPromotions.length !== promotions.length) {
+                localStorage.setItem('dbc-active-promotions', JSON.stringify(validPromotions));
+            }
+            
+            return validPromotions.map((p: any, index: number) => ({
+                id: `promo-${p.tokenMint}-${index}`,
+                type: 'token_promotion' as const,
+                title: `🔥 ${p.tokenName}`,
+                content: `Community token promotion! Support ${p.tokenName} and join the movement.`,
+                buttonText: 'VIEW TOKEN',
+                entityName: 'DBC Community',
+                bgStyle: 'bg-purple-200',
+                titleBarStyle: 'bg-purple-700',
+                urgent: true,
+                blink: true,
+                tokenMint: p.tokenMint,
+                tokenName: p.tokenName,
+                isPromotion: true,
+            }));
+        } catch {
+            return [];
+        }
+    };
+
     useEffect(() => {
         const showRandomPopup = () => {
             if (activePopups.length === 0) { // Only show if no popups are active
-                const randomPopup = popupAds[Math.floor(Math.random() * popupAds.length)];
+                // Mix promotions with default popups (50/50 chance if promotions exist)
+                const promotions = loadPromotions();
+                const usePromotion = promotions.length > 0 && Math.random() > 0.5;
+                
+                let selectedPopup: PopupAd;
+                
+                if (usePromotion) {
+                    selectedPopup = promotions[Math.floor(Math.random() * promotions.length)];
+                } else {
+                    selectedPopup = popupAds[Math.floor(Math.random() * popupAds.length)];
+                }
                 
                 // Random position
                 const x = Math.random() * (window.innerWidth - 400);
@@ -93,12 +145,44 @@ export function Authentic90sPopups() {
                 
                 setPositions(prev => ({
                     ...prev,
-                    [randomPopup.id]: { x, y }
+                    [selectedPopup.id]: { x, y }
                 }));
                 
-                setActivePopups([randomPopup]); // Only one popup at a time
+                setActivePopups([selectedPopup]); // Only one popup at a time
             }
         };
+
+        // Listen for immediate promotion triggers
+        const handlePromotionTrigger = (event: CustomEvent) => {
+            const promo = event.detail;
+            const popup: PopupAd = {
+                id: `promo-${promo.tokenMint}-${Date.now()}`,
+                type: 'token_promotion',
+                title: `🚀 ${promo.tokenName}`,
+                content: `New community token promotion! Support ${promo.tokenName}.`,
+                buttonText: 'VIEW TOKEN',
+                entityName: 'DBC Community',
+                bgStyle: 'bg-purple-200',
+                titleBarStyle: 'bg-purple-700',
+                urgent: true,
+                blink: true,
+                tokenMint: promo.tokenMint,
+                tokenName: promo.tokenName,
+                isPromotion: true,
+            };
+            
+            const x = Math.random() * (window.innerWidth - 400);
+            const y = Math.random() * (window.innerHeight - 300);
+            
+            setPositions(prev => ({
+                ...prev,
+                [popup.id]: { x, y }
+            }));
+            
+            setActivePopups([popup]);
+        };
+
+        window.addEventListener('dbc-trigger-promotion', handlePromotionTrigger as EventListener);
 
         // Very infrequent - every 3-5 minutes
         const interval = setInterval(() => {
@@ -113,6 +197,7 @@ export function Authentic90sPopups() {
         return () => {
             clearInterval(interval);
             clearTimeout(initialTimer);
+            window.removeEventListener('dbc-trigger-promotion', handlePromotionTrigger as EventListener);
         };
     }, [activePopups.length]);
 
@@ -196,13 +281,18 @@ export function Authentic90sPopups() {
 
                         {/* Action Buttons */}
                         <div class="flex gap-1">
-                            <button 
+                            <button
                                 class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-2 text-xs border-2 border-black"
-                                onClick={() => closePopup(popup.id)}
+                                onClick={() => {
+                                    if (popup.isPromotion && popup.tokenMint) {
+                                        window.open(`/attention-tokens?highlight=${popup.tokenMint}`, '_blank');
+                                    }
+                                    closePopup(popup.id);
+                                }}
                             >
                                 {popup.buttonText}
                             </button>
-                            <button 
+                            <button
                                 onClick={() => closePopup(popup.id)}
                                 class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-2 text-xs border-2 border-black"
                             >
@@ -225,11 +315,12 @@ export function Authentic90sPopups() {
 
                     {/* Bottom advertising bar */}
                     <div class="bg-red-600 text-white text-center py-1 text-xs font-bold border-t-2 border-black">
-                        {popup.type === 'mexpharm' ? '🇲🇽 DIRECT FROM MEXICO 🇲🇽' : 
+                        {popup.type === 'mexpharm' ? '🇲🇽 DIRECT FROM MEXICO 🇲🇽' :
                          popup.type === 'freetrials' ? '★ GEOCITIES AWARD WINNER ★' :
                          popup.type === 'winnernotif' ? '⏰ LIMITED TIME ONLY ⏰' :
                          popup.type === 'adnetwork' ? '📢 DOCTORS HATE HIM 📢' :
                          popup.type === 'newsletter' ? '📧 INSIDER HEALTH NEWS 📧' :
+                         popup.type === 'token_promotion' ? '🔥 COMMUNITY PROMOTION 🔥' :
                          '📢 LIVE UPDATES 📢'}
                     </div>
                 </div>

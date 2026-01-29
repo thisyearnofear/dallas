@@ -6,18 +6,28 @@ interface Settings {
   popupsEnabled: boolean;
   liveNotificationsEnabled: boolean;
   soundEnabled: boolean;
+  tokenPromotions: TokenPromotion[];
+}
+
+interface TokenPromotion {
+  tokenMint: string;
+  count: number;
+  lastPromoted: number;
 }
 
 interface SettingsContextType {
   settings: Settings;
   updateSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
   toggleSetting: (key: keyof Settings) => void;
+  addTokenPromotion: (tokenMint: string) => void;
+  getTokenPromotionCount: (tokenMint: string) => number;
 }
 
 const DEFAULT_SETTINGS: Settings = {
   popupsEnabled: true,
   liveNotificationsEnabled: true,
   soundEnabled: false,
+  tokenPromotions: [],
 };
 
 const STORAGE_KEY = "dallas-settings";
@@ -51,8 +61,35 @@ export function SettingsProvider({ children }: { children: ComponentChildren }) 
     setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const addTokenPromotion = (tokenMint: string) => {
+    setSettings((prev) => {
+      const existing = prev.tokenPromotions.find(p => p.tokenMint === tokenMint);
+      if (existing) {
+        return {
+          ...prev,
+          tokenPromotions: prev.tokenPromotions.map(p =>
+            p.tokenMint === tokenMint
+              ? { ...p, count: p.count + 1, lastPromoted: Date.now() }
+              : p
+          )
+        };
+      }
+      return {
+        ...prev,
+        tokenPromotions: [
+          ...prev.tokenPromotions,
+          { tokenMint, count: 1, lastPromoted: Date.now() }
+        ]
+      };
+    });
+  };
+
+  const getTokenPromotionCount = (tokenMint: string): number => {
+    return settings.tokenPromotions.find(p => p.tokenMint === tokenMint)?.count || 0;
+  };
+
   return (
-    <SettingsContext.Provider value={{ settings, updateSetting, toggleSetting }}>
+    <SettingsContext.Provider value={{ settings, updateSetting, toggleSetting, addTokenPromotion, getTokenPromotionCount }}>
       {children}
     </SettingsContext.Provider>
   );

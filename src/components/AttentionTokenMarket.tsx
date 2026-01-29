@@ -5,8 +5,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { PublicKey } from '@solana/web3.js';
-import { useConnection } from '@solana/wallet-adapter-react';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { attentionTokenService } from '../services/AttentionTokenService';
+import { fetchDbcBalance } from '../services/DbcTokenService';
+import { useSettings } from '../context/SettingsContext';
 import {
   AttentionToken,
   AttentionTokenFilters,
@@ -14,8 +16,14 @@ import {
 } from '../types/attentionToken';
 import { AttentionTokenAnalyticsDashboard } from './AttentionTokenAnalyticsDashboard';
 
+const MIN_DBC_FOR_PROMOTION = 10000;
+const PROMOTION_COST_DBC = 10000;
+const MAX_PROMOTIONS_PER_TOKEN = 10;
+
 export const AttentionTokenMarket: React.FC = () => {
   const { connection } = useConnection();
+  const { publicKey } = useWallet();
+  const { addTokenPromotion, getTokenPromotionCount } = useSettings();
   const [tokens, setTokens] = useState<CaseStudyWithAttentionToken[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedToken, setSelectedToken] = useState<AttentionToken | null>(null);
@@ -24,10 +32,20 @@ export const AttentionTokenMarket: React.FC = () => {
     sortOrder: 'desc',
   });
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [userDbcBalance, setUserDbcBalance] = useState<number>(0);
+  const [promotingToken, setPromotingToken] = useState<string | null>(null);
 
   useEffect(() => {
     loadAttentionTokens();
   }, []);
+
+  useEffect(() => {
+    if (publicKey && connection) {
+      fetchDbcBalance(connection, publicKey).then(({ balance }) => {
+        setUserDbcBalance(balance);
+      });
+    }
+  }, [publicKey, connection]);
 
   const loadAttentionTokens = async () => {
     setLoading(true);
@@ -111,6 +129,65 @@ export const AttentionTokenMarket: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePromoteToken = async (tokenMint: string, tokenName: string) => {
+    if (!publicKey) return;
+    
+    const promotionCount = getTokenPromotionCount(tokenMint);
+    if (promotionCount >= MAX_PROMOTIONS_PER_TOKEN) {
+      alert(`Maximum ${MAX_PROMOTIONS_PER_TOKEN} promotions reached for this token`);
+      return;
+    }
+
+    const requiredBalance = PROMOTION_COST_DBC * (promotionCount + 1);
+    if (userDbcBalance < requiredBalance) {
+      alert(`Need ${requiredBalance.toLocaleString()} DBC to promote. You have ${userDbcBalance.toLocaleString()} DBC`);
+      return;
+    }
+
+    setPromotingToken(tokenMint);
+    
+    // Store promotion data for popup system
+    const promotionData = {
+      tokenMint,
+      tokenName,
+      timestamp: Date.now(),
+    };
+    
+    // Add to active promotions in localStorage for popup system to read
+    const activePromotions = JSON.parse(localStorage.getItem('dbc-active-promotions') || '[]');
+    activePromotions.push(promotionData);
+    localStorage.setItem('dbc-active-promotions', JSON.stringify(activePromotions));
+    
+    // Track usage
+    addTokenPromotion(tokenMint);
+    
+    // Trigger popup immediately for feedback
+    window.dispatchEvent(new CustomEvent('dbc-trigger-promotion', { detail: promotionData }));
+    
+    setPromotingToken(null);
+    alert(`🚀 ${tokenName} promoted! Popup will appear across the platform.`);
+  };
+
+  const canPromoteToken = (tokenMint: string): boolean => {
+    if (!publicKey) return false;
+    const promotionCount = getTokenPromotionCount(tokenMint);
+    const requiredBalance = PROMOTION_COST_DBC * (promotionCount + 1);
+    return userDbcBalance >= requiredBalance && promotionCount < MAX_PROMOTIONS_PER_TOKEN;
+  };
+
+  const getPromotionStatus = (tokenMint: string): { canPromote: boolean; reason?: string } => {
+    if (!publicKey) return { canPromote: false, reason: 'Connect wallet' };
+    const promotionCount = getTokenPromotionCount(tokenMint);
+    if (promotionCount >= MAX_PROMOTIONS_PER_TOKEN) {
+      return { canPromote: false, reason: `Max ${MAX_PROMOTIONS_PER_TOKEN} promotions` };
+    }
+    const requiredBalance = PROMOTION_COST_DBC * (promotionCount + 1);
+    if (userDbcBalance < requiredBalance) {
+      return { canPromote: false, reason: `Need ${requiredBalance.toLocaleString()} DBC` };
+    }
+    return { canPromote: true };
   };
 
   const filteredTokens = tokens
@@ -278,6 +355,11 @@ export const AttentionTokenMarket: React.FC = () => {
               key={token.publicKey.toString()} 
               caseStudy={token} 
               onEnterWarRoom={() => token.attentionToken && setSelectedToken(token.attentionToken)}
+              onPromote={() => handlePromoteToken(token.attentionTokenMint || '', token.treatmentName)}
+              canPromote={canPromoteToken(token.attentionTokenMint || '')}
+              promotionStatus={getPromotionStatus(token.attentionTokenMint || '')}
+              promotionCount={getTokenPromotionCount(token.attentionTokenMint || '')}
+              isPromoting={promotingToken === token.attentionTokenMint}
             />
           ))}
         </div>
@@ -287,12 +369,22 @@ export const AttentionTokenMarket: React.FC = () => {
 };
 
 // Individual Token Card Component
-const AttentionTokenCard: React.FC<{ 
+const AttentionTokenCard: React.FC<{
   caseStudy: CaseStudyWithAttentionToken,
-  onEnterWarRoom: () => void 
+  onEnterWarRoom: () => void
+  onPromote: () => void
+  canPromote: boolean
+  promotionStatus: { canPromote: boolean; reason?: string }
+  promotionCount: number
+  isPromoting: boolean
 }> = ({
   caseStudy,
   onEnterWarRoom,
+  onPromote,
+  canPromote,
+  promotionStatus,
+  promotionCount,
+  isPromoting,
 }) => {
   const analytics = caseStudy.attentionToken?.analytics;
 
@@ -391,13 +483,42 @@ const AttentionTokenCard: React.FC<{
         <button className="flex-[2] bg-green-600 hover:bg-green-700 text-white font-black py-3 rounded-xl transition-all transform hover:scale-105 active:scale-95 shadow-lg shadow-green-500/20 uppercase tracking-widest text-xs">
           Buy Position
         </button>
-        <button 
+        <button
           onClick={(e) => { e.stopPropagation(); onEnterWarRoom(); }}
           className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-xl flex items-center justify-center transition-all transform hover:scale-105 active:scale-95 border border-slate-200 dark:border-slate-700 group/btn shadow-md"
           title="Enter Coordination Cell"
         >
           <span className="text-xl group-hover/btn:rotate-12 transition-transform">☣️</span>
         </button>
+      </div>
+
+      {/* Promotion Button */}
+      <div className="mt-4">
+        <button
+          onClick={(e) => { e.stopPropagation(); onPromote(); }}
+          disabled={!canPromote || isPromoting}
+          className={`w-full py-2 px-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all transform active:scale-95 ${
+            canPromote
+              ? 'bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white shadow-lg shadow-purple-500/20'
+              : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+          }`}
+          title={promotionStatus.reason || `Promote ${caseStudy.treatmentName}`}
+        >
+          {isPromoting ? (
+            'Promoting...'
+          ) : promotionCount > 0 ? (
+            `🔥 Promoted ${promotionCount}/${MAX_PROMOTIONS_PER_TOKEN}`
+          ) : canPromote ? (
+            '🚀 Promote Token'
+          ) : (
+            `🔒 ${promotionStatus.reason}`
+          )}
+        </button>
+        {promotionCount > 0 && (
+          <p className="text-[9px] text-center text-slate-400 mt-1">
+            Next: {(PROMOTION_COST_DBC * (promotionCount + 1)).toLocaleString()} DBC needed
+          </p>
+        )}
       </div>
 
       {/* Footer */}
