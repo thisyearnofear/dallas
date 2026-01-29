@@ -5,12 +5,19 @@ import { encryptionService } from "../services/EncryptionService";
 import { useSettings } from "../context/SettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { useState, useEffect } from "preact/hooks";
+import { useConnection } from "@solana/wallet-adapter-react";
+import { fetchDbcBalance, formatDbc } from "../services/DbcTokenService";
+import { SOLANA_CONFIG } from "../config/solana";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 export function Header() {
-    const { connected, signMessage } = useWallet();
+    const { connected, signMessage, publicKey } = useWallet();
+    const { connection } = useConnection();
     const { settings, toggleSetting } = useSettings();
     const [isEncrypted, setIsEncrypted] = useState(false);
     const [isDecrypting, setIsDecrypting] = useState(false);
+    const [dbcBalance, setDbcBalance] = useState<number | null>(null);
+    const [solBalance, setSolBalance] = useState<number | null>(null);
 
     useEffect(() => {
         // Check if we're using a temporary session key or a wallet-derived key
@@ -23,6 +30,35 @@ export function Header() {
         const interval = setInterval(checkEncryption, 1000);
         return () => clearInterval(interval);
     }, []);
+
+    // Fetch DBC and SOL balances when wallet is connected
+    useEffect(() => {
+        if (!connected || !publicKey || !connection) {
+            setDbcBalance(null);
+            setSolBalance(null);
+            return;
+        }
+
+        const fetchBalances = async () => {
+            try {
+                // Fetch DBC balance
+                const { balance: dbcBal } = await fetchDbcBalance(connection, publicKey);
+                setDbcBalance(dbcBal);
+
+                // Fetch SOL balance
+                const solBal = await connection.getBalance(publicKey);
+                setSolBalance(solBal / LAMPORTS_PER_SOL);
+            } catch (error) {
+                console.error("Error fetching balances:", error);
+            }
+        };
+
+        fetchBalances();
+
+        // Refresh balances every 30 seconds
+        const interval = setInterval(fetchBalances, 30000);
+        return () => clearInterval(interval);
+    }, [connected, publicKey, connection]);
 
     const handleDecrypt = async () => {
         if (!connected) return;
@@ -55,7 +91,11 @@ export function Header() {
             <div class="flex flex-col gap-3 flex-1 sm:ml-4 lg:ml-10 w-full sm:w-auto">
                 <div class="relative flex items-center border-b-2 border-b-gray-dark flex-wrap gap-1 min-w-0">
                     <a class="text-brand text-lg sm:text-xl cursor-not-allowed whitespace-nowrap">
-                        messages <b>420</b>
+                        {connected && dbcBalance !== null ? (
+                            <>balance <b>{dbcBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })} DBC</b></>
+                        ) : (
+                            <>messages <b>420</b></>
+                        )}
                     </a>
                     <div class="w-[2px] h-5 bg-gray-dark mx-1 sm:mx-3"></div>
                     <a class="text-brand text-lg sm:text-xl cursor-not-allowed whitespace-nowrap">
@@ -63,7 +103,11 @@ export function Header() {
                     </a>
                     <div class="w-[2px] h-5 bg-gray-dark mx-1 sm:mx-3"></div>
                     <a class="text-brand text-lg sm:text-xl cursor-not-allowed whitespace-nowrap">
-                        account <b>&#8383;80085</b>
+                        {connected && solBalance !== null ? (
+                            <>account <b>◎{solBalance.toLocaleString(undefined, { maximumFractionDigits: 4 })}</b></>
+                        ) : (
+                            <>account <b>&#8383;80085</b></>
+                        )}
                     </a>
                     {connected && !isEncrypted && (
                         <>
