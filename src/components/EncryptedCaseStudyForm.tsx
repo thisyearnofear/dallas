@@ -11,6 +11,7 @@ import {
   COMPRESSION_RATIO_OPTIONS,
   CompressedCaseStudy,
 } from '../services/privacy';
+import { PrivacyTooltip, PrivacyLabel } from './PrivacyTooltip';
 
 interface HealthMetrics {
   symptomSeverity: number; // 1-10
@@ -704,117 +705,103 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
               </div>
             </div>
 
-            {/* Privacy Sponsor Options */}
+            {/* Privacy Protection - Simplified */}
             <div class="p-8 bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-200 dark:border-purple-600/50 rounded-2xl shadow-sm">
-              <h3 class="text-lg font-black mb-6 flex items-center gap-3 uppercase tracking-wider text-purple-900 dark:text-purple-200">
-                <span class="text-2xl bg-white dark:bg-slate-800 p-2 rounded-lg shadow-sm">🛡️</span>
-                Privacy Options
-              </h3>
+              <PrivacyTooltip topic="encryption" variant="section">
+                <h3 class="text-lg font-black flex items-center gap-3 uppercase tracking-wider text-purple-900 dark:text-purple-200">
+                  <span class="text-2xl bg-white dark:bg-slate-800 p-2 rounded-lg shadow-sm">🛡️</span>
+                  <span>Your Privacy Protection</span>
+                </h3>
+              </PrivacyTooltip>
 
-              <div class="space-y-4">
-                {/* Privacy Cash */}
-                <div class="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                  <div>
-                    <div class="font-black text-green-700 dark:text-green-400 uppercase tracking-tighter">Privacy Cash</div>
-                    <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Confidential reward transfers</div>
-                  </div>
-                  <label class="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={privacyOptions.usePrivacyCash}
-                      onChange={(e) =>
-                        setPrivacyOptions({
-                          ...privacyOptions,
-                          usePrivacyCash: (e.target as HTMLInputElement).checked,
-                        })
-                      }
-                      class="sr-only peer"
-                    />
-                    <div class="w-11 h-6 bg-slate-200 dark:bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-                  </label>
-                </div>
-
-                {/* ShadowWire */}
-                <div class="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                  <div>
-                    <div class="font-black text-blue-700 dark:text-blue-400 uppercase tracking-tighter">ShadowWire</div>
-                    <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Private payment flows</div>
-                  </div>
-                  <label class="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={privacyOptions.useShadowWire}
-                      onChange={(e) =>
-                        setPrivacyOptions({
-                          ...privacyOptions,
-                          useShadowWire: (e.target as HTMLInputElement).checked,
-                        })
-                      }
-                      class="sr-only peer"
-                    />
-                    <div class="w-11 h-6 bg-slate-200 dark:bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-
-                {/* Light Protocol Compression */}
-                <div class="p-5 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                  <div class="flex items-center justify-between mb-4">
-                    <div class="font-black text-purple-700 dark:text-purple-400 uppercase tracking-tighter flex items-center gap-2">
-                      <span>⚡</span>
-                      <span>Light Protocol Compression</span>
+              <div class="mt-6 space-y-4">
+                {/* Wallet Encryption - Always On */}
+                <div class="flex items-center gap-4 p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                  <span class="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🔐</span>
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                      <span class="font-black text-slate-800 dark:text-white uppercase tracking-tight">Wallet-Locked Encryption</span>
+                      <PrivacyTooltip topic="wallet_key" variant="icon">
+                        <span></span>
+                      </PrivacyTooltip>
                     </div>
-                    <span class="text-sm font-black text-brand bg-brand/10 px-2 py-0.5 rounded-full">{privacyOptions.compressionRatio}x</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      Only you can decrypt your data. We literally cannot access it.
+                    </p>
+                  </div>
+                  <span class="text-xs font-black text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/50 px-3 py-1 rounded-full uppercase tracking-widest">
+                    Active
+                  </span>
+                </div>
+
+                {/* Compression - User Configurable */}
+                <div class="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                  <div class="flex items-center gap-4 mb-4">
+                    <span class="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center text-xl flex-shrink-0">⚡</span>
+                    <div class="flex-1">
+                      <div class="flex items-center gap-2">
+                        <span class="font-black text-slate-800 dark:text-white uppercase tracking-tight">Storage Saver</span>
+                        <PrivacyTooltip topic="compression" variant="icon">
+                          <span></span>
+                        </PrivacyTooltip>
+                      </div>
+                      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        Shrink your data to save on blockchain storage costs
+                      </p>
+                    </div>
                   </div>
                   
-                  {/* Compression Ratio Selector */}
-                  <select
-                    value={privacyOptions.compressionRatio}
-                    onChange={(e) =>
-                      setPrivacyOptions({
-                        ...privacyOptions,
-                        compressionRatio: parseInt((e.target as HTMLSelectElement).value),
-                      })
-                    }
-                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 outline-none mb-3"
-                  >
-                    {COMPRESSION_RATIO_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label} - {option.description}
-                      </option>
-                    ))}
-                  </select>
+                  {/* Simple Compression Selector */}
+                  <div class="flex items-center gap-3">
+                    <span class="text-sm font-bold text-slate-600 dark:text-slate-400">Compression:</span>
+                    <select
+                      value={privacyOptions.compressionRatio}
+                      onChange={(e) =>
+                        setPrivacyOptions({
+                          ...privacyOptions,
+                          compressionRatio: parseInt((e.target as HTMLSelectElement).value),
+                        })
+                      }
+                      class="flex-1 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 outline-none"
+                    >
+                      <option value={5}>Standard (5x savings)</option>
+                      <option value={10}>Recommended (10x savings)</option>
+                      <option value={20}>Maximum (20x savings)</option>
+                    </select>
+                  </div>
 
-                  {/* Compression Preview */}
+                  {/* Savings Preview */}
                   {compressionStats.originalSize > 0 && (
                     <div class="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-800/50">
-                      <div class="flex justify-between items-center text-xs">
-                        <span class="font-bold text-green-700 dark:text-green-400">
+                      <div class="flex justify-between items-center">
+                        <span class="text-sm text-slate-600 dark:text-slate-400">
+                          You'll save: <strong class="text-green-600 dark:text-green-400">{compressionStats.savingsPercent}%</strong> on storage
+                        </span>
+                        <span class="text-xs text-slate-500">
                           {lightProtocolService.formatBytes(compressionStats.originalSize)} → {lightProtocolService.formatBytes(compressionStats.originalSize * (1 - compressionStats.savingsPercent / 100))}
                         </span>
-                        <span class="font-black text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-800/50 px-2 py-0.5 rounded">
-                          {compressionStats.savingsPercent}% saved
-                        </span>
                       </div>
                     </div>
                   )}
+                </div>
 
-                  {/* Compression Stats */}
-                  {compressionStats.compressedData && (
-                    <div class="mt-3 space-y-1 text-[10px] font-bold text-slate-500 dark:text-slate-400">
-                      <div class="flex justify-between">
-                        <span>Account:</span>
-                        <span class="font-mono">{compressionStats.compressedData.compressedAccount.toString().slice(0, 20)}...</span>
-                      </div>
-                      <div class="flex justify-between">
-                        <span>Proof Size:</span>
-                        <span>{lightProtocolService.formatBytes(compressionStats.compressedData.compressionProof.length)}</span>
-                      </div>
+                {/* ZK Proofs - Coming in validation */}
+                <div class="flex items-center gap-4 p-4 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <span class="w-10 h-10 bg-blue-500/50 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🔍</span>
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                      <span class="font-black text-slate-600 dark:text-slate-400 uppercase tracking-tight">Zero-Knowledge Validation</span>
+                      <PrivacyTooltip topic="zk_proofs" variant="icon">
+                        <span></span>
+                      </PrivacyTooltip>
                     </div>
-                  )}
-
-                  <div class="text-[10px] font-black text-slate-400 dark:text-slate-500 mt-3 uppercase tracking-widest">
-                    ZK compression reduces storage costs by {privacyOptions.compressionRatio}x
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      Will be generated when validators review your submission
+                    </p>
                   </div>
+                  <span class="text-xs font-black text-slate-500 dark:text-slate-500 bg-slate-200 dark:bg-slate-700 px-3 py-1 rounded-full uppercase tracking-widest">
+                    Later
+                  </span>
                 </div>
               </div>
             </div>

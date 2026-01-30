@@ -398,112 +398,86 @@ export const ValidationDashboard: FunctionalComponent = () => {
                 </select>
               </div>
 
-              {/* Expert Mode Toggle */}
-              <div class="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                <label class="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    class="sr-only peer"
-                    checked={state.expertMode}
-                    onChange={(e) =>
-                      setState((s) => ({
-                        ...s,
-                        expertMode: (e.target as HTMLInputElement).checked,
-                      }))
-                    }
-                  />
-                  <div class="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  <span class="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                    {state.expertMode ? '🛠️ Expert Mode' : '🔒 Standard'}
-                  </span>
-                </label>
-              </div>
-
-              {/* Expert Mode Features */}
-              {state.expertMode && (
-                <div class="space-y-4 animate-slideIn">
-                  {/* ZK Proof Generation */}
-                  <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-100 dark:border-purple-800/50">
-                    <div class="flex justify-between items-center mb-3">
-                      <label class="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest">
-                        🔐 ZK Proof Generation
-                      </label>
-                      {state.generatedProofs.length > 0 && (
-                        <span class="text-[10px] font-black text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/50 px-2 py-1 rounded">
-                          {state.generatedProofs.filter(p => p.verified).length}/{state.generatedProofs.length} Verified
-                        </span>
-                      )}
-                    </div>
-                    
-                    <button
-                      onClick={generateZKProofs}
-                      disabled={state.isGeneratingProofs || !state.selected.encryptedData}
-                      class="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-slate-400 text-white font-black py-3 rounded-lg shadow-md transition-all text-xs uppercase tracking-widest mb-3"
-                    >
-                      {state.isGeneratingProofs 
-                        ? '⏳ Generating Proofs...' 
-                        : state.generatedProofs.length > 0
-                          ? '🔄 Regenerate Proofs'
-                          : '🔐 Generate ZK Proofs'
-                      }
-                    </button>
-                    
-                    {!state.selected.encryptedData && (
-                      <p class="text-[10px] text-red-600 dark:text-red-400 font-bold">
-                        ⚠️ No encrypted data available for this case study
-                      </p>
-                    )}
-                    
-                    {/* Generated Proofs List */}
-                    {state.generatedProofs.length > 0 && (
-                      <div class="space-y-2 mt-3">
-                        {state.generatedProofs.map((proof, idx) => (
-                          <div 
-                            key={idx}
-                            class={`p-2 rounded-lg text-[10px] font-bold flex justify-between items-center ${
-                              proof.verified 
-                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' 
-                                : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-                            }`}
-                          >
-                            <span>{CIRCUIT_METADATA[proof.circuitType].name}</span>
-                            <span>{proof.verified ? '✓ Verified' : '✗ Failed'}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Circuit Selection */}
-                  <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800/50">
-                    <label class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest block mb-2">Noir Circuit</label>
-                    <select
-                      class="w-full bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-700 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 dark:text-white outline-none"
-                      value={state.noirCircuit}
-                      onChange={(e) =>
-                        setState((s) => ({
-                          ...s,
-                          noirCircuit: (e.target as HTMLSelectElement).value as CircuitType | 'auto',
-                        }))
-                      }
-                    >
-                      <option value="auto">Auto (All Circuits)</option>
-                      <option value="symptom_improvement">Symptom Improvement</option>
-                      <option value="duration_verification">Duration Verification</option>
-                      <option value="data_completeness">Data Completeness</option>
-                      <option value="cost_range">Cost Range</option>
-                      <option value="accuracy-v2">Accuracy Circuit v2</option>
-                      <option value="safety-v1">Safety Circuit v1</option>
-                    </select>
-                  </div>
-
-                  {/* MPC Threshold Adjustment */}
-                  <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-100 dark:border-green-800/50 flex justify-between items-center">
-                    <div class="text-[10px] font-black text-green-700 dark:text-green-400 uppercase tracking-widest">MPC Threshold</div>
-                    <span class="text-xs font-black text-green-800 dark:text-green-200 bg-white/50 dark:bg-black/20 px-2 py-1 rounded">3/5 Committee</span>
+              {/* Privacy Protection Notice */}
+              <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-200 dark:border-purple-800/50">
+                <div class="flex items-start gap-3">
+                  <span class="text-2xl">🛡️</span>
+                  <div>
+                    <p class="font-black text-purple-800 dark:text-purple-300 text-xs uppercase tracking-widest mb-1">
+                      Privacy-First Validation
+                    </p>
+                    <p class="text-xs text-purple-700 dark:text-purple-400/80 leading-relaxed">
+                      You'll verify data quality using Zero-Knowledge proofs—confirming 
+                      the submission is legitimate without seeing the patient's sensitive 
+                      health information.
+                    </p>
                   </div>
                 </div>
-              )}
+              </div>
+
+              {/* ZK Proof Generation - Always Visible */}
+              <div class="space-y-4">
+                {/* Proof Status */}
+                <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-100 dark:border-purple-800/50">
+                  <div class="flex justify-between items-center mb-3">
+                    <label class="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest flex items-center gap-2">
+                      <span>🔐</span>
+                      <span>Verify Without Revealing</span>
+                    </label>
+                    {state.generatedProofs.length > 0 && (
+                      <span class="text-[10px] font-black text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/50 px-2 py-1 rounded">
+                        {state.generatedProofs.filter(p => p.verified).length}/{state.generatedProofs.length} Verified
+                      </span>
+                    )}
+                  </div>
+                  
+                  <p class="text-xs text-purple-700 dark:text-purple-400/80 mb-3">
+                    Generate cryptographic proof that validates data quality without 
+                    exposing the patient's sensitive health information.
+                  </p>
+                  
+                  <button
+                    onClick={generateZKProofs}
+                    disabled={state.isGeneratingProofs || !state.selected.encryptedData}
+                    class="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-slate-400 text-white font-black py-3 rounded-lg shadow-md transition-all text-xs uppercase tracking-widest mb-3"
+                  >
+                    {state.isGeneratingProofs 
+                      ? '⏳ Verifying Data...' 
+                      : state.generatedProofs.length > 0
+                        ? '🔄 Re-verify Data'
+                        : '✓ Verify Data Quality'
+                    }
+                  </button>
+                  
+                  {!state.selected.encryptedData && (
+                    <p class="text-[10px] text-amber-600 dark:text-amber-400 font-bold">
+                      ⚠️ This case study was submitted before privacy features were enabled
+                    </p>
+                  )}
+                  
+                  {/* Generated Proofs List */}
+                  {state.generatedProofs.length > 0 && (
+                    <div class="space-y-2 mt-3">
+                      <p class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                        Validation Checks Passed:
+                      </p>
+                      {state.generatedProofs.map((proof, idx) => (
+                        <div 
+                          key={idx}
+                          class={`p-2 rounded-lg text-[10px] font-bold flex justify-between items-center ${
+                            proof.verified 
+                              ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' 
+                              : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                          }`}
+                        >
+                          <span>{CIRCUIT_METADATA[proof.circuitType].name}</span>
+                          <span>{proof.verified ? '✓ Confirmed' : '✗ Failed'}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              }
 
               {/* Stake Amount */}
               <div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
