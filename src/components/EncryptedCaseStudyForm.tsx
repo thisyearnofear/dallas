@@ -1,11 +1,16 @@
 import { FunctionalComponent } from 'preact';
-import { useState, useContext, useCallback } from 'preact/hooks';
+import { useState, useContext, useCallback, useEffect } from 'preact/hooks';
 import { WalletContext } from '../context/WalletContext';
 import { deriveEncryptionKey, encryptHealthData } from '../utils/encryption';
 import { submitCaseStudyToBlockchain } from '../services/BlockchainIntegration';
 import { validateBlockchainConfig } from '../config/solana';
 import { SubmissionConsentCheckboxes } from './SharedUIComponents';
 import { LEGAL_CONFIG } from '../config/legal';
+import {
+  lightProtocolService,
+  COMPRESSION_RATIO_OPTIONS,
+  CompressedCaseStudy,
+} from '../services/privacy';
 
 interface HealthMetrics {
   symptomSeverity: number; // 1-10
@@ -43,8 +48,26 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
   const [privacyOptions, setPrivacyOptions] = useState({
     usePrivacyCash: true,
     useShadowWire: false,
-    compressionRatio: 5,
+    compressionRatio: 10, // Default to 10x (recommended)
   });
+
+  // Light Protocol compression state
+  const [compressionStats, setCompressionStats] = useState<{
+    isCompressing: boolean;
+    compressedData: CompressedCaseStudy | null;
+    originalSize: number;
+    savingsPercent: number;
+  }>({
+    isCompressing: false,
+    compressedData: null,
+    originalSize: 0,
+    savingsPercent: 0,
+  });
+
+  // Initialize Light Protocol service
+  useEffect(() => {
+    lightProtocolService.initialize().catch(console.error);
+  }, []);
 
   const [formData, setFormData] = useState<CaseStudyFormData>({
     treatmentProtocol: '',
@@ -116,6 +139,77 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
     }
   };
 
+  // Compress case study data using Light Protocol
+  const compressCaseStudy = async () => {
+    if (!encryptionKey) return;
+
+    setCompressionStats((s) => ({ ...s, isCompressing: true }));
+    setSubmitStatus({
+      type: 'info',
+      message: '⚡ Compressing data with Light Protocol...',
+    });
+
+    try {
+      // Prepare data for compression
+      const encryptedBaseline = await encryptHealthData(
+        JSON.stringify(formData.baselineMetrics),
+        encryptionKey
+      );
+      const encryptedOutcome = await encryptHealthData(
+        JSON.stringify(formData.outcomeMetrics),
+        encryptionKey
+      );
+
+      // Calculate original size
+      const originalSize = 
+        encryptedBaseline.length +
+        encryptedOutcome.length +
+        formData.treatmentProtocol.length +
+        4 + 4; // duration and cost
+
+      // Compress using Light Protocol
+      const compressed = await lightProtocolService.compressCaseStudy(
+        {
+          encryptedBaseline: new TextEncoder().encode(encryptedBaseline),
+          encryptedOutcome: new TextEncoder().encode(encryptedOutcome),
+          treatmentProtocol: formData.treatmentProtocol,
+          durationDays: formData.durationDays,
+          costUSD: formData.costUSD,
+          metadataHash: crypto.getRandomValues(new Uint8Array(32)),
+        },
+        {
+          compressionRatio: privacyOptions.compressionRatio,
+          storeFullData: false,
+        }
+      );
+
+      const savingsPercent = Math.round(
+        ((compressed.originalSize - compressed.compressedSize) / compressed.originalSize) * 100
+      );
+
+      setCompressionStats({
+        isCompressing: false,
+        compressedData: compressed,
+        originalSize,
+        savingsPercent,
+      });
+
+      setSubmitStatus({
+        type: 'success',
+        message: `✅ Compressed ${lightProtocolService.formatBytes(compressed.originalSize)} → ${lightProtocolService.formatBytes(compressed.compressedSize)} (${savingsPercent}% savings)`,
+      });
+
+      return compressed;
+    } catch (error) {
+      setCompressionStats((s) => ({ ...s, isCompressing: false }));
+      setSubmitStatus({
+        type: 'error',
+        message: `❌ Compression failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      });
+      return null;
+    }
+  };
+
   // Step 2: Encrypt and submit case study to blockchain
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
@@ -153,9 +247,20 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
     }
 
     setIsSubmitting(true);
+
+    // Compress data if not already compressed
+    let compressedData = compressionStats.compressedData;
+    if (!compressedData) {
+      compressedData = await compressCaseStudy();
+      if (!compressedData) {
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     setSubmitStatus({
       type: 'info',
-      message: '🔄 Submitting to blockchain... Please approve the transaction in your wallet.',
+      message: `🔄 Submitting to blockchain with ${compressionStats.savingsPercent}% compression... Please approve the transaction.`,
     });
 
     try {
@@ -165,7 +270,12 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
         walletContext.signTransaction,
         formData,
         encryptionKey,
-        privacyOptions
+        {
+          ...privacyOptions,
+          compressedAccount: compressedData.compressedAccount.toString(),
+          compressionRatio: compressedData.achievedRatio,
+          compressionProof: Array.from(compressedData.compressionProof),
+        }
       );
 
       if (result.success) {
@@ -649,24 +759,61 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
                 {/* Light Protocol Compression */}
                 <div class="p-5 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
                   <div class="flex items-center justify-between mb-4">
-                    <div class="font-black text-purple-700 dark:text-purple-400 uppercase tracking-tighter">Compression Level</div>
+                    <div class="font-black text-purple-700 dark:text-purple-400 uppercase tracking-tighter flex items-center gap-2">
+                      <span>⚡</span>
+                      <span>Light Protocol Compression</span>
+                    </div>
                     <span class="text-sm font-black text-brand bg-brand/10 px-2 py-0.5 rounded-full">{privacyOptions.compressionRatio}x</span>
                   </div>
-                  <input
-                    type="range"
-                    min="2"
-                    max="20"
+                  
+                  {/* Compression Ratio Selector */}
+                  <select
                     value={privacyOptions.compressionRatio}
                     onChange={(e) =>
                       setPrivacyOptions({
                         ...privacyOptions,
-                        compressionRatio: parseInt((e.target as HTMLInputElement).value),
+                        compressionRatio: parseInt((e.target as HTMLSelectElement).value),
                       })
                     }
-                    class="w-full accent-brand"
-                  />
+                    class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 outline-none mb-3"
+                  >
+                    {COMPRESSION_RATIO_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label} - {option.description}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* Compression Preview */}
+                  {compressionStats.originalSize > 0 && (
+                    <div class="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-800/50">
+                      <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-green-700 dark:text-green-400">
+                          {lightProtocolService.formatBytes(compressionStats.originalSize)} → {lightProtocolService.formatBytes(compressionStats.originalSize * (1 - compressionStats.savingsPercent / 100))}
+                        </span>
+                        <span class="font-black text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-800/50 px-2 py-0.5 rounded">
+                          {compressionStats.savingsPercent}% saved
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Compression Stats */}
+                  {compressionStats.compressedData && (
+                    <div class="mt-3 space-y-1 text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                      <div class="flex justify-between">
+                        <span>Account:</span>
+                        <span class="font-mono">{compressionStats.compressedData.compressedAccount.toString().slice(0, 20)}...</span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>Proof Size:</span>
+                        <span>{lightProtocolService.formatBytes(compressionStats.compressedData.compressionProof.length)}</span>
+                      </div>
+                    </div>
+                  )}
+
                   <div class="text-[10px] font-black text-slate-400 dark:text-slate-500 mt-3 uppercase tracking-widest">
-                    Higher compression = lower blockchain storage fees
+                    ZK compression reduces storage costs by {privacyOptions.compressionRatio}x
                   </div>
                 </div>
               </div>
