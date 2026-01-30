@@ -6,6 +6,7 @@ import { useDbcToken } from '../hooks/useDbcToken';
 import { DbcTokenService, calculateTier } from '../services/DbcTokenService';
 import { submitValidatorApproval, fetchUserCaseStudies } from '../services/BlockchainIntegration';
 import { PublicKey } from '@solana/web3.js';
+import { PrivacyTooltip } from './PrivacyTooltip';
 
 interface CaseStudyForValidation {
     pubkey: PublicKey;
@@ -191,8 +192,8 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                     )}
                 </div>
                 <p class={isDark ? 'text-slate-300' : 'text-slate-600'}>
-                    Review case studies and earn DBC (DALLAS BUYERS CLUB) tokens for accurate validations.
-                    Stake {DbcTokenService.STAKING_CONFIG.MINIMUM_STAKE} DBC to validate. Your stake is at risk if you provide false validations.
+                    Review encrypted case studies and earn DBC tokens. Stake {DbcTokenService.STAKING_CONFIG.MINIMUM_STAKE} DBC to participate — 
+                    accurate validators earn rewards, inaccurate ones lose their stake.
                 </p>
             </div>
 
@@ -313,7 +314,10 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             {/* Quality Validation */}
                                             <div class="space-y-2">
-                                                <div class="text-sm font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">📊 Quality</div>
+                                                <div class="flex items-center gap-1">
+                                  <div class="text-sm font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">📊 Quality</div>
+                                  <PrivacyTooltip topic="validators" variant="icon"><span></span></PrivacyTooltip>
+                                </div>
                                                 <div class="flex gap-2">
                                                     <button
                                                         onClick={() => handleValidation(caseStudy.pubkey, 'quality', true)}
@@ -334,7 +338,10 @@ export const ValidatorDashboard: FunctionalComponent = () => {
 
                                             {/* Accuracy Validation */}
                                             <div class="space-y-2">
-                                                <div class="text-sm font-bold text-purple-600 dark:text-purple-400 flex items-center gap-1">🎯 Accuracy</div>
+                                                <div class="flex items-center gap-1">
+                                  <div class="text-sm font-bold text-purple-600 dark:text-purple-400 flex items-center gap-1">🎯 Accuracy</div>
+                                  <PrivacyTooltip topic="validators" variant="icon"><span></span></PrivacyTooltip>
+                                </div>
                                                 <div class="flex gap-2">
                                                     <button
                                                         onClick={() => handleValidation(caseStudy.pubkey, 'accuracy', true)}
@@ -355,7 +362,10 @@ export const ValidatorDashboard: FunctionalComponent = () => {
 
                                             {/* Safety Validation */}
                                             <div class="space-y-2">
-                                                <div class="text-sm font-bold text-orange-600 dark:text-orange-400 flex items-center gap-1">⚠️ Safety</div>
+                                                <div class="flex items-center gap-1">
+                                  <div class="text-sm font-bold text-orange-600 dark:text-orange-400 flex items-center gap-1">⚠️ Safety</div>
+                                  <PrivacyTooltip topic="validators" variant="icon"><span></span></PrivacyTooltip>
+                                </div>
                                                 <div class="flex gap-2">
                                                     <button
                                                         onClick={() => handleValidation(caseStudy.pubkey, 'safety', true)}
@@ -394,26 +404,31 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                 )}
             </div>
 
-            {/* DBC Token Information */}
+            {/* Validator Information - Simplified Language */}
             <div class={`p-6 rounded-lg transition-colors ${
                 isDark ? 'bg-purple-900/20 border border-purple-600' : 'bg-purple-50 border border-purple-200'
             }`}>
-                <h3 class="text-lg font-bold text-purple-600 dark:text-purple-400 mb-4">🔐 DBC Token Validation</h3>
-                <div class={`text-sm space-y-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                    <div>
-                        ✅ <strong>Privacy Preserved:</strong> Validate data integrity without seeing encrypted health metrics
+                <h3 class="text-lg font-bold text-purple-600 dark:text-purple-400 mb-4 flex items-center gap-2">
+                  <span>🔐</span>
+                  <span>How Validation Works</span>
+                  <PrivacyTooltip topic="validators" variant="icon"><span></span></PrivacyTooltip>
+                </h3>
+                <div class={`text-sm space-y-3 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                    <div class="flex items-start gap-2">
+                        <span class="text-green-500 font-bold">✓</span>
+                        <span><strong>Privacy Protected:</strong> You verify data quality without seeing sensitive health details</span>
                     </div>
-                    <div>
-                        ✅ <strong>DBC Rewards:</strong> Earn {DbcTokenService.REWARD_AMOUNTS.BASE_VALIDATION} DBC per validation (up to {DbcTokenService.REWARD_AMOUNTS.BASE_VALIDATION * 1.5} DBC with accuracy bonus)
+                    <div class="flex items-start gap-2">
+                        <span class="text-green-500 font-bold">✓</span>
+                        <span><strong>Earn Rewards:</strong> Get {DbcTokenService.REWARD_AMOUNTS.BASE_VALIDATION} DBC per accurate validation</span>
                     </div>
-                    <div>
-                        ✅ <strong>Stake Protection:</strong> Stake {DbcTokenService.STAKING_CONFIG.MINIMUM_STAKE} DBC to validate. Accurate validations earn rewards, false ones get slashed
+                    <div class="flex items-start gap-2">
+                        <span class="text-green-500 font-bold">✓</span>
+                        <span><strong>Skin in the Game:</strong> Stake {DbcTokenService.STAKING_CONFIG.MINIMUM_STAKE} DBC — accurate work earns more, mistakes cost you</span>
                     </div>
-                    <div>
-                        ✅ <strong>Consensus Required:</strong> 3/5 validator approvals needed for case study acceptance
-                    </div>
-                    <div>
-                        ✅ <strong>Community Owned:</strong> DBC is a fixed-supply token with no mint authority
+                    <div class="flex items-start gap-2">
+                        <span class="text-green-500 font-bold">✓</span>
+                        <span><strong>Committee Decision:</strong> 3 of 5 validators must agree for approval</span>
                     </div>
                 </div>
             </div>

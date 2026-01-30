@@ -23,15 +23,15 @@ export function Validators() {
                     <div class="flex flex-wrap justify-center gap-4 text-sm text-slate-600 dark:text-slate-300">
                         <div class="flex items-center gap-2">
                             <span class="text-2xl">🔐</span>
-                            <span>ZK proof validation</span>
+                            <span>Verify without revealing</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-2xl">💰</span>
-                            <span>Earn EXPERIENCE tokens</span>
+                            <span>Earn DBC rewards</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-2xl">⚖️</span>
-                            <span>Stake-based consensus</span>
+                            <span>Committee approvals</span>
                         </div>
                     </div>
                 </div>
@@ -79,20 +79,20 @@ export function Validators() {
                         {/* Zero Knowledge */}
                         <div class="text-center">
                             <div class="text-4xl mb-4">🔐</div>
-                            <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white">Zero-Knowledge Validation</h3>
+                            <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white">Verify Without Revealing</h3>
                             <p class="text-slate-600 dark:text-slate-400">
-                                Validate data integrity and quality without ever seeing the encrypted health metrics.
-                                ZK-SNARK proofs ensure privacy is preserved.
+                                Check data quality and completeness without seeing sensitive health information.
+                                Zero-knowledge proofs protect patient privacy while ensuring data integrity.
                             </p>
                         </div>
 
                         {/* Consensus */}
                         <div class="text-center">
                             <div class="text-4xl mb-4">⚖️</div>
-                            <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white">DBC Stake-Based Consensus</h3>
+                            <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white">Skin in the Game</h3>
                             <p class="text-slate-600 dark:text-slate-400">
-                                Validators stake DALLAS BUYERS CLUB (DBC) tokens on their decisions. Accurate validations earn DBC rewards,
-                                false validations get slashed. 100 DBC minimum stake required.
+                                Validators stake DBC tokens on their decisions. Accurate work earns rewards,
+                                inaccurate work loses stake. 100 DBC minimum to participate.
                             </p>
                         </div>
 
@@ -138,7 +138,7 @@ function ValidatorGuide({ compact = false }: { compact?: boolean }) {
                 </div>
                 <div class="flex items-start gap-2">
                     <span class="text-purple-600 dark:text-purple-400 font-bold whitespace-nowrap">3.</span>
-                    <span><strong class="text-purple-600 dark:text-purple-400">Review</strong> — Validate via ZK proofs</span>
+                    <span><strong class="text-purple-600 dark:text-purple-400">Review</strong> — Verify without seeing data</span>
                 </div>
                 <div class="flex items-start gap-2">
                     <span class="text-orange-600 dark:text-orange-400 font-bold whitespace-nowrap">4.</span>
@@ -187,20 +187,20 @@ function PrivacyTech({ compact = false }: { compact?: boolean }) {
             <div class={`space-y-1 text-purple-700 dark:text-slate-300 ${compact ? 'text-xs' : 'text-sm'}`}>
                 <div class="flex items-center gap-1">
                     <span>✅</span>
-                    <span><strong>Noir:</strong> ZK-SNARKs</span>
+                    <span><strong>Zero-Knowledge:</strong> Private validation</span>
                 </div>
                 <div class="flex items-center gap-1">
                     <span>✅</span>
-                    <span><strong>Arcium:</strong> MPC</span>
+                    <span><strong>Committee:</strong> Multi-party access</span>
                 </div>
                 <div class="flex items-center gap-1">
                     <span>✅</span>
-                    <span><strong>Privacy Cash:</strong> Rewards</span>
+                    <span><strong>DBC:</strong> Validator rewards</span>
                 </div>
                 {!compact && (
                     <div class="flex items-center gap-1">
                         <span>✅</span>
-                        <span><strong>Light:</strong> Compression</span>
+                        <span><strong>Compression:</strong> Efficient storage</span>
                     </div>
                 )}
             </div>

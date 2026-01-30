@@ -1,4 +1,5 @@
 import { useState, useEffect } from "preact/hooks";
+import { PrivacyTooltip } from "../components/PrivacyTooltip";
 
 export function Home() {
     const [secretClicks, setSecretClicks] = useState(0);
@@ -91,26 +92,60 @@ export function Home() {
                 </div>
             </div>
 
-            {/* Health Sovereignty Section */}
+            {/* Health Sovereignty Section - Enhanced with Trust Indicators */}
             <div class="bg-gradient-to-r from-blue-100/50 via-green-100/50 to-purple-100/50 dark:from-blue-900/30 dark:via-green-900/30 dark:to-purple-900/30 border-2 border-green-500/50 text-gray-900 dark:text-white p-8 rounded-lg mb-8">
-                <h2 class="text-3xl font-bold mb-4 flex items-center gap-2">
-                    🔐 Health Sovereignty Platform
-                </h2>
+                <div class="flex items-center gap-3 mb-4">
+                    <h2 class="text-3xl font-bold">🔐 Health Sovereignty Platform</h2>
+                    <span class="bg-green-500 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider animate-pulse">
+                        Privacy First
+                    </span>
+                </div>
                 <p class="text-xl mb-6">
                     We're building what the Dallas Buyers Club needed: a decentralized platform for health autonomy.
                 </p>
+                
+                {/* Trust Indicators */}
+                <div class="flex flex-wrap gap-3 mb-6">
+                    <PrivacyTooltip topic="encryption" variant="inline">
+                        <span class="inline-flex items-center gap-1 bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 px-3 py-1.5 rounded-full text-xs font-bold border border-green-200 dark:border-green-800">
+                            <span>🔐</span> Wallet-Encrypted
+                        </span>
+                    </PrivacyTooltip>
+                    <PrivacyTooltip topic="zk_proofs" variant="inline">
+                        <span class="inline-flex items-center gap-1 bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300 px-3 py-1.5 rounded-full text-xs font-bold border border-purple-200 dark:border-purple-800">
+                            <span>🛡️</span> Zero-Knowledge
+                        </span>
+                    </PrivacyTooltip>
+                    <PrivacyTooltip topic="mpc" variant="inline">
+                        <span class="inline-flex items-center gap-1 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 px-3 py-1.5 rounded-full text-xs font-bold border border-blue-200 dark:border-blue-800">
+                            <span>👥</span> Committee Access
+                        </span>
+                    </PrivacyTooltip>
+                    <PrivacyTooltip topic="compression" variant="inline">
+                        <span class="inline-flex items-center gap-1 bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-300 px-3 py-1.5 rounded-full text-xs font-bold border border-orange-200 dark:border-orange-800">
+                            <span>⚡</span> Compressed Storage
+                        </span>
+                    </PrivacyTooltip>
+                </div>
+                
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-white/60 dark:bg-black/30 p-4 rounded border border-green-500/50 dark:border-green-500/30">
-                        <h3 class="font-bold mb-2 text-gray-900 dark:text-white">🔒 Your Data, Your Control</h3>
-                        <p class="text-sm text-gray-700 dark:text-gray-300">Share health journeys encrypted with your wallet key. Only you decrypt.</p>
+                    <div class="bg-white/60 dark:bg-black/30 p-4 rounded border border-green-500/50 dark:border-green-500/30 hover:shadow-lg transition-all">
+                        <h3 class="font-bold mb-2 text-gray-900 dark:text-white flex items-center gap-2">
+                            <span>🔒</span> Your Data, Your Control
+                        </h3>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">Share health journeys encrypted with your wallet key. Only you can decrypt — we literally cannot access it.</p>
                     </div>
-                    <div class="bg-white/60 dark:bg-black/30 p-4 rounded border border-blue-500/50 dark:border-blue-500/30">
-                        <h3 class="font-bold mb-2 text-gray-900 dark:text-white">👥 Community Validated</h3>
-                        <p class="text-sm text-gray-700 dark:text-gray-300">Validators stake tokens. False claims get caught. Accuracy rewarded.</p>
+                    <div class="bg-white/60 dark:bg-black/30 p-4 rounded border border-blue-500/50 dark:border-blue-500/30 hover:shadow-lg transition-all">
+                        <h3 class="font-bold mb-2 text-gray-900 dark:text-white flex items-center gap-2">
+                            <span>👥</span> Community Validated
+                        </h3>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">Validators verify data quality using zero-knowledge proofs — they confirm it's valid without seeing sensitive details.</p>
                     </div>
-                    <div class="bg-white/60 dark:bg-black/30 p-4 rounded border border-purple-500/50 dark:border-purple-500/30">
-                        <h3 class="font-bold mb-2 text-gray-900 dark:text-white">⛓️ On-Chain Permanent</h3>
-                        <p class="text-sm text-gray-700 dark:text-gray-300">Health journeys live on Solana. Immutable, transparent, global.</p>
+                    <div class="bg-white/60 dark:bg-black/30 p-4 rounded border border-purple-500/50 dark:border-purple-500/30 hover:shadow-lg transition-all">
+                        <h3 class="font-bold mb-2 text-gray-900 dark:text-white flex items-center gap-2">
+                            <span>⛓️</span> On-Chain Permanent
+                        </h3>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">Health journeys live on Solana. Immutable, transparent, globally accessible — but only to those you authorize.</p>
                     </div>
                 </div>
                 <a 
@@ -119,6 +154,101 @@ export function Home() {
                 >
                     🚀 Explore Health Sovereignty
                 </a>
+            </div>
+
+            {/* Privacy Comparison Section */}
+            <div class="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 p-8 rounded-lg mb-8">
+                <h2 class="text-3xl font-bold mb-2 text-slate-900 dark:text-white flex items-center gap-2">
+                    🛡️ Why Privacy Matters
+                </h2>
+                <p class="text-slate-600 dark:text-slate-400 mb-6">
+                    See how we compare to traditional health platforms. Your data deserves better.
+                </p>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b-2 border-slate-200 dark:border-slate-700">
+                                <th class="text-left py-3 px-4 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Feature</th>
+                                <th class="text-center py-3 px-4 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Facebook Groups</th>
+                                <th class="text-center py-3 px-4 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Reddit</th>
+                                <th class="text-center py-3 px-4 text-sm font-bold text-green-600 dark:text-green-400 uppercase tracking-wider">Dallas Buyers Club</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            <tr class="border-b border-slate-100 dark:border-slate-800">
+                                <td class="py-4 px-4 font-medium text-slate-900 dark:text-white">
+                                    <div class="flex items-center gap-2">
+                                        <span>Data Encryption</span>
+                                        <PrivacyTooltip topic="encryption" variant="icon"><span></span></PrivacyTooltip>
+                                    </div>
+                                </td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ Server can read</td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ Public by default</td>
+                                <td class="text-center py-4 px-4 text-green-600 font-bold">✅ Wallet-locked</td>
+                            </tr>
+                            <tr class="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                                <td class="py-4 px-4 font-medium text-slate-900 dark:text-white">
+                                    <div class="flex items-center gap-2">
+                                        <span>Data Selling</span>
+                                    </div>
+                                </td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ Sold to advertisers</td>
+                                <td class="text-center py-4 px-4 text-yellow-500">⚠️ Shared with partners</td>
+                                <td class="text-center py-4 px-4 text-green-600 font-bold">✅ Never sold</td>
+                            </tr>
+                            <tr class="border-b border-slate-100 dark:border-slate-800">
+                                <td class="py-4 px-4 font-medium text-slate-900 dark:text-white">
+                                    <div class="flex items-center gap-2">
+                                        <span>Validation Privacy</span>
+                                        <PrivacyTooltip topic="zk_proofs" variant="icon"><span></span></PrivacyTooltip>
+                                    </div>
+                                </td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ No validation</td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ Moderators see all</td>
+                                <td class="text-center py-4 px-4 text-green-600 font-bold">✅ Zero-knowledge</td>
+                            </tr>
+                            <tr class="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                                <td class="py-4 px-4 font-medium text-slate-900 dark:text-white">
+                                    <div class="flex items-center gap-2">
+                                        <span>Access Control</span>
+                                        <PrivacyTooltip topic="mpc" variant="icon"><span></span></PrivacyTooltip>
+                                    </div>
+                                </td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ Company controls</td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ Public forever</td>
+                                <td class="text-center py-4 px-4 text-green-600 font-bold">✅ Committee-based</td>
+                            </tr>
+                            <tr class="border-b border-slate-100 dark:border-slate-800">
+                                <td class="py-4 px-4 font-medium text-slate-900 dark:text-white">
+                                    <div class="flex items-center gap-2">
+                                        <span>Data Portability</span>
+                                    </div>
+                                </td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ Locked in platform</td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ Hard to export</td>
+                                <td class="text-center py-4 px-4 text-green-600 font-bold">✅ On-chain ownership</td>
+                            </tr>
+                            <tr class="bg-slate-50/50 dark:bg-slate-800/30">
+                                <td class="py-4 px-4 font-medium text-slate-900 dark:text-white">
+                                    <div class="flex items-center gap-2">
+                                        <span>Anonymous Posting</span>
+                                    </div>
+                                </td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ Real name required</td>
+                                <td class="text-center py-4 px-4 text-yellow-500">⚠️ Pseudonymous</td>
+                                <td class="text-center py-4 px-4 text-green-600 font-bold">✅ Wallet-only ID</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                    <p class="text-sm text-green-800 dark:text-green-300 font-medium">
+                        <strong>💡 The bottom line:</strong> We built Dallas Buyers Club because we believe health data is too sensitive for traditional social media. 
+                        Your experiments, your control, always.
+                    </p>
+                </div>
             </div>
 
             {/* Call to Action Section */}

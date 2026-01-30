@@ -35,6 +35,24 @@ const achievements: Achievement[] = [
         reward: '+100 XP'
     },
     {
+        id: 'privacy_aware',
+        title: 'Privacy Aware',
+        description: 'Completed the privacy onboarding tour',
+        icon: '🔐',
+        unlocked: false,
+        rarity: 'common',
+        reward: '+150 XP'
+    },
+    {
+        id: 'first_encryption',
+        title: 'Encryption Initiate',
+        description: 'Submitted your first encrypted case study',
+        icon: '🔒',
+        unlocked: false,
+        rarity: 'common',
+        reward: '+250 XP'
+    },
+    {
         id: 'first_purchase',
         title: 'First Strike',
         description: 'Made your first order',
@@ -42,6 +60,15 @@ const achievements: Achievement[] = [
         unlocked: false,
         rarity: 'common',
         reward: '+200 XP'
+    },
+    {
+        id: 'compression_saver',
+        title: 'Storage Saver',
+        description: 'Saved 50% or more on storage using compression',
+        icon: '⚡',
+        unlocked: false,
+        rarity: 'rare',
+        reward: '+300 XP'
     },
     {
         id: 'week_warrior',
@@ -66,6 +93,17 @@ const achievements: Achievement[] = [
         reward: '+300 XP + Exclusive Badge'
     },
     {
+        id: 'zk_validator',
+        title: 'Zero-Knowledge Validator',
+        description: 'Validated 5 case studies using ZK proofs',
+        icon: '🛡️',
+        unlocked: false,
+        progress: 0,
+        maxProgress: 5,
+        rarity: 'rare',
+        reward: '+500 XP'
+    },
+    {
         id: 'story_teller',
         title: 'Story Teller',
         description: 'Shared your success story',
@@ -73,6 +111,15 @@ const achievements: Achievement[] = [
         unlocked: false,
         rarity: 'epic',
         reward: '+750 XP + Featured Story'
+    },
+    {
+        id: 'privacy_maximum',
+        title: 'Maximum Privacy',
+        description: 'Achieved 100/100 privacy score on a submission',
+        icon: '🌟',
+        unlocked: false,
+        rarity: 'epic',
+        reward: '+1000 XP + Privacy Champion Badge'
     },
     {
         id: 'survivor_30',
@@ -86,6 +133,17 @@ const achievements: Achievement[] = [
         reward: '+1000 XP + Special Title'
     },
     {
+        id: 'committee_member',
+        title: 'Committee Member',
+        description: 'Participated in 3 MPC access decisions',
+        icon: '👥',
+        unlocked: false,
+        progress: 0,
+        maxProgress: 3,
+        rarity: 'epic',
+        reward: '+800 XP'
+    },
+    {
         id: 'advocate',
         title: 'Hope Advocate',
         description: 'Helped 10 people find treatments',
@@ -95,6 +153,15 @@ const achievements: Achievement[] = [
         maxProgress: 10,
         rarity: 'legendary',
         reward: '+2000 XP + Advocate Status'
+    },
+    {
+        id: 'privacy_legend',
+        title: 'Privacy Legend',
+        description: 'Unlocked all privacy-related achievements',
+        icon: '🏅',
+        unlocked: false,
+        rarity: 'legendary',
+        reward: '+3000 XP + Privacy Legend Title'
     },
     {
         id: 'revolution',
@@ -118,13 +185,19 @@ const userStats: UserStats = {
 };
 
 export function AchievementSystem() {
-    const [selectedTab, setSelectedTab] = useState<'achievements' | 'progress' | 'leaderboard'>('achievements');
+    const [selectedTab, setSelectedTab] = useState<'achievements' | 'privacy' | 'progress' | 'leaderboard'>('achievements');
     const [showUnlocked, setShowUnlocked] = useState(false);
     const [newAchievement, setNewAchievement] = useState<Achievement | null>(null);
 
     const unlockedAchievements = achievements.filter(a => a.unlocked);
     const lockedAchievements = achievements.filter(a => !a.unlocked);
     const progressAchievements = achievements.filter(a => a.progress !== undefined);
+    
+    // Privacy achievements
+    const privacyAchievements = achievements.filter(a => 
+        ['privacy_aware', 'first_encryption', 'compression_saver', 'zk_validator', 'privacy_maximum', 'committee_member', 'privacy_legend'].includes(a.id)
+    );
+    const unlockedPrivacyCount = privacyAchievements.filter(a => a.unlocked).length;
 
     const getRarityColor = (rarity: Achievement['rarity']) => {
         switch (rarity) {
@@ -277,6 +350,107 @@ export function AchievementSystem() {
                                                 class="bg-brand rounded-full h-2 transition-all duration-500"
                                                 style={{ width: `${((achievement.progress || 0) / (achievement.maxProgress || 1)) * 100}%` }}
                                             ></div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Reward and Status */}
+                                <div class="flex justify-between items-center">
+                                    <div class="text-xs text-gray-500">
+                                        {achievement.reward}
+                                    </div>
+                                    <div class={`
+                                        px-2 py-1 rounded-full text-xs font-semibold
+                                        ${achievement.unlocked 
+                                            ? 'bg-green-100 text-green-800' 
+                                            : 'bg-gray-100 text-gray-600'
+                                        }
+                                    `}>
+                                        {achievement.unlocked ? (
+                                            `✓ ${achievement.unlockedAt}`
+                                        ) : (
+                                            '🔒 Locked'
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {selectedTab === 'privacy' && (
+                <div>
+                    {/* Privacy Achievement Header */}
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-gray-dark flex items-center gap-2">
+                            <span>🔐</span> Privacy Achievements
+                        </h2>
+                        <p class="text-gray-600 mt-2">
+                            Unlock these by using privacy features. Protect your data, earn recognition.
+                        </p>
+                    </div>
+
+                    {/* Privacy Progress Overview */}
+                    <div class="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-6 rounded-xl border-2 border-green-200 dark:border-green-800 mb-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-green-800 dark:text-green-300 mb-1">Privacy Champion Progress</h3>
+                                <p class="text-sm text-green-700 dark:text-green-400">
+                                    {unlockedPrivacyCount} of {privacyAchievements.length} achievements unlocked
+                                </p>
+                            </div>
+                            <div class="text-3xl font-black text-green-600 dark:text-green-400">
+                                {Math.round((unlockedPrivacyCount / privacyAchievements.length) * 100)}%
+                            </div>
+                        </div>
+                        <div class="mt-4 w-full bg-white dark:bg-slate-800 rounded-full h-3">
+                            <div 
+                                class="bg-gradient-to-r from-green-500 to-blue-500 rounded-full h-3 transition-all duration-500"
+                                style={{ width: `${(unlockedPrivacyCount / privacyAchievements.length) * 100}%` }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Privacy Achievements Grid */}
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {privacyAchievements.map((achievement, index) => (
+                            <div 
+                                key={achievement.id}
+                                class={`
+                                    relative p-4 rounded-lg border-2 transition-all duration-300 hover:scale-105
+                                    bg-gradient-to-br ${getRarityColor(achievement.rarity)}
+                                    ${achievement.unlocked ? 'opacity-100' : 'opacity-60'}
+                                `}
+                                style={{ animationDelay: `${index * 100}ms` }}
+                            >
+                                {/* Rarity Badge */}
+                                <div class={`
+                                    absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-bold uppercase
+                                    ${getRarityTextColor(achievement.rarity)}
+                                `}>
+                                    {achievement.rarity}
+                                </div>
+
+                                {/* Achievement Icon */}
+                                <div class="text-4xl mb-3">{achievement.icon}</div>
+
+                                {/* Achievement Info */}
+                                <h3 class="text-lg font-bold mb-2 text-gray-dark">{achievement.title}</h3>
+                                <p class="text-sm text-gray-600 mb-3">{achievement.description}</p>
+
+                                {/* Progress Bar */}
+                                {achievement.progress !== undefined && (
+                                    <div class="mb-3">
+                                        <div class="flex justify-between text-xs text-gray-600 mb-1">
+                                            <span>Progress</span>
+                                            <span>{achievement.progress}/{achievement.maxProgress}</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div 
+                                                class="bg-green-500 rounded-full h-2 transition-all duration-500"
+                                                style={{ width: `${((achievement.progress || 0) / (achievement.maxProgress || 1)) * 100}%` }}
+                                            />
                                         </div>
                                     </div>
                                 )}

@@ -24,6 +24,7 @@ import {
 import { InfomercialPopup } from "./components/RetroAesthetics";
 import { Authentic90sPopups, LiveActivityNotifications, WinnerPopup } from "./components/Authentic90sPopups";
 import { TermsAcceptanceModal, DisclaimerBanner } from "./components/SharedUIComponents";
+import { PrivacyOnboardingModal } from "./components/PrivacyOnboardingModal";
 import { useConsent } from "./hooks/useConsent";
 import { useState, useEffect } from "preact/hooks";
 
@@ -46,9 +47,24 @@ import "./style.css";
 export function App() {
     const { notification, showNotification } = useNotification();
     const { termsAccepted, acceptTerms, needsTermsUpdate, isLoading } = useConsent();
+    const [showPrivacyOnboarding, setShowPrivacyOnboarding] = useState(false);
 
     // Show terms modal if not accepted or needs update
     const showTermsModal = !isLoading && (!termsAccepted || needsTermsUpdate);
+
+    // Show privacy onboarding after terms are accepted (first time only)
+    useEffect(() => {
+        if (termsAccepted && !isLoading) {
+            const hasSeenPrivacyOnboarding = localStorage.getItem('dbc-privacy-onboarding');
+            if (!hasSeenPrivacyOnboarding) {
+                // Small delay to let terms modal close first
+                const timer = setTimeout(() => {
+                    setShowPrivacyOnboarding(true);
+                }, 500);
+                return () => clearTimeout(timer);
+            }
+        }
+    }, [termsAccepted, isLoading]);
 
     return (
         <ThemeProvider>
@@ -58,6 +74,12 @@ export function App() {
                 <SwipeGestures>
                     {/* Legal: Terms acceptance modal (first-time or version update) */}
                     <TermsAcceptanceModal isOpen={showTermsModal} onAccept={acceptTerms} />
+
+                    {/* Privacy onboarding (first-time users) */}
+                    <PrivacyOnboardingModal 
+                        isOpen={showPrivacyOnboarding} 
+                        onComplete={() => setShowPrivacyOnboarding(false)} 
+                    />
 
                     {/* Mobile Progress & Live Counter */}
                     <ProgressTracker />

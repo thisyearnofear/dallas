@@ -3,6 +3,7 @@ import { useState } from 'preact/hooks';
 import { Community, CommunityCategory, CommunityFilters, CATEGORY_INFO } from '../types/community';
 import { attentionTokenService } from '../services/AttentionTokenService';
 import { AttentionToken } from '../types/attentionToken';
+import { PrivacyTooltip } from './PrivacyTooltip';
 
 interface ProtocolMatch {
   id: string;
@@ -260,13 +261,26 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
                     <div class="flex justify-between items-start mb-6">
                       <div class="flex-1">
                         <h4 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight group-hover:text-blue-600 transition-colors">{protocol.name}</h4>
-                        <div class="flex gap-3 mt-3">
+                        {/* Privacy & Match Badges */}
+                        <div class="flex flex-wrap gap-2 mt-3">
                           <span class="text-[9px] font-black bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full uppercase tracking-widest border border-blue-200 dark:border-blue-800/50">
                             Match: {protocol.matchScore}%
                           </span>
                           <span class="text-[9px] font-black bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 px-2 py-1 rounded-full uppercase tracking-widest border border-green-200 dark:border-green-800/50">
                             {protocol.successRate}% Success
                           </span>
+                          <PrivacyTooltip topic="encryption" variant="inline">
+                            <span class="text-[9px] font-black bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 px-2 py-1 rounded-full uppercase tracking-widest border border-purple-200 dark:border-purple-800/50 flex items-center gap-1">
+                              <span>🔐</span> Encrypted
+                            </span>
+                          </PrivacyTooltip>
+                          {protocol.validatedCount > 0 && (
+                            <PrivacyTooltip topic="zk_proofs" variant="inline">
+                              <span class="text-[9px] font-black bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-full uppercase tracking-widest border border-indigo-200 dark:border-indigo-800/50 flex items-center gap-1">
+                                <span>🛡️</span> ZK-Validated
+                              </span>
+                            </PrivacyTooltip>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -372,12 +386,32 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
               </ul>
             </div>
 
-            {/* Privacy Notice */}
-            <div class="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-100 dark:border-blue-800/50 p-6 rounded-2xl mb-8 text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase tracking-widest leading-relaxed flex items-center gap-4">
-              <span class="text-2xl">🛡️</span>
-              <div>
-                <strong>Privacy Guaranteed:</strong> Requesting access only sends your encrypted identity. 
-                Full case studies are only decrypted if the protocol owner authorizes your request on-chain.
+            {/* Privacy Features */}
+            <div class="bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-200 dark:border-purple-800/50 p-6 rounded-2xl mb-8">
+              <h4 class="font-black text-xs uppercase tracking-widest mb-4 text-purple-800 dark:text-purple-300 flex items-center gap-2">
+                <span>🔐</span> Privacy Protection Features
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <PrivacyTooltip topic="encryption" variant="inline">
+                  <div class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300">
+                    <span class="text-green-500">✓</span> Wallet-encrypted data
+                  </div>
+                </PrivacyTooltip>
+                <PrivacyTooltip topic="zk_proofs" variant="inline">
+                  <div class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300">
+                    <span class="text-green-500">✓</span> Zero-knowledge validation
+                  </div>
+                </PrivacyTooltip>
+                <PrivacyTooltip topic="mpc" variant="inline">
+                  <div class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300">
+                    <span class="text-green-500">✓</span> Committee-based access
+                  </div>
+                </PrivacyTooltip>
+                <PrivacyTooltip topic="compression" variant="inline">
+                  <div class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300">
+                    <span class="text-green-500">✓</span> Compressed storage
+                  </div>
+                </PrivacyTooltip>
               </div>
             </div>
 

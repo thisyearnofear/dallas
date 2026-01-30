@@ -12,6 +12,7 @@ import {
   CompressedCaseStudy,
 } from '../services/privacy';
 import { PrivacyTooltip, PrivacyLabel } from './PrivacyTooltip';
+import { PrivacyScorePreview } from './PrivacyScorePreview';
 
 interface HealthMetrics {
   symptomSeverity: number; // 1-10
@@ -45,10 +46,8 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [blockchainConfigValid, setBlockchainConfigValid] = useState(false);
 
-  // Privacy sponsor options
+  // Privacy options - simplified to working features only
   const [privacyOptions, setPrivacyOptions] = useState({
-    usePrivacyCash: true,
-    useShadowWire: false,
     compressionRatio: 10, // Default to 10x (recommended)
   });
 
@@ -64,6 +63,14 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
     originalSize: 0,
     savingsPercent: 0,
   });
+
+  // Calculate privacy features for score preview
+  const privacyFeatures = {
+    encryption: !!encryptionKey,
+    compression: compressionStats.savingsPercent > 0,
+    compressionRatio: privacyOptions.compressionRatio,
+    zkProofs: 0, // ZK proofs generated during validation, not submission
+  };
 
   // Initialize Light Protocol service
   useEffect(() => {
@@ -685,25 +692,32 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
                 : '🚀 Submit Encrypted Case Study'}
           </button>
 
-          {/* Privacy Sponsor Integrations Section */}
+          {/* Privacy Tech Stack - Working Features Only */}
           <div class="space-y-6">
             <div class="p-6 bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-200 dark:border-purple-600/50 rounded-2xl shadow-sm">
-              <p class="font-black text-purple-800 dark:text-purple-300 mb-4 uppercase tracking-widest text-xs">🎯 Privacy Sponsor Tech Stack</p>
+              <p class="font-black text-purple-800 dark:text-purple-300 mb-4 uppercase tracking-widest text-xs">🎯 Privacy Technology Stack</p>
               <div class="space-y-3">
                 <div class="flex items-center gap-3">
                   <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-sm shadow-green-500"></span>
-                  <span class="text-xs font-bold text-slate-700 dark:text-slate-300"><strong>Light Protocol:</strong> ZK compression for efficient data storage</span>
-                </div>
-                <div class="flex items-center gap-3">
-                  <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-sm shadow-blue-500"></span>
-                  <span class="text-xs font-bold text-slate-700 dark:text-slate-300"><strong>Noir/Aztec:</strong> ZK-SNARK proofs for medical data integrity</span>
+                  <span class="text-xs font-bold text-slate-700 dark:text-slate-300"><strong>Wallet Encryption:</strong> Your key, your data — we can't decrypt</span>
                 </div>
                 <div class="flex items-center gap-3">
                   <span class="w-2 h-2 bg-purple-500 rounded-full animate-pulse shadow-sm shadow-purple-500"></span>
-                  <span class="text-xs font-bold text-slate-700 dark:text-slate-300"><strong>Privacy Cash:</strong> Confidential token rewards for contributors</span>
+                  <span class="text-xs font-bold text-slate-700 dark:text-slate-300"><strong>Storage Saver:</strong> Compress data to reduce on-chain costs</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-sm shadow-blue-500"></span>
+                  <span class="text-xs font-bold text-slate-700 dark:text-slate-300"><strong>Zero-Knowledge Validation:</strong> Verify quality without revealing data</span>
                 </div>
               </div>
             </div>
+
+            {/* Live Privacy Score - Gamified Feedback */}
+            {encryptionKey && (
+              <div class="mb-6">
+                <PrivacyScorePreview features={privacyFeatures} showBreakdown={true} />
+              </div>
+            )}
 
             {/* Privacy Protection - Simplified */}
             <div class="p-8 bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-200 dark:border-purple-600/50 rounded-2xl shadow-sm">
