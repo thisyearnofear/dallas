@@ -59,3 +59,18 @@ export type {
   DecryptionResult,
   AccessRequestInput,
 } from './ArciumMPCService';
+
+// Unified Privacy Service Facade
+export {
+  PrivacyService,
+  privacyService,
+  PRIVACY_SCORE_WEIGHTS,
+} from './PrivacyService';
+
+export type {
+  PrivacyOperationResult,
+  PrivacyOperation,
+  PrivacyEnhancedCaseStudy,
+  PrivacyEnhancedValidation,
+  PrivacyEnhancedAccessRequest,
+} from './PrivacyService';
