@@ -1,5 +1,4 @@
-import { MembershipFlow } from "../components/MembershipFlow";
-import { MembershipPurchase } from "../components/MembershipPurchase";
+import { MembershipSystem } from "../components/MembershipSystem";
 
 export function Membership() {
     return (
@@ -11,12 +10,10 @@ export function Membership() {
                 </p>
             </div>
 
+            {/* Consolidated Membership System */}
             <div class="mb-16">
-                <h2 class="text-3xl font-black mb-10 text-center text-slate-800 dark:text-slate-200 uppercase tracking-tighter">Membership Tiers</h2>
-                <MembershipPurchase />
+                <MembershipSystem />
             </div>
-
-            <MembershipFlow />
 
             {/* Why Join Section */}
             <div class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 pb-12">
