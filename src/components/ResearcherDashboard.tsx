@@ -18,9 +18,9 @@ import {
   arciumMPCService,
   MPCAccessRequest,
   CommitteeMember,
-  ENCRYPTION_SCHEME_OPTIONS,
   DEFAULT_MPC_CONFIG,
 } from '../services/privacy';
+import { PrivacyTooltip } from './PrivacyTooltip';
 
 interface ResearcherState {
   activeRequests: MPCAccessRequest[];
@@ -212,12 +212,14 @@ export const ResearcherDashboard: FunctionalComponent = () => {
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left: New Request Form */}
         <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 shadow-inner">
-          <h3 class="text-xl font-black mb-6 flex items-center gap-3 uppercase tracking-wider text-slate-800 dark:text-white">
-            <span class="text-2xl bg-white dark:bg-slate-700 p-2 rounded-lg shadow-sm">📝</span>
-            <span>Request Access</span>
-          </h3>
+          <PrivacyTooltip topic="research_access" variant="section">
+            <h3 class="text-xl font-black flex items-center gap-3 uppercase tracking-wider text-slate-800 dark:text-white">
+              <span class="text-2xl bg-white dark:bg-slate-700 p-2 rounded-lg shadow-sm">📝</span>
+              <span>Request Access</span>
+            </h3>
+          </PrivacyTooltip>
 
-          <div class="space-y-6">
+          <div class="mt-6 space-y-6">
             {/* Case Study ID */}
             <div>
               <label class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-2 ml-1">
@@ -233,12 +235,12 @@ export const ResearcherDashboard: FunctionalComponent = () => {
             {/* Justification */}
             <div>
               <label class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-2 ml-1">
-                Research Justification (min 50 chars)
+                Research Purpose <span class="text-slate-400">(min 50 chars)</span>
               </label>
               <textarea
                 value={state.justification}
                 onChange={(e) => setState(s => ({ ...s, justification: (e.target as HTMLTextAreaElement).value }))}
-                placeholder="Explain your research purpose and how the data will be used..."
+                placeholder="Explain what you're researching and how this data will help..."
                 class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm font-medium h-32 resize-none outline-none focus:border-brand shadow-sm"
               />
               <div class="text-[10px] text-slate-400 dark:text-slate-500 mt-1 text-right">
@@ -246,51 +248,40 @@ export const ResearcherDashboard: FunctionalComponent = () => {
               </div>
             </div>
 
-            {/* Encryption Scheme */}
-            <div>
-              <label class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-2 ml-1">
-                Encryption Scheme
-              </label>
-              <select
-                value={state.encryptionScheme}
-                onChange={(e) => setState(s => ({ 
-                  ...s, 
-                  encryptionScheme: (e.target as HTMLSelectElement).value as any 
-                }))}
-                class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm font-bold outline-none focus:border-brand transition-all shadow-sm"
-              >
-                {ENCRYPTION_SCHEME_OPTIONS.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label} - {option.description}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Threshold */}
+            {/* Committee Approval - Simplified */}
             <div class="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-              <div class="flex justify-between items-center mb-4">
-                <label class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                  Committee Threshold
-                </label>
-                <span class="text-lg font-black text-brand tracking-tighter">
-                  {state.preferredThreshold} of {DEFAULT_MPC_CONFIG.committeeSize}
-                </span>
+              <div class="flex items-start gap-3 mb-4">
+                <span class="w-10 h-10 bg-yellow-500 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🔑</span>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="font-black text-slate-800 dark:text-white uppercase tracking-tight">
+                      Committee Approval Required
+                    </span>
+                    <PrivacyTooltip topic="mpc" variant="icon">
+                      <span></span>
+                    </PrivacyTooltip>
+                  </div>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    Multiple validators must approve before you can access the data. 
+                    No single person can view it alone.
+                  </p>
+                </div>
               </div>
-              <input
-                type="range"
-                min="2"
-                max="5"
-                step="1"
-                value={state.preferredThreshold}
-                onChange={(e) => setState(s => ({ 
-                  ...s, 
-                  preferredThreshold: parseInt((e.target as HTMLInputElement).value) 
-                }))}
-                class="w-full accent-brand"
-              />
-              <div class="text-[10px] text-slate-400 dark:text-slate-500 mt-2">
-                Higher threshold = more security, longer wait time
+
+              <div class="flex items-center gap-4">
+                <span class="text-sm font-bold text-slate-600 dark:text-slate-400">Approvals needed:</span>
+                <select
+                  value={state.preferredThreshold}
+                  onChange={(e) => setState(s => ({ 
+                    ...s, 
+                    preferredThreshold: parseInt((e.target as HTMLSelectElement).value) 
+                  }))}
+                  class="bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 outline-none"
+                >
+                  <option value={2}>2 of 5 (Faster)</option>
+                  <option value={3}>3 of 5 (Recommended)</option>
+                  <option value={4}>4 of 5 (More Secure)</option>
+                </select>
               </div>
             </div>
 
@@ -300,7 +291,7 @@ export const ResearcherDashboard: FunctionalComponent = () => {
               disabled={state.isSubmitting || !connected}
               class="w-full bg-yellow-600 hover:bg-yellow-700 disabled:bg-slate-400 text-white font-black py-4 rounded-xl shadow-lg transition-all transform hover:scale-[1.02] active:scale-95 uppercase tracking-widest text-xs"
             >
-              {state.isSubmitting ? '⏳ Creating Request...' : '🔐 Request Access'}
+              {state.isSubmitting ? '⏳ Submitting Request...' : 'Request Committee Review'}
             </button>
           </div>
         </div>
@@ -403,12 +394,12 @@ export const ResearcherDashboard: FunctionalComponent = () => {
         <div class="text-3xl">🔐</div>
         <div>
           <p class="font-black text-yellow-800 dark:text-yellow-300 uppercase tracking-widest text-xs mb-2">
-            How Arcium MPC Works
+            How Committee Approval Protects Privacy
           </p>
           <p class="text-xs font-medium text-yellow-700 dark:text-slate-400 leading-relaxed">
-            Your access request creates a committee of {DEFAULT_MPC_CONFIG.committeeSize} validators. 
-            Data is only decrypted when {DEFAULT_MPC_CONFIG.threshold} validators approve. 
-            No single validator can access the data alone, ensuring patient privacy while enabling legitimate research.
+            Your request goes to a committee of independent validators. The data can only be 
+            decrypted when enough validators agree—no single person, not even platform admins, 
+            can access patient data alone. This protects patients while enabling important research.
           </p>
         </div>
       </div>
