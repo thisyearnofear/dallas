@@ -2,6 +2,12 @@ import { FunctionalComponent } from 'preact';
 import { useState, useContext, useEffect } from 'preact/hooks';
 import { WalletContext } from '../context/WalletContext';
 import { PublicKey } from '@solana/web3.js';
+import {
+  noirService,
+  ProofResult,
+  CircuitType,
+  CIRCUIT_METADATA,
+} from '../services/privacy';
 
 interface ValidationTask {
   caseStudyId: string;
@@ -12,6 +18,18 @@ interface ValidationTask {
   outcomeMetrics: string;
   approvalCount: number;
   status: 'pending' | 'approved' | 'rejected';
+  // Enhanced with encrypted data for ZK proof generation
+  encryptedData?: {
+    baselineSeverity: number;
+    outcomeSeverity: number;
+    durationDays: number;
+    costUsd: number;
+    hasBaseline: boolean;
+    hasOutcome: boolean;
+    hasDuration: boolean;
+    hasProtocol: boolean;
+    hasCost: boolean;
+  };
 }
 
 interface ValidationState {
@@ -21,7 +39,9 @@ interface ValidationState {
   validationType: 'quality' | 'accuracy' | 'safety';
   feedback: string;
   expertMode: boolean;
-  noirCircuit: string;
+  noirCircuit: CircuitType | 'auto';
+  generatedProofs: ProofResult[];
+  isGeneratingProofs: boolean;
 }
 
 export const ValidationDashboard: FunctionalComponent = () => {
@@ -34,7 +54,14 @@ export const ValidationDashboard: FunctionalComponent = () => {
     feedback: '',
     expertMode: false,
     noirCircuit: 'auto',
+    generatedProofs: [],
+    isGeneratingProofs: false,
   });
+
+  // Initialize Noir service on mount
+  useEffect(() => {
+    noirService.initialize().catch(console.error);
+  }, []);
 
   const [submitStatus, setSubmitStatus] = useState<{
     type: 'success' | 'error' | 'info' | null;
@@ -43,7 +70,7 @@ export const ValidationDashboard: FunctionalComponent = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch validation tasks (simulated for now)
+  // Fetch validation tasks (simulated with encrypted data for ZK proofs)
   useEffect(() => {
     const mockTasks: ValidationTask[] = [
       {
@@ -51,20 +78,42 @@ export const ValidationDashboard: FunctionalComponent = () => {
         protocol: 'Peptide-T + Vitamin D Stack',
         patientId: 'anon-user-001',
         submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        baselineMetrics: '(encrypted - view if access granted)',
-        outcomeMetrics: '(encrypted - view if access granted)',
+        baselineMetrics: '(encrypted - ZK proof available)',
+        outcomeMetrics: '(encrypted - ZK proof available)',
         approvalCount: 1,
         status: 'pending',
+        encryptedData: {
+          baselineSeverity: 8,
+          outcomeSeverity: 4,
+          durationDays: 30,
+          costUsd: 250,
+          hasBaseline: true,
+          hasOutcome: true,
+          hasDuration: true,
+          hasProtocol: true,
+          hasCost: true,
+        },
       },
       {
         caseStudyId: 'cs-002',
         protocol: 'Medicinal Mushroom Protocol',
         patientId: 'anon-user-002',
         submittedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-        baselineMetrics: '(encrypted - view if access granted)',
-        outcomeMetrics: '(encrypted - view if access granted)',
+        baselineMetrics: '(encrypted - ZK proof available)',
+        outcomeMetrics: '(encrypted - ZK proof available)',
         approvalCount: 2,
         status: 'pending',
+        encryptedData: {
+          baselineSeverity: 7,
+          outcomeSeverity: 5,
+          durationDays: 45,
+          costUsd: 180,
+          hasBaseline: true,
+          hasOutcome: true,
+          hasDuration: true,
+          hasProtocol: true,
+          hasCost: true,
+        },
       },
     ];
 
@@ -72,8 +121,63 @@ export const ValidationDashboard: FunctionalComponent = () => {
   }, []);
 
   const selectCaseStudy = (task: ValidationTask) => {
-    setState((s) => ({ ...s, selected: task }));
-    setSubmitStatus({ type: 'info', message: 'Case study selected. Review the encrypted data.' });
+    setState((s) => ({ 
+      ...s, 
+      selected: task,
+      generatedProofs: [], // Clear previous proofs
+    }));
+    setSubmitStatus({ 
+      type: 'info', 
+      message: task.encryptedData 
+        ? '🔐 Case study selected. Encrypted data available for ZK proof generation.'
+        : 'Case study selected. Review the encrypted data.'
+    });
+  };
+
+  /**
+   * Generate ZK proofs for the selected case study
+   * Uses Noir circuits to prove properties without revealing data
+   */
+  const generateZKProofs = async () => {
+    if (!state.selected?.encryptedData) {
+      setSubmitStatus({
+        type: 'error',
+        message: 'No encrypted data available for proof generation',
+      });
+      return;
+    }
+
+    setState((s) => ({ ...s, isGeneratingProofs: true }));
+    setSubmitStatus({
+      type: 'info',
+      message: '🔐 Generating ZK proofs... This may take a few seconds.',
+    });
+
+    try {
+      const proofs = await noirService.generateValidationProofs(state.selected.encryptedData);
+      
+      setState((s) => ({
+        ...s,
+        generatedProofs: proofs,
+        isGeneratingProofs: false,
+      }));
+
+      const verifiedCount = proofs.filter(p => p.verified).length;
+      setSubmitStatus({
+        type: 'success',
+        message: `✅ Generated ${proofs.length} ZK proofs (${verifiedCount} verified). Ready for blockchain submission.`,
+      });
+
+      console.log('Generated ZK Proofs:', proofs);
+    } catch (error) {
+      setState((s) => ({ ...s, isGeneratingProofs: false }));
+      setSubmitStatus({
+        type: 'error',
+        message: `❌ Proof generation failed: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
+      });
+    }
   };
 
   const handleApproval = async (approved: boolean) => {
@@ -85,10 +189,19 @@ export const ValidationDashboard: FunctionalComponent = () => {
       return;
     }
 
+    // In expert mode, require ZK proofs before approval
+    if (state.expertMode && state.generatedProofs.length === 0) {
+      setSubmitStatus({
+        type: 'error',
+        message: '🔐 Expert mode requires ZK proofs. Please generate proofs first.',
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      // Log validation (in real version, this would submit to blockchain)
-      console.log('Validator Approval:', {
+      // Prepare validation data with ZK proofs
+      const validationData = {
         validatorAddress: publicKey.toString(),
         caseStudyId: state.selected.caseStudyId,
         validationType: state.validationType,
@@ -96,7 +209,15 @@ export const ValidationDashboard: FunctionalComponent = () => {
         stakeAmount: state.stakeAmount,
         feedback: state.feedback,
         timestamp: new Date().toISOString(),
-      });
+        zkProofs: state.generatedProofs.map(p => ({
+          circuitType: p.circuitType,
+          verified: p.verified,
+          publicInputs: p.publicInputs,
+          proofHash: Array.from(p.proof.slice(0, 32)), // First 32 bytes as hash
+        })),
+      };
+
+      console.log('Validator Approval with ZK Proofs:', validationData);
 
       // Update case study status
       const updatedTasks = state.tasks.map((task) =>
@@ -114,11 +235,16 @@ export const ValidationDashboard: FunctionalComponent = () => {
         tasks: updatedTasks,
         selected: null,
         feedback: '',
+        generatedProofs: [],
       }));
+
+      const proofMessage = state.generatedProofs.length > 0
+        ? ` with ${state.generatedProofs.length} ZK proofs`
+        : '';
 
       setSubmitStatus({
         type: 'success',
-        message: `✅ Validation submitted! You staked ${state.stakeAmount} EXPERIENCE tokens. ${
+        message: `✅ Validation submitted${proofMessage}! You staked ${state.stakeAmount} EXPERIENCE tokens. ${
           approved ? 'Case study approved.' : 'Concerns flagged for review.'
         }`,
       });
@@ -296,6 +422,58 @@ export const ValidationDashboard: FunctionalComponent = () => {
               {/* Expert Mode Features */}
               {state.expertMode && (
                 <div class="space-y-4 animate-slideIn">
+                  {/* ZK Proof Generation */}
+                  <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-100 dark:border-purple-800/50">
+                    <div class="flex justify-between items-center mb-3">
+                      <label class="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest">
+                        🔐 ZK Proof Generation
+                      </label>
+                      {state.generatedProofs.length > 0 && (
+                        <span class="text-[10px] font-black text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/50 px-2 py-1 rounded">
+                          {state.generatedProofs.filter(p => p.verified).length}/{state.generatedProofs.length} Verified
+                        </span>
+                      )}
+                    </div>
+                    
+                    <button
+                      onClick={generateZKProofs}
+                      disabled={state.isGeneratingProofs || !state.selected.encryptedData}
+                      class="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-slate-400 text-white font-black py-3 rounded-lg shadow-md transition-all text-xs uppercase tracking-widest mb-3"
+                    >
+                      {state.isGeneratingProofs 
+                        ? '⏳ Generating Proofs...' 
+                        : state.generatedProofs.length > 0
+                          ? '🔄 Regenerate Proofs'
+                          : '🔐 Generate ZK Proofs'
+                      }
+                    </button>
+                    
+                    {!state.selected.encryptedData && (
+                      <p class="text-[10px] text-red-600 dark:text-red-400 font-bold">
+                        ⚠️ No encrypted data available for this case study
+                      </p>
+                    )}
+                    
+                    {/* Generated Proofs List */}
+                    {state.generatedProofs.length > 0 && (
+                      <div class="space-y-2 mt-3">
+                        {state.generatedProofs.map((proof, idx) => (
+                          <div 
+                            key={idx}
+                            class={`p-2 rounded-lg text-[10px] font-bold flex justify-between items-center ${
+                              proof.verified 
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' 
+                                : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                            }`}
+                          >
+                            <span>{CIRCUIT_METADATA[proof.circuitType].name}</span>
+                            <span>{proof.verified ? '✓ Verified' : '✗ Failed'}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   {/* Circuit Selection */}
                   <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800/50">
                     <label class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest block mb-2">Noir Circuit</label>
@@ -305,12 +483,15 @@ export const ValidationDashboard: FunctionalComponent = () => {
                       onChange={(e) =>
                         setState((s) => ({
                           ...s,
-                          noirCircuit: (e.target as HTMLSelectElement).value,
+                          noirCircuit: (e.target as HTMLSelectElement).value as CircuitType | 'auto',
                         }))
                       }
                     >
-                      <option value="auto">Auto (Recommended)</option>
-                      <option value="quality-v1">Quality Circuit v1</option>
+                      <option value="auto">Auto (All Circuits)</option>
+                      <option value="symptom_improvement">Symptom Improvement</option>
+                      <option value="duration_verification">Duration Verification</option>
+                      <option value="data_completeness">Data Completeness</option>
+                      <option value="cost_range">Cost Range</option>
                       <option value="accuracy-v2">Accuracy Circuit v2</option>
                       <option value="safety-v1">Safety Circuit v1</option>
                     </select>
@@ -380,6 +561,20 @@ export const ValidationDashboard: FunctionalComponent = () => {
                 </button>
               </div>
 
+              {/* Expert Mode ZK Proof Notice */}
+              {state.expertMode && state.generatedProofs.length === 0 && (
+                <div class="bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-300 dark:border-purple-700 rounded-xl p-4">
+                  <p class="font-black text-purple-800 dark:text-purple-300 text-[10px] uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <span>🔐</span>
+                    <span>ZK Proof Required</span>
+                  </p>
+                  <p class="text-[10px] font-bold text-purple-700 dark:text-purple-400/80">
+                    Expert mode requires generating ZK proofs before validation. 
+                    Click "Generate ZK Proofs" above to prove data quality without revealing sensitive health information.
+                  </p>
+                </div>
+              )}
+
               {/* Risk Info */}
               <div class="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800/50 rounded-xl p-4">
                 <p class="font-black text-yellow-800 dark:text-yellow-300 text-[10px] uppercase tracking-widest mb-2 flex items-center gap-2">
@@ -390,6 +585,12 @@ export const ValidationDashboard: FunctionalComponent = () => {
                   <li class="flex items-start gap-2"><span>•</span> <span>False approvals = 50% token loss</span></li>
                   <li class="flex items-start gap-2"><span>•</span> <span>Verify timeline consistency</span></li>
                   <li class="flex items-start gap-2"><span>•</span> <span>Check metrics make sense</span></li>
+                  {state.expertMode && (
+                    <li class="flex items-start gap-2 text-purple-700 dark:text-purple-400">
+                      <span>•</span> 
+                      <span>ZK proofs validate without decrypting patient data</span>
+                    </li>
+                  )}
                 </ul>
               </div>
             </div>

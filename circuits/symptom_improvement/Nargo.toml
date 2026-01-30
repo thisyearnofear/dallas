@@ -1,0 +1,8 @@
+[package]
+name = "symptom_improvement"
+type = "bin"
+authors = ["Dallas Buyers Club"]
+compiler_version = ">=0.36.0"
+description = "Proves symptom severity improved by at least a threshold percentage"
+
+[dependencies]

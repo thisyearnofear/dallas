@@ -1,0 +1,8 @@
+[package]
+name = "data_completeness"
+type = "bin"
+authors = ["Dallas Buyers Club"]
+compiler_version = ">=0.36.0"
+description = "Proves that required data fields are present without revealing content"
+
+[dependencies]

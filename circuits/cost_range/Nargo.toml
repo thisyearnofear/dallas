@@ -1,0 +1,8 @@
+[package]
+name = "cost_range"
+type = "bin"
+authors = ["Dallas Buyers Club"]
+compiler_version = ">=0.36.0"
+description = "Proves treatment cost is within a reasonable range"
+
+[dependencies]
