@@ -42,3 +42,20 @@ export type {
   CompressedCaseStudy,
   CompressionStats,
 } from './LightProtocolService';
+
+// Arcium MPC Threshold Decryption Service
+export {
+  ArciumMPCService,
+  arciumMPCService,
+  DEFAULT_MPC_CONFIG,
+  ENCRYPTION_SCHEME_OPTIONS,
+} from './ArciumMPCService';
+
+export type {
+  MPCSessionStatus,
+  CommitteeMember,
+  MPCAccessRequest,
+  EncryptionScheme,
+  DecryptionResult,
+  AccessRequestInput,
+} from './ArciumMPCService';
