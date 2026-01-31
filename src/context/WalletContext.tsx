@@ -29,12 +29,9 @@ export interface WalletContextType {
   // DBC Token (DALLAS BUYERS CLUB) - Primary community token
   dbcBalance: number;
   dbcTokenAccount: PublicKey | null;
-  // Legacy - EXPERIENCE token (to be deprecated)
-  experienceBalance: number;
   reputationTier: ReputationTier;
   validationCount: number;
   accuracyRate: number;
-  refreshExperienceData: () => Promise<void>;
   refreshDbcBalance: () => Promise<void>;
 }
 
@@ -59,7 +56,7 @@ export function WalletProvider({ children }: { children: any }) {
   const [connecting, setConnecting] = useState(false);
   const [lastTransaction, setLastTransaction] = useState<number>(0);
   const [blockchainConfigError, setBlockchainConfigError] = useState<string | null>(null);
-  const [experienceBalance, setExperienceBalance] = useState<number>(0);
+
   const [dbcBalance, setDbcBalance] = useState<number>(0);
   const [dbcTokenAccount, setDbcTokenAccount] = useState<PublicKey | null>(null);
   const [validationCount, setValidationCount] = useState<number>(0);
@@ -108,14 +105,6 @@ export function WalletProvider({ children }: { children: any }) {
     setValidationCount(0);
     setAccuracyRate(0);
   }, []);
-
-  const refreshExperienceData = useCallback(async () => {
-    if (publicKey && connected) {
-      await fetchExperienceData(publicKey);
-      await fetchDbcBalance(publicKey);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [publicKey, connected]); // fetch functions are stable
 
   // Validate blockchain configuration on startup
   useEffect(() => {
@@ -191,7 +180,6 @@ export function WalletProvider({ children }: { children: any }) {
     const onDisconnect = () => {
       setPublicKey(null);
       setConnected(false);
-      setExperienceBalance(0);
       setValidationCount(0);
       setAccuracyRate(0);
     };
@@ -205,14 +193,13 @@ export function WalletProvider({ children }: { children: any }) {
     };
   }, []);
 
-  // Fetch data when wallet connects - only run when connection status changes
+  // Fetch DBC balance when wallet connects
   useEffect(() => {
     if (publicKey && connected) {
-      fetchExperienceData(publicKey);
       fetchDbcBalance(publicKey);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connected]); // Only depend on connected, not publicKey or the fetch functions
+  }, [connected]);
 
   const connect = async () => {
     setConnecting(true);
@@ -447,12 +434,9 @@ export function WalletProvider({ children }: { children: any }) {
     // DBC Token
     dbcBalance,
     dbcTokenAccount,
-    // Legacy
-    experienceBalance,
     reputationTier,
     validationCount,
     accuracyRate,
-    refreshExperienceData,
     refreshDbcBalance,
   };
 
