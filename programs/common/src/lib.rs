@@ -19,8 +19,8 @@ pub const TOKEN_2022_PROGRAM_ID: &str = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpP
 // ============= PROGRAM IDS =============
 
 /// Treasury Program (deployed via SolPG)
-// Treasury program ID - replace with actual deployed program ID
-pub const TREASURY_PROGRAM_ID: &str = "11111111111111111111111111111111";
+// Treasury program ID - deployed on devnet
+pub const TREASURY_PROGRAM_ID: &str = "C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk";
 
 /// Case Study Program
 pub const CASE_STUDY_PROGRAM_ID: &str = "EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6";
@@ -239,14 +239,14 @@ pub fn calculate_quality_bonus(base_amount: u64, quality_score: u8, max_bonus_pe
 }
 
 /// Calculate slash amounts
+/// Returns: (slash_amount, burn_amount, remaining_amount)
 pub fn calculate_slash(amount: u64, percentage: u8) -> (u64, u64, u64) {
     let slash_amount = (amount as u128)
         .checked_mul(percentage as u128)
         .unwrap_or(0) as u64 / 100;
     
     let burn = slash_amount / 2;
-    let treasury = slash_amount - burn;
     let remaining = amount - slash_amount;
     
-    (slash_amount, burn, treasury, remaining)
+    (slash_amount, burn, remaining)
 }

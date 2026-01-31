@@ -7,8 +7,8 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Mint, MintTo};
 use dbc_common::{ValidatorTier, STAKING_CONFIG};
 
-// Replace with your deployed program ID
-// declare_id!("YourDeployedProgramIdHere");
+// Membership Program ID - to be deployed on devnet
+declare_id!("5gBtUBg5hPqwAiGY5K7TQQ54HU7yninirYXsnaoaCxrh");
 
 #[program]
 pub mod membership {

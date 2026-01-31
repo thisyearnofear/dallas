@@ -4,8 +4,8 @@ use anchor_spl::token_2022::Token2022;
 
 // DBC Treasury Program Integration
 // The treasury handles all DBC token operations (rewards, staking, slashing)
-// Treasury program ID - replace with actual deployed program ID
-pub const DBC_TREASURY_PROGRAM_ID: &str = "11111111111111111111111111111111";
+// Treasury program ID - deployed on devnet
+pub const DBC_TREASURY_PROGRAM_ID: &str = "C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk";
 pub const DBC_MINT: &str = "J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump";
 
 declare_id!("EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6");

@@ -27,7 +27,7 @@ export const SOLANA_CONFIG = {
     dbcMintAddress: 'J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump',
     dbcTokenProgramId: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', // Standard SPL Token Program
     // Treasury Program (deploy to SolPG, then update)
-    treasuryProgramId: 'XXXX', // To be deployed on SolPG
+    treasuryProgramId: 'C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk', // Deployed on devnet
     
     // Legacy - to be deprecated
     experienceTokenProgramId: 'E6Cc4TX3H2ikxmmztsvRTB8rrYaiTZdaNFd1PBPWCjE4',

@@ -10,20 +10,19 @@
 //! - CLEAN: Clear separation of concerns
 
 use anchor_lang::prelude::*;
-use anchor_spl::token_2022::{Token2022, TokenAccount, Mint};
-use anchor_spl::token_interface::{TransferChecked, transfer_checked};
+use anchor_spl::token_interface::{TokenInterface, TokenAccount, Mint, TransferChecked, transfer_checked};
 
-// Import shared constants
-use dbc_common::{
-    DBC_MINT, DBC_DECIMALS, DBC_MULTIPLIER,
-    STAKING_CONFIG, REWARD_CONFIG, EMISSION_SCHEDULE, get_current_emission_year,
-    TREASURY_SEED, STAKE_SEED, REPUTATION_SEED, DAILY_DIST_SEED,
-    ValidatorTier, calculate_quality_bonus,
-    SECONDS_PER_DAY,
-};
+// Constants (inline since dbc_common is not available)
+pub const DBC_MINT: &str = "J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump";
+pub const DBC_DECIMALS: u8 = 6;
+pub const DBC_MULTIPLIER: u64 = 1_000_000;
+pub const TREASURY_SEED: &[u8] = b"treasury";
+pub const STAKE_SEED: &[u8] = b"stake";
+pub const REPUTATION_SEED: &[u8] = b"reputation";
+pub const DAILY_DIST_SEED: &[u8] = b"daily_dist";
+pub const SECONDS_PER_DAY: i64 = 86400;
 
-// Replace with your deployed program ID
-// declare_id!("YourDeployedProgramIdHere");
+declare_id!("C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk");
 
 #[program]
 pub mod dbc_treasury {
@@ -65,8 +64,7 @@ pub mod dbc_treasury {
     ) -> Result<()> {
         require!(quality_score <= 100, TreasuryError::InvalidQualityScore);
         
-        let treasury = &mut ctx.accounts.treasury;
-        let config = &treasury.config;
+        let config = &ctx.accounts.treasury.config;
         
         // Calculate dynamic reward based on quality using shared config
         let base_reward = REWARD_CONFIG.base_submission_base;
@@ -96,11 +94,13 @@ pub mod dbc_treasury {
             &ctx.accounts.treasury_token_account,
             &ctx.accounts.recipient_token_account,
             &ctx.accounts.treasury,
+            &ctx.accounts.dbc_mint,
             final_amount,
             &ctx.accounts.token_program,
         )?;
 
         // Update accounting
+        let treasury = &mut ctx.accounts.treasury;
         treasury.total_distributed = treasury.total_distributed.checked_add(final_amount).unwrap_or(treasury.total_distributed);
         ctx.accounts.distribution_tracker.amount = daily_total.checked_add(final_amount).unwrap_or(daily_total);
 
@@ -123,8 +123,7 @@ pub mod dbc_treasury {
     ) -> Result<()> {
         require!(accuracy_rate <= 100, TreasuryError::InvalidAccuracyRate);
         
-        let treasury = &mut ctx.accounts.treasury;
-        let config = &treasury.config;
+        let config = &ctx.accounts.treasury.config;
         
         // Calculate reward based on validations and accuracy using shared config
         let base_per_validation = REWARD_CONFIG.base_validation_base;
@@ -154,6 +153,7 @@ pub mod dbc_treasury {
             &ctx.accounts.treasury_token_account,
             &ctx.accounts.validator_token_account,
             &ctx.accounts.treasury,
+            &ctx.accounts.dbc_mint,
             reward_amount,
             &ctx.accounts.token_program,
         )?;
@@ -168,6 +168,7 @@ pub mod dbc_treasury {
         // Update tier based on performance
         reputation.tier = calculate_tier(reputation.total_validations, accuracy_rate);
 
+        let treasury = &mut ctx.accounts.treasury;
         treasury.total_distributed = treasury.total_distributed.checked_add(reward_amount).unwrap_or(treasury.total_distributed);
         ctx.accounts.distribution_tracker.amount = daily_total.checked_add(reward_amount).unwrap_or(daily_total);
 
@@ -476,6 +477,7 @@ pub struct RewardCaseStudy<'info> {
     pub recipient: AccountInfo<'info>,
     /// CHECK: Case study program (for PDA verification)
     pub case_study_program: AccountInfo<'info>,
+    pub dbc_mint: InterfaceAccount<'info, Mint>,
     #[account(
         init_if_needed,
         payer = payer,
@@ -491,7 +493,7 @@ pub struct RewardCaseStudy<'info> {
     pub distribution_tracker: Account<'info, DailyDistributionTracker>,
     #[account(mut)]
     pub payer: Signer<'info>,
-    pub token_program: Interface<'info, Token2022>,
+    pub token_program: Interface<'info, TokenInterface>,
     pub system_program: Program<'info, System>,
 }
 
@@ -508,6 +510,7 @@ pub struct RewardValidator<'info> {
     pub validator_token_account: InterfaceAccount<'info, TokenAccount>,
     /// CHECK: Validator wallet
     pub validator: AccountInfo<'info>,
+    pub dbc_mint: InterfaceAccount<'info, Mint>,
     #[account(
         init_if_needed,
         payer = payer,
@@ -531,7 +534,7 @@ pub struct RewardValidator<'info> {
     pub distribution_tracker: Account<'info, DailyDistributionTracker>,
     #[account(mut)]
     pub payer: Signer<'info>,
-    pub token_program: Interface<'info, Token2022>,
+    pub token_program: Interface<'info, TokenInterface>,
     pub system_program: Program<'info, System>,
 }
 
@@ -554,7 +557,7 @@ pub struct StakeDbc<'info> {
     pub dbc_mint: InterfaceAccount<'info, Mint>,
     #[account(mut)]
     pub validator: Signer<'info>,
-    pub token_program: Interface<'info, Token2022>,
+    pub token_program: Interface<'info, TokenInterface>,
     pub system_program: Program<'info, System>,
 }
 
@@ -571,7 +574,7 @@ pub struct UnstakeDbc<'info> {
     pub dbc_mint: InterfaceAccount<'info, Mint>,
     #[account(mut)]
     pub validator: Signer<'info>,
-    pub token_program: Interface<'info, Token2022>,
+    pub token_program: Interface<'info, TokenInterface>,
 }
 
 #[derive(Accounts)]
@@ -687,8 +690,50 @@ pub enum TreasuryError {
 }
 
 // ============= CONSTANTS =============
-// Note: Use dbc_common::STAKING_CONFIG for staking constants
-// and dbc_common::REWARD_CONFIG for reward amounts
+// Inline constants (previously from dbc_common)
+
+pub const STAKING_CONFIG: StakingConfig = StakingConfig {
+    minimum_stake_dbc: 100,
+    minimum_stake_base: 100_000_000,
+    lock_days: 7,
+    lock_seconds: 7 * 86400,
+    slash_burn_percent: 50,
+    slash_treasury_percent: 50,
+};
+
+pub const REWARD_CONFIG: RewardConfig = RewardConfig {
+    base_submission_base: 10_000_000,      // 10 DBC
+    max_submission_base: 100_000_000,      // 100 DBC
+    base_validation_base: 5_000_000,       // 5 DBC per validation
+    max_validation_base: 50_000_000,       // 50 DBC per validation
+    quality_bonus_percent: 50,             // Up to 50% bonus
+};
+
+#[derive(Clone, Copy)]
+pub struct StakingConfig {
+    pub minimum_stake_dbc: u64,
+    pub minimum_stake_base: u64,
+    pub lock_days: u16,
+    pub lock_seconds: i64,
+    pub slash_burn_percent: u8,
+    pub slash_treasury_percent: u8,
+}
+
+#[derive(Clone, Copy)]
+pub struct RewardConfig {
+    pub base_submission_base: u64,
+    pub max_submission_base: u64,
+    pub base_validation_base: u64,
+    pub max_validation_base: u64,
+    pub quality_bonus_percent: u8,
+}
+
+fn calculate_quality_bonus(base: u64, quality_score: u8, max_bonus_percent: u8) -> u64 {
+    let bonus = base.checked_mul(quality_score as u64).unwrap_or(0)
+        .checked_mul(max_bonus_percent as u64).unwrap_or(0)
+        / 10000; // quality_score (0-100) * percent / 10000
+    base.checked_add(bonus).unwrap_or(base)
+}
 
 // ============= HELPERS =============
 
@@ -696,8 +741,9 @@ fn transfer_from_treasury<'info>(
     from: &InterfaceAccount<'info, TokenAccount>,
     to: &InterfaceAccount<'info, TokenAccount>,
     treasury: &Account<'info, Treasury>,
+    dbc_mint: &InterfaceAccount<'info, Mint>,
     amount: u64,
-    token_program: &Interface<'info, Token2022>,
+    token_program: &Interface<'info, TokenInterface>,
 ) -> Result<()> {
     let treasury_key = treasury.key();
     let seeds = &[
@@ -711,7 +757,7 @@ fn transfer_from_treasury<'info>(
         from: from.to_account_info(),
         to: to.to_account_info(),
         authority: treasury.to_account_info(),
-        mint: treasury.dbc_mint.to_account_info(),
+        mint: dbc_mint.to_account_info(),
     };
     
     let cpi_ctx = CpiContext::new_with_signer(
