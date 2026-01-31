@@ -173,8 +173,11 @@ export function WalletProvider({ children }: { children: any }) {
       if (provider) {
         try {
           const response = await provider.connect({ onlyIfTrusted: true });
-          setPublicKey(new PublicKey(response.publicKey.toString()));
-          setConnected(true);
+          if (response?.publicKey) {
+            const pubkeyStr = response.publicKey.toString ? response.publicKey.toString() : response.publicKey;
+            setPublicKey(new PublicKey(pubkeyStr));
+            setConnected(true);
+          }
         } catch (err) {
           console.error('Auto connection failed:', err);
         }
@@ -249,8 +252,11 @@ export function WalletProvider({ children }: { children: any }) {
       // Check if wallet is already connected
       if (provider.connect) {
         const response = await provider.connect();
-        setPublicKey(new PublicKey(response.publicKey.toString()));
-        setConnected(true);
+        if (response?.publicKey) {
+          const pubkeyStr = response.publicKey.toString ? response.publicKey.toString() : response.publicKey;
+          setPublicKey(new PublicKey(pubkeyStr));
+          setConnected(true);
+        }
       }
     } catch (error: any) {
       console.error('Connection error:', error);

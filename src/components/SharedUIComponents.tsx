@@ -434,7 +434,7 @@ export function TermsAcceptanceModal({
             <div class="text-2xl bg-white/20 p-2 rounded-xl backdrop-blur-sm">🏥</div>
             <div>
               <span class="font-black uppercase tracking-[0.2em] text-sm block">Verification Protocol</span>
-              <span class="text-[9px] font-bold opacity-70 uppercase tracking-widest">Dallas_Buyers_Club_Mainnet</span>
+              <span class="text-[9px] font-bold opacity-70 uppercase tracking-widest">Dallas_Buyers_Club_Devnet</span>
             </div>
           </div>
           
