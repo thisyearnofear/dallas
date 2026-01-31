@@ -1,8 +1,12 @@
 // Enhanced Black Market Terminal - IMMERSIVE CINEMATIC EXPERIENCE
-// Following Core Principles: MODULAR, PERFORMANT, CLEAN
+// With REAL blockchain commands that actually work
 
 import { useState, useEffect, useRef } from "preact/hooks";
-import { useAgentNetwork } from "../hooks/useAgentNetwork";
+import { useWallet } from "../context/WalletContext";
+import { useMembership } from "../hooks/useMembership";
+import { Connection, PublicKey, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { getAssociatedTokenAddress, getAccount, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { SOLANA_CONFIG } from "../config/solana";
 
 // Terminal line type
 type LineType = 'input' | 'output' | 'agent' | 'system' | 'error' | 'success' | 'warning';
@@ -11,6 +15,12 @@ interface TerminalLine {
   text: string;
   type: LineType;
   delay?: number;
+}
+
+// Command result type
+interface CommandResult {
+  lines: TerminalLine[];
+  success: boolean;
 }
 
 export function EnhancedBlackMarketTerminal() {
@@ -23,14 +33,9 @@ export function EnhancedBlackMarketTerminal() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const terminalRef = useRef<HTMLDivElement>(null);
   
-  const { 
-    currentDangerLevel,
-    assessThreatLevel,
-    coordinateGroupPurchase,
-    processIdentityRestoration,
-    handleEmergencyResponse,
-    isCoordinating
-  } = useAgentNetwork();
+  // Real wallet and blockchain data
+  const { publicKey, connected, connection, dbcBalance } = useWallet();
+  const { membership, hasMembership, tier } = useMembership();
 
   // Boot sequence on mount
   useEffect(() => {
@@ -75,24 +80,22 @@ export function EnhancedBlackMarketTerminal() {
     const baseSuggestions = [
       "gm",
       "help",
-      "status", 
-      "agents",
-      "treatments",
-      "purchase",
-      "coordinate",
-      "threat-level",
+      "balance",
+      "membership",
+      "wallet",
+      "network",
     ];
     
     if (isAuthenticated) {
-      baseSuggestions.push("group-buy", "emergency", "stealth", "bypass_auth.exe");
+      baseSuggestions.push("treatments", "purchase", "stake", "unstake", "rewards");
     }
     
-    if (currentDangerLevel > 70) {
-      baseSuggestions.unshift("emergency");
+    if (connected) {
+      baseSuggestions.push("disconnect");
     }
     
     setAgentSuggestions(baseSuggestions);
-  }, [currentDangerLevel, isAuthenticated]);
+  }, [isAuthenticated, connected]);
 
   const addToHistory = (text: string, type: LineType) => {
     setHistory(prev => [...prev, { text, type }]);
@@ -101,10 +104,169 @@ export function EnhancedBlackMarketTerminal() {
   const typeLines = async (lines: TerminalLine[]) => {
     setIsTyping(true);
     for (const line of lines) {
-      await new Promise(r => setTimeout(r, line.delay || 30));
+      await new Promise(r => setTimeout(r, line.delay || 20));
       addToHistory(line.text, line.type);
     }
     setIsTyping(false);
+  };
+
+  // REAL COMMAND: Get wallet balance
+  const getWalletBalance = async (): Promise<CommandResult> => {
+    if (!publicKey || !connection) {
+      return {
+        lines: [
+          { text: "", type: 'system' },
+          { text: "⚠️  NO WALLET CONNECTED", type: 'error' },
+          { text: "", type: 'system' },
+          { text: "Connect your wallet to view balance.", type: 'output' },
+          { text: "Use the 'Connect' button in the header.", type: 'output' },
+          { text: "", type: 'output' },
+        ],
+        success: false
+      };
+    }
+
+    try {
+      // Get SOL balance
+      const solBalance = await connection.getBalance(publicKey);
+      const solAmount = solBalance / LAMPORTS_PER_SOL;
+
+      // Get DBC balance
+      const dbcMint = new PublicKey(SOLANA_CONFIG.blockchain.dbcMintAddress);
+      const tokenAccount = await getAssociatedTokenAddress(dbcMint, publicKey);
+      
+      let dbcAmount = 0;
+      try {
+        const account = await getAccount(connection, tokenAccount);
+        dbcAmount = Number(account.amount) / 1_000_000; // DBC has 6 decimals
+      } catch {
+        // Token account doesn't exist
+        dbcAmount = 0;
+      }
+
+      return {
+        lines: [
+          { text: "", type: 'system' },
+          { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
+          { text: "║                    WALLET BALANCE                            ║", type: 'system' },
+          { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
+          { text: "", type: 'system' },
+          { text: `💰 SOL Balance:    ${solAmount.toFixed(4)} SOL`, type: 'output' },
+          { text: `🪙 DBC Balance:    ${dbcAmount.toLocaleString()} DBC`, type: 'output' },
+          { text: "", type: 'system' },
+          { text: `📍 Wallet: ${publicKey.toString().slice(0, 20)}...`, type: 'agent' },
+          { text: "", type: 'output' },
+        ],
+        success: true
+      };
+    } catch (error: any) {
+      return {
+        lines: [
+          { text: "", type: 'system' },
+          { text: `❌ Error fetching balance: ${error.message}`, type: 'error' },
+          { text: "", type: 'output' },
+        ],
+        success: false
+      };
+    }
+  };
+
+  // REAL COMMAND: Get membership status
+  const getMembershipStatus = async (): Promise<CommandResult> => {
+    if (!publicKey) {
+      return {
+        lines: [
+          { text: "", type: 'system' },
+          { text: "⚠️  NO WALLET CONNECTED", type: 'error' },
+          { text: "", type: 'output' },
+        ],
+        success: false
+      };
+    }
+
+    if (!hasMembership) {
+      return {
+        lines: [
+          { text: "", type: 'system' },
+          { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
+          { text: "║                  MEMBERSHIP STATUS                           ║", type: 'system' },
+          { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
+          { text: "", type: 'system' },
+          { text: "❌ NO ACTIVE MEMBERSHIP", type: 'error' },
+          { text: "", type: 'system' },
+          { text: "Join the club to access:", type: 'output' },
+          { text: "  • Token-gated features", type: 'output' },
+          { text: "  • Community rewards", type: 'output' },
+          { text: "  • Priority support", type: 'output' },
+          { text: "", type: 'system' },
+          { text: "Visit the Membership page to join.", type: 'agent' },
+          { text: "", type: 'output' },
+        ],
+        success: false
+      };
+    }
+
+    return {
+      lines: [
+        { text: "", type: 'system' },
+        { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
+        { text: "║                  MEMBERSHIP STATUS                           ║", type: 'system' },
+        { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
+        { text: "", type: 'system' },
+        { text: `✅ ACTIVE MEMBERSHIP`, type: 'success' },
+        { text: "", type: 'system' },
+        { text: `🏆 Tier: ${tier?.toUpperCase() || 'UNKNOWN'}`, type: 'output' },
+        { text: `👤 Member: ${membership?.nickname || 'Anonymous'}`, type: 'output' },
+        { text: `🎯 Focus: ${membership?.healthFocus || 'General'}`, type: 'output' },
+        { text: `📅 Expires: ${membership?.expiresAt ? new Date(membership.expiresAt).toLocaleDateString() : 'Unknown'}`, type: 'output' },
+        { text: "", type: 'system' },
+        { text: "🎁 Benefits Active:", type: 'agent' },
+        { text: "  • Token-gated access", type: 'output' },
+        { text: "  • Community rewards", type: 'output' },
+        { text: "  • Priority support", type: 'output' },
+        { text: "", type: 'output' },
+      ],
+      success: true
+    };
+  };
+
+  // REAL COMMAND: Get network status
+  const getNetworkStatus = async (): Promise<CommandResult> => {
+    const network = SOLANA_CONFIG.network;
+    const rpcUrl = SOLANA_CONFIG.rpcEndpoint[network];
+    
+    let slot = 0;
+    let blockTime = 0;
+    
+    if (connection) {
+      try {
+        slot = await connection.getSlot();
+        blockTime = await connection.getBlockTime(slot) || 0;
+      } catch {
+        // Use defaults
+      }
+    }
+
+    return {
+      lines: [
+        { text: "", type: 'system' },
+        { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
+        { text: "║                 NETWORK STATUS                               ║", type: 'system' },
+        { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
+        { text: "", type: 'system' },
+        { text: `🌐 Network: ${network.toUpperCase()}`, type: 'output' },
+        { text: `🔗 RPC: ${rpcUrl.replace('https://', '')}`, type: 'agent' },
+        { text: "", type: 'system' },
+        { text: `📦 Current Slot: ${slot.toLocaleString()}`, type: 'output' },
+        { text: `⏰ Block Time: ${blockTime ? new Date(blockTime * 1000).toLocaleString() : 'N/A'}`, type: 'output' },
+        { text: "", type: 'system' },
+        { text: "🔒 Connection Status:", type: 'agent' },
+        { text: `  Wallet: ${connected ? '✅ CONNECTED' : '❌ DISCONNECTED'}`, type: connected ? 'success' : 'error' },
+        { text: `  RPC: ${connection ? '✅ ONLINE' : '❌ OFFLINE'}`, type: connection ? 'success' : 'error' },
+        { text: "", type: 'output' },
+      ],
+      success: true
+    };
   };
 
   const authenticateUser = async () => {
@@ -115,25 +277,40 @@ export function EnhancedBlackMarketTerminal() {
       { text: "Unauthorized Access Prohibited", type: 'warning', delay: 100 },
       { text: "", type: 'system', delay: 300 },
       { text: "[AGENT] Initiating authentication protocol...", type: 'agent', delay: 400 },
-      { text: "[AGENT] Verifying wallet signature...", type: 'agent', delay: 300 },
-      { text: "[AGENT] Scanning biometric hashes...", type: 'agent', delay: 300 },
-      { text: "", type: 'system', delay: 200 },
-      { text: "✅ AUTHENTICATED", type: 'success', delay: 200 },
-      { text: "", type: 'system', delay: 100 },
-      { text: "Welcome to the inner circle, fighter.", type: 'success', delay: 150 },
-      { text: "Identity Scrambled • Access Granted", type: 'agent', delay: 100 },
-      { text: "[ Debug Mode Active ]", type: 'warning', delay: 100 },
-      { text: "", type: 'system' },
-      { text: "Type 'help' to see available commands...", type: 'output' },
-      { text: "", type: 'output' },
     ];
+
+    if (!connected) {
+      authSequence.push(
+        { text: "[AGENT] No wallet detected...", type: 'agent', delay: 300 },
+        { text: "", type: 'system', delay: 200 },
+        { text: "⚠️  AUTHENTICATION FAILED", type: 'error', delay: 200 },
+        { text: "", type: 'system' },
+        { text: "Please connect your wallet first.", type: 'warning', delay: 100 },
+        { text: "Use the 'wallet' command to check status.", type: 'output', delay: 100 },
+        { text: "", type: 'output' }
+      );
+    } else {
+      authSequence.push(
+        { text: "[AGENT] Verifying wallet signature...", type: 'agent', delay: 300 },
+        { text: "[AGENT] Scanning biometric hashes...", type: 'agent', delay: 300 },
+        { text: "", type: 'system', delay: 200 },
+        { text: "✅ AUTHENTICATED", type: 'success', delay: 200 },
+        { text: "", type: 'system', delay: 100 },
+        { text: "Welcome to the inner circle, fighter.", type: 'success', delay: 150 },
+        { text: `Identity: ${publicKey?.toString().slice(0, 16)}...`, type: 'agent', delay: 100 },
+        { text: "[ Debug Mode Active ]", type: 'warning', delay: 100 },
+        { text: "", type: 'system' },
+        { text: "Type 'help' to see available commands...", type: 'output' },
+        { text: "", type: 'output' }
+      );
+      setIsAuthenticated(true);
+    }
     
     await typeLines(authSequence);
-    setIsAuthenticated(true);
   };
 
   const showHelp = async () => {
-    const helpText: TerminalLine[] = isAuthenticated ? [
+    const helpText: TerminalLine[] = [
       { text: "", type: 'system' },
       { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
       { text: "║           DALLAS UNDERGROUND - COMMAND REFERENCE             ║", type: 'system' },
@@ -141,38 +318,16 @@ export function EnhancedBlackMarketTerminal() {
       { text: "", type: 'system' },
       { text: "AUTHENTICATION:", type: 'warning' },
       { text: "  gm              - Greet the system / Authenticate", type: 'output' },
-      { text: "  bypass_auth.exe - [DEBUG] Force authentication (dev only)", type: 'output' },
       { text: "", type: 'system' },
-      { text: "NETWORK STATUS:", type: 'warning' },
-      { text: "  status          - Network and agent status", type: 'output' },
-      { text: "  agents          - Detailed agent information", type: 'output' },
-      { text: "  threat-level    - Current security assessment", type: 'output' },
+      { text: "WALLET & BALANCE:", type: 'warning' },
+      { text: "  wallet          - Check wallet connection status", type: 'output' },
+      { text: "  balance         - Show SOL and DBC balance", type: 'output' },
+      { text: "  membership      - Check membership status", type: 'output' },
       { text: "", type: 'system' },
-      { text: "TREATMENTS:", type: 'warning' },
-      { text: "  treatments      - List available A.I.D.S. treatments", type: 'output' },
-      { text: "  purchase <name> - Acquire treatment via agent network", type: 'output' },
-      { text: "  group-buy <name>- Coordinate bulk purchase", type: 'output' },
+      { text: "NETWORK:", type: 'warning' },
+      { text: "  network         - Show network status and RPC info", type: 'output' },
       { text: "", type: 'system' },
-      { text: "OPERATIONS:", type: 'warning' },
-      { text: "  coordinate <op> - Agent coordination for scenarios", type: 'output' },
-      { text: "  emergency       - Activate emergency protocols", type: 'output' },
-      { text: "  stealth         - Enter stealth mode", type: 'output' },
-      { text: "", type: 'system' },
-      { text: "🤖 All commands enhanced with autonomous agent support.", type: 'agent' },
-      { text: "", type: 'output' },
-    ] : [
-      { text: "", type: 'system' },
-      { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
-      { text: "║              PUBLIC ACCESS - LIMITED COMMANDS                ║", type: 'system' },
-      { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
-      { text: "", type: 'system' },
-      { text: "AVAILABLE COMMANDS:", type: 'warning' },
-      { text: "  gm              - Authenticate with the network", type: 'output' },
-      { text: "  help            - Show this help message", type: 'output' },
-      { text: "  status          - Basic network status", type: 'output' },
-      { text: "", type: 'system' },
-      { text: "⚠️  Full access requires authentication.", type: 'warning' },
-      { text: "    Type 'gm' to begin authentication sequence.", type: 'warning' },
+      { text: "🤖 All commands connected to live blockchain data.", type: 'agent' },
       { text: "", type: 'output' },
     ];
     
@@ -185,7 +340,7 @@ export function EnhancedBlackMarketTerminal() {
     // Add input to history
     addToHistory(`> ${command}`, 'input');
     
-    // Special commands that work without auth
+    // Special commands
     if (cmd === 'gm') {
       await authenticateUser();
       return;
@@ -195,200 +350,54 @@ export function EnhancedBlackMarketTerminal() {
       await showHelp();
       return;
     }
-    
-    if (cmd === 'bypass_auth.exe') {
+
+    // REAL WORKING COMMANDS
+    if (cmd === 'balance') {
+      const result = await getWalletBalance();
+      await typeLines(result.lines);
+      return;
+    }
+
+    if (cmd === 'membership') {
+      const result = await getMembershipStatus();
+      await typeLines(result.lines);
+      return;
+    }
+
+    if (cmd === 'network') {
+      const result = await getNetworkStatus();
+      await typeLines(result.lines);
+      return;
+    }
+
+    if (cmd === 'wallet') {
       await typeLines([
         { text: "", type: 'system' },
-        { text: "[DEBUG Mode] Force authentication initiated...", type: 'warning', delay: 200 },
-        { text: "⚠️  WARNING: This bypasses security checks", type: 'error', delay: 200 },
-        { text: "", type: 'system', delay: 300 },
-        { text: "✅ AUTHENTICATED (Debug Override)", type: 'success', delay: 200 },
-        { text: "Identity Scrambled • Access Granted", type: 'agent', delay: 100 },
-        { text: "[ Debug Mode Active ]", type: 'warning', delay: 100 },
+        { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
+        { text: "║                  WALLET STATUS                               ║", type: 'system' },
+        { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
+        { text: "", type: 'system' },
+        { text: `Status: ${connected ? '✅ CONNECTED' : '❌ DISCONNECTED'}`, type: connected ? 'success' : 'error' },
+        { text: "", type: 'system' },
+        ...(connected && publicKey ? [
+          { text: `Address: ${publicKey.toString()}`, type: 'agent' },
+          { text: "", type: 'system' },
+          { text: "Use 'balance' to check your token balances.", type: 'output' },
+        ] : [
+          { text: "Connect your wallet using the button in the header.", type: 'output' },
+        ]),
         { text: "", type: 'output' },
       ]);
-      setIsAuthenticated(true);
       return;
     }
     
-    // Require authentication for other commands
-    if (!isAuthenticated) {
-      await typeLines([
-        { text: "", type: 'system' },
-        { text: "⚠️  ACCESS DENIED", type: 'error', delay: 100 },
-        { text: "Authentication required for this command.", type: 'warning', delay: 100 },
-        { text: "Type 'gm' to authenticate.", type: 'output', delay: 100 },
-        { text: "", type: 'output' },
-      ]);
-      return;
-    }
-    
-    // Process authenticated commands
-    setIsTyping(true);
-    
-    try {
-      switch (true) {
-        case cmd === 'status':
-          await typeLines([
-            { text: "", type: 'system' },
-            { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
-            { text: "║              DALLAS UNDERGROUND NETWORK STATUS               ║", type: 'system' },
-            { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
-            { text: "", type: 'system' },
-            { text: `🔒 Network Security:      ${100 - currentDangerLevel}%`, type: 'output' },
-            { text: `🤖 Agent Coordination:    ${isCoordinating ? 'ACTIVE' : 'STANDBY'}`, type: 'agent' },
-            { text: `📡 MCP Protocol:          ONLINE`, type: 'agent' },
-            { text: `💾 Data Integrity:        98.7%`, type: 'output' },
-            { text: `👥 Active Members:        47`, type: 'output' },
-            { text: `🧠 Identity Restorations: 23 in progress`, type: 'output' },
-            { text: "", type: 'system' },
-            { text: "🤖 AGENT STATUS: All systems operational", type: 'agent' },
-            { text: "", type: 'output' },
-          ]);
-          break;
-
-        case cmd === 'agents':
-          await typeLines([
-            { text: "", type: 'system' },
-            { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
-            { text: "║              AUTONOMOUS AGENT NETWORK                        ║", type: 'system' },
-            { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
-            { text: "", type: 'system' },
-            { text: "🔧 SUPPLY CHAIN AGENT", type: 'agent' },
-            { text: "   └─ Monitoring treatment availability", type: 'output' },
-            { text: "   └─ Last action: Negotiated 12% price reduction", type: 'output' },
-            { text: "", type: 'system' },
-            { text: "🛡️  RISK ASSESSMENT AGENT", type: 'agent' },
-            { text: `   └─ Current assessment: ${currentDangerLevel}% danger level`, type: 'output' },
-            { text: "", type: 'system' },
-            { text: "👥 COMMUNITY COORDINATION AGENT", type: 'agent' },
-            { text: "   └─ Managing 47 members", type: 'output' },
-            { text: "   └─ Active coordination: 3 group purchases pending", type: 'output' },
-            { text: "", type: 'system' },
-            { text: "🧠 IDENTITY RESTORATION AGENT", type: 'agent' },
-            { text: "   └─ Success rate: 94.3% recovery efficiency", type: 'output' },
-            { text: "", type: 'system' },
-            { text: "🔗 MCP COORDINATION: Real-time inter-agent communication active", type: 'agent' },
-            { text: "", type: 'output' },
-          ]);
-          break;
-
-        case cmd === 'treatments':
-          await typeLines([
-            { text: "", type: 'system' },
-            { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
-            { text: "║           AVAILABLE A.I.D.S. TREATMENTS                      ║", type: 'system' },
-            { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
-            { text: "", type: 'system' },
-            { text: "💊 AZT Identity Stabilizer", type: 'agent' },
-            { text: "   Price: ₿0.5  |  Effectiveness: 85%", type: 'output' },
-            { text: "", type: 'system' },
-            { text: "🧠 Peptide-T Personality Code", type: 'agent' },
-            { text: "   Price: ₿0.2  |  Effectiveness: 62%", type: 'output' },
-            { text: "", type: 'system' },
-            { text: "💾 DDC Memory Restoration", type: 'agent' },
-            { text: "   Price: ₿0.3  |  Effectiveness: 91%", type: 'output' },
-            { text: "", type: 'system' },
-            { text: "🔬 Interferon Identity Suite", type: 'agent' },
-            { text: "   Price: ₿0.8  |  Effectiveness: 23%", type: 'output' },
-            { text: "", type: 'system' },
-            { text: "🤖 AGENT RECOMMENDATIONS:", type: 'agent' },
-            { text: "   • Most reliable: DDC Memory Restoration", type: 'output' },
-            { text: "   • Most affordable: Peptide-T Personality Code", type: 'output' },
-            { text: "   • Emergency option: AZT Identity Stabilizer", type: 'output' },
-            { text: "", type: 'system' },
-            { text: "Use 'purchase <treatment>' or 'group-buy <treatment>'", type: 'output' },
-            { text: "", type: 'output' },
-          ]);
-          break;
-
-        case cmd === 'threat-level':
-          const assessment = await assessThreatLevel();
-          await typeLines([
-            { text: "", type: 'system' },
-            { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
-            { text: "║              THREAT ASSESSMENT RESULTS                       ║", type: 'system' },
-            { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
-            { text: "", type: 'system' },
-            { text: `🚨 Current Threat Level: ${currentDangerLevel}%`, type: currentDangerLevel > 70 ? 'error' : 'warning' },
-            { text: `📊 Confidence: ${assessment.synthesizedThreat?.confidence || 90}%`, type: 'output' },
-            { text: "", type: 'system' },
-            { text: `Corporate AI Activity: ${Math.floor(currentDangerLevel * 0.7)}%`, type: 'output' },
-            { text: `Network Exposure:      ${Math.floor(currentDangerLevel * 0.5)}%`, type: 'output' },
-            { text: `Supply Chain Risk:     ${Math.floor(currentDangerLevel * 0.3)}%`, type: 'output' },
-            { text: "", type: 'system' },
-            { text: `🤖 AGENT RECOMMENDATION: ${
-              currentDangerLevel > 80 ? 'IMMEDIATE ACTION REQUIRED' :
-              currentDangerLevel > 60 ? 'Maintain heightened security' :
-              'Continue normal operations'
-            }`, type: 'agent' },
-            { text: "", type: 'output' },
-          ]);
-          break;
-
-        case cmd === 'emergency':
-          await typeLines([
-            { text: "", type: 'system' },
-            { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
-            { text: "║           🚨 EMERGENCY PROTOCOL ACTIVATED 🚨                 ║", type: 'error' },
-            { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
-            { text: "", type: 'system' },
-            { text: "🚨 ALL AGENTS RESPONDING", type: 'error' },
-            { text: "🔒 Network switching to stealth mode", type: 'warning' },
-            { text: "📡 Backup communication channels active", type: 'agent' },
-            { text: "💾 Critical data protection enabled", type: 'agent' },
-            { text: "👥 Member alert system triggered", type: 'agent' },
-            { text: "", type: 'system' },
-            { text: "Ron Woodroof emergency protocols in effect.", type: 'warning' },
-            { text: "Underground network secured.", type: 'success' },
-            { text: "", type: 'output' },
-          ]);
-          break;
-
-        case cmd === 'stealth':
-          await typeLines([
-            { text: "", type: 'system' },
-            { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
-            { text: "║              👻 STEALTH MODE ACTIVATED                       ║", type: 'system' },
-            { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
-            { text: "", type: 'system' },
-            { text: "👻 Network visibility:   MINIMIZED", type: 'agent' },
-            { text: "🔐 Encryption:           MAXIMUM SECURITY", type: 'agent' },
-            { text: "📡 Traffic routing:      RANDOMIZED", type: 'agent' },
-            { text: "🤖 Agent coordination:   SILENT MODE", type: 'agent' },
-            { text: "🕰️  Duration:            Until manually disabled", type: 'output' },
-            { text: "", type: 'system' },
-            { text: "Operating in ghost mode...", type: 'agent' },
-            { text: "", type: 'output' },
-          ]);
-          break;
-
-        default:
-          await typeLines([
-            { text: "", type: 'system' },
-            { text: `Unknown command: '${command}'`, type: 'error' },
-            { text: "Type 'help' for available commands.", type: 'output' },
-            { text: "", type: 'system' },
-            { text: "🤖 AGENT SUGGESTION: Did you mean one of these?", type: 'agent' },
-            ...agentSuggestions.slice(0, 3).map(s => ({ 
-              text: `  • ${s}`, 
-              type: 'output' as LineType 
-            })),
-            { text: "", type: 'output' },
-          ]);
-      }
-    } catch (error: any) {
-      await typeLines([
-        { text: "", type: 'system' },
-        { text: `ERROR: ${error.message}`, type: 'error' },
-        { text: "", type: 'system' },
-        { text: "🤖 AGENT ALERT: Command execution failed.", type: 'agent' },
-        { text: "Network coordination may be temporarily unavailable.", type: 'output' },
-        { text: "", type: 'output' },
-      ]);
-    }
-    
-    setIsTyping(false);
+    // Unknown command
+    await typeLines([
+      { text: "", type: 'system' },
+      { text: `Unknown command: '${command}'`, type: 'error' },
+      { text: "Type 'help' for available commands.", type: 'output' },
+      { text: "", type: 'output' },
+    ]);
   };
 
   const handleSubmit = async (e: any) => {
@@ -428,11 +437,8 @@ export function EnhancedBlackMarketTerminal() {
           <span class="ml-2 font-bold text-sm tracking-wider">SECURE TERMINAL v2.1</span>
         </div>
         <div class="flex items-center gap-4 text-xs">
-          <span class={isAuthenticated ? "text-green-300" : "text-red-300"}>
-            {isAuthenticated ? "🔓 AUTHENTICATED" : "🔒 LOCKED"}
-          </span>
-          <span class="text-green-300">
-            🤖 {isCoordinating ? 'COORDINATING' : 'STANDBY'}
+          <span class={connected ? "text-green-300" : "text-red-300"}>
+            {connected ? "🔓 CONNECTED" : "🔒 OFFLINE"}
           </span>
         </div>
       </div>
@@ -491,7 +497,7 @@ export function EnhancedBlackMarketTerminal() {
         {showSuggestions && agentSuggestions.length > 0 && input.length > 0 && !showBootSequence && (
           <div class="absolute bottom-full mb-2 left-4 right-4 bg-black border-2 border-green-600 rounded-lg shadow-2xl max-h-48 overflow-y-auto z-20">
             <div class="p-2 text-xs text-blue-400 border-b border-green-600 bg-green-900/20 font-bold">
-              🤖 AGENT SUGGESTIONS:
+              🤖 AVAILABLE COMMANDS:
             </div>
             {agentSuggestions
               .filter(suggestion => suggestion.toLowerCase().includes(input.toLowerCase()))
@@ -515,10 +521,10 @@ export function EnhancedBlackMarketTerminal() {
       {/* Status Bar */}
       <div class="border-t border-green-800 px-4 py-2 bg-green-900/20 text-xs flex justify-between items-center">
         <span class="text-green-600">
-          DALLAS IDENTITY CLINIC • A.I.D.S. Treatment Network
+          {connected ? `🔗 ${publicKey?.toString().slice(0, 16)}...` : '🔗 Wallet Disconnected'}
         </span>
-        <span class={currentDangerLevel > 70 ? "text-red-400 animate-pulse" : "text-green-600"}>
-          Threat: {currentDangerLevel}%
+        <span class={dbcBalance > 0 ? "text-green-400" : "text-green-600"}>
+          {dbcBalance > 0 ? `🪙 ${dbcBalance.toLocaleString()} DBC` : 'No DBC Balance'}
         </span>
       </div>
     </div>
