@@ -25,6 +25,7 @@ import { InfomercialPopup } from "./components/RetroAesthetics";
 import { Authentic90sPopups, LiveActivityNotifications, WinnerPopup } from "./components/Authentic90sPopups";
 import { TermsAcceptanceModal, DisclaimerBanner } from "./components/SharedUIComponents";
 import { PrivacyOnboardingModal } from "./components/PrivacyOnboardingModal";
+import { MobileNav } from "./components/MobileNav";
 import { useConsent } from "./hooks/useConsent";
 import { useState, useEffect } from "preact/hooks";
 
@@ -86,9 +87,16 @@ export function App() {
                     <LiveCounter />
 
                     <Header />
-                    <div class="flex flex-1 relative items-stretch px-2 sm:px-7">
-                        <Navbar />
-                        <div class="w-full p-4 sm:p-10">
+                    <div class="flex flex-1 relative items-stretch">
+                        {/* Desktop Navbar - hidden on mobile */}
+                        <div class="hidden lg:block">
+                            <Navbar />
+                        </div>
+                        
+                        {/* Mobile Bottom Navigation */}
+                        <MobileNav />
+                        
+                        <div class="w-full p-4 sm:p-6 lg:p-10 pb-24 lg:pb-10">
                             <Router>
                                 <Route path="/" component={Home} />
                                 <Route path="/experiences" component={Experiences} />

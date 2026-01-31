@@ -9,14 +9,27 @@ export function Footer() {
         <>
             <footer class="flex flex-wrap justify-between items-center mt-auto border-t-2 border-t-neutral-200 px-5 py-2 pb-12 gap-2">
                 <div class="flex gap-4">
-                    <a class="text-brand hover:underline" href="#">
-                        Twitter
+                    <a 
+                        class="text-brand hover:underline flex items-center gap-1" 
+                        href="https://twitter.com/papajimjams"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <span>🐦</span> Twitter
                     </a>
-                    <a class="text-brand hover:underline" href="#">
-                        Telegram
+                    <a 
+                        class="text-brand hover:underline flex items-center gap-1" 
+                        href="https://t.me/+4Rbq7xHqFXQ5ZjM0"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <span>✈️</span> Telegram
                     </a>
-                    <a class="text-brand hover:underline" href="#">
-                        Contact
+                    <a 
+                        class="text-brand hover:underline flex items-center gap-1" 
+                        href="mailto:underground@dallasbuyers.club"
+                    >
+                        <span>📧</span> Contact
                     </a>
                 </div>
                 <div class="flex gap-4 text-sm text-gray-500">
