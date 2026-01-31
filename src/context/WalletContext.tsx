@@ -69,8 +69,7 @@ export function WalletProvider({ children }: { children: any }) {
   const reputationTier = calculateReputationTier(validationCount, accuracyRate);
 
   // Fetch DBC (DALLAS BUYERS CLUB) token balance
-  const fetchDbcBalance = useCallback(async (walletPublicKey?: PublicKey) => {
-    const targetKey = walletPublicKey || publicKey;
+  const fetchDbcBalance = useCallback(async (targetKey: PublicKey) => {
     if (!targetKey) return;
 
     try {
@@ -93,13 +92,14 @@ export function WalletProvider({ children }: { children: any }) {
       setDbcBalance(0);
       setDbcTokenAccount(null);
     }
-  }, [connection, publicKey]);
+  }, [connection]);
 
   const refreshDbcBalance = useCallback(async () => {
     if (publicKey && connected) {
       await fetchDbcBalance(publicKey);
     }
-  }, [publicKey, connected, fetchDbcBalance]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [publicKey, connected]); // fetchDbcBalance is stable
 
   // Legacy: Fetch EXPERIENCE token data (to be deprecated)
   const fetchExperienceData = useCallback(async (walletPublicKey: PublicKey) => {
@@ -114,7 +114,8 @@ export function WalletProvider({ children }: { children: any }) {
       await fetchExperienceData(publicKey);
       await fetchDbcBalance(publicKey);
     }
-  }, [publicKey, connected, fetchExperienceData, fetchDbcBalance]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [publicKey, connected]); // fetch functions are stable
 
   // Validate blockchain configuration on startup
   useEffect(() => {
@@ -203,13 +204,14 @@ export function WalletProvider({ children }: { children: any }) {
     };
   }, []);
 
-  // Fetch EXPERIENCE data when wallet connects
+  // Fetch data when wallet connects - only run when connection status changes
   useEffect(() => {
     if (publicKey && connected) {
       fetchExperienceData(publicKey);
       fetchDbcBalance(publicKey);
     }
-  }, [publicKey, connected, fetchExperienceData, fetchDbcBalance]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connected]); // Only depend on connected, not publicKey or the fetch functions
 
   const connect = async () => {
     setConnecting(true);
