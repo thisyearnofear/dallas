@@ -23,8 +23,9 @@ export const SOLANA_CONFIG = {
   blockchain: {
     caseStudyProgramId: 'EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6',
     // DALLAS BUYERS CLUB Token - Main Community Token
-    // Mint: J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump
-    dbcMintAddress: 'J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump',
+    // Mainnet: J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump (pump.fun)
+    // Devnet:  8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT (custom program)
+    dbcMintAddress: '8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT', // Devnet for testing
     dbcTokenProgramId: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', // Standard SPL Token Program
     // Treasury Program (deploy to SolPG, then update)
     treasuryProgramId: 'C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk', // Deployed on devnet
@@ -70,7 +71,7 @@ export const SOLANA_CONFIG = {
   },
 
   // Default amounts for various operations (in DBC token base units)
-  // DBC Token: J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump
+  // DBC Token: 8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT
   defaults: {
     donationAmount: 0.5, // SOL
     membershipBronze: 0.1, // SOL

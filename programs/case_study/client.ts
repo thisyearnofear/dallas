@@ -16,7 +16,9 @@
 // CONFIGURATION - Update these values
 // ============================================================================
 
-const CASE_STUDY_DBC_MINT = new web3.PublicKey("8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT"); // Devnet DBC
+// NOTE: Using devnet token for testing. Change to mainnet token for production:
+// const CASE_STUDY_DBC_MINT = new web3.PublicKey("J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump"); // Mainnet pump.fun
+const CASE_STUDY_DBC_MINT = new web3.PublicKey("8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT"); // Devnet token
 const CASE_STUDY_TREASURY_PROGRAM = new web3.PublicKey("C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk");
 
 // ============================================================================

@@ -6,7 +6,9 @@ use anchor_spl::token_2022::Token2022;
 // The treasury handles all DBC token operations (rewards, staking, slashing)
 // Treasury program ID - deployed on devnet
 pub const DBC_TREASURY_PROGRAM_ID: &str = "C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk";
-pub const DBC_MINT: &str = "J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump";
+// NOTE: Using devnet token for testing. Change to mainnet token for production:
+// pub const DBC_MINT: &str = "J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump";  // Mainnet pump.fun
+pub const DBC_MINT: &str = "8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT";  // Devnet token
 
 declare_id!("EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6");
 

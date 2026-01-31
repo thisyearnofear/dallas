@@ -8,14 +8,20 @@ skip-lint = false
 [programs.devnet]
 case_study = "EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6"
 dbc_token = "21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB"
+treasury = "C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk"
+membership = "CB6yknfo1cBWhVH2ifkMAS2tKaDa9c9mgRiZpCzHwjzu"
 
 [programs.testnet]
 case_study = "11111111111111111111111111111111"
 dbc_token = "21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB"
+treasury = "11111111111111111111111111111111"
+membership = "11111111111111111111111111111111"
 
 [programs.mainnet]
 case_study = "11111111111111111111111111111111"
 dbc_token = "21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB"
+treasury = "11111111111111111111111111111111"
+membership = "11111111111111111111111111111111"
 
 [provider]
 cluster = "Devnet"

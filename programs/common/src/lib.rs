@@ -9,7 +9,9 @@ use anchor_lang::prelude::*;
 
 /// DBC Token Mint (DALLAS BUYERS CLUB)
 /// Fixed supply, community-owned, Token-2022
-pub const DBC_MINT: &str = "J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump";
+// NOTE: Using devnet token for testing. Change to mainnet token for production:
+// pub const DBC_MINT: &str = "J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump";  // Mainnet pump.fun
+pub const DBC_MINT: &str = "8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT";  // Devnet token
 pub const DBC_DECIMALS: u8 = 6;
 pub const DBC_MULTIPLIER: u64 = 1_000_000; // 10^6
 

@@ -19,13 +19,13 @@ Test environment with devnet DBC tokens for development.
 |---------|---------|--------|
 | DBC Token Program | `21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB` | ✅ Deployed |
 | DBC Mint (devnet) | `8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT` | ✅ Created |
-| Treasury | `C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk` | ✅ Deployed |
+| Treasury | `C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk` | ✅ Initialized |
 | Membership | `CB6yknfo1cBWhVH2ifkMAS2tKaDa9c9mgRiZpCzHwjzu` | ✅ Deployed |
 | Case Study | `EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6` | ✅ Deployed |
 
 ---
 
-## DBC Token Differences
+## DBC Token Configuration
 
 ### Mainnet (pump.fun)
 - **Mint:** `J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump`
@@ -35,9 +35,10 @@ Test environment with devnet DBC tokens for development.
 
 ### Devnet (our program)
 - **Program:** `21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB`
-- **Mint:** Created via `createDbcMint()` in client
+- **Mint:** `8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT`
 - **Supply:** Mintable for testing
 - **Mint Authority:** Deployer wallet (for testing)
+- **Decimals:** 6
 
 ---
 

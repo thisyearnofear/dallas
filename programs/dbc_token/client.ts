@@ -17,7 +17,9 @@
 // ============================================================================
 
 // After deploying, update this with the new mint address from initializeToken
-const DBC_MINT = new web3.PublicKey("8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT");
+// NOTE: Using devnet token for testing. Change to mainnet token for production:
+// const DBC_MINT = new web3.PublicKey("J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump"); // Mainnet pump.fun
+const DBC_MINT = new web3.PublicKey("8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT"); // Devnet token
 
 const DBC_TREASURY = new web3.PublicKey("BpHqwwKRqhNRzyZHT5U4un9vfyivcbvcgrmFRfboGJsK");
 
