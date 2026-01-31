@@ -22,7 +22,7 @@ export function WalletButton() {
   return (
     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2">
       <span class="text-xs sm:text-sm text-gray-600 font-mono">
-        {shortenAddress(publicKey!.toString())}
+        {publicKey ? shortenAddress(publicKey.toString()) : 'Connected'}
       </span>
       <button
         onClick={disconnect}
