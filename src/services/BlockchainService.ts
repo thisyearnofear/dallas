@@ -4,7 +4,7 @@
  * Handles interactions with Solana smart contracts:
  * - Case study submission with ZK proofs
  * - Validator staking & slashing mechanism
- * - EXPERIENCE token minting & burning
+ * - DBC token operations (staking, rewards)
  * - Privacy sponsor integrations (Light Protocol, Arcium, etc.)
  * 
  * Privacy-first design:
@@ -75,8 +75,8 @@ export interface CaseStudyAccount {
 export class BlockchainService {
   private connection: Connection;
   private caseStudyProgramId: PublicKey;
-  private experienceTokenProgramId: PublicKey;
-  private experienceMint: PublicKey;
+  private dbcMint: PublicKey;
+  private tokenProgramId: PublicKey;
 
   /**
    * Initialize BlockchainService with program addresses from config
@@ -84,8 +84,8 @@ export class BlockchainService {
   constructor() {
     this.connection = new Connection(SOLANA_CONFIG.rpcEndpoint[SOLANA_CONFIG.network], 'confirmed');
     this.caseStudyProgramId = new PublicKey(SOLANA_CONFIG.blockchain.caseStudyProgramId);
-    this.experienceTokenProgramId = new PublicKey(SOLANA_CONFIG.blockchain.experienceTokenProgramId);
-    this.experienceMint = new PublicKey(SOLANA_CONFIG.blockchain.experienceMintAddress);
+    this.dbcMint = new PublicKey(SOLANA_CONFIG.blockchain.dbcMintAddress);
+    this.tokenProgramId = new PublicKey(SOLANA_CONFIG.blockchain.dbcTokenProgramId);
   }
 
   /**
@@ -310,7 +310,7 @@ export class BlockchainService {
         { pubkey: validatorStakePda, isSigner: false, isWritable: true },
         { pubkey: caseStudyPda, isSigner: false, isWritable: true },
         { pubkey: validator, isSigner: true, isWritable: true },
-        { pubkey: this.experienceMint, isSigner: false, isWritable: true },
+        { pubkey: this.dbcMint, isSigner: false, isWritable: true },
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
@@ -340,7 +340,7 @@ export class BlockchainService {
 
       // Get validator's token account
       const validatorTokenAccount = await getAssociatedTokenAddress(
-        this.experienceMint,
+        this.dbcMint,
         validator
       );
 
@@ -366,7 +366,7 @@ export class BlockchainService {
             validator,
             validatorTokenAccount,
             validator,
-            this.experienceMint
+            this.dbcMint
           )
         );
       }
@@ -418,9 +418,9 @@ export class BlockchainService {
   }
 
   /**
-   * Reward user with EXPERIENCE tokens using the deployed program
+   * Reward user with DBC tokens using the deployed program
    */
-  async rewardExperienceTokens(
+  async rewardDBCTokens(
     authority: PublicKey,
     signTransaction: (tx: Transaction) => Promise<Transaction>,
     recipient: PublicKey,
@@ -436,13 +436,13 @@ export class BlockchainService {
 
       // Get recipient's token account
       const recipientTokenAccount = await getAssociatedTokenAddress(
-        this.experienceMint,
+        this.dbcMint,
         recipient
       );
 
       // Get authority's token account (for mint authority)
       const authorityTokenAccount = await getAssociatedTokenAddress(
-        this.experienceMint,
+        this.dbcMint,
         authority
       );
 
@@ -460,14 +460,14 @@ export class BlockchainService {
             authority,
             recipientTokenAccount,
             recipient,
-            this.experienceMint
+            this.dbcMint
           )
         );
       }
 
-      // Create instruction to call the Experience Token program
+      // Create instruction to call the DBC Token program
       // This would use the actual Anchor-generated instruction
-      const rewardInstruction = this.createRewardExperienceInstruction(
+      const rewardInstruction = this.createRewardDBCInstruction(
         authority,
         recipient,
         recipientTokenAccount,
@@ -490,15 +490,15 @@ export class BlockchainService {
 
       return signature;
     } catch (error) {
-      console.error('Error rewarding EXPERIENCE tokens:', error);
+      console.error('Error rewarding DBC tokens:', error);
       throw error;
     }
   }
 
   /**
-   * Create instruction for rewarding EXPERIENCE tokens
+   * Create instruction for rewarding DBC tokens
    */
-  private createRewardExperienceInstruction(
+  private createRewardDBCInstruction(
     authority: PublicKey,
     recipient: PublicKey,
     recipientTokenAccount: PublicKey,
@@ -509,7 +509,7 @@ export class BlockchainService {
     useShadowWire?: boolean
   ): TransactionInstruction {
     // Convert amount to token units (assuming 6 decimals)
-    const amountInUnits = Math.floor(amount * 1_000_000); // 1 EXPERIENCE = 1,000,000 units
+    const amountInUnits = Math.floor(amount * 1_000_000); // 1 DBC = 1,000,000 units
 
     // Determine instruction discriminator based on reason
     const discriminator = reason === 'case_study_submission' ? 0x01 : 0x02;
@@ -539,22 +539,22 @@ export class BlockchainService {
 
     return new TransactionInstruction({
       keys: [
-        { pubkey: this.experienceTokenProgramId, isSigner: false, isWritable: false },
-        { pubkey: this.experienceMint, isSigner: false, isWritable: true },
+        { pubkey: this.tokenProgramId, isSigner: false, isWritable: false },
+        { pubkey: this.dbcMint, isSigner: false, isWritable: true },
         { pubkey: recipientTokenAccount, isSigner: false, isWritable: true },
         { pubkey: recipient, isSigner: false, isWritable: false },
         { pubkey: authority, isSigner: true, isWritable: false },
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
       ],
-      programId: this.experienceTokenProgramId,
+      programId: this.tokenProgramId,
       data: instructionData.slice(0, offset),
     });
   }
 
   /**
-   * Stake EXPERIENCE tokens for validation
+   * Stake DBC tokens for validation
    */
-  async stakeExperienceTokens(
+  async stakeDBCTokens(
     validator: PublicKey,
     signTransaction: (tx: Transaction) => Promise<Transaction>,
     amount: number,
@@ -566,7 +566,7 @@ export class BlockchainService {
 
       // Get validator's token account
       const validatorTokenAccount = await getAssociatedTokenAddress(
-        this.experienceMint,
+        this.dbcMint,
         validator
       );
 
@@ -577,7 +577,7 @@ export class BlockchainService {
           validator.toBuffer(),
           caseStudyPubkey.toBuffer(),
         ],
-        this.experienceTokenProgramId
+        this.tokenProgramId
       );
 
       const { blockhash } = await this.connection.getLatestBlockhash('confirmed');
@@ -594,7 +594,7 @@ export class BlockchainService {
             validator,
             validatorTokenAccount,
             validator,
-            this.experienceMint
+            this.dbcMint
           )
         );
       }
@@ -607,7 +607,7 @@ export class BlockchainService {
             validator,
             stakeEscrow,
             validator,
-            this.experienceMint
+            this.dbcMint
           )
         );
       }
@@ -634,13 +634,13 @@ export class BlockchainService {
 
       return signature;
     } catch (error) {
-      console.error('Error staking EXPERIENCE tokens:', error);
+      console.error('Error staking DBC tokens:', error);
       throw error;
     }
   }
 
   /**
-   * Create instruction for staking EXPERIENCE tokens
+   * Create instruction for staking DBC tokens
    */
   private createStakeInstruction(
     validator: PublicKey,
@@ -669,21 +669,21 @@ export class BlockchainService {
 
     return new TransactionInstruction({
       keys: [
-        { pubkey: this.experienceTokenProgramId, isSigner: false, isWritable: false },
-        { pubkey: this.experienceMint, isSigner: false, isWritable: true },
+        { pubkey: this.tokenProgramId, isSigner: false, isWritable: false },
+        { pubkey: this.dbcMint, isSigner: false, isWritable: true },
         { pubkey: validatorTokenAccount, isSigner: false, isWritable: true },
         { pubkey: stakeEscrow, isSigner: false, isWritable: true },
         { pubkey: validator, isSigner: true, isWritable: false },
         { pubkey: caseStudyPubkey, isSigner: false, isWritable: true },
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
       ],
-      programId: this.experienceTokenProgramId,
+      programId: this.tokenProgramId,
       data: instructionData.slice(0, offset),
     });
   }
 
   /**
-   * Slash validator's EXPERIENCE tokens
+   * Slash validator's DBC tokens
    */
   async slashValidator(
     authority: PublicKey,
@@ -699,7 +699,7 @@ export class BlockchainService {
       // Get treasury token account
       const treasuryPubkey = new PublicKey(SOLANA_CONFIG.treasuryAddress);
       const treasuryTokenAccount = await getAssociatedTokenAddress(
-        this.experienceMint,
+        this.dbcMint,
         treasuryPubkey
       );
 
@@ -773,14 +773,14 @@ export class BlockchainService {
 
     return new TransactionInstruction({
       keys: [
-        { pubkey: this.experienceTokenProgramId, isSigner: false, isWritable: false },
-        { pubkey: this.experienceMint, isSigner: false, isWritable: true },
+        { pubkey: this.tokenProgramId, isSigner: false, isWritable: false },
+        { pubkey: this.dbcMint, isSigner: false, isWritable: true },
         { pubkey: validatorStakePubkey, isSigner: false, isWritable: true },
         { pubkey: treasuryTokenAccount, isSigner: false, isWritable: true },
         { pubkey: authority, isSigner: true, isWritable: false },
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
       ],
-      programId: this.experienceTokenProgramId,
+      programId: this.tokenProgramId,
       data: instructionData.slice(0, offset),
     });
   }
@@ -903,28 +903,28 @@ export class BlockchainService {
   }
 
   /**
-   * Get EXPERIENCE token balance for a wallet
+   * Get DBC token balance for a wallet
    */
-  async getExperienceTokenBalance(walletPubkey: PublicKey): Promise<number> {
+  async getDBCTokenBalance(walletPubkey: PublicKey): Promise<number> {
     try {
       const { getAssociatedTokenAddress } = await import('@solana/spl-token');
       const tokenAccount = await getAssociatedTokenAddress(
-        this.experienceMint,
+        this.dbcMint,
         walletPubkey
       );
 
       const accountInfo = await this.connection.getTokenAccountBalance(tokenAccount);
       return Number(accountInfo.value.uiAmount) || 0;
     } catch (error) {
-      console.error('Error getting EXPERIENCE token balance:', error);
+      console.error('Error getting DBC token balance:', error);
       return 0;
     }
   }
 
   /**
-   * Get EXPERIENCE token transaction history
+   * Get DBC token transaction history
    */
-  async getExperienceTokenTransactions(walletPubkey: PublicKey, limit: number = 10): Promise<Array<{
+  async getDBCTokenTransactions(walletPubkey: PublicKey, limit: number = 10): Promise<Array<{
     signature: string;
     amount: number;
     type: 'reward' | 'stake' | 'slash' | 'transfer';
@@ -951,7 +951,7 @@ export class BlockchainService {
         }
       ];
     } catch (error) {
-      console.error('Error getting EXPERIENCE token transactions:', error);
+      console.error('Error getting DBC token transactions:', error);
       return [];
     }
   }
