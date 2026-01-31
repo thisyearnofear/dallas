@@ -1,20 +1,20 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Mint, MintTo, Burn, Transfer};
 
-declare_id!("7mdSmYYPVfGmbnSRQ7kiwXVW9BHnefKRdZ6PJmwt4fga");
+declare_id!("21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB");
 
 #[program]
-pub mod experience_token {
+pub mod dbc_token {
     use super::*;
 
-    /// Initialize EXPERIENCE token with governance controls
+    /// Initialize DBC token with governance controls
     pub fn initialize_token(
         ctx: Context<InitializeToken>,
         decimals: u8,
     ) -> Result<()> {
         require!(
             decimals >= 6 && decimals <= 9,
-            ExperienceError::InvalidDecimals
+            DbcError::InvalidDecimals
         );
 
         let config = &mut ctx.accounts.token_config;
@@ -51,19 +51,19 @@ pub mod experience_token {
     ) -> Result<()> {
         require!(
             quality_score <= 100,
-            ExperienceError::InvalidQualityScore
+            DbcError::InvalidQualityScore
         );
 
         let config = &mut ctx.accounts.token_config;
         
-        // Dynamic reward based on quality (10-50 EXPERIENCE)
-        let base_reward = 10 * 10u64.pow(6); // 10 EXPERIENCE (6 decimals)
+        // Dynamic reward based on quality (10-50 DBC)
+        let base_reward = 10 * 10u64.pow(6); // 10 DBC (6 decimals)
         let quality_multiplier = (quality_score as u64 * 4) / 100; // 0-4x bonus
         let reward_amount = base_reward + (base_reward * quality_multiplier / 10);
 
         require!(
             config.total_minted + reward_amount <= config.reward_pool_allocation,
-            ExperienceError::RewardPoolDepleted
+            DbcError::RewardPoolDepleted
         );
 
         // Mint to submitter with Privacy Cash shielding if enabled
@@ -113,7 +113,7 @@ pub mod experience_token {
 
         config.total_minted = config.total_minted
             .checked_add(reward_amount)
-            .ok_or(ExperienceError::OverflowError)?;
+            .ok_or(DbcError::OverflowError)?;
 
         emit!(RewardDistributed {
             recipient: ctx.accounts.recipient.key(),
@@ -134,16 +134,16 @@ pub mod experience_token {
     ) -> Result<()> {
         require!(
             accuracy_bonus <= 100,
-            ExperienceError::InvalidAccuracyBonus
+            DbcError::InvalidAccuracyBonus
         );
 
         let config = &mut ctx.accounts.token_config;
         
-        // Base reward: 5 EXPERIENCE per validation
+        // Base reward: 5 DBC per validation
         let base_reward = 5 * 10u64.pow(6);
         let total_base = base_reward
             .checked_mul(validation_count as u64)
-            .ok_or(ExperienceError::OverflowError)?;
+            .ok_or(DbcError::OverflowError)?;
         
         // Accuracy bonus up to 2x
         let bonus_multiplier = (accuracy_bonus as u64 * 100) / 100;
@@ -151,14 +151,14 @@ pub mod experience_token {
 
         require!(
             config.total_minted + reward_amount <= config.validator_allocation,
-            ExperienceError::ValidatorPoolDepleted
+            DbcError::ValidatorPoolDepleted
         );
 
         // Update validator reputation
         let reputation = &mut ctx.accounts.validator_reputation;
         reputation.total_rewards_earned = reputation.total_rewards_earned
             .checked_add(reward_amount)
-            .ok_or(ExperienceError::OverflowError)?;
+            .ok_or(DbcError::OverflowError)?;
         reputation.last_reward_at = Clock::get()?.unix_timestamp;
 
         // Mint rewards privately
@@ -172,7 +172,7 @@ pub mod experience_token {
 
         config.total_minted = config.total_minted
             .checked_add(reward_amount)
-            .ok_or(ExperienceError::OverflowError)?;
+            .ok_or(DbcError::OverflowError)?;
 
         emit!(RewardDistributed {
             recipient: ctx.accounts.validator.key(),
@@ -192,7 +192,7 @@ pub mod experience_token {
     ) -> Result<()> {
         require!(
             amount >= MINIMUM_STAKE,
-            ExperienceError::InsufficientStake
+            DbcError::InsufficientStake
         );
 
         let stake_account = &mut ctx.accounts.stake_account;
@@ -243,11 +243,11 @@ pub mod experience_token {
 
         require!(
             !stake_account.is_frozen,
-            ExperienceError::StakeFrozen
+            DbcError::StakeFrozen
         );
         require!(
             stake_account.unlock_at == 0 || clock.unix_timestamp >= stake_account.unlock_at,
-            ExperienceError::StakeTimelocked
+            DbcError::StakeTimelocked
         );
 
         // Return staked tokens
@@ -278,7 +278,7 @@ pub mod experience_token {
     ) -> Result<()> {
         require!(
             slash_percentage > 0 && slash_percentage <= 100,
-            ExperienceError::InvalidSlashPercentage
+            DbcError::InvalidSlashPercentage
         );
 
         let stake_account = &mut ctx.accounts.stake_account;
@@ -317,11 +317,11 @@ pub mod experience_token {
         // Update accounting
         config.total_burned = config.total_burned
             .checked_add(burn_amount)
-            .ok_or(ExperienceError::OverflowError)?;
+            .ok_or(DbcError::OverflowError)?;
 
         stake_account.amount = stake_account.amount
             .checked_sub(slash_amount)
-            .ok_or(ExperienceError::OverflowError)?;
+            .ok_or(DbcError::OverflowError)?;
 
         emit!(StakeSlashed {
             validator: stake_account.validator,
@@ -342,11 +342,11 @@ pub mod experience_token {
     ) -> Result<()> {
         require!(
             freeze_days > 0 && freeze_days <= 90,
-            ExperienceError::InvalidFreezePeriod
+            DbcError::InvalidFreezePeriod
         );
         require!(
             reason.len() >= 10 && reason.len() <= 200,
-            ExperienceError::InvalidReason
+            DbcError::InvalidReason
         );
 
         let stake_account = &mut ctx.accounts.stake_account;
@@ -374,14 +374,14 @@ pub mod experience_token {
     ) -> Result<()> {
         require!(
             purpose.len() >= 20 && purpose.len() <= 200,
-            ExperienceError::InvalidPurpose
+            DbcError::InvalidPurpose
         );
 
         let _config = &ctx.accounts.token_config;
         
         require!(
             amount <= ctx.accounts.treasury_token_account.amount,
-            ExperienceError::InsufficientTreasuryFunds
+            DbcError::InsufficientTreasuryFunds
         );
 
         // Transfer from treasury
@@ -417,18 +417,18 @@ pub mod experience_token {
         let (agent_pda, _bump) = derive_agent_pda(agent_type, ctx.program_id);
         require!(
             ctx.accounts.agent_authority.key() == agent_pda,
-            ExperienceError::UnauthorizedAgent
+            DbcError::UnauthorizedAgent
         );
 
         require!(
             amount <= MAX_AGENT_REWARD,
-            ExperienceError::ExceedsAgentLimit
+            DbcError::ExceedsAgentLimit
         );
 
         let config = &mut ctx.accounts.token_config;
         require!(
             config.total_minted + amount <= config.max_supply,
-            ExperienceError::ExceedsMaxSupply
+            DbcError::ExceedsMaxSupply
         );
 
         // Mint reward
@@ -442,7 +442,7 @@ pub mod experience_token {
 
         config.total_minted = config.total_minted
             .checked_add(amount)
-            .ok_or(ExperienceError::OverflowError)?;
+            .ok_or(DbcError::OverflowError)?;
 
         emit!(AgentRewardDistributed {
             agent: agent_pda,
@@ -729,7 +729,7 @@ pub struct AgentRewardDistributed {
 // ============= ERRORS =============
 
 #[error_code]
-pub enum ExperienceError {
+pub enum DbcError {
     #[msg("Invalid decimals (must be 6-9)")]
     InvalidDecimals,
     #[msg("Invalid quality score")]
@@ -768,8 +768,8 @@ pub enum ExperienceError {
 
 // ============= CONSTANTS =============
 
-pub const MINIMUM_STAKE: u64 = 10_000_000; // 10 EXPERIENCE (6 decimals)
-pub const MAX_AGENT_REWARD: u64 = 100_000_000; // 100 EXPERIENCE
+pub const MINIMUM_STAKE: u64 = 10_000_000; // 10 DBC (6 decimals)
+pub const MAX_AGENT_REWARD: u64 = 100_000_000; // 100 DBC
 
 // ============= HELPER FUNCTIONS =============
 

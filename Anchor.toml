@@ -7,15 +7,15 @@ skip-lint = false
 
 [programs.devnet]
 case_study = "EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6"
-experience_token = "7mdSmYYPVfGmbnSRQ7kiwXVW9BHnefKRdZ6PJmwt4fga"
+dbc_token = "21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB"
 
 [programs.testnet]
 case_study = "11111111111111111111111111111111"
-experience_token = "7mdSmYYPVfGmbnSRQ7kiwXVW9BHnefKRdZ6PJmwt4fga"
+dbc_token = "21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB"
 
 [programs.mainnet]
 case_study = "11111111111111111111111111111111"
-experience_token = "7mdSmYYPVfGmbnSRQ7kiwXVW9BHnefKRdZ6PJmwt4fga"
+dbc_token = "21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB"
 
 [provider]
 cluster = "Devnet"

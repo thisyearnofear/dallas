@@ -30,9 +30,9 @@ export const SOLANA_CONFIG = {
     treasuryProgramId: 'C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk', // Deployed on devnet
     membershipProgramId: 'CB6yknfo1cBWhVH2ifkMAS2tKaDa9c9mgRiZpCzHwjzu', // Deployed on devnet
     
-    // Legacy - to be deprecated
-    experienceTokenProgramId: 'E6Cc4TX3H2ikxmmztsvRTB8rrYaiTZdaNFd1PBPWCjE4',
-    experienceMintAddress: 'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm',
+    // DBC Token Program (devnet)
+    dbcTokenProgramIdDevnet: '21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB',
+    dbcMintAddressDevnet: '8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT',
     attentionTokenFactoryProgramId: 'XXXX', // To be deployed
   },
 

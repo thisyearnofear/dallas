@@ -1,5 +1,5 @@
 [package]
-name = "experience-token"
+name = "dbc-token"
 version = "0.1.0"
 edition = "2021"
 
@@ -11,4 +11,4 @@ blake3 = "=1.5.5"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "experience_token"
+name = "dbc_token"

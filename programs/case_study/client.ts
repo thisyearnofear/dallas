@@ -6,43 +6,46 @@
  * 2. Switch to "Client" tab
  * 3. Paste this code
  * 4. Click "Run"
+ * 
+ * Note: SolPG provides these globals: pg.program, pg.wallet, pg.connection
  */
 
-import { BN } from "@coral-xyz/anchor";
-import { PublicKey, SystemProgram } from "@solana/web3.js";
+/// <reference path="../solpg.d.ts" />
 
 // ============================================================================
 // CONFIGURATION - Update these values
 // ============================================================================
 
-const DBC_MINT = "J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump";
-const TREASURY_PROGRAM_ID = "C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk";
+const CASE_STUDY_DBC_MINT = new web3.PublicKey("8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT"); // Devnet DBC
+const CASE_STUDY_TREASURY_PROGRAM = new web3.PublicKey("C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk");
 
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
 
-function getCaseStudyPDA(
-  submitter: PublicKey, 
-  timestamp: number, 
-  programId: PublicKey
-): [PublicKey, number] {
-  return PublicKey.findProgramAddressSync(
+function caseStudyToLeBytes(num, len) {
+  const arr = [];
+  let n = BigInt(num);
+  for (let i = 0; i < len; i++) {
+    arr.push(Number(n & BigInt(0xff)));
+    n >>= BigInt(8);
+  }
+  return arr;
+}
+
+function getCaseStudyPDA(submitter, timestamp, programId) {
+  return web3.PublicKey.findProgramAddressSync(
     [
       Buffer.from("case_study"),
       submitter.toBuffer(),
-      Buffer.from(new BN(timestamp).toArray("le", 8))
+      Buffer.from(caseStudyToLeBytes(timestamp, 8))
     ],
     programId
   );
 }
 
-function getValidationPDA(
-  caseStudy: PublicKey,
-  validator: PublicKey,
-  programId: PublicKey
-): [PublicKey, number] {
-  return PublicKey.findProgramAddressSync(
+function getValidationPDA(caseStudy, validator, programId) {
+  return web3.PublicKey.findProgramAddressSync(
     [
       Buffer.from("validation"),
       caseStudy.toBuffer(),
@@ -60,27 +63,25 @@ function getValidationPDA(
  * Submit an encrypted case study
  */
 async function submitCaseStudy(
-  ipfsCid: string,
-  metadataHash: number[], // 32 bytes
-  treatmentCategory: number, // 0=experimental, 1=approved, 2=alternative
-  durationDays: number,
-  proofOfEncryption: number[],
-  lightProtocolProof: number[],
-  compressionRatio: number
+  ipfsCid,
+  metadataHash, // 32 bytes
+  treatmentCategory, // 0=experimental, 1=approved, 2=alternative
+  durationDays,
+  proofOfEncryption,
+  lightProtocolProof,
+  compressionRatio
 ) {
   console.log("=== Submitting Case Study ===");
   
-  const dbcMint = new PublicKey(DBC_MINT);
   const timestamp = Math.floor(Date.now() / 1000);
-  
-  const [caseStudyPDA] = getCaseStudyPDA(wallet.publicKey, timestamp, program.programId);
+  const [caseStudyPDA] = getCaseStudyPDA(pg.wallet.publicKey, timestamp, pg.program.programId);
   
   console.log("Case Study PDA:", caseStudyPDA.toString());
   console.log("IPFS CID:", ipfsCid);
   console.log("Treatment Category:", treatmentCategory);
   console.log("Duration:", durationDays, "days");
   
-  const tx = await program.methods
+  const tx = await pg.program.methods
     .submitEncryptedCaseStudy(
       ipfsCid,
       metadataHash,
@@ -92,9 +93,9 @@ async function submitCaseStudy(
     )
     .accounts({
       caseStudy: caseStudyPDA,
-      submitter: wallet.publicKey,
-      dbcMint: dbcMint,
-      systemProgram: SystemProgram.programId,
+      submitter: pg.wallet.publicKey,
+      dbcMint: CASE_STUDY_DBC_MINT,
+      systemProgram: web3.SystemProgram.programId,
     })
     .rpc();
   
@@ -106,27 +107,27 @@ async function submitCaseStudy(
  * Validate a case study
  */
 async function validateCaseStudy(
-  caseStudyPDA: PublicKey,
-  isApproved: boolean,
-  qualityScore: number, // 0-100
-  commentsHash?: number[] // 32 bytes
+  caseStudyPDA,
+  isApproved,
+  qualityScore, // 0-100
+  commentsHash // 32 bytes (optional)
 ) {
   console.log("=== Validating Case Study ===");
   
-  const [validationPDA] = getValidationPDA(caseStudyPDA, wallet.publicKey, program.programId);
+  const [validationPDA] = getValidationPDA(caseStudyPDA, pg.wallet.publicKey, pg.program.programId);
   
   console.log("Case Study:", caseStudyPDA.toString());
   console.log("Validation PDA:", validationPDA.toString());
   console.log("Approved:", isApproved);
   console.log("Quality Score:", qualityScore);
   
-  const tx = await program.methods
+  const tx = await pg.program.methods
     .validateCaseStudy(isApproved, qualityScore, commentsHash || new Array(32).fill(0))
     .accounts({
       caseStudy: caseStudyPDA,
       validation: validationPDA,
-      validator: wallet.publicKey,
-      systemProgram: SystemProgram.programId,
+      validator: pg.wallet.publicKey,
+      systemProgram: web3.SystemProgram.programId,
     })
     .rpc();
   
@@ -137,9 +138,9 @@ async function validateCaseStudy(
 /**
  * Fetch case study data
  */
-async function getCaseStudy(caseStudyPDA: PublicKey) {
+async function getCaseStudy(caseStudyPDA) {
   try {
-    const data = await program.account.caseStudy.fetch(caseStudyPDA);
+    const data = await pg.program.account.caseStudy.fetch(caseStudyPDA);
     console.log("=== Case Study Data ===");
     console.log("Submitter:", data.submitter.toString());
     console.log("IPFS CID:", data.ipfsCid);
@@ -158,15 +159,15 @@ async function getCaseStudy(caseStudyPDA: PublicKey) {
 /**
  * Fetch validation data
  */
-async function getValidation(validationPDA: PublicKey) {
+async function getValidation(validationPDA) {
   try {
-    const data = await program.account.validation.fetch(validationPDA);
+    const data = await pg.program.account.validation.fetch(validationPDA);
     console.log("=== Validation Data ===");
     console.log("Case Study:", data.caseStudy.toString());
     console.log("Validator:", data.validator.toString());
     console.log("Approved:", data.isApproved);
     console.log("Quality Score:", data.qualityScore);
-    console.log("Timestamp:", new Date(data.timestamp.toNumber() * 1000).toISOString());
+    console.log("Timestamp:", new Date(Number(data.timestamp) * 1000).toISOString());
     return data;
   } catch (e) {
     console.log("Validation not found");
@@ -178,12 +179,13 @@ async function getValidation(validationPDA: PublicKey) {
 // MAIN - Uncomment the function you want to run
 // ============================================================================
 
-async function main() {
-  console.log("Program ID:", program.programId.toString());
-  console.log("Wallet:", wallet.publicKey.toString());
-  
-  // Uncomment ONE of these:
-  
+console.log("🚀 Case Study Program Client");
+console.log("Program ID:", pg.program.programId.toString());
+console.log("Wallet:", pg.wallet.publicKey.toString());
+
+// Uncomment ONE of these inside the run() function:
+
+async function runCaseStudy() {
   // 1. Submit case study
   // await submitCaseStudy(
   //   "QmExample123456789", // IPFS CID
@@ -194,19 +196,19 @@ async function main() {
   //   new Array(128).fill(3), // light protocol proof
   //   10 // compression ratio
   // );
-  
+
   // 2. Validate case study
   // await validateCaseStudy(
-  //   new PublicKey("CASE_STUDY_PDA"),
+  //   new web3.PublicKey("CASE_STUDY_PDA"),
   //   true, // approved
   //   85 // quality score
   // );
-  
+
   // 3. Fetch case study
-  // await getCaseStudy(new PublicKey("CASE_STUDY_PDA"));
-  
+  // await getCaseStudy(new web3.PublicKey("CASE_STUDY_PDA"));
+
   // 4. Fetch validation
-  // await getValidation(new PublicKey("VALIDATION_PDA"));
+  // await getValidation(new web3.PublicKey("VALIDATION_PDA"));
 }
 
-main().catch(console.error);
+runCaseStudy().catch(console.error);
