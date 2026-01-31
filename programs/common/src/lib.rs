@@ -19,7 +19,8 @@ pub const TOKEN_2022_PROGRAM_ID: &str = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpP
 // ============= PROGRAM IDS =============
 
 /// Treasury Program (deployed via SolPG)
-pub const TREASURY_PROGRAM_ID: &str = "Treasu1ryDBCpRoGramJ4q4vfHwe57x7hRjcQMJfV3Y";
+// Treasury program ID - replace with actual deployed program ID
+pub const TREASURY_PROGRAM_ID: &str = "11111111111111111111111111111111";
 
 /// Case Study Program
 pub const CASE_STUDY_PROGRAM_ID: &str = "EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6";

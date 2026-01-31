@@ -173,7 +173,7 @@ export function WalletProvider({ children }: { children: any }) {
       if (provider) {
         try {
           const response = await provider.connect({ onlyIfTrusted: true });
-          setPublicKey(response.publicKey);
+          setPublicKey(new PublicKey(response.publicKey.toString()));
           setConnected(true);
         } catch (err) {
           console.error('Auto connection failed:', err);
@@ -188,10 +188,18 @@ export function WalletProvider({ children }: { children: any }) {
     const provider = getProvider();
     if (!provider) return;
 
-    const onAccountChanged = (newPublicKey: PublicKey | null) => {
+    const onAccountChanged = (newPublicKey: any) => {
       if (newPublicKey) {
-        setPublicKey(newPublicKey);
-        setConnected(true);
+        try {
+          // Phantom may return a string or object, ensure it's a valid PublicKey
+          const pubkeyStr = newPublicKey.toString ? newPublicKey.toString() : newPublicKey;
+          setPublicKey(new PublicKey(pubkeyStr));
+          setConnected(true);
+        } catch (err) {
+          console.error('Invalid public key from wallet:', err);
+          setPublicKey(null);
+          setConnected(false);
+        }
       } else {
         setPublicKey(null);
         setConnected(false);
@@ -241,7 +249,7 @@ export function WalletProvider({ children }: { children: any }) {
       // Check if wallet is already connected
       if (provider.connect) {
         const response = await provider.connect();
-        setPublicKey(response.publicKey);
+        setPublicKey(new PublicKey(response.publicKey.toString()));
         setConnected(true);
       }
     } catch (error: any) {

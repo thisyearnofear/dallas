@@ -22,7 +22,8 @@ use dbc_common::{
     SECONDS_PER_DAY,
 };
 
-declare_id!("Treasu1ryDBCpRoGramJ4q4vfHwe57x7hRjcQMJfV3Y");
+// Replace with your deployed program ID
+// declare_id!("YourDeployedProgramIdHere");
 
 #[program]
 pub mod dbc_treasury {

@@ -27,7 +27,8 @@ const TIER_MAP: Record<number, MembershipTier> = {
   2: 'gold',
 };
 
-const PROGRAM_ID = new PublicKey('Memb3rsh1pDBCpRoGramJ4q4vfHwe57x7hRjcQMJfV3Y');
+// Program ID for membership program (replace with actual deployed program ID)
+const PROGRAM_ID = new PublicKey('11111111111111111111111111111111'); // Placeholder - replace after deployment
 
 export class MembershipService {
   private program: Program<Membership>;

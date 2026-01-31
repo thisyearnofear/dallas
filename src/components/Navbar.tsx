@@ -20,7 +20,7 @@ export function Navbar() {
 
     return (
         <nav class={`
-            transition-all duration-300 pt-3 border-r-2 border-r-gray-dark box-border bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800
+            hidden lg:block transition-all duration-300 pt-3 border-r-2 border-r-gray-dark box-border bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800
             ${isCollapsed ? 'w-16' : 'w-72'}
         `}>
             {/* Collapse Toggle */}

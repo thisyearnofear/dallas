@@ -7,7 +7,8 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Mint, MintTo};
 use dbc_common::{ValidatorTier, STAKING_CONFIG};
 
-declare_id!("Memb3rsh1pDBCpRoGramJ4q4vfHwe57x7hRjcQMJfV3Y");
+// Replace with your deployed program ID
+// declare_id!("YourDeployedProgramIdHere");
 
 #[program]
 pub mod membership {

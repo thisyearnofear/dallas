@@ -88,10 +88,8 @@ export function App() {
 
                     <Header />
                     <div class="flex flex-1 relative items-stretch">
-                        {/* Desktop Navbar - hidden on mobile */}
-                        <div class="hidden lg:block">
-                            <Navbar />
-                        </div>
+                        {/* Desktop Navbar - only render on large screens */}
+                        <Navbar />
                         
                         {/* Mobile Bottom Navigation */}
                         <MobileNav />

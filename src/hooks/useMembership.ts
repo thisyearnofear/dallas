@@ -26,14 +26,27 @@ export function useMembership(): UseMembershipReturn {
       return;
     }
 
+    // Skip if signTransaction is not available (read-only mode not supported by AnchorProvider)
+    if (!signTransaction) {
+      setMembership(null);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
       // Create a minimal provider for read-only operations
+      // Need to provide a valid signer interface
+      const mockWallet = {
+        publicKey,
+        signTransaction: async (tx: any) => tx,
+        signAllTransactions: async (txs: any[]) => txs,
+      };
+      
       const provider = new AnchorProvider(
         connection,
-        { publicKey, signTransaction: async (tx) => tx } as any,
+        mockWallet as any,
         { commitment: 'confirmed' }
       );
 
@@ -47,7 +60,7 @@ export function useMembership(): UseMembershipReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [publicKey, connection]);
+  }, [publicKey, connection, signTransaction]);
 
   useEffect(() => {
     fetchMembership();
