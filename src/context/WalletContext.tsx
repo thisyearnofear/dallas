@@ -153,7 +153,8 @@ export function WalletProvider({ children }: { children: any }) {
             setConnected(true);
           }
         } catch (err) {
-          console.error('Auto connection failed:', err);
+          // Auto-connection expected to fail if user hasn't trusted the site
+          console.log('Auto connection skipped:', err instanceof Error ? err.message : 'Wallet not trusted');
         }
       }
     };
