@@ -8,16 +8,11 @@
  * 4. Click "Run"
  */
 
-import { BN } from "@coral-xyz/anchor";
-import { PublicKey, SystemProgram } from "@solana/web3.js";
-
 // ============================================================================
-// CONFIGURATION - These are already set for your deployment
+// CONFIGURATION
 // ============================================================================
 
 const DBC_MINT = "J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump";
-
-// The treasury token account that was just created
 const TREASURY_TOKEN_ACCOUNT = "Eh8r4ybgRsLZjtR2MhUfEtEtMb1eRPjQx7kfYw6U6L8C";
 
 // ============================================================================
@@ -26,72 +21,64 @@ const TREASURY_TOKEN_ACCOUNT = "Eh8r4ybgRsLZjtR2MhUfEtEtMb1eRPjQx7kfYw6U6L8C";
 
 async function initializeTreasury() {
   console.log("🚀 Initializing Treasury Program");
-  console.log("Program ID:", program.programId.toString());
-  console.log("Wallet:", wallet.publicKey.toString());
   
-  const dbcMint = new PublicKey(DBC_MINT);
+  // SolPG provides these globals: pg.program, pg.wallet, pg.connection
+  const dbcMint = new pg.web3.PublicKey(DBC_MINT);
   
   // Get treasury PDA
-  const [treasuryPDA] = PublicKey.findProgramAddressSync(
+  const [treasuryPDA] = pg.web3.PublicKey.findProgramAddressSync(
     [Buffer.from("treasury"), dbcMint.toBuffer()],
-    program.programId
+    pg.program.programId
   );
   
-  console.log("\n=== Accounts ===");
+  console.log("Program ID:", pg.program.programId.toString());
+  console.log("Wallet:", pg.wallet.publicKey.toString());
   console.log("Treasury PDA:", treasuryPDA.toString());
-  console.log("DBC Mint:", dbcMint.toString());
   console.log("Token Account:", TREASURY_TOKEN_ACCOUNT);
-  console.log("Governance:", wallet.publicKey.toString());
   
   // Treasury configuration
   const config = {
-    baseSubmissionReward: new BN(10_000_000),      // 10 DBC
-    baseValidationReward: new BN(5_000_000),       // 5 DBC
-    qualityBonusPercent: new BN(50),               // 50%
-    maxDailyCaseStudyRewards: new BN(1_000_000_000), // 1000 DBC/day
-    maxDailyValidationRewards: new BN(500_000_000),  // 500 DBC/day
+    baseSubmissionReward: new pg.BN(10_000_000),      // 10 DBC
+    baseValidationReward: new pg.BN(5_000_000),       // 5 DBC
+    qualityBonusPercent: new pg.BN(50),               // 50%
+    maxDailyCaseStudyRewards: new pg.BN(1_000_000_000), // 1000 DBC/day
+    maxDailyValidationRewards: new pg.BN(500_000_000),  // 500 DBC/day
     stakeLockDays: 7,
-    minValidatorStake: new BN(100_000_000),        // 100 DBC
+    minValidatorStake: new pg.BN(100_000_000),        // 100 DBC
     paused: false,
   };
   
-  console.log("\n=== Configuration ===");
-  console.log("Base Submission Reward:", config.baseSubmissionReward.toNumber() / 1_000_000, "DBC");
-  console.log("Base Validation Reward:", config.baseValidationReward.toNumber() / 1_000_000, "DBC");
-  console.log("Quality Bonus:", config.qualityBonusPercent.toString(), "%");
-  console.log("Max Daily Case Study Rewards:", config.maxDailyCaseStudyRewards.toNumber() / 1_000_000, "DBC");
-  console.log("Max Daily Validation Rewards:", config.maxDailyValidationRewards.toNumber() / 1_000_000, "DBC");
-  console.log("Stake Lock Days:", config.stakeLockDays);
-  console.log("Min Validator Stake:", config.minValidatorStake.toNumber() / 1_000_000, "DBC");
-  console.log("Paused:", config.paused);
+  console.log("\nConfiguration:");
+  console.log("- Submission Reward:", config.baseSubmissionReward.toNumber() / 1_000_000, "DBC");
+  console.log("- Validation Reward:", config.baseValidationReward.toNumber() / 1_000_000, "DBC");
+  console.log("- Stake Lock:", config.stakeLockDays, "days");
   
-  console.log("\n=== Sending Transaction... ===");
+  console.log("\nSending transaction...");
   
   try {
-    const tx = await program.methods
+    const tx = await pg.program.methods
       .initializeTreasury(config)
       .accounts({
         treasury: treasuryPDA,
         dbcMint: dbcMint,
-        treasuryTokenAccount: new PublicKey(TREASURY_TOKEN_ACCOUNT),
-        governanceAuthority: wallet.publicKey,
-        payer: wallet.publicKey,
-        systemProgram: SystemProgram.programId,
+        treasuryTokenAccount: new pg.web3.PublicKey(TREASURY_TOKEN_ACCOUNT),
+        governanceAuthority: pg.wallet.publicKey,
+        payer: pg.wallet.publicKey,
+        systemProgram: pg.web3.SystemProgram.programId,
       })
       .rpc();
     
-    console.log("\n✅ Treasury initialized successfully!");
+    console.log("\n✅ Treasury initialized!");
     console.log("Transaction:", tx);
-    console.log("\nExplorer URL:");
-    console.log(`https://explorer.solana.com/tx/${tx}?cluster=devnet`);
+    console.log("Explorer: https://explorer.solana.com/tx/" + tx + "?cluster=devnet");
     
-    return { success: true, tx, treasuryPDA };
+    return { success: true, tx };
     
   } catch (error) {
-    console.error("\n❌ Failed to initialize:", error);
+    console.error("\n❌ Failed:", error);
     throw error;
   }
 }
 
 // Run it
-initializeTreasury().catch(console.error);
+initializeTreasury();
