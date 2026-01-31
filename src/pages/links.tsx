@@ -48,18 +48,21 @@ export function Links() {
             </div>
 
             <div class="grid md:grid-cols-2 gap-8 mb-12">
-                {/* Emergency Support */}
-                <div class="bg-red-50 dark:bg-red-900/20 border-4 border-red-600 p-6 rounded-2xl shadow-lg flex flex-col justify-between">
+                {/* Community Support */}
+                <div class="bg-blue-50 dark:bg-blue-900/20 border-4 border-blue-600 p-6 rounded-2xl shadow-lg flex flex-col justify-between">
                     <div>
-                        <h2 class="text-2xl font-black mb-4 text-red-700 dark:text-red-400 uppercase tracking-tighter">🚨 EMERGENCY SUPPORT</h2>
-                        <div class="bg-white dark:bg-slate-900 border-2 border-red-200 dark:border-red-800 p-6 rounded-xl shadow-inner">
-                            <h3 class="font-black text-red-600 dark:text-red-500 mb-2 uppercase tracking-widest text-sm">Need Help Now?</h3>
+                        <h2 class="text-2xl font-black mb-4 text-blue-700 dark:text-blue-400 uppercase tracking-tighter">🤝 COMMUNITY SUPPORT</h2>
+                        <div class="bg-white dark:bg-slate-900 border-2 border-blue-200 dark:border-blue-800 p-6 rounded-xl shadow-inner">
+                            <h3 class="font-black text-blue-600 dark:text-blue-500 mb-2 uppercase tracking-widest text-sm">Connect With Others</h3>
                             <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-6 leading-relaxed">
-                                24/7 emergency support for club members. When the system fails you, we're here to fight for your right to live.
+                                Join our community forums and connect with others on similar wellness journeys. Share experiences and find support.
                             </p>
-                            <button class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-4 px-6 rounded-lg transition-all transform hover:scale-105 shadow-md uppercase tracking-widest text-xs">
-                                EMERGENCY CONTACT
-                            </button>
+                            <a 
+                                href="/experiences"
+                                class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 px-6 rounded-lg transition-all transform hover:scale-105 shadow-md uppercase tracking-widest text-xs text-center"
+                            >
+                                🌐 Explore Communities
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -70,18 +73,24 @@ export function Links() {
                         <h2 class="text-2xl font-black mb-4 text-orange-700 dark:text-orange-400 uppercase tracking-tighter">💯 SPREAD THE WORD</h2>
                         <div class="bg-white dark:bg-slate-900 border-2 border-orange-200 dark:border-orange-800 p-6 rounded-xl shadow-inner">
                             <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-6 leading-relaxed">
-                                Help others find hope. Share our mission with those who need it most. Every referral is a life potentially saved.
+                                Help others find hope. Share our mission with those who need it most. Every referral earns you DBC rewards.
                             </p>
                             <div class="grid grid-cols-2 gap-4">
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-4 rounded-lg transition-all transform hover:scale-105 shadow-md uppercase tracking-tighter text-[10px]">
-                                    📱 Share Story
-                                </button>
-                                <button class="bg-green-600 hover:bg-green-700 text-white font-black py-3 px-4 rounded-lg transition-all transform hover:scale-105 shadow-md uppercase tracking-tighter text-[10px]">
-                                    📧 Invite Friend
-                                </button>
+                                <a 
+                                    href="/referrals"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-4 rounded-lg transition-all transform hover:scale-105 shadow-md uppercase tracking-tighter text-[10px] text-center"
+                                >
+                                    📱 Share & Earn
+                                </a>
+                                <a 
+                                    href="/testimonials"
+                                    class="bg-green-600 hover:bg-green-700 text-white font-black py-3 px-4 rounded-lg transition-all transform hover:scale-105 shadow-md uppercase tracking-tighter text-[10px] text-center"
+                                >
+                                    📖 Read Stories
+                                </a>
                             </div>
-                            <div class="mt-4 text-[10px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-widest text-center animate-pulse">
-                                🎁 Share and get exclusive access
+                            <div class="mt-4 text-[10px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-widest text-center">
+                                🎁 Earn DBC for every friend who joins
                             </div>
                         </div>
                     </div>

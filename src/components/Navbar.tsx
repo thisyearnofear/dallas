@@ -1,5 +1,7 @@
 import { meta } from "./constants";
 import { useState } from "preact/hooks";
+import { useWallet } from "../context/WalletContext";
+import { useMembership } from "../hooks/useMembership";
 
 const navigationItems = [
     { href: "/", label: "Home", icon: "🏠", description: "Welcome to the club" },
@@ -13,6 +15,8 @@ const navigationItems = [
 
 export function Navbar() {
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const { connected, dbcBalance, reputationTier } = useWallet();
+    const { membership, hasMembership, tier } = useMembership();
 
     return (
         <nav class={`
@@ -73,29 +77,58 @@ export function Navbar() {
                 ))}
             </ul>
 
-            {/* Quick Stats */}
-            {!isCollapsed && (
+            {/* Quick Stats - Real Data */}
+            {!isCollapsed && connected && (
                 <div class="mt-8 px-4">
                     <div class="bg-gradient-to-br from-brand/10 to-brand/5 p-4 rounded-lg border border-brand/20">
                         <h3 class="font-bold text-brand mb-3 text-sm">🔥 Your Stats</h3>
                         <div class="space-y-2 text-xs">
                             <div class="flex justify-between">
-                                <span class="text-gray-600 dark:text-gray-400">Level:</span>
-                                <span class="font-bold text-brand dark:text-blue-400">3</span>
+                                <span class="text-gray-600 dark:text-gray-400">DBC Balance:</span>
+                                <span class="font-bold text-brand dark:text-blue-400">{dbcBalance.toLocaleString()}</span>
                             </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600 dark:text-gray-400">Achievements:</span>
-                                <span class="font-bold text-brand dark:text-blue-400">5/15</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600 dark:text-gray-400">Referrals:</span>
-                                <span class="font-bold text-brand dark:text-blue-400">2</span>
-                            </div>
+                            {hasMembership && tier && (
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Membership:</span>
+                                    <span class="font-bold text-brand dark:text-blue-400 capitalize">{tier}</span>
+                                </div>
+                            )}
+                            {reputationTier && (
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Validator Tier:</span>
+                                    <span class="font-bold text-brand dark:text-blue-400">{reputationTier}</span>
+                                </div>
+                            )}
                         </div>
-                        <div class="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                            <div class="bg-brand rounded-full h-2 w-3/4 transition-all duration-500"></div>
-                        </div>
-                        <p class="text-xs text-gray-600 dark:text-gray-400 mt-2">83% to Level 4</p>
+                        
+                        {/* Membership Progress */}
+                        {hasMembership && membership && (
+                            <div class="mt-3">
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-gray-600 dark:text-gray-400">Membership Expires:</span>
+                                    <span class="font-bold text-brand">
+                                        {Math.ceil((membership.expiresAt.getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days
+                                    </span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                    <div 
+                                        class="bg-brand rounded-full h-2 transition-all duration-500"
+                                        style={{ width: `${Math.max(0, Math.min(100, ((membership.expiresAt.getTime() - Date.now()) / (365 * 24 * 60 * 60 * 1000)) * 100))}%` }}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Connect Wallet CTA */}
+            {!isCollapsed && !connected && (
+                <div class="mt-8 px-4">
+                    <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                        <p class="text-xs text-yellow-800 dark:text-yellow-300 mb-2">
+                            Connect your wallet to see your stats
+                        </p>
                     </div>
                 </div>
             )}
@@ -112,16 +145,16 @@ export function Navbar() {
                 </div>
             )}
 
-            {/* Emergency Contact */}
+            {/* Support Link */}
             {!isCollapsed && (
                 <div class="mt-4 px-4 pb-4">
-                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 p-3 rounded-lg">
-                        <div class="text-red-800 dark:text-red-300 text-xs font-semibold mb-1">🚨 Need Help?</div>
-                        <div class="text-red-700 dark:text-red-400 text-xs">24/7 support available</div>
-                        <button class="mt-2 text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors">
-                            Contact Now
-                        </button>
-                    </div>
+                    <a 
+                        href="/links"
+                        class="block bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 p-3 rounded-lg transition-colors"
+                    >
+                        <div class="text-slate-800 dark:text-slate-300 text-xs font-semibold mb-1">📚 Resources</div>
+                        <div class="text-slate-600 dark:text-slate-400 text-xs">Guides & support</div>
+                    </a>
                 </div>
             )}
         </nav>

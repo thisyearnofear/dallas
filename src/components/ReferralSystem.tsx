@@ -1,13 +1,6 @@
-import { useState } from "preact/hooks";
-
-interface Referral {
-    id: string;
-    name: string;
-    status: 'pending' | 'joined' | 'active';
-    joinedDate?: string;
-    reward: string;
-    icon: string;
-}
+import { useState, useEffect, useCallback } from "preact/hooks";
+import { useWallet } from "../context/WalletContext";
+import { useMembership } from "../hooks/useMembership";
 
 interface ReferralReward {
     level: number;
@@ -16,83 +9,91 @@ interface ReferralReward {
     rewards: string[];
     icon: string;
     unlocked: boolean;
+    dbcBonus: number; // Real DBC token bonus
 }
 
-const referralRewards: ReferralReward[] = [
+const REFERRAL_REWARDS: ReferralReward[] = [
     {
         level: 1,
         referralsNeeded: 1,
         title: "Hope Spreader",
-        rewards: ["+500 XP", "Special Badge", "Priority Support"],
+        rewards: ["100 DBC Bonus", "Referral Badge", "Priority Support"],
         icon: "📢",
-        unlocked: true
+        unlocked: true,
+        dbcBonus: 100,
     },
     {
         level: 2,
         referralsNeeded: 3,
         title: "Community Builder",
-        rewards: ["+1000 XP", "Exclusive Access", "Featured Profile"],
+        rewards: ["250 DBC Bonus", "Member Discount", "Featured Profile"],
         icon: "🏗️",
-        unlocked: false
+        unlocked: false,
+        dbcBonus: 250,
     },
     {
         level: 3,
         referralsNeeded: 5,
         title: "Network Champion",
-        rewards: ["+2000 XP", "Early Product Access", "VIP Status"],
+        rewards: ["500 DBC Bonus", "Early Access", "VIP Status"],
         icon: "🌟",
-        unlocked: false
+        unlocked: false,
+        dbcBonus: 500,
     },
     {
         level: 4,
         referralsNeeded: 10,
         title: "Revolution Leader",
-        rewards: ["+5000 XP", "Co-founder Recognition", "Special Powers"],
+        rewards: ["1000 DBC Bonus", "Founder Badge", "Governance Rights"],
         icon: "👑",
-        unlocked: false
-    }
+        unlocked: false,
+        dbcBonus: 1000,
+    },
 ];
 
-const myReferrals: Referral[] = [
-    {
-        id: "1",
-        name: "Patient #069",
-        status: "active",
-        joinedDate: "3 days ago",
-        reward: "+500 XP",
-        icon: "💪"
-    },
-    {
-        id: "2", 
-        name: "Hope Seeker",
-        status: "joined",
-        joinedDate: "1 week ago",
-        reward: "+300 XP",
-        icon: "🤝"
-    },
-    {
-        id: "3",
-        name: "Fighter Mom",
-        status: "pending",
-        reward: "Pending...",
-        icon: "⏳"
-    }
-];
+// Generate referral code from wallet address
+function generateReferralCode(address: string): string {
+    const prefix = "DBC";
+    const suffix = address.slice(-6).toUpperCase();
+    return `${prefix}${suffix}`;
+}
 
 export function ReferralSystem() {
+    const { publicKey } = useWallet();
+    const { membership, hasMembership } = useMembership();
+    
     const [selectedMethod, setSelectedMethod] = useState<'link' | 'email' | 'social'>('link');
-    const [referralCode] = useState("HOPE420");
+    const [referralCode, setReferralCode] = useState<string>("");
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState("");
     const [showSuccess, setShowSuccess] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
+    const [referralCount, setReferralCount] = useState(0);
 
-    const totalReferrals = myReferrals.filter(r => r.status !== 'pending').length;
-    const currentLevel = referralRewards.findIndex(r => r.referralsNeeded > totalReferrals);
-    const nextReward = referralRewards[currentLevel] || referralRewards[referralRewards.length - 1];
+    // Generate referral code from wallet
+    useEffect(() => {
+        if (publicKey) {
+            setReferralCode(generateReferralCode(publicKey.toString()));
+        }
+    }, [publicKey]);
 
-    const shareText = `💊 Join me in the Dallas Buyers Club - fighting for access to life-saving treatments. Use my code ${referralCode} and let's change the system together. #DallasBuyersClub #FightForHope`;
+    // Load referral count from localStorage (in production, this would be from the blockchain)
+    useEffect(() => {
+        if (publicKey) {
+            const stored = localStorage.getItem(`referrals_${publicKey.toString()}`);
+            if (stored) {
+                setReferralCount(parseInt(stored, 10));
+            }
+        }
+    }, [publicKey]);
 
-    const handleShare = async (platform: string) => {
+    const currentLevel = REFERRAL_REWARDS.findIndex(r => r.referralsNeeded > referralCount) || REFERRAL_REWARDS.length;
+    const nextReward = REFERRAL_REWARDS[currentLevel] || REFERRAL_REWARDS[REFERRAL_REWARDS.length - 1];
+    const progressPercent = Math.min((referralCount / nextReward.referralsNeeded) * 100, 100);
+
+    const shareText = `Join me in the Dallas Buyers Club - a community fighting for health sovereignty through decentralized wellness protocols. Use my code ${referralCode} and let's change the system together. #DallasBuyersClub #HealthSovereignty`;
+
+    const handleShare = useCallback(async (platform: string) => {
         const url = `${window.location.origin}?ref=${referralCode}`;
         
         switch (platform) {
@@ -103,22 +104,50 @@ export function ReferralSystem() {
                 window.open(`https://facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`);
                 break;
             case 'copy':
-                navigator.clipboard.writeText(`${shareText} ${url}`);
+                await navigator.clipboard.writeText(`${shareText} ${url}`);
+                setSuccessMessage("Link copied to clipboard!");
                 setShowSuccess(true);
                 setTimeout(() => setShowSuccess(false), 3000);
                 break;
         }
-    };
+    }, [referralCode, shareText]);
 
-    const sendEmail = () => {
+    const sendEmail = useCallback(() => {
         if (!email) return;
         
-        // Simulate sending email
+        // In production, this would call an API to send the email
+        // For now, we open the user's email client
+        const subject = encodeURIComponent("Join me in the Dallas Buyers Club");
+        const body = encodeURIComponent(
+            `${message || shareText}\n\nUse my referral code: ${referralCode}\nJoin at: ${window.location.origin}?ref=${referralCode}`
+        );
+        window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+        
+        setSuccessMessage("Email client opened!");
         setShowSuccess(true);
         setEmail("");
         setMessage("");
         setTimeout(() => setShowSuccess(false), 3000);
-    };
+    }, [email, message, referralCode, shareText]);
+
+    // Calculate total DBC earned
+    const totalDbcEarned = REFERRAL_REWARDS
+        .filter(r => referralCount >= r.referralsNeeded)
+        .reduce((sum, r) => sum + r.dbcBonus, 0);
+
+    if (!publicKey) {
+        return (
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 p-8 rounded-2xl text-center">
+                    <div class="text-5xl mb-4">🔐</div>
+                    <h2 class="text-2xl font-bold text-yellow-800 dark:text-yellow-300 mb-2">Connect Your Wallet</h2>
+                    <p class="text-yellow-700 dark:text-yellow-400">
+                        Connect your wallet to access your referral code and track your rewards.
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div class="max-w-4xl mx-auto space-y-6">
@@ -127,7 +156,7 @@ export function ReferralSystem() {
                 <div class="bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-300 px-4 py-3 rounded-lg animate-fadeIn shadow-sm">
                     <div class="flex items-center gap-2">
                         <span class="text-xl">✅</span>
-                        <span class="font-bold">Shared successfully! Keep spreading hope.</span>
+                        <span class="font-bold">{successMessage}</span>
                     </div>
                 </div>
             )}
@@ -138,15 +167,38 @@ export function ReferralSystem() {
                     <div>
                         <h1 class="text-3xl font-bold mb-2">🤝 Spread Hope</h1>
                         <p class="text-white/90 text-lg">
-                            Help others find the treatments they need. Every referral saves lives.
+                            Help others find the treatments they need. Earn DBC for every friend who joins.
                         </p>
                     </div>
-                    <div class="text-center bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30 min-w-[120px]">
-                        <div class="text-4xl font-bold">{totalReferrals}</div>
-                        <div class="text-sm font-bold opacity-90 uppercase tracking-wider">People Helped</div>
+                    <div class="flex gap-4">
+                        <div class="text-center bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30 min-w-[120px]">
+                            <div class="text-4xl font-bold">{referralCount}</div>
+                            <div class="text-sm font-bold opacity-90 uppercase tracking-wider">People Helped</div>
+                        </div>
+                        <div class="text-center bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30 min-w-[120px]">
+                            <div class="text-4xl font-bold">{totalDbcEarned}</div>
+                            <div class="text-sm font-bold opacity-90 uppercase tracking-wider">DBC Earned</div>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            {/* Membership Bonus Banner */}
+            {hasMembership && membership && (
+                <div class="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-2xl border border-purple-200 dark:border-purple-800">
+                    <div class="flex items-center gap-4">
+                        <div class="text-3xl">🌟</div>
+                        <div>
+                            <h3 class="font-bold text-purple-900 dark:text-purple-300">
+                                {membership.tier.charAt(0).toUpperCase() + membership.tier.slice(1)} Member Bonus
+                            </h3>
+                            <p class="text-sm text-purple-700 dark:text-purple-400">
+                                As a {membership.tier} member, you earn <strong>2x DBC</strong> on all referrals!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Referral Progress */}
             <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
@@ -156,26 +208,26 @@ export function ReferralSystem() {
                 <div class="mb-8">
                     <div class="flex justify-between text-sm font-bold text-slate-600 dark:text-slate-400 mb-3">
                         <span>Progress to {nextReward.title}</span>
-                        <span>{totalReferrals}/{nextReward.referralsNeeded} referrals</span>
+                        <span>{referralCount}/{nextReward.referralsNeeded} referrals</span>
                     </div>
                     <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-4 shadow-inner">
                         <div 
                             class="bg-gradient-to-r from-brand to-brand-accent rounded-full h-4 transition-all duration-700 shadow-sm"
-                            style={{ width: `${Math.min((totalReferrals / nextReward.referralsNeeded) * 100, 100)}%` }}
-                        ></div>
+                            style={{ width: `${progressPercent}%` }}
+                        />
                     </div>
                 </div>
 
                 {/* Reward Levels */}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {referralRewards.map((reward, index) => (
+                    {REFERRAL_REWARDS.map((reward) => (
                         <div 
                             key={reward.level}
                             class={`
                                 p-5 rounded-xl border-2 transition-all duration-300 transform hover:scale-105
-                                ${totalReferrals >= reward.referralsNeeded 
+                                ${referralCount >= reward.referralsNeeded 
                                     ? 'bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-300 dark:border-green-600 shadow-sm' 
-                                    : totalReferrals >= reward.referralsNeeded - 2
+                                    : referralCount >= reward.referralsNeeded - 2
                                     ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border-yellow-300 dark:border-yellow-600 shadow-sm'
                                     : 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700'
                                 }
@@ -183,11 +235,15 @@ export function ReferralSystem() {
                         >
                             <div class="text-center">
                                 <div class="text-3xl mb-3">{reward.icon}</div>
-                                <h3 class={`font-bold text-sm mb-1 ${totalReferrals >= reward.referralsNeeded ? 'text-green-800 dark:text-green-300' : 'text-slate-900 dark:text-white'}`}>{reward.title}</h3>
-                                <p class={`text-xs mb-3 font-medium ${totalReferrals >= reward.referralsNeeded ? 'text-green-700 dark:text-green-400' : 'text-slate-500 dark:text-slate-400'}`}>{reward.referralsNeeded} referrals</p>
+                                <h3 class={`font-bold text-sm mb-1 ${referralCount >= reward.referralsNeeded ? 'text-green-800 dark:text-green-300' : 'text-slate-900 dark:text-white'}`}>
+                                    {reward.title}
+                                </h3>
+                                <p class={`text-xs mb-3 font-medium ${referralCount >= reward.referralsNeeded ? 'text-green-700 dark:text-green-400' : 'text-slate-500 dark:text-slate-400'}`}>
+                                    {reward.referralsNeeded} referrals
+                                </p>
                                 <div class="space-y-1">
                                     {reward.rewards.map((r, i) => (
-                                        <div key={i} class={`text-[10px] px-2 py-1 rounded font-bold uppercase tracking-tighter ${totalReferrals >= reward.referralsNeeded ? 'bg-white/60 dark:bg-green-800/40 text-green-800 dark:text-green-200' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}`}>
+                                        <div key={i} class={`text-[10px] px-2 py-1 rounded font-bold uppercase tracking-tighter ${referralCount >= reward.referralsNeeded ? 'bg-white/60 dark:bg-green-800/40 text-green-800 dark:text-green-200' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}`}>
                                             {r}
                                         </div>
                                     ))}
@@ -204,7 +260,9 @@ export function ReferralSystem() {
                 <div class="flex items-center gap-4 p-5 bg-white dark:bg-slate-900 rounded-xl border-2 border-blue-200 dark:border-blue-700 shadow-inner">
                     <div class="flex-grow">
                         <div class="font-mono text-3xl font-bold text-brand">{referralCode}</div>
-                        <div class="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">Share this code with friends</div>
+                        <div class="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
+                            Share this code with friends to earn DBC rewards
+                        </div>
                     </div>
                     <button 
                         onClick={() => handleShare('copy')}
@@ -233,8 +291,7 @@ export function ReferralSystem() {
                                 flex-1 py-2.5 px-4 rounded-lg font-bold transition-all duration-300 text-sm flex items-center justify-center gap-2
                                 ${selectedMethod === method.id 
                                     ? 'bg-white dark:bg-slate-700 text-brand shadow-md transform scale-[1.02]' 
-                                    : 'text-slate-500 dark:text-slate-400 hover:text-brand'
-                                }
+                                    : 'text-slate-500 dark:text-slate-400 hover:text-brand'}
                             `}
                         >
                             <span>{method.icon}</span>
@@ -291,7 +348,7 @@ export function ReferralSystem() {
                                 onChange={(e) => setMessage((e.target as HTMLTextAreaElement).value)}
                                 placeholder="Add a personal note about how the club helped you..."
                                 class="w-full p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 focus:border-brand outline-none h-32 resize-none transition-colors shadow-inner text-slate-800 dark:text-slate-200"
-                            ></textarea>
+                            />
                         </div>
                         <button 
                             onClick={sendEmail}
@@ -335,73 +392,31 @@ export function ReferralSystem() {
                 )}
             </div>
 
-            {/* Your Referrals */}
-            <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
-                <h2 class="text-xl font-bold mb-6 text-slate-900 dark:text-white flex items-center gap-2">
-                    <span>👥 Your Referrals</span>
-                    <span class="bg-brand/10 text-brand text-sm px-2 py-0.5 rounded-full">{myReferrals.length}</span>
-                </h2>
-                
-                {myReferrals.length === 0 ? (
-                    <div class="text-center py-12 text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-800/30 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700">
-                        <div class="text-5xl mb-4">🤝</div>
-                        <p class="text-lg font-medium">No referrals yet. Start spreading hope!</p>
+            {/* How It Works */}
+            <div class="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <h2 class="text-xl font-bold mb-6 text-slate-900 dark:text-white">💰 How Referral Rewards Work</h2>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="text-4xl mb-3">1️⃣</div>
+                        <h3 class="font-bold text-slate-900 dark:text-white mb-2">Share Your Code</h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">
+                            Send your unique referral code to friends interested in wellness.
+                        </p>
                     </div>
-                ) : (
-                    <div class="space-y-4">
-                        {myReferrals.map((referral) => (
-                            <div key={referral.id} class="flex items-center justify-between p-5 bg-slate-50 dark:bg-slate-800/40 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-brand/20">
-                                <div class="flex items-center gap-4">
-                                    <div class="text-3xl bg-white dark:bg-slate-700 p-2 rounded-lg shadow-sm">{referral.icon}</div>
-                                    <div>
-                                        <h3 class="font-bold text-slate-900 dark:text-white">{referral.name}</h3>
-                                        <p class="text-sm text-slate-500 dark:text-slate-400">
-                                            {referral.joinedDate ? `Joined ${referral.joinedDate}` : 'Invitation sent'}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-4">
-                                    <span class={`
-                                        px-4 py-1.5 rounded-full text-xs font-bold shadow-sm
-                                        ${referral.status === 'active' ? 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300' :
-                                          referral.status === 'joined' ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300' :
-                                          'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300'}
-                                    `}>
-                                        {referral.status === 'active' ? '✅ Active' :
-                                         referral.status === 'joined' ? '🤝 Joined' :
-                                         '⏳ Pending'}
-                                    </span>
-                                    <span class="text-sm font-bold text-brand">{referral.reward}</span>
-                                </div>
-                            </div>
-                        ))}
+                    <div class="text-center">
+                        <div class="text-4xl mb-3">2️⃣</div>
+                        <h3 class="font-bold text-slate-900 dark:text-white mb-2">They Join</h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">
+                            When they connect their wallet and join a community, you both benefit.
+                        </p>
                     </div>
-                )}
-
-                {/* Referral Tips */}
-                <div class="mt-8 p-6 bg-gradient-to-r from-brand/10 to-brand/5 dark:from-brand/20 dark:to-brand/10 rounded-xl border border-brand/20">
-                    <h3 class="font-bold text-brand mb-3 flex items-center gap-2">
-                        <span>💡</span>
-                        <span>Referral Tips</span>
-                    </h3>
-                    <ul class="text-sm text-slate-700 dark:text-slate-300 space-y-2 font-medium">
-                        <li class="flex items-start gap-2">
-                            <span class="text-brand">•</span>
-                            <span>Share your personal story about how the club helped you</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="text-brand">•</span>
-                            <span>Focus on people who are actively seeking alternative treatments</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="text-brand">•</span>
-                            <span>Be genuine - this isn't about making money, it's about saving lives</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="text-brand">•</span>
-                            <span>Follow up with support after they join</span>
-                        </li>
-                    </ul>
+                    <div class="text-center">
+                        <div class="text-4xl mb-3">3️⃣</div>
+                        <h3 class="font-bold text-slate-900 dark:text-white mb-2">Earn DBC</h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">
+                            Receive DBC tokens directly to your wallet. Use them for membership, staking, or governance.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
