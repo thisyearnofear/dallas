@@ -1,24 +1,26 @@
-// Enhanced Black Market Terminal - ENHANCEMENT FIRST with delightful UX
+// Enhanced Black Market Terminal - IMMERSIVE CINEMATIC EXPERIENCE
 // Following Core Principles: MODULAR, PERFORMANT, CLEAN
 
 import { useState, useEffect, useRef } from "preact/hooks";
-import { DelightfulTypingText, DelightfulActionButton, DelightfulNotification } from "./EnhancedUISystem";
 import { useAgentNetwork } from "../hooks/useAgentNetwork";
+
+// Terminal line type
+type LineType = 'input' | 'output' | 'agent' | 'system' | 'error' | 'success' | 'warning';
+
+interface TerminalLine {
+  text: string;
+  type: LineType;
+  delay?: number;
+}
 
 export function EnhancedBlackMarketTerminal() {
   const [input, setInput] = useState("");
-  const [history, setHistory] = useState<Array<{text: string; type: 'input' | 'output' | 'agent' | 'system'}>>([
-    { text: "DALLAS IDENTITY CLINIC - SECURE TERMINAL v3.0", type: 'system' },
-    { text: "A.I.D.S. Treatment Network - MCP Agent Enhanced", type: 'system' },
-    { text: "Autonomous agents standing by...", type: 'agent' },
-    { text: "Type 'help' for available commands", type: 'output' },
-    { text: "", type: 'output' }
-  ]);
-  
+  const [history, setHistory] = useState<TerminalLine[]>([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showBootSequence, setShowBootSequence] = useState(true);
   const [agentSuggestions, setAgentSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [notification, setNotification] = useState<{message: string; type: 'info'|'success'|'warning'|'error'} | null>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
   
   const { 
@@ -30,330 +32,438 @@ export function EnhancedBlackMarketTerminal() {
     isCoordinating
   } = useAgentNetwork();
 
-  // PERFORMANT: Auto-scroll to bottom
+  // Boot sequence on mount
+  useEffect(() => {
+    const bootSequence: TerminalLine[] = [
+      { text: "", type: 'system' },
+      { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
+      { text: "║     DALLAS IDENTITY CLINIC - SECURE TERMINAL v2.1            ║", type: 'system' },
+      { text: "║     A.I.D.S. Treatment Network - Autonomous Agent Enhanced   ║", type: 'system' },
+      { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
+      { text: "", type: 'system' },
+      { text: "[SYSTEM] Initializing secure connection...", type: 'agent', delay: 300 },
+      { text: "[SYSTEM] Handshake established. Encryption: AES-256-GCM", type: 'agent', delay: 200 },
+      { text: "[SYSTEM] Agent network status: ONLINE", type: 'agent', delay: 200 },
+      { text: "", type: 'system' },
+      { text: "⚠️  UNAUTHORIZED ACCESS PROHIBITED  ⚠️", type: 'warning' },
+      { text: "", type: 'system' },
+      { text: "Type 'gm' to authenticate or 'help' for available commands...", type: 'output' },
+      { text: "", type: 'output' },
+    ];
+
+    let delay = 0;
+    bootSequence.forEach((line, index) => {
+      delay += line.delay || 50;
+      setTimeout(() => {
+        setHistory(prev => [...prev, line]);
+        if (index === bootSequence.length - 1) {
+          setShowBootSequence(false);
+        }
+      }, delay);
+    });
+  }, []);
+
+  // Auto-scroll to bottom
   useEffect(() => {
     if (terminalRef.current) {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
   }, [history]);
 
-  // ENHANCED: Dynamic agent suggestions based on context
+  // Dynamic agent suggestions
   useEffect(() => {
-    const suggestions = [
-      "status",
+    const baseSuggestions = [
+      "gm",
+      "help",
+      "status", 
       "agents",
-      "threat-level", 
       "treatments",
-      "coordinate emergency-raid",
-      "purchase azt-patch",
-      "restore identity-007",
-      "group-buy peptide-code"
+      "purchase",
+      "coordinate",
+      "threat-level",
     ];
     
-    if (currentDangerLevel > 70) {
-      suggestions.unshift("emergency protocol", "stealth mode");
+    if (isAuthenticated) {
+      baseSuggestions.push("group-buy", "emergency", "stealth", "bypass_auth.exe");
     }
     
-    setAgentSuggestions(suggestions);
-  }, [currentDangerLevel]);
+    if (currentDangerLevel > 70) {
+      baseSuggestions.unshift("emergency");
+    }
+    
+    setAgentSuggestions(baseSuggestions);
+  }, [currentDangerLevel, isAuthenticated]);
 
-  // ENHANCED: Intelligent command processing with agent coordination
+  const addToHistory = (text: string, type: LineType) => {
+    setHistory(prev => [...prev, { text, type }]);
+  };
+
+  const typeLines = async (lines: TerminalLine[]) => {
+    setIsTyping(true);
+    for (const line of lines) {
+      await new Promise(r => setTimeout(r, line.delay || 30));
+      addToHistory(line.text, line.type);
+    }
+    setIsTyping(false);
+  };
+
+  const authenticateUser = async () => {
+    const authSequence: TerminalLine[] = [
+      { text: "", type: 'system' },
+      { text: "⚠️  ACCESS DENIED  ⚠️", type: 'error', delay: 200 },
+      { text: "DALLAS BUYERS CLUB NETWORK", type: 'warning', delay: 100 },
+      { text: "Unauthorized Access Prohibited", type: 'warning', delay: 100 },
+      { text: "", type: 'system', delay: 300 },
+      { text: "[AGENT] Initiating authentication protocol...", type: 'agent', delay: 400 },
+      { text: "[AGENT] Verifying wallet signature...", type: 'agent', delay: 300 },
+      { text: "[AGENT] Scanning biometric hashes...", type: 'agent', delay: 300 },
+      { text: "", type: 'system', delay: 200 },
+      { text: "✅ AUTHENTICATED", type: 'success', delay: 200 },
+      { text: "", type: 'system', delay: 100 },
+      { text: "Welcome to the inner circle, fighter.", type: 'success', delay: 150 },
+      { text: "Identity Scrambled • Access Granted", type: 'agent', delay: 100 },
+      { text: "[ Debug Mode Active ]", type: 'warning', delay: 100 },
+      { text: "", type: 'system' },
+      { text: "Type 'help' to see available commands...", type: 'output' },
+      { text: "", type: 'output' },
+    ];
+    
+    await typeLines(authSequence);
+    setIsAuthenticated(true);
+  };
+
+  const showHelp = async () => {
+    const helpText: TerminalLine[] = isAuthenticated ? [
+      { text: "", type: 'system' },
+      { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
+      { text: "║           DALLAS UNDERGROUND - COMMAND REFERENCE             ║", type: 'system' },
+      { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
+      { text: "", type: 'system' },
+      { text: "AUTHENTICATION:", type: 'warning' },
+      { text: "  gm              - Greet the system / Authenticate", type: 'output' },
+      { text: "  bypass_auth.exe - [DEBUG] Force authentication (dev only)", type: 'output' },
+      { text: "", type: 'system' },
+      { text: "NETWORK STATUS:", type: 'warning' },
+      { text: "  status          - Network and agent status", type: 'output' },
+      { text: "  agents          - Detailed agent information", type: 'output' },
+      { text: "  threat-level    - Current security assessment", type: 'output' },
+      { text: "", type: 'system' },
+      { text: "TREATMENTS:", type: 'warning' },
+      { text: "  treatments      - List available A.I.D.S. treatments", type: 'output' },
+      { text: "  purchase <name> - Acquire treatment via agent network", type: 'output' },
+      { text: "  group-buy <name>- Coordinate bulk purchase", type: 'output' },
+      { text: "", type: 'system' },
+      { text: "OPERATIONS:", type: 'warning' },
+      { text: "  coordinate <op> - Agent coordination for scenarios", type: 'output' },
+      { text: "  emergency       - Activate emergency protocols", type: 'output' },
+      { text: "  stealth         - Enter stealth mode", type: 'output' },
+      { text: "", type: 'system' },
+      { text: "🤖 All commands enhanced with autonomous agent support.", type: 'agent' },
+      { text: "", type: 'output' },
+    ] : [
+      { text: "", type: 'system' },
+      { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
+      { text: "║              PUBLIC ACCESS - LIMITED COMMANDS                ║", type: 'system' },
+      { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
+      { text: "", type: 'system' },
+      { text: "AVAILABLE COMMANDS:", type: 'warning' },
+      { text: "  gm              - Authenticate with the network", type: 'output' },
+      { text: "  help            - Show this help message", type: 'output' },
+      { text: "  status          - Basic network status", type: 'output' },
+      { text: "", type: 'system' },
+      { text: "⚠️  Full access requires authentication.", type: 'warning' },
+      { text: "    Type 'gm' to begin authentication sequence.", type: 'warning' },
+      { text: "", type: 'output' },
+    ];
+    
+    await typeLines(helpText);
+  };
+
   const processCommand = async (command: string) => {
     const cmd = command.toLowerCase().trim();
-    setIsTyping(true);
     
     // Add input to history
     addToHistory(`> ${command}`, 'input');
     
-    let response = "";
-    let responseType: 'output' | 'agent' | 'system' = 'output';
+    // Special commands that work without auth
+    if (cmd === 'gm') {
+      await authenticateUser();
+      return;
+    }
+    
+    if (cmd === 'help') {
+      await showHelp();
+      return;
+    }
+    
+    if (cmd === 'bypass_auth.exe') {
+      await typeLines([
+        { text: "", type: 'system' },
+        { text: "[DEBUG Mode] Force authentication initiated...", type: 'warning', delay: 200 },
+        { text: "⚠️  WARNING: This bypasses security checks", type: 'error', delay: 200 },
+        { text: "", type: 'system', delay: 300 },
+        { text: "✅ AUTHENTICATED (Debug Override)", type: 'success', delay: 200 },
+        { text: "Identity Scrambled • Access Granted", type: 'agent', delay: 100 },
+        { text: "[ Debug Mode Active ]", type: 'warning', delay: 100 },
+        { text: "", type: 'output' },
+      ]);
+      setIsAuthenticated(true);
+      return;
+    }
+    
+    // Require authentication for other commands
+    if (!isAuthenticated) {
+      await typeLines([
+        { text: "", type: 'system' },
+        { text: "⚠️  ACCESS DENIED", type: 'error', delay: 100 },
+        { text: "Authentication required for this command.", type: 'warning', delay: 100 },
+        { text: "Type 'gm' to authenticate.", type: 'output', delay: 100 },
+        { text: "", type: 'output' },
+      ]);
+      return;
+    }
+    
+    // Process authenticated commands
+    setIsTyping(true);
     
     try {
       switch (true) {
-        case cmd === 'help':
-          response = `AVAILABLE COMMANDS:
-• status - Network and agent status
-• agents - Detailed agent information  
-• threat-level - Current security assessment
-• treatments - Available A.I.D.S. treatments
-• coordinate <scenario> - Agent coordination
-• purchase <treatment> - Treatment acquisition
-• restore <patient-id> - Identity restoration
-• group-buy <treatment> - Coordinate group purchase
-• emergency protocol - Emergency response
-• stealth mode - Activate stealth operations
-
-🤖 All commands enhanced with autonomous agent support.`;
-          break;
-
         case cmd === 'status':
-          response = `DALLAS UNDERGROUND NETWORK STATUS:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔒 Network Security: ${100 - currentDangerLevel}%
-🤖 Agent Coordination: ${isCoordinating ? 'ACTIVE' : 'STANDBY'}
-📡 MCP Protocol: ONLINE
-💾 Data Integrity: 98.7%
-👥 Active Members: 47
-🧠 Identity Restorations: 23 in progress
-
-🤖 AGENT STATUS: All systems operational`;
-          responseType = 'agent';
+          await typeLines([
+            { text: "", type: 'system' },
+            { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
+            { text: "║              DALLAS UNDERGROUND NETWORK STATUS               ║", type: 'system' },
+            { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
+            { text: "", type: 'system' },
+            { text: `🔒 Network Security:      ${100 - currentDangerLevel}%`, type: 'output' },
+            { text: `🤖 Agent Coordination:    ${isCoordinating ? 'ACTIVE' : 'STANDBY'}`, type: 'agent' },
+            { text: `📡 MCP Protocol:          ONLINE`, type: 'agent' },
+            { text: `💾 Data Integrity:        98.7%`, type: 'output' },
+            { text: `👥 Active Members:        47`, type: 'output' },
+            { text: `🧠 Identity Restorations: 23 in progress`, type: 'output' },
+            { text: "", type: 'system' },
+            { text: "🤖 AGENT STATUS: All systems operational", type: 'agent' },
+            { text: "", type: 'output' },
+          ]);
           break;
 
         case cmd === 'agents':
-          response = `AUTONOMOUS AGENT NETWORK:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔧 SUPPLY CHAIN AGENT: Monitoring treatment availability
-   └─ Last action: Negotiated 12% price reduction
-   
-🛡️ RISK ASSESSMENT AGENT: Analyzing threat patterns  
-   └─ Current assessment: ${currentDangerLevel}% danger level
-   
-👥 COMMUNITY COORDINATION AGENT: Managing 47 members
-   └─ Active coordination: 3 group purchases pending
-   
-🧠 IDENTITY RESTORATION AGENT: Processing treatments
-   └─ Success rate: 94.3% recovery efficiency
+          await typeLines([
+            { text: "", type: 'system' },
+            { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
+            { text: "║              AUTONOMOUS AGENT NETWORK                        ║", type: 'system' },
+            { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
+            { text: "", type: 'system' },
+            { text: "🔧 SUPPLY CHAIN AGENT", type: 'agent' },
+            { text: "   └─ Monitoring treatment availability", type: 'output' },
+            { text: "   └─ Last action: Negotiated 12% price reduction", type: 'output' },
+            { text: "", type: 'system' },
+            { text: "🛡️  RISK ASSESSMENT AGENT", type: 'agent' },
+            { text: `   └─ Current assessment: ${currentDangerLevel}% danger level`, type: 'output' },
+            { text: "", type: 'system' },
+            { text: "👥 COMMUNITY COORDINATION AGENT", type: 'agent' },
+            { text: "   └─ Managing 47 members", type: 'output' },
+            { text: "   └─ Active coordination: 3 group purchases pending", type: 'output' },
+            { text: "", type: 'system' },
+            { text: "🧠 IDENTITY RESTORATION AGENT", type: 'agent' },
+            { text: "   └─ Success rate: 94.3% recovery efficiency", type: 'output' },
+            { text: "", type: 'system' },
+            { text: "🔗 MCP COORDINATION: Real-time inter-agent communication active", type: 'agent' },
+            { text: "", type: 'output' },
+          ]);
+          break;
 
-🔗 MCP COORDINATION: Real-time inter-agent communication active`;
-          responseType = 'agent';
+        case cmd === 'treatments':
+          await typeLines([
+            { text: "", type: 'system' },
+            { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
+            { text: "║           AVAILABLE A.I.D.S. TREATMENTS                      ║", type: 'system' },
+            { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
+            { text: "", type: 'system' },
+            { text: "💊 AZT Identity Stabilizer", type: 'agent' },
+            { text: "   Price: ₿0.5  |  Effectiveness: 85%", type: 'output' },
+            { text: "", type: 'system' },
+            { text: "🧠 Peptide-T Personality Code", type: 'agent' },
+            { text: "   Price: ₿0.2  |  Effectiveness: 62%", type: 'output' },
+            { text: "", type: 'system' },
+            { text: "💾 DDC Memory Restoration", type: 'agent' },
+            { text: "   Price: ₿0.3  |  Effectiveness: 91%", type: 'output' },
+            { text: "", type: 'system' },
+            { text: "🔬 Interferon Identity Suite", type: 'agent' },
+            { text: "   Price: ₿0.8  |  Effectiveness: 23%", type: 'output' },
+            { text: "", type: 'system' },
+            { text: "🤖 AGENT RECOMMENDATIONS:", type: 'agent' },
+            { text: "   • Most reliable: DDC Memory Restoration", type: 'output' },
+            { text: "   • Most affordable: Peptide-T Personality Code", type: 'output' },
+            { text: "   • Emergency option: AZT Identity Stabilizer", type: 'output' },
+            { text: "", type: 'system' },
+            { text: "Use 'purchase <treatment>' or 'group-buy <treatment>'", type: 'output' },
+            { text: "", type: 'output' },
+          ]);
           break;
 
         case cmd === 'threat-level':
           const assessment = await assessThreatLevel();
-          response = `THREAT ASSESSMENT RESULTS:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🚨 Current Threat Level: ${currentDangerLevel}%
-📊 Confidence: ${assessment.synthesizedThreat?.confidence || 90}%
-
-Corporate AI Activity: ${Math.floor(currentDangerLevel * 0.7)}%
-Network Exposure: ${Math.floor(currentDangerLevel * 0.5)}%
-Supply Chain Risk: ${Math.floor(currentDangerLevel * 0.3)}%
-
-🤖 AGENT RECOMMENDATION: ${
-  currentDangerLevel > 80 ? 'IMMEDIATE ACTION REQUIRED' :
-  currentDangerLevel > 60 ? 'Maintain heightened security' :
-  'Continue normal operations'
-}`;
-          responseType = 'agent';
-          setNotification({
-            message: `Threat assessment complete: ${currentDangerLevel}% danger`,
-            type: currentDangerLevel > 70 ? 'warning' : 'info'
-          });
+          await typeLines([
+            { text: "", type: 'system' },
+            { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
+            { text: "║              THREAT ASSESSMENT RESULTS                       ║", type: 'system' },
+            { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
+            { text: "", type: 'system' },
+            { text: `🚨 Current Threat Level: ${currentDangerLevel}%`, type: currentDangerLevel > 70 ? 'error' : 'warning' },
+            { text: `📊 Confidence: ${assessment.synthesizedThreat?.confidence || 90}%`, type: 'output' },
+            { text: "", type: 'system' },
+            { text: `Corporate AI Activity: ${Math.floor(currentDangerLevel * 0.7)}%`, type: 'output' },
+            { text: `Network Exposure:      ${Math.floor(currentDangerLevel * 0.5)}%`, type: 'output' },
+            { text: `Supply Chain Risk:     ${Math.floor(currentDangerLevel * 0.3)}%`, type: 'output' },
+            { text: "", type: 'system' },
+            { text: `🤖 AGENT RECOMMENDATION: ${
+              currentDangerLevel > 80 ? 'IMMEDIATE ACTION REQUIRED' :
+              currentDangerLevel > 60 ? 'Maintain heightened security' :
+              'Continue normal operations'
+            }`, type: 'agent' },
+            { text: "", type: 'output' },
+          ]);
           break;
 
-        case cmd.startsWith('coordinate '):
-          const scenario = cmd.replace('coordinate ', '');
-          const emergency = await handleEmergencyResponse(scenario);
-          response = `EMERGENCY COORDINATION INITIATED:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🚨 Scenario: ${scenario.toUpperCase()}
-🤖 Agent Response: ALL AGENTS COORDINATED
-⚡ Protocol: Dual-system emergency activation
-📋 Actions: ${scenario === 'emergency-raid' ? 
-  '• Network stealth mode activated\n• Data scatter protocols engaged\n• Member alert system triggered' :
-  '• Standard emergency procedures\n• Agent coordination active\n• Monitoring increased'
-}
-
-Estimated resolution: 2-4 hours`;
-          responseType = 'system';
-          setNotification({
-            message: `Emergency coordination activated: ${scenario}`,
-            type: 'warning'
-          });
+        case cmd === 'emergency':
+          await typeLines([
+            { text: "", type: 'system' },
+            { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
+            { text: "║           🚨 EMERGENCY PROTOCOL ACTIVATED 🚨                 ║", type: 'error' },
+            { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
+            { text: "", type: 'system' },
+            { text: "🚨 ALL AGENTS RESPONDING", type: 'error' },
+            { text: "🔒 Network switching to stealth mode", type: 'warning' },
+            { text: "📡 Backup communication channels active", type: 'agent' },
+            { text: "💾 Critical data protection enabled", type: 'agent' },
+            { text: "👥 Member alert system triggered", type: 'agent' },
+            { text: "", type: 'system' },
+            { text: "Ron Woodroof emergency protocols in effect.", type: 'warning' },
+            { text: "Underground network secured.", type: 'success' },
+            { text: "", type: 'output' },
+          ]);
           break;
 
-        case cmd.startsWith('purchase '):
-          const treatment = cmd.replace('purchase ', '');
-          const purchase = await processIdentityRestoration('user_001', treatment);
-          
-          // Enhanced response based on actual Edenlayer task composition
-          response = `TREATMENT ACQUISITION - EDENLAYER TASK COMPOSITION:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💊 Treatment: ${treatment.toUpperCase()}
-🔗 Edenlayer Workflow: ${purchase.edenlayerTaskId || 'Fallback coordination'}
-🤖 Multi-Agent Pipeline:
-   1️⃣ Risk Assessment Agent → Transaction analysis
-   2️⃣ Supply Chain Agent → Availability check
-   3️⃣ Identity Agent → Fragmentation assessment  
-   4️⃣ Planning Coordination → Treatment sequencing
-   5️⃣ Final Approval → Community coordination
-
-💰 Blockchain Transaction: ${purchase.transactionId || 'Processing...'}
-📊 Estimated Recovery: ${purchase.estimatedRecovery}
-🎯 Agent Coordination: ${purchase.success ? 'COMPLETED' : 'IN_PROGRESS'}
-
-${purchase.success ? 
-  '✅ Multi-agent workflow completed successfully!\n   Real Solana transaction executed via agent decisions.\n   Identity restoration protocol initiated.' :
-  '⏳ Agents executing complex coordination workflow...\n   Risk assessment, availability check, and planning in progress.\n   Blockchain transaction pending agent approval.'}
-
-🔍 View full workflow: Edenlayer Task ID ${purchase.edenlayerTaskId}`;
-          responseType = 'agent';
-          setNotification({
-            message: purchase.success ? 
-              `${treatment} purchased via 5-agent Edenlayer workflow` :
-              `Multi-agent evaluation in progress for ${treatment}`,
-            type: purchase.success ? 'success' : 'info'
-          });
-          break;
-
-        case cmd.startsWith('group-buy '):
-          const groupTreatment = cmd.replace('group-buy ', '');
-          const groupBuy = await coordinateGroupPurchase([groupTreatment]);
-          response = `GROUP PURCHASE COORDINATION:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💊 Treatment: ${groupTreatment.toUpperCase()}
-👥 Participants: 5 members coordinated
-💰 Bulk Savings: ${groupBuy.estimatedSavings}
-🤖 Agent Management: Supply + Community + Risk
-📅 Timeline: 48-72 hours
-
-Group coordination in progress...`;
-          responseType = 'agent';
-          setNotification({
-            message: `Group purchase for ${groupTreatment} coordinated`,
-            type: 'success'
-          });
-          break;
-
-        case cmd === 'emergency protocol':
-          response = `EMERGENCY PROTOCOL ACTIVATED:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🚨 ALL AGENTS RESPONDING
-🔒 Network switching to stealth mode
-📡 Backup communication channels active
-💾 Critical data protection enabled
-👥 Member alert system triggered
-
-Ron Woodroof emergency protocols in effect.
-Underground network secured.`;
-          responseType = 'system';
-          setNotification({
-            message: 'Emergency protocol activated!',
-            type: 'warning'
-          });
-          break;
-
-        case cmd === 'stealth mode':
-          response = `STEALTH MODE ACTIVATED:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-👻 Network visibility: MINIMIZED
-🔐 Encryption: MAXIMUM SECURITY
-📡 Traffic routing: RANDOMIZED
-🤖 Agent coordination: SILENT MODE
-🕰️ Duration: Until manually disabled
-
-Operating in ghost mode...`;
-          responseType = 'system';
-          break;
-
-        case cmd === 'treatments':
-          response = `AVAILABLE A.I.D.S. TREATMENTS:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💊 AZT Identity Stabilizer - ₿0.5 (85% effective)
-🧠 Peptide-T Personality Code - ₿0.2 (62% effective)  
-💾 DDC Memory Restoration - ₿0.3 (91% effective)
-🔬 Interferon Identity Suite - ₿0.8 (23% effective)
-
-🤖 AGENT RECOMMENDATIONS:
-• Most reliable: DDC Memory Restoration
-• Most affordable: Peptide-T Personality Code
-• Emergency option: AZT Identity Stabilizer
-
-Use 'purchase <treatment>' or 'group-buy <treatment>'`;
-          responseType = 'agent';
+        case cmd === 'stealth':
+          await typeLines([
+            { text: "", type: 'system' },
+            { text: "╔══════════════════════════════════════════════════════════════╗", type: 'system' },
+            { text: "║              👻 STEALTH MODE ACTIVATED                       ║", type: 'system' },
+            { text: "╚══════════════════════════════════════════════════════════════╝", type: 'system' },
+            { text: "", type: 'system' },
+            { text: "👻 Network visibility:   MINIMIZED", type: 'agent' },
+            { text: "🔐 Encryption:           MAXIMUM SECURITY", type: 'agent' },
+            { text: "📡 Traffic routing:      RANDOMIZED", type: 'agent' },
+            { text: "🤖 Agent coordination:   SILENT MODE", type: 'agent' },
+            { text: "🕰️  Duration:            Until manually disabled", type: 'output' },
+            { text: "", type: 'system' },
+            { text: "Operating in ghost mode...", type: 'agent' },
+            { text: "", type: 'output' },
+          ]);
           break;
 
         default:
-          response = `Unknown command: '${command}'
-Type 'help' for available commands.
-
-🤖 AGENT SUGGESTION: Did you mean one of these?
-${agentSuggestions.slice(0, 3).map(s => `• ${s}`).join('\n')}`;
-          responseType = 'output';
+          await typeLines([
+            { text: "", type: 'system' },
+            { text: `Unknown command: '${command}'`, type: 'error' },
+            { text: "Type 'help' for available commands.", type: 'output' },
+            { text: "", type: 'system' },
+            { text: "🤖 AGENT SUGGESTION: Did you mean one of these?", type: 'agent' },
+            ...agentSuggestions.slice(0, 3).map(s => ({ 
+              text: `  • ${s}`, 
+              type: 'output' as LineType 
+            })),
+            { text: "", type: 'output' },
+          ]);
       }
-    } catch (error) {
-      response = `ERROR: ${error.message}
-
-🤖 AGENT ALERT: Command execution failed. 
-Network coordination may be temporarily unavailable.`;
-      responseType = 'system';
-      setNotification({
-        message: `Command failed: ${error.message}`,
-        type: 'error'
-      });
+    } catch (error: any) {
+      await typeLines([
+        { text: "", type: 'system' },
+        { text: `ERROR: ${error.message}`, type: 'error' },
+        { text: "", type: 'system' },
+        { text: "🤖 AGENT ALERT: Command execution failed.", type: 'agent' },
+        { text: "Network coordination may be temporarily unavailable.", type: 'output' },
+        { text: "", type: 'output' },
+      ]);
     }
-
-    // Add response with typing animation
-    setTimeout(() => {
-      addToHistory(response, responseType);
-      setIsTyping(false);
-    }, 500);
-  };
-
-  const addToHistory = (text: string, type: 'input' | 'output' | 'agent' | 'system') => {
-    setHistory(prev => [...prev, { text, type }]);
+    
+    setIsTyping(false);
   };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    if (!input.trim() || isTyping) return;
+    if (!input.trim() || isTyping || showBootSequence) return;
     
     await processCommand(input.trim());
     setInput("");
     setShowSuggestions(false);
   };
 
-  const getLineStyle = (type: string) => {
+  const getLineStyle = (type: LineType) => {
     switch (type) {
       case 'input': return 'text-yellow-400 font-bold';
       case 'agent': return 'text-blue-400';
-      case 'system': return 'text-red-400 font-bold';
+      case 'system': return 'text-green-500 font-bold';
+      case 'error': return 'text-red-500 font-bold';
+      case 'success': return 'text-green-400 font-bold';
+      case 'warning': return 'text-orange-400 font-bold';
       default: return 'text-green-400';
     }
   };
 
   return (
-    <div class="bg-black text-green-400 border-2 border-green-600 rounded font-mono text-sm relative">
+    <div class="bg-black text-green-400 border-2 border-green-600 rounded-lg font-mono text-sm relative overflow-hidden shadow-2xl">
+      {/* CRT Scanline Effect */}
+      <div class="absolute inset-0 pointer-events-none opacity-10 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-10 bg-[length:100%_2px,3px_100%]"></div>
+      
       {/* Terminal Header */}
-      <div class="bg-green-800 text-black px-4 py-2 flex justify-between items-center">
-        <div class="flex items-center gap-2">
-          <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-          <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
-          <div class="w-3 h-3 bg-green-500 rounded-full"></div>
-          <span class="ml-2 font-bold">SECURE TERMINAL</span>
+      <div class="bg-green-800 text-black px-4 py-3 flex justify-between items-center border-b-2 border-green-600">
+        <div class="flex items-center gap-3">
+          <div class="flex gap-1.5">
+            <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+            <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+          </div>
+          <span class="ml-2 font-bold text-sm tracking-wider">SECURE TERMINAL v2.1</span>
         </div>
-        <div class="text-xs">
-          🤖 MCP AGENTS: {isCoordinating ? 'COORDINATING' : 'STANDBY'}
+        <div class="flex items-center gap-4 text-xs">
+          <span class={isAuthenticated ? "text-green-300" : "text-red-300"}>
+            {isAuthenticated ? "🔓 AUTHENTICATED" : "🔒 LOCKED"}
+          </span>
+          <span class="text-green-300">
+            🤖 {isCoordinating ? 'COORDINATING' : 'STANDBY'}
+          </span>
         </div>
       </div>
 
       {/* Terminal Content */}
       <div 
         ref={terminalRef}
-        class="p-4 h-96 overflow-y-auto space-y-1"
+        class="p-4 h-[28rem] overflow-y-auto space-y-1 bg-black scrollbar-thin scrollbar-thumb-green-600 scrollbar-track-black"
       >
         {history.map((line, i) => (
-          <div key={i} class={`${getLineStyle(line.type)} whitespace-pre-wrap animate-matrixReveal`}>
-            {line.type === 'agent' || line.type === 'system' ? (
-              <DelightfulTypingText text={line.text} speed={20} />
-            ) : (
-              line.text
-            )}
+          <div 
+            key={i} 
+            class={`${getLineStyle(line.type)} whitespace-pre-wrap ${line.type === 'input' ? 'animate-fadeIn' : ''}`}
+          >
+            {line.text}
           </div>
         ))}
         
         {isTyping && (
-          <div class="text-blue-400 animate-pulse">
-            🤖 Agents processing command<span class="loading-dots"></span>
+          <div class="text-blue-400 animate-pulse flex items-center gap-2">
+            <span>🤖</span>
+            <span>Agents processing command</span>
+            <span class="loading-dots"></span>
           </div>
         )}
       </div>
 
       {/* Command Input */}
-      <form onSubmit={handleSubmit} class="border-t border-green-600 p-4">
-        <div class="flex items-center gap-2">
-          <span class="text-green-400">{'>'}</span>
+      <form onSubmit={handleSubmit} class="border-t-2 border-green-600 p-4 bg-green-900/10">
+        <div class="flex items-center gap-3">
+          <span class="text-green-400 text-lg">{'>'}</span>
           <input
             type="text"
             value={input}
@@ -363,34 +473,33 @@ Network coordination may be temporarily unavailable.`;
             }}
             onFocus={() => setShowSuggestions(true)}
             onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-            class="flex-1 bg-transparent text-green-400 outline-none"
-            placeholder="Enter command..."
-            disabled={isTyping}
+            class="flex-1 bg-transparent text-green-400 outline-none text-base placeholder-green-700"
+            placeholder={showBootSequence ? "Initializing..." : "Enter command..."}
+            disabled={isTyping || showBootSequence}
             autoFocus
           />
-          <DelightfulActionButton
-            onClick={() => {}} // Form handles submit
-            isLoading={isTyping}
-            variant="primary"
-            icon="⚡"
+          <button
+            type="submit"
+            disabled={isTyping || showBootSequence || !input.trim()}
+            class="bg-green-700 hover:bg-green-600 disabled:bg-green-900 text-black font-bold px-4 py-2 rounded transition-colors text-sm"
           >
             EXEC
-          </DelightfulActionButton>
+          </button>
         </div>
 
         {/* Agent Suggestions */}
-        {showSuggestions && agentSuggestions.length > 0 && input.length > 0 && (
-          <div class="absolute bottom-full mb-2 left-4 right-4 bg-black border border-green-600 rounded shadow-lg max-h-48 overflow-y-auto animate-slideUp">
-            <div class="p-2 text-xs text-blue-400 border-b border-green-600">
+        {showSuggestions && agentSuggestions.length > 0 && input.length > 0 && !showBootSequence && (
+          <div class="absolute bottom-full mb-2 left-4 right-4 bg-black border-2 border-green-600 rounded-lg shadow-2xl max-h-48 overflow-y-auto z-20">
+            <div class="p-2 text-xs text-blue-400 border-b border-green-600 bg-green-900/20 font-bold">
               🤖 AGENT SUGGESTIONS:
             </div>
             {agentSuggestions
               .filter(suggestion => suggestion.toLowerCase().includes(input.toLowerCase()))
-              .slice(0, 8)
+              .slice(0, 6)
               .map((suggestion, i) => (
                 <div 
                   key={i}
-                  class="px-4 py-2 hover:bg-green-900/20 cursor-pointer text-green-300 hover:text-white transition-colors"
+                  class="px-4 py-2 hover:bg-green-900/40 cursor-pointer text-green-300 hover:text-white transition-colors text-sm"
                   onClick={() => {
                     setInput(suggestion);
                     setShowSuggestions(false);
@@ -403,14 +512,15 @@ Network coordination may be temporarily unavailable.`;
         )}
       </form>
 
-      {/* Notifications */}
-      {notification && (
-        <DelightfulNotification
-          message={notification.message}
-          type={notification.type}
-          onClose={() => setNotification(null)}
-        />
-      )}
+      {/* Status Bar */}
+      <div class="border-t border-green-800 px-4 py-2 bg-green-900/20 text-xs flex justify-between items-center">
+        <span class="text-green-600">
+          DALLAS IDENTITY CLINIC • A.I.D.S. Treatment Network
+        </span>
+        <span class={currentDangerLevel > 70 ? "text-red-400 animate-pulse" : "text-green-600"}>
+          Threat: {currentDangerLevel}%
+        </span>
+      </div>
     </div>
   );
 }
