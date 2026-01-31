@@ -103,38 +103,11 @@ export function WalletProvider({ children }: { children: any }) {
 
   // Legacy: Fetch EXPERIENCE token data (to be deprecated)
   const fetchExperienceData = useCallback(async (walletPublicKey: PublicKey) => {
-    try {
-      const mintAddress = SOLANA_CONFIG.blockchain.experienceMintAddress;
-      const isPlaceholder = mintAddress.includes('XXXX') || mintAddress.includes('XXX');
-
-      if (isPlaceholder) {
-        console.warn('EXPERIENCE token mint not configured, using mock data');
-        setExperienceBalance(0); // Set to 0 since we're migrating to DBC
-        setValidationCount(0);
-        setAccuracyRate(0);
-        return;
-      }
-
-      const { getAssociatedTokenAddress } = await import('@solana/spl-token');
-      const mintPubkey = new PublicKey(mintAddress);
-      const tokenAccount = await getAssociatedTokenAddress(mintPubkey, walletPublicKey);
-
-      try {
-        const accountInfo = await connection.getTokenAccountBalance(tokenAccount);
-        setExperienceBalance(Number(accountInfo.value.uiAmount) || 0);
-      } catch (error) {
-        setExperienceBalance(0);
-      }
-
-      setValidationCount(0);
-      setAccuracyRate(0);
-    } catch (error) {
-      console.error('Error fetching EXPERIENCE data:', error);
-      setExperienceBalance(0);
-      setValidationCount(0);
-      setAccuracyRate(0);
-    }
-  }, [connection]);
+    // EXPERIENCE token deprecated - using DBC only
+    setExperienceBalance(0);
+    setValidationCount(0);
+    setAccuracyRate(0);
+  }, []);
 
   const refreshExperienceData = useCallback(async () => {
     if (publicKey && connected) {
