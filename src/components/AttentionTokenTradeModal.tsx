@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { PublicKey } from '@solana/web3.js';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { useWallet } from '../context/WalletContext';
 import { toast } from 'react-hot-toast';
 import { attentionTokenTradingService, TradeQuote } from '../services/AttentionTokenTradingService';
 
@@ -30,8 +30,7 @@ export const AttentionTokenTradeModal: React.FC<AttentionTokenTradeModalProps> =
   onClose,
   onSuccess,
 }) => {
-  const { connection } = useConnection();
-  const wallet = useWallet();
+  const { connection, publicKey, signTransaction } = useWallet();
 
   const [amount, setAmount] = useState<string>('');
   const [slippage, setSlippage] = useState<number>(1);
@@ -50,7 +49,7 @@ export const AttentionTokenTradeModal: React.FC<AttentionTokenTradeModalProps> =
   }, [amount, slippage]);
 
   const fetchQuote = async () => {
-    if (!wallet.publicKey) return;
+    if (!publicKey) return;
 
     setQuoteLoading(true);
     try {
@@ -61,7 +60,7 @@ export const AttentionTokenTradeModal: React.FC<AttentionTokenTradeModalProps> =
           tokenMint,
           solAmount: amountNum,
           slippage,
-          buyer: wallet.publicKey,
+          buyer: publicKey,
         });
         setQuote(quote);
       } else {
@@ -69,7 +68,7 @@ export const AttentionTokenTradeModal: React.FC<AttentionTokenTradeModalProps> =
           tokenMint,
           tokenAmount: amountNum,
           slippage,
-          seller: wallet.publicKey,
+          seller: publicKey,
         });
         setQuote(quote);
       }
@@ -81,7 +80,7 @@ export const AttentionTokenTradeModal: React.FC<AttentionTokenTradeModalProps> =
   };
 
   const handleTrade = async () => {
-    if (!wallet.publicKey || !wallet.signTransaction) {
+    if (!publicKey || !signTransaction) {
       toast.error('Please connect your wallet');
       return;
     }

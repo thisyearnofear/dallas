@@ -4,11 +4,12 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { PublicKey } from '@solana/web3.js';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { PublicKey, Connection } from '@solana/web3.js';
+import { useWallet } from '../context/WalletContext';
 import { attentionTokenService } from '../services/AttentionTokenService';
 import { fetchDbcBalance } from '../services/DbcTokenService';
 import { useSettings } from '../context/SettingsContext';
+import { getRpcEndpoint } from '../config/solana';
 import {
   AttentionToken,
   AttentionTokenFilters,
@@ -21,8 +22,7 @@ const PROMOTION_COST_DBC = 10000;
 const MAX_PROMOTIONS_PER_TOKEN = 10;
 
 export const AttentionTokenMarket: React.FC = () => {
-  const { connection } = useConnection();
-  const { publicKey } = useWallet();
+  const { publicKey, connection } = useWallet();
   const { addTokenPromotion, getTokenPromotionCount } = useSettings();
   const [tokens, setTokens] = useState<CaseStudyWithAttentionToken[]>([]);
   const [loading, setLoading] = useState(true);

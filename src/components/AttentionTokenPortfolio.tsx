@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { PublicKey } from '@solana/web3.js';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { useWallet } from '../context/WalletContext';
 import { attentionTokenService } from '../services/AttentionTokenService';
 import { attentionTokenTradingService } from '../services/AttentionTokenTradingService';
 
@@ -24,8 +24,7 @@ interface TokenHolding {
 }
 
 export const AttentionTokenPortfolio: React.FC = () => {
-  const { connection } = useConnection();
-  const wallet = useWallet();
+  const { connection, publicKey } = useWallet();
   const [holdings, setHoldings] = useState<TokenHolding[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalValue, setTotalValue] = useState(0);
@@ -33,13 +32,13 @@ export const AttentionTokenPortfolio: React.FC = () => {
   const [totalProfitLossPercentage, setTotalProfitLossPercentage] = useState(0);
 
   useEffect(() => {
-    if (wallet.publicKey) {
+    if (publicKey) {
       loadPortfolio();
     }
-  }, [wallet.publicKey]);
+  }, [publicKey]);
 
   const loadPortfolio = async () => {
-    if (!wallet.publicKey) return;
+    if (!publicKey) return;
 
     setLoading(true);
     try {
@@ -49,7 +48,7 @@ export const AttentionTokenPortfolio: React.FC = () => {
       const programId = new PublicKey(SOLANA_CONFIG.blockchain.caseStudyProgramId);
       
       // Fetch all case study accounts with attention tokens
-      const accounts = await connection.getProgramAccounts(programId, {
+      const accounts = await connection!.getProgramAccounts(programId, {
         filters: [
           {
             memcmp: {
@@ -68,7 +67,7 @@ export const AttentionTokenPortfolio: React.FC = () => {
           // Get user's token balance
           const balance = await attentionTokenTradingService.getTokenBalance(
             parsed.attentionTokenMint,
-            wallet.publicKey!
+            publicKey!
           );
 
           if (balance === 0) return null;
@@ -129,7 +128,7 @@ export const AttentionTokenPortfolio: React.FC = () => {
     }
   };
 
-  if (!wallet.publicKey) {
+  if (!publicKey) {
     return (
       <div className="bg-gray-800 p-12 rounded-lg border border-gray-700 text-center">
         <p className="text-gray-400 text-lg mb-4">Connect your wallet to view your portfolio</p>

@@ -6,7 +6,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { PublicKey } from '@solana/web3.js';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { useWallet } from '../context/WalletContext';
 import { attentionTokenService } from '../services/AttentionTokenService';
 import {
   AttentionTokenEligibility,
@@ -45,8 +45,7 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
   category = 'supplement',
   enableSocial = false,
 }) => {
-  const { connection } = useConnection();
-  const wallet = useWallet();
+  const { connection, publicKey, signTransaction } = useWallet();
   const [eligibility, setEligibility] = useState<AttentionTokenEligibility | null>(null);
   const [status, setStatus] = useState<AttentionTokenCreationStatus>(
     AttentionTokenCreationStatus.IDLE
@@ -75,11 +74,11 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
   }, [caseStudyPda, communityMode]);
 
   const checkEligibility = async () => {
-    if (!wallet.publicKey || !caseStudyPda) return;
+    if (!publicKey || !caseStudyPda) return;
 
     try {
       setStatus(AttentionTokenCreationStatus.CHECKING_ELIGIBILITY);
-      const eligible = await attentionTokenService.checkEligibility(caseStudyPda, connection);
+      const eligible = await attentionTokenService.checkEligibility(caseStudyPda, connection!);
       setEligibility(eligible);
       setStatus(AttentionTokenCreationStatus.IDLE);
     } catch (err) {
@@ -90,7 +89,7 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
   };
 
   const handleCreateToken = async () => {
-    if (!wallet.publicKey || !eligibility?.isEligible) return;
+    if (!publicKey || !eligibility?.isEligible) return;
 
     setStatus(AttentionTokenCreationStatus.CREATING_TOKEN);
     setError(null);
@@ -103,7 +102,7 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
         treatmentCategory,
         description,
         imageUrl: imageUrl || 'https://via.placeholder.com/400',
-        submitter: wallet.publicKey,
+        submitter: publicKey,
         validators: communityMode ? [] : validators.map((v) => ({
           publicKey: v.publicKey,
           reputation: v.reputation,
@@ -131,7 +130,7 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
       // Step 2: Configure fee sharing
       await attentionTokenService.configureFeeSharing(
         mint,
-        wallet.publicKey,
+        publicKey,
         params.validators
       );
 
@@ -159,7 +158,7 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
     caseStudyPda: PublicKey,
     tokenMint: PublicKey
   ): Promise<void> => {
-    if (!wallet.publicKey || !wallet.signTransaction) {
+    if (!publicKey || !signTransaction) {
       throw new Error('Wallet not connected');
     }
 

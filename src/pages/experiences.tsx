@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
 import { EncryptedCaseStudyForm } from '../components/EncryptedCaseStudyForm';
 import { ProtocolDiscovery } from '../components/ProtocolDiscovery';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { useWallet } from '../context/WalletContext';
 import { attentionTokenService } from '../services/AttentionTokenService';
 import { CATEGORY_INFO, CommunityCategory } from '../types/community';
 import { AttentionTokenCreationStatus } from '../types/attentionToken';
