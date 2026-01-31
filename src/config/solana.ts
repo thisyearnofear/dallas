@@ -35,6 +35,10 @@ export const SOLANA_CONFIG = {
     dbcTokenProgramIdDevnet: '21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB',
     dbcMintAddressDevnet: '8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT',
     attentionTokenFactoryProgramId: 'XXXX', // To be deployed
+    
+    // Legacy - EXPERIENCE token (deprecated, using system program as placeholder)
+    experienceTokenProgramId: '11111111111111111111111111111111',
+    experienceMintAddress: '11111111111111111111111111111111',
   },
 
   // Bags API configuration for attention tokens
