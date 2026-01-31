@@ -28,6 +28,7 @@ export const SOLANA_CONFIG = {
     dbcTokenProgramId: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', // Standard SPL Token Program
     // Treasury Program (deploy to SolPG, then update)
     treasuryProgramId: 'C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk', // Deployed on devnet
+    membershipProgramId: 'CB6yknfo1cBWhVH2ifkMAS2tKaDa9c9mgRiZpCzHwjzu', // Deployed on devnet
     
     // Legacy - to be deprecated
     experienceTokenProgramId: 'E6Cc4TX3H2ikxmmztsvRTB8rrYaiTZdaNFd1PBPWCjE4',
