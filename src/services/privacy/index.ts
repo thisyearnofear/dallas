@@ -74,3 +74,20 @@ export type {
   PrivacyEnhancedValidation,
   PrivacyEnhancedAccessRequest,
 } from './PrivacyService';
+
+// Private Messaging Service
+export {
+  PrivateMessagingService,
+  privateMessagingService,
+  MESSAGING_CONFIG,
+  MESSAGE_TYPE_OPTIONS,
+} from './PrivateMessagingService';
+
+export type {
+  MessageType,
+  MessageStatus,
+  EncryptedMessage,
+  DecryptedMessage,
+  MessageThread,
+  SendMessageInput,
+} from './PrivateMessagingService';

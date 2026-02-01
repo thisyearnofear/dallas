@@ -42,11 +42,11 @@ export interface PrivacyEnhancedCaseStudy {
     duration: number;
     cost: number;
   };
-  
+
   // Privacy features
   compression: CompressedCaseStudy;
   proofs: ProofResult[];
-  
+
   // Metadata
   privacyScore: number;
   submittedAt: number;
@@ -75,7 +75,7 @@ export interface PrivacyEnhancedAccessRequest {
 }
 
 // Privacy score configuration
-const PRIVACY_SCORE_WEIGHTS = {
+export const PRIVACY_SCORE_WEIGHTS = {
   encryption: 20,        // Wallet-derived encryption
   zk_proofs: 30,         // Noir proofs (highest weight - core privacy)
   compression: 20,       // Light Protocol
@@ -253,7 +253,7 @@ export class PrivacyService {
       };
     } catch (error) {
       // Mark last pending operation as failed
-      const lastPending = operations.findLast(o => o.status === 'pending');
+      const lastPending = [...operations].reverse().find(o => o.status === 'pending');
       if (lastPending) {
         lastPending.status = 'failed';
       }
@@ -307,7 +307,17 @@ export class PrivacyService {
         metadata: { purpose: 'validation' },
       });
 
-      const proofs = await noirService.generateValidationProofs(validationData);
+      const proofs = await noirService.generateValidationProofs({
+        baselineSeverity: validationData.baselineSeverity,
+        outcomeSeverity: validationData.outcomeSeverity,
+        durationDays: validationData.durationDays,
+        costUsd: validationData.costUSD,
+        hasBaseline: validationData.hasBaseline,
+        hasOutcome: validationData.hasOutcome,
+        hasDuration: validationData.hasDuration,
+        hasProtocol: validationData.hasProtocol,
+        hasCost: validationData.hasCost,
+      });
 
       operations[operations.length - 1].status = 'success';
       operations[operations.length - 1].metadata = {
@@ -358,7 +368,7 @@ export class PrivacyService {
         validation,
       };
     } catch (error) {
-      const lastPending = operations.findLast(o => o.status === 'pending');
+      const lastPending = [...operations].reverse().find(o => o.status === 'pending');
       if (lastPending) {
         lastPending.status = 'failed';
       }
@@ -445,7 +455,7 @@ export class PrivacyService {
         accessRequest,
       };
     } catch (error) {
-      const lastPending = operations.findLast(o => o.status === 'pending');
+      const lastPending = [...operations].reverse().find(o => o.status === 'pending');
       if (lastPending) {
         lastPending.status = 'failed';
       }

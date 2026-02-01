@@ -474,11 +474,11 @@ export function PrivateMessaging({ compact = false, initialRecipient = '' }: Pri
                       <div class="flex items-center gap-2">
                         <span class="text-xs">🔐</span>
                         <span class="text-xs text-slate-400">Encrypted and delivered</span>
-                        {message.metadata?.requiresCommittee && (
+                        {message.metadata?.requiresCommittee ? (
                           <span class="px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-[10px] font-bold rounded">
                             MPC Protected
                           </span>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   ))

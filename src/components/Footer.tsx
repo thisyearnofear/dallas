@@ -27,9 +27,9 @@ export function Footer() {
                     </a>
                     <a 
                         class="text-brand hover:underline flex items-center gap-1" 
-                        href="mailto:underground@dallasbuyers.club"
+                        href="/links"
                     >
-                        <span>📧</span> Contact
+                        <span>🔒</span> Contact
                     </a>
                 </div>
                 <div class="flex gap-4 text-sm text-gray-500">

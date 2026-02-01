@@ -1,3 +1,5 @@
+import { PrivateMessaging } from '../components/PrivateMessaging';
+
 export function Links() {
     return (
         <div class="min-h-screen transition-colors duration-300">
@@ -97,24 +99,18 @@ export function Links() {
                 </div>
             </div>
 
-            {/* Traditional Links Sections */}
+            {/* Private Messaging Section */}
             <div class="space-y-12">
                 <section>
                     <h1 class="text-3xl font-black mb-6 text-slate-900 dark:text-white uppercase tracking-tighter flex items-center gap-3">
-                        <span class="bg-brand text-white p-2 rounded-lg text-xl">📞</span>
-                        <span>CONTACT NETWORK</span>
+                        <span class="bg-brand text-white p-2 rounded-lg text-xl">🔒</span>
+                        <span>PRIVATE MESSAGING</span>
                     </h1>
-                    <div class="bg-slate-100 dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 p-8 rounded-2xl shadow-sm">
-                        <p class="text-2xl font-mono font-black text-brand break-all tracking-tighter">
-                            <a class="hover:underline" href="mailto:underground@dallasbuyers.club">
-                                underground@dallasbuyers.club
-                            </a>
-                        </p>
-                        <p class="text-xs font-bold text-slate-500 dark:text-slate-400 mt-4 uppercase tracking-widest flex items-center gap-2">
-                            <span>⚠️</span>
-                            <span>All communications are encrypted and monitored for security</span>
-                        </p>
-                    </div>
+                    <PrivateMessaging />
+                    <p class="text-xs font-bold text-slate-500 dark:text-slate-400 mt-4 uppercase tracking-widest flex items-center gap-2">
+                        <span>🔐</span>
+                        <span>End-to-end encrypted. No email. No servers. Just math.</span>
+                    </p>
                 </section>
 
                 <section>
