@@ -42,9 +42,10 @@ export const CaseStudyGallery: FunctionalComponent = () => {
       const programId = new PublicKey(SOLANA_CONFIG.blockchain.caseStudyProgramId);
 
       // Fetch all case study accounts from the program
+      // CaseStudy account size: 8 + 32 + 32 + (4 + 46) + 32 + 1 + 2 + 8 + 1 + 4 + 4 + 1 + 1 + 1 + 1 + 32 + 2 + (1 + 32) + (1 + 8) = 254 bytes
       const accounts = await connection.getProgramAccounts(programId, {
         filters: [
-          { dataSize: 300 }, // Approximate size of CaseStudy account
+          { dataSize: 254 }, // Exact size of CaseStudy account
         ],
       });
 
@@ -54,7 +55,7 @@ export const CaseStudyGallery: FunctionalComponent = () => {
         try {
           // Parse the account data (simplified - matches Anchor layout)
           const data = account.data;
-          if (data.length < 100) continue;
+          if (data.length < 200) continue; // CaseStudy is 254 bytes
 
           // Skip discriminator (8 bytes)
           let offset = 8;
