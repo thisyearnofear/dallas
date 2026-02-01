@@ -1,12 +1,13 @@
 import { useState } from 'preact/hooks';
 import { EncryptedCaseStudyForm } from '../components/EncryptedCaseStudyForm';
 import { ProtocolDiscovery } from '../components/ProtocolDiscovery';
+import { CaseStudyGallery } from '../components/CaseStudyGallery';
 import { useWallet } from '../context/WalletContext';
 import { attentionTokenService } from '../services/AttentionTokenService';
 import { CATEGORY_INFO, CommunityCategory } from '../types/community';
 import { AttentionTokenCreationStatus } from '../types/attentionToken';
 
-type Tab = 'discover' | 'create' | 'share';
+type Tab = 'discover' | 'studies' | 'create' | 'share';
 
 // ENHANCEMENT: Interactive Community Creation Form Component
 function CommunityCreationForm() {
@@ -276,36 +277,46 @@ export function Experiences() {
 
       {/* Tab Navigation */}
       <div class="max-w-4xl mx-auto mb-8">
-        <div class="flex gap-2 border-b border-gray-300 dark:border-gray-700">
+        <div class="flex gap-1 border-b border-gray-300 dark:border-gray-700 overflow-x-auto">
           <button
             onClick={() => setActiveTab('discover')}
-            class={`flex-1 py-4 px-6 font-bold text-lg transition-all ${
+            class={`py-4 px-4 font-bold text-sm sm:text-base transition-all whitespace-nowrap ${
               activeTab === 'discover'
                 ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300'
             }`}
           >
-            🌐 Discover Communities
+            🌐 Communities
+          </button>
+          <button
+            onClick={() => setActiveTab('studies')}
+            class={`py-4 px-4 font-bold text-sm sm:text-base transition-all whitespace-nowrap ${
+              activeTab === 'studies'
+                ? 'border-b-2 border-orange-500 text-orange-600 dark:text-orange-400'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300'
+            }`}
+          >
+            📊 Case Studies
           </button>
           <button
             onClick={() => setActiveTab('create')}
-            class={`flex-1 py-4 px-6 font-bold text-lg transition-all ${
+            class={`py-4 px-4 font-bold text-sm sm:text-base transition-all whitespace-nowrap ${
               activeTab === 'create'
                 ? 'border-b-2 border-purple-500 text-purple-600 dark:text-purple-400'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300'
             }`}
           >
-            🚀 Launch Community
+            🚀 Launch
           </button>
           <button
             onClick={() => setActiveTab('share')}
-            class={`flex-1 py-4 px-6 font-bold text-lg transition-all ${
+            class={`py-4 px-4 font-bold text-sm sm:text-base transition-all whitespace-nowrap ${
               activeTab === 'share'
                 ? 'border-b-2 border-green-500 text-green-600 dark:text-green-400'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300'
             }`}
           >
-            📋 Share Experience
+            📋 Share
           </button>
         </div>
       </div>
@@ -313,6 +324,7 @@ export function Experiences() {
       {/* Tab Content */}
       <div class="max-w-4xl mx-auto px-4 pb-12">
         {activeTab === 'discover' && <ProtocolDiscovery />}
+        {activeTab === 'studies' && <CaseStudyGallery />}
         {activeTab === 'create' && <CommunityCreationForm />}
         {activeTab === 'share' && <EncryptedCaseStudyForm />}
       </div>
