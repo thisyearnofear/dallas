@@ -20,6 +20,7 @@ pub mod case_study {
     /// Uses Light Protocol compression for scalable private state
     pub fn submit_encrypted_case_study(
         ctx: Context<SubmitCaseStudy>,
+        nonce: i64,                          // Client-provided nonce for PDA derivation
         ipfs_cid: String,                    // Off-chain encrypted payload
         metadata_hash: [u8; 32],             // Hash of encrypted metadata
         treatment_category: u8,              // 0=experimental, 1=approved, 2=alternative
@@ -626,12 +627,13 @@ pub enum ValidatorTier {
 // ============= CONTEXTS =============
 
 #[derive(Accounts)]
+#[instruction(nonce: i64)]
 pub struct SubmitCaseStudy<'info> {
     #[account(
         init,
         payer = submitter,
         space = 8 + 32 + 32 + (4 + 46) + 32 + 1 + 2 + 8 + 1 + 4 + 4 + 1 + 1 + 1 + 1 + 32 + 2 + (1 + 32) + (1 + 8),
-        seeds = [b"case_study", submitter.key().as_ref(), &Clock::get().unwrap().unix_timestamp.to_le_bytes()],
+        seeds = [b"case_study", submitter.key().as_ref(), &nonce.to_le_bytes()],
         bump
     )]
     pub case_study: Account<'info, CaseStudy>,

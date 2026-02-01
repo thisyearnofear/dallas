@@ -95,7 +95,8 @@ export class BlockchainService {
   private createSubmitCaseStudyInstruction(
     payer: PublicKey,
     caseStudyPda: PublicKey,
-    data: CaseStudyData
+    data: CaseStudyData,
+    nonce: bigint
   ): TransactionInstruction {
     // Anchor discriminator for "submit_encrypted_case_study"
     // This is sha256("global:submit_encrypted_case_study")[0..8]
@@ -135,6 +136,7 @@ export class BlockchainService {
     
     // Calculate total buffer size
     const bufferSize = 8 + // discriminator
+                       8 + // nonce (i64)
                        4 + ipfsCidBytes.length + // string length prefix + string
                        32 + // metadata_hash
                        1 + // treatment_category
@@ -148,6 +150,10 @@ export class BlockchainService {
 
     // Write discriminator (8 bytes)
     discriminator.copy(instructionData, offset);
+    offset += 8;
+
+    // Write nonce (8 bytes, i64 little-endian)
+    instructionData.writeBigInt64LE(nonce, offset);
     offset += 8;
 
     // Write ipfs_cid as String (4-byte length prefix + bytes)
@@ -205,13 +211,16 @@ export class BlockchainService {
     caseStudyData: CaseStudyData
   ): Promise<TransactionResult> {
     try {
-      // Derive PDA for case study account
-      const timestamp = Math.floor(Date.now() / 1000);
+      // Derive PDA for case study account using nonce (timestamp as i64 little-endian)
+      const nonce = BigInt(Math.floor(Date.now() / 1000));
+      const nonceBuffer = Buffer.alloc(8);
+      nonceBuffer.writeBigInt64LE(nonce);
+      
       const [caseStudyPda, bump] = PublicKey.findProgramAddressSync(
         [
           Buffer.from('case_study'),
           payer.toBuffer(),
-          Buffer.from(timestamp.toString()),
+          nonceBuffer,
         ],
         this.caseStudyProgramId
       );
@@ -236,7 +245,8 @@ export class BlockchainService {
       const submitInstruction = this.createSubmitCaseStudyInstruction(
         payer,
         caseStudyPda,
-        caseStudyData
+        caseStudyData,
+        nonce
       );
       transaction.add(submitInstruction);
 
