@@ -10,7 +10,7 @@ pub const DBC_TREASURY_PROGRAM_ID: &str = "C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVd
 // pub const DBC_MINT: &str = "J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump";  // Mainnet pump.fun
 pub const DBC_MINT: &str = "8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT";  // Devnet token
 
-declare_id!("EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6");
+declare_id!("8tma3jnv8ZazAKxawZsE5yh3NPt1ymsEoysS2B1w2Gxx");
 
 #[program]
 pub mod case_study {

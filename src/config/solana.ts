@@ -21,7 +21,7 @@ export const SOLANA_CONFIG = {
 
   // Smart contract program IDs (from deployment)
   blockchain: {
-    caseStudyProgramId: 'EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6',
+    caseStudyProgramId: '8tma3jnv8ZazAKxawZsE5yh3NPt1ymsEoysS2B1w2Gxx',
     // DALLAS BUYERS CLUB Token - Main Community Token
     // Mainnet: J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump (pump.fun)
     // Devnet:  8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT (custom program)
