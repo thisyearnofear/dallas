@@ -77,6 +77,25 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
     lightProtocolService.initialize().catch(console.error);
   }, []);
 
+  // Auto-derive encryption key when wallet is connected
+  useEffect(() => {
+    const autoDeriveKey = async () => {
+      if (publicKey && signMessage && !encryptionKey && !keyDeriving) {
+        setKeyDeriving(true);
+        try {
+          const key = await deriveEncryptionKey(publicKey, signMessage);
+          setEncryptionKey(key);
+        } catch (error) {
+          // Silent fail - user can manually derive if auto-derive fails
+          console.warn('Auto-derive encryption key failed:', error);
+        } finally {
+          setKeyDeriving(false);
+        }
+      }
+    };
+    autoDeriveKey();
+  }, [publicKey, signMessage, encryptionKey, keyDeriving]);
+
   const [formData, setFormData] = useState<CaseStudyFormData>({
     treatmentProtocol: '',
     durationDays: 8,
@@ -98,6 +117,13 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
     type: 'success' | 'error' | 'info' | null;
     message: string;
   }>({ type: null, message: '' });
+
+  // Success state for full-screen overlay
+  const [successData, setSuccessData] = useState<{
+    signature: string;
+    caseStudyId: string;
+    explorerUrl: string;
+  } | null>(null);
 
   const [consentGiven, setConsentGiven] = useState(false);
   const handleConsentChange = useCallback((allChecked: boolean) => {
@@ -287,9 +313,14 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
       );
 
       if (result.success) {
-        setSubmitStatus({
-          type: 'success',
-          message: result.message,
+        // Extract data for success overlay
+        const signature = result.transactionSignature || '';
+        const caseStudyId = result.caseStudyPubkey?.toString() || '';
+        
+        setSuccessData({
+          signature,
+          caseStudyId,
+          explorerUrl: `https://explorer.solana.com/tx/${signature}?cluster=devnet`,
         });
 
         // Reset form on success
@@ -302,6 +333,9 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
           sideEffects: [],
           context: '',
         });
+        
+        // Clear any previous status
+        setSubmitStatus({ type: null, message: '' });
       } else {
         setSubmitStatus({
           type: 'error',
@@ -318,6 +352,100 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
       setIsSubmitting(false);
     }
   };
+
+  // Success overlay component
+  if (successData) {
+    return (
+      <div class="w-full max-w-2xl mx-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-8 rounded-2xl border-2 border-green-500 shadow-xl transition-all duration-300">
+        {/* Success Celebration */}
+        <div class="text-center py-8">
+          {/* Animated checkmark */}
+          <div class="w-24 h-24 mx-auto mb-6 bg-green-500 rounded-full flex items-center justify-center animate-bounce">
+            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          
+          <h2 class="text-3xl font-black mb-3 uppercase tracking-tighter text-green-600 dark:text-green-400">
+            🎉 Submission Successful!
+          </h2>
+          <p class="text-slate-600 dark:text-slate-300 font-medium mb-8">
+            Your encrypted case study is now on the blockchain
+          </p>
+
+          {/* Transaction Details Card */}
+          <div class="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 mb-6 text-left border border-slate-200 dark:border-slate-700">
+            <div class="space-y-4">
+              <div class="flex items-start gap-3">
+                <span class="text-2xl">🔗</span>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Transaction</div>
+                  <div class="font-mono text-sm text-slate-700 dark:text-slate-300 break-all">
+                    {successData.signature.slice(0, 32)}...
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex items-start gap-3">
+                <span class="text-2xl">🏥</span>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Case Study ID</div>
+                  <div class="font-mono text-sm text-slate-700 dark:text-slate-300 break-all">
+                    {successData.caseStudyId.slice(0, 32)}...
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3">
+                <span class="text-2xl">🔐</span>
+                <div class="flex-1">
+                  <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Privacy Status</div>
+                  <div class="text-sm text-green-600 dark:text-green-400 font-bold">
+                    Encrypted with your wallet key
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3">
+                <span class="text-2xl">⏳</span>
+                <div class="flex-1">
+                  <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Next Steps</div>
+                  <div class="text-sm text-slate-600 dark:text-slate-400">
+                    Validators will review your submission. DBC rewards are distributed after approval.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div class="flex flex-col sm:flex-row gap-3">
+            <a
+              href={successData.explorerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-xl font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+            >
+              <span>🔍</span> View on Explorer
+            </a>
+            <button
+              onClick={() => setSuccessData(null)}
+              class="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-xl font-black text-sm uppercase tracking-wider transition-all"
+            >
+              ✨ Submit Another
+            </button>
+          </div>
+
+          {/* Privacy reminder */}
+          <div class="mt-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-200 dark:border-purple-700">
+            <p class="text-xs font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider">
+              🛡️ Your health data is encrypted on-chain. Only you can decrypt it with your wallet.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div class="w-full max-w-2xl mx-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-8 rounded-2xl border-2 border-green-500 shadow-xl transition-all duration-300">
