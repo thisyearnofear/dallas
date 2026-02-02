@@ -316,7 +316,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                                             <div class="space-y-2">
                                                 <div class="flex items-center gap-1">
                                   <div class="text-sm font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">📊 Quality</div>
-                                  <PrivacyTooltip topic="validators" variant="icon"><span></span></PrivacyTooltip>
+                                  <PrivacyTooltip topic="validator_privacy" variant="icon"><span></span></PrivacyTooltip>
                                 </div>
                                                 <div class="flex gap-2">
                                                     <button
@@ -340,7 +340,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                                             <div class="space-y-2">
                                                 <div class="flex items-center gap-1">
                                   <div class="text-sm font-bold text-purple-600 dark:text-purple-400 flex items-center gap-1">🎯 Accuracy</div>
-                                  <PrivacyTooltip topic="validators" variant="icon"><span></span></PrivacyTooltip>
+                                  <PrivacyTooltip topic="validator_privacy" variant="icon"><span></span></PrivacyTooltip>
                                 </div>
                                                 <div class="flex gap-2">
                                                     <button
@@ -364,7 +364,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                                             <div class="space-y-2">
                                                 <div class="flex items-center gap-1">
                                   <div class="text-sm font-bold text-orange-600 dark:text-orange-400 flex items-center gap-1">⚠️ Safety</div>
-                                  <PrivacyTooltip topic="validators" variant="icon"><span></span></PrivacyTooltip>
+                                  <PrivacyTooltip topic="validator_privacy" variant="icon"><span></span></PrivacyTooltip>
                                 </div>
                                                 <div class="flex gap-2">
                                                     <button
@@ -411,7 +411,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                 <h3 class="text-lg font-bold text-purple-600 dark:text-purple-400 mb-4 flex items-center gap-2">
                   <span>🔐</span>
                   <span>How Validation Works</span>
-                  <PrivacyTooltip topic="validators" variant="icon"><span></span></PrivacyTooltip>
+                  <PrivacyTooltip topic="validator_privacy" variant="icon"><span></span></PrivacyTooltip>
                 </h3>
                 <div class={`text-sm space-y-3 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                     <div class="flex items-start gap-2">

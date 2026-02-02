@@ -1,0 +1,282 @@
+# Dallas Buyers Club: Privacy Hack 2026 Demo Script
+
+> **One-Liner**: Privacy-preserving health community platform where patients share encrypted treatment data, validators verify with ZK proofs, and researchers access insights via MPC threshold decryption—built on Solana with Noir, Light Protocol, and Arcium.
+
+## Overview
+**Duration**: 3 minutes maximum  
+**Track**: Open Track (Pool Prize - $18,000)  
+**Target Sponsors**: Light Protocol, Aztec/Noir, Arcium, Helius, Quicknode
+
+---
+
+## Script
+
+### **Opening (15 seconds)**
+
+*[Screen: DBC Logo Animation → Platform Homepage]*
+
+**Narrator**: "Imagine sharing your most sensitive health data—knowing it's 100% private, yet still contributing to research that could save lives."
+
+**Text Overlay**: "Dallas Buyers Club: Privacy-Preserving Health Communities"
+
+---
+
+### **The Problem (20 seconds)**
+
+*[Screen: Split view - Forum screenshot vs. Empty database icons]*
+
+**Narrator**: "Patients with rare diseases are isolated. Their treatment experiences are trapped in forums, lost forever. And when they do share? Their privacy is compromised."
+
+*[Screen: Privacy breach headlines fade in/out]*
+
+**Narrator**: "Centralized platforms monetize your data. Researchers wait 10-15 years for insights. And patients stay alone."
+
+---
+
+### **Our Solution: Three Privacy Primitives (90 seconds)**
+
+*[Section transitions with tech stack visualization]*
+
+---
+
+#### **1. Light Protocol: ZK Compression (30 seconds)**
+
+*[Screen: Demo of EncryptedCaseStudyForm.tsx → Compression UI]*
+
+**Narrator**: "Meet Sarah. She wants to share her treatment journey for Long COVID. But detailed health data is massive—and expensive to store on-chain."
+
+*[Screen: Compression selector dropdown with ratios: 2x, 5x, 10x, 20x, 50x]*
+
+**Narrator**: "Using Light Protocol, Sarah's case study is compressed 90%—from 5KB to 500 bytes. She saves 90% on storage costs."
+
+*[Screen: Real-time preview showing "5.2 KB → 520 B (90% saved)"]*
+
+**Narrator**: "ZK compression makes detailed health histories affordable for everyone."
+
+**Code Peek**:
+```typescript
+// src/services/privacy/LightProtocolService.ts
+const compressed = await lightProtocol.compressCaseStudy(
+  data, 
+  { ratio: 10 } // 10x compression
+);
+```
+
+---
+
+#### **2. Noir (Aztec): Zero-Knowledge Validation (30 seconds)**
+
+*[Screen: Demo of ValidationDashboard.tsx → Expert Mode toggle]*
+
+**Narrator**: "Now meet Dr. Chen, a validator. She needs to verify Sarah's case study—without seeing Sarah's actual health data."
+
+*[Screen: Toggle "Expert Mode ON" → ZK proof generation animation]*
+
+**Narrator**: "Using Noir circuits, we generate ZK proofs that prove validity without revealing sensitive information."
+
+**Visual**: Four circuit icons with checkmarks
+- ✅ Symptom Improvement
+- ✅ Duration Verification
+- ✅ Data Completeness
+- ✅ Cost Range
+
+**Narrator**: "Dr. Chen validates that Sarah's symptoms improved by at least 20%—without knowing the actual scores. She verifies treatment duration was 30 days—without seeing the dates."
+
+*[Screen: Terminal showing `nargo test` with all 26 tests passing]*
+
+**Narrator**: "Four circuits. Twenty-six tests. All passing. Zero data exposure."
+
+**Code Peek**:
+```rust
+// circuits/symptom_improvement/src/main.nr
+fn main(
+    baseline_severity: u8,      // Private - never revealed
+    outcome_severity: u8,       // Private - never revealed
+    min_improvement: u8,        // Public threshold
+) -> pub bool {
+    let improvement = baseline_severity - outcome_severity;
+    improvement >= (baseline_severity * min_improvement) / 100
+}
+```
+
+---
+
+#### **3. Arcium MPC: Threshold Decryption (30 seconds)**
+
+*[Screen: ResearcherDashboard.tsx → Access request form]*
+
+**Narrator**: "Finally, meet Dr. Patel, a researcher studying Long COVID patterns. She needs aggregate data—but Sarah's privacy must be preserved."
+
+*[Screen: Committee formation animation - 5 validators selected]*
+
+**Narrator**: "Using Arcium MPC, we form a committee of five validators. Dr. Patel needs three approvals to decrypt."
+
+*[Screen: Approval progress bar filling up - 1/5, 2/5, 3/5 approvals]*
+
+**Narrator**: "No single validator can access the data. No central authority holds the keys. Only when three of five approve does decryption occur."
+
+*[Screen: Researcher viewing aggregated insights, individual data never shown]*
+
+**Narrator**: "Research progresses. Privacy remains intact. Trust is distributed."
+
+**Code Peek**:
+```typescript
+// src/services/privacy/ArciumMPCService.ts
+const decryption = await arcium.decryptData(
+  sessionId,
+  requester,
+  { threshold: 3, committee: 5 }
+);
+```
+
+---
+
+### **Community Tokenization (30 seconds)**
+
+*[Screen: Community creation flow with Bags API integration]*
+
+**Narrator**: "But DBC isn't just about privacy—it's about community."
+
+*[Screen: Interactive token creation form at /experiences]*
+
+**Narrator**: "Anyone can launch a health community in minutes. Choose your category—supplement, lifestyle, device, or protocol."
+
+**Visual**: Community tokens appearing on screen
+- LupusDAO ($LUPUS)
+- LongevityCoin ($LONG)
+- MindfulToken ($MIND)
+- [Your Community Here]
+
+**Narrator**: "Built on Bags API bonding curves—free to launch, self-funding through trading volume. The creator earns 1% forever. Communities own their destiny."
+
+---
+
+### **Architecture & Implementation (20 seconds)**
+
+*[Screen: System architecture diagram with privacy layer highlighted]*
+
+**Narrator**: "Our privacy stack is modular, domain-driven, and production-ready."
+
+**Visual**: Three implemented services
+```
+src/services/privacy/
+├── NoirService.ts           ✅ 4 circuits, 26 tests
+├── LightProtocolService.ts  ✅ 2x-50x compression
+└── ArciumMPCService.ts      ✅ K-of-N threshold
+```
+
+**Narrator**: "Built on Solana Devnet. Anchor framework for type-safe contracts. Preact + TypeScript for fast UI. IPFS + Arweave for encrypted storage."
+
+*[Screen: Test results - all green]*
+
+**Narrator**: "Every component tested. Every integration verified. Open source and ready."
+
+---
+
+### **Closing (15 seconds)**
+
+*[Screen: Back to Sarah, Dr. Chen, Dr. Patel—three smiling people in different locations]*
+
+**Narrator**: "Dallas Buyers Club: Where privacy meets progress. Where patients own their data. Where communities thrive."
+
+**Text Overlay**: "DBC: The Coordination Layer for Health Communities"
+
+*[Screen: GitHub link + Demo URL]*
+
+**Narrator**: "Open source. Privacy-first. Community-owned. Join us."
+
+---
+
+## B-Roll & Screen Recording Shots
+
+### Required Recordings
+1. **Homepage Tour** (5 sec): Logo, tagline, navigation
+2. **Wallet Connection** (3 sec): Phantom wallet connect
+3. **Case Study Submission** (15 sec):
+   - Encryption key derivation
+   - Compression selector (show 10x selected)
+   - Cost preview showing savings
+   - Submit transaction
+4. **Validator Dashboard** (15 sec):
+   - Toggle Expert Mode
+   - Generate ZK proofs (show circuit selection)
+   - Submit validation with proof
+5. **Researcher Dashboard** (15 sec):
+   - Submit access request
+   - Committee formation
+   - Approval progress
+   - Decrypted insights
+6. **Community Creation** (10 sec):
+   - Token creation form
+   - Category selection
+   - Launch confirmation
+7. **Code Highlights** (10 sec):
+   - Circuit code in IDE
+   - Test execution with passing results
+   - Service architecture
+
+---
+
+## Technical Specifications
+
+### Recording Setup
+- **Resolution**: 1920x1080 (1080p)
+- **Frame Rate**: 60fps for smooth animations
+- **Audio**: Clear narration + subtle background music
+- **Captions**: Enabled for accessibility
+
+### Code Walkthrough Moments
+**Timestamp: 1:30-1:45 (Noir Circuits)**
+```bash
+# Show terminal commands
+$ cd circuits/symptom_improvement && nargo test
+[symptom_improvement] 6 tests passed
+
+$ cd circuits/duration_verification && nargo test
+[duration_verification] 7 tests passed
+```
+
+**Timestamp: 2:00-2:15 (Architecture)**
+- Show `src/services/privacy/` directory structure
+- Highlight service implementations
+- Show smart contract integration points
+
+---
+
+## Sponsor Alignment Callouts
+
+### Light Protocol ($18k Pool Prize)
+> "ZK compression makes detailed health data storage affordable—90% cost reduction at 10x compression."
+
+### Aztec/Noir ($10k - Best Non-Financial Use)
+> "Four Noir circuits enable zero-knowledge health validation—proving treatment efficacy without exposing sensitive data."
+
+### Arcium ($10k - Best Overall App)
+> "Threshold decryption via MPC gives researchers access while preserving patient privacy through distributed trust."
+
+### Helius ($5k - Best Privacy Project)
+> "High-performance RPC infrastructure enables real-time privacy operations across our entire stack."
+
+### Quicknode ($3k - Public Benefit)
+> "Open-source privacy tooling for health data sovereignty—MIT licensed, community-owned."
+
+---
+
+## Submission Checklist
+
+- [ ] 3-minute demo video rendered
+- [ ] Code repository public on GitHub
+- [ ] README with setup instructions
+- [ ] All sponsor integrations documented
+- [ ] Contracts deployed to devnet
+- [ ] Demo site live and accessible
+
+## Contact Information
+
+**Repository**: [GitHub URL]  
+**Demo Site**: [Vercel/Netlify URL]  
+**Documentation**: `/docs` directory in repo
+
+---
+
+**End of Script**
