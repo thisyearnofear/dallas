@@ -24,8 +24,10 @@ import {
 } from '@solana/web3.js';
 import { Program, AnchorProvider, BN, web3 } from '@coral-xyz/anchor';
 import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } from '@solana/spl-token';
+import { Buffer } from 'buffer';
 import { SOLANA_CONFIG } from '../config/solana';
 import { parseCaseStudyAccount, ValidationStatus } from '../utils/caseStudyParser';
+import { DbcTokenService } from './DbcTokenService';
 
 export interface CaseStudyData {
   encryptedBaseline: Uint8Array;
@@ -104,13 +106,13 @@ export class BlockchainService {
     const discriminator = Buffer.from([0x61, 0x8a, 0xe3, 0x5e, 0x03, 0x3d, 0x4d, 0x83]);
 
     // Generate IPFS CID (46 bytes, starts with "Qm")
-    const ipfsCid = `Qm${Buffer.from(data.encryptedBaseline.slice(0, 22)).toString('hex').substring(0, 44)}`;
-    
+    const ipfsCid = `Qm${(Buffer.from(data.encryptedBaseline.slice(0, 22)) as any).toString('hex').substring(0, 44)}`;
+
     // Generate metadata hash from encrypted data (32 bytes)
     const metadataHash = new Uint8Array(32);
     for (let i = 0; i < 32; i++) {
-      metadataHash[i] = data.encryptedBaseline[i % data.encryptedBaseline.length] ^ 
-                        data.encryptedOutcome[i % data.encryptedOutcome.length];
+      metadataHash[i] = data.encryptedBaseline[i % data.encryptedBaseline.length] ^
+        data.encryptedOutcome[i % data.encryptedOutcome.length];
     }
 
     // Treatment category (0=experimental, 1=approved, 2=alternative)
@@ -120,7 +122,7 @@ export class BlockchainService {
     const durationDays = Math.min(365, Math.max(1, data.durationDays));
 
     // Proof of encryption (required, non-empty) - use encrypted baseline as proof
-    const proofOfEncryption = data.encryptedBaseline.length > 0 
+    const proofOfEncryption = data.encryptedBaseline.length > 0
       ? Buffer.from(data.encryptedBaseline.slice(0, 64))
       : Buffer.from([1, 2, 3, 4]); // Fallback minimal proof
 
@@ -133,62 +135,62 @@ export class BlockchainService {
     const compressionRatio = Math.min(100, Math.max(2, data.compressionRatio || 10));
 
     // Serialize instruction data using Borsh-like format (Anchor's format)
-    const ipfsCidBytes = Buffer.from(ipfsCid, 'utf8');
-    
+    const ipfsCidBytes = (Buffer as any).from(ipfsCid, 'utf8');
+
     // Calculate total buffer size
     const bufferSize = 8 + // discriminator
-                       8 + // nonce (i64)
-                       4 + ipfsCidBytes.length + // string length prefix + string
-                       32 + // metadata_hash
-                       1 + // treatment_category
-                       2 + // duration_days
-                       4 + proofOfEncryption.length + // vec length prefix + data
-                       4 + lightProtocolProof.length + // vec length prefix + data
-                       2; // compression_ratio
+      8 + // nonce (i64)
+      4 + ipfsCidBytes.length + // string length prefix + string
+      32 + // metadata_hash
+      1 + // treatment_category
+      2 + // duration_days
+      4 + proofOfEncryption.length + // vec length prefix + data
+      4 + lightProtocolProof.length + // vec length prefix + data
+      2; // compression_ratio
 
-    const instructionData = Buffer.alloc(bufferSize);
+    const instructionData: Buffer = Buffer.alloc(bufferSize);
     let offset = 0;
 
     // Write discriminator (8 bytes)
-    discriminator.copy(instructionData, offset);
+    (discriminator as any).copy(instructionData, offset);
     offset += 8;
 
     // Write nonce (8 bytes, i64 little-endian)
-    instructionData.writeBigInt64LE(nonce, offset);
+    (instructionData as any).writeBigInt64LE(nonce, offset);
     offset += 8;
 
     // Write ipfs_cid as String (4-byte length prefix + bytes)
-    instructionData.writeUInt32LE(ipfsCidBytes.length, offset);
+    (instructionData as any).writeUInt32LE(ipfsCidBytes.length, offset);
     offset += 4;
-    ipfsCidBytes.copy(instructionData, offset);
+    (ipfsCidBytes as any).copy(instructionData, offset);
     offset += ipfsCidBytes.length;
 
     // Write metadata_hash (32 bytes, fixed array)
-    Buffer.from(metadataHash).copy(instructionData, offset);
+    (Buffer.from(metadataHash) as any).copy(instructionData, offset);
     offset += 32;
 
     // Write treatment_category (1 byte)
-    instructionData.writeUInt8(treatmentCategory, offset);
+    (instructionData as any).writeUInt8(treatmentCategory, offset);
     offset += 1;
 
     // Write duration_days (2 bytes, u16)
-    instructionData.writeUInt16LE(durationDays, offset);
+    (instructionData as any).writeUInt16LEUnsafe ? (instructionData as any).writeUInt16LE(durationDays, offset) : (instructionData as any).writeUInt16LE(durationDays, offset);
     offset += 2;
 
     // Write proof_of_encryption as Vec<u8> (4-byte length prefix + bytes)
-    instructionData.writeUInt32LE(proofOfEncryption.length, offset);
+    (instructionData as any).writeUInt32LE(proofOfEncryption.length, offset);
     offset += 4;
-    proofOfEncryption.copy(instructionData, offset);
+    (proofOfEncryption as any).copy(instructionData, offset);
     offset += proofOfEncryption.length;
 
     // Write light_protocol_proof as Vec<u8> (4-byte length prefix + bytes)
-    instructionData.writeUInt32LE(lightProtocolProof.length, offset);
+    (instructionData as any).writeUInt32LE(lightProtocolProof.length, offset);
     offset += 4;
-    lightProtocolProof.copy(instructionData, offset);
+    (lightProtocolProof as any).copy(instructionData, offset);
     offset += lightProtocolProof.length;
 
     // Write compression_ratio (2 bytes, u16)
-    instructionData.writeUInt16LE(compressionRatio, offset);
+    (instructionData as any).writeUInt16LE(compressionRatio, offset);
     offset += 2;
 
     return new TransactionInstruction({
@@ -199,7 +201,7 @@ export class BlockchainService {
         { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
       ],
       programId: this.caseStudyProgramId,
-      data: instructionData.slice(0, offset),
+      data: (instructionData as any).slice(0, offset),
     });
   }
 
@@ -215,8 +217,8 @@ export class BlockchainService {
       // Derive PDA for case study account using nonce (timestamp as i64 little-endian)
       const nonce = BigInt(Math.floor(Date.now() / 1000));
       const nonceBuffer = Buffer.alloc(8);
-      nonceBuffer.writeBigInt64LE(nonce);
-      
+      (nonceBuffer as any).writeBigInt64LE(nonce);
+
       const [caseStudyPda, bump] = PublicKey.findProgramAddressSync(
         [
           Buffer.from('case_study'),
@@ -300,8 +302,8 @@ export class BlockchainService {
 
       // Import the parser dynamically to avoid circular dependencies
       const { parseCaseStudyAccount } = await import('../utils/caseStudyParser');
-      const parsed = parseCaseStudyAccount(caseStudyPubkey, accountInfo.data);
-      
+      const parsed = parseCaseStudyAccount(Buffer.from(accountInfo.data), caseStudyPubkey);
+
       if (!parsed) return null;
 
       // Convert to CaseStudyAccount format
@@ -312,8 +314,8 @@ export class BlockchainService {
         treatmentProtocol: parsed.ipfsCid,
         durationDays: parsed.durationDays,
         costUsd: 0, // Not stored on-chain
-        createdAt: parsed.createdAt,
-        isApproved: parsed.validationStatus === 'approved',
+        createdAt: parsed.createdAt.getTime(),
+        isApproved: parsed.validationStatus === ValidationStatus.Approved,
         approvalCount: parsed.approvalCount,
         validationScore: parsed.reputationScore,
         bump: 0,
@@ -337,31 +339,31 @@ export class BlockchainService {
     let offset = 0;
 
     // Instruction discriminator (8 bytes)
-    instructionData.writeUInt32LE(0x87654321, offset); // Placeholder
+    (instructionData as any).writeUInt32LE(0x87654321, offset); // Placeholder
     offset += 8;
 
     // Validation type (1 byte)
     const validationTypeMap = { quality: 0, accuracy: 1, safety: 2 };
-    instructionData.writeUInt8(validationTypeMap[data.validationType], offset);
+    (instructionData as any).writeUInt8(validationTypeMap[data.validationType], offset);
     offset += 1;
 
     // Approved flag (1 byte)
-    instructionData.writeUInt8(data.approved ? 1 : 0, offset);
+    (instructionData as any).writeUInt8(data.approved ? 1 : 0, offset);
     offset += 1;
 
     // Stake amount (8 bytes)
-    const stakeAmountBN = new BN(data.stakeAmount * 1e6); // Convert to token units
-    stakeAmountBN.toArrayLike(Buffer, 'le', 8).copy(instructionData, offset);
+    const stakeAmountBN = new BN(data.stakeAmount * 1_000_000); // 1 token = 1,000,000 units
+    (stakeAmountBN.toArrayLike(Buffer, 'le', 8) as any).copy(instructionData, offset);
     offset += 8;
 
     // Noir proof (optional)
     if (data.noirProof && data.noirProof.length > 0) {
-      instructionData.writeUInt16LE(data.noirProof.length, offset);
+      (instructionData as any).writeUInt16LE(data.noirProof.length, offset);
       offset += 2;
-      data.noirProof.copy(instructionData, offset);
+      (data.noirProof as any).copy(instructionData, offset);
       offset += data.noirProof.length;
     } else {
-      instructionData.writeUInt16LE(0, offset);
+      (instructionData as any).writeUInt16LE(0, offset);
       offset += 2;
     }
 
@@ -375,7 +377,7 @@ export class BlockchainService {
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
       programId: this.caseStudyProgramId,
-      data: instructionData.slice(0, offset),
+      data: (instructionData as any).slice(0, offset),
     });
   }
 
@@ -537,7 +539,7 @@ export class BlockchainService {
         usePrivacyCash,
         useShadowWire
       );
-      
+
       transaction.add(rewardInstruction);
 
       const signedTx = await signTransaction(transaction);
@@ -579,22 +581,22 @@ export class BlockchainService {
     let offset = 0;
 
     // Instruction discriminator (8 bytes)
-    instructionData.writeUInt32LE(discriminator, offset);
+    (instructionData as any).writeUInt32LE(discriminator, offset);
     offset += 8;
 
     // Amount (8 bytes)
-    instructionData.writeBigUInt64LE(BigInt(amountInUnits), offset);
+    (instructionData as any).writeBigUInt64LE(BigInt(amountInUnits), offset);
     offset += 8;
 
     // Quality score (1 byte, for case study submissions)
     if (reason === 'case_study_submission') {
-      instructionData.writeUInt8(qualityScore || 0, offset);
+      (instructionData as any).writeUInt8(qualityScore || 0, offset);
       offset += 1;
     }
 
     // Privacy flags (2 bytes)
     const privacyFlags = (usePrivacyCash ? 0x01 : 0x00) | (useShadowWire ? 0x02 : 0x00);
-    instructionData.writeUInt16LE(privacyFlags, offset);
+    (instructionData as any).writeUInt16LE(privacyFlags, offset);
     offset += 2;
 
     return new TransactionInstruction({
@@ -607,7 +609,7 @@ export class BlockchainService {
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
       ],
       programId: this.tokenProgramId,
-      data: instructionData.slice(0, offset),
+      data: (instructionData as any).slice(0, offset),
     });
   }
 
@@ -681,7 +683,7 @@ export class BlockchainService {
         caseStudyPubkey,
         shieldAmount
       );
-      
+
       transaction.add(stakeInstruction);
 
       const signedTx = await signTransaction(transaction);
@@ -716,15 +718,15 @@ export class BlockchainService {
     let offset = 0;
 
     // Instruction discriminator for stake (0x03)
-    instructionData.writeUInt32LE(0x03, offset);
+    (instructionData as any).writeUInt32LE(0x03, offset);
     offset += 8;
 
     // Amount (8 bytes)
-    instructionData.writeBigUInt64LE(BigInt(amountInUnits), offset);
+    (instructionData as any).writeBigUInt64LE(BigInt(amountInUnits), offset);
     offset += 8;
 
     // Shield amount flag (1 byte)
-    instructionData.writeUInt8(shieldAmount ? 1 : 0, offset);
+    (instructionData as any).writeUInt8(shieldAmount ? 1 : 0, offset);
     offset += 1;
 
     return new TransactionInstruction({
@@ -738,7 +740,7 @@ export class BlockchainService {
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
       ],
       programId: this.tokenProgramId,
-      data: instructionData.slice(0, offset),
+      data: (instructionData as any).slice(0, offset),
     });
   }
 
@@ -778,7 +780,7 @@ export class BlockchainService {
         evidenceHash,
         reason
       );
-      
+
       transaction.add(slashInstruction);
 
       const signedTx = await signTransaction(transaction);
@@ -811,24 +813,24 @@ export class BlockchainService {
     let offset = 0;
 
     // Instruction discriminator for slash (0x04)
-    instructionData.writeUInt32LE(0x04, offset);
+    (instructionData as any).writeUInt32LE(0x04, offset);
     offset += 8;
 
     // Slash percentage (1 byte)
-    instructionData.writeUInt8(Math.min(100, Math.max(0, slashPercentage)), offset);
+    (instructionData as any).writeUInt8(Math.min(100, Math.max(0, slashPercentage)), offset);
     offset += 1;
 
     // Evidence hash (32 bytes)
-    if (evidenceHash.length === 32) {
-      evidenceHash.copy(instructionData, offset);
+    if (evidenceHash) {
+      (evidenceHash as any).copy(instructionData, offset);
+      offset += 32;
     }
-    offset += 32;
 
     // Reason (variable length, max 50 bytes)
     const reasonBuffer = Buffer.from(reason.slice(0, 50));
-    instructionData.writeUInt8(reasonBuffer.length, offset);
+    (instructionData as any).writeUInt8(reasonBuffer.length, offset);
     offset += 1;
-    reasonBuffer.copy(instructionData, offset);
+    (reasonBuffer as any).copy(instructionData, offset);
     offset += reasonBuffer.length;
 
     return new TransactionInstruction({
@@ -841,7 +843,7 @@ export class BlockchainService {
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
       ],
       programId: this.tokenProgramId,
-      data: instructionData.slice(0, offset),
+      data: (instructionData as any).slice(0, offset),
     });
   }
 
@@ -948,6 +950,7 @@ export class BlockchainService {
     validationStatus: number;
     approvalCount: number;
     reputationScore: number;
+    durationDays: number;
   }>> {
     try {
       const accounts = await this.connection.getProgramAccounts(
@@ -967,6 +970,7 @@ export class BlockchainService {
         validationStatus: number;
         approvalCount: number;
         reputationScore: number;
+        durationDays: number;
       }> = [];
 
       for (const { pubkey, account } of accounts) {
@@ -976,8 +980,8 @@ export class BlockchainService {
           if (!caseStudy) continue;
 
           // Only include pending case studies (Pending or UnderReview)
-          if (caseStudy.validationStatus === ValidationStatus.Pending || 
-              caseStudy.validationStatus === ValidationStatus.UnderReview) {
+          if (caseStudy.validationStatus === ValidationStatus.Pending ||
+            caseStudy.validationStatus === ValidationStatus.UnderReview) {
             pending.push({
               pubkey,
               submitter: caseStudy.submitter,
@@ -986,6 +990,7 @@ export class BlockchainService {
               validationStatus: caseStudy.validationStatus,
               approvalCount: caseStudy.approvalCount,
               reputationScore: caseStudy.reputationScore,
+              durationDays: caseStudy.durationDays,
             });
           }
         } catch (e) {
@@ -999,6 +1004,50 @@ export class BlockchainService {
     } catch (error) {
       console.error('Error getting pending case studies:', error);
       return [];
+    }
+  }
+  /**
+   * Get aggregate statistics for researchers
+   */
+  async getAggregateStats(): Promise<{
+    totalStudies: number;
+    categoryStats: Record<string, number>;
+    avgDuration: number;
+  }> {
+    try {
+      const accounts = await this.connection.getProgramAccounts(
+        this.caseStudyProgramId,
+        {
+          filters: [
+            { dataSize: 254 }, // CaseStudy account size
+          ],
+        }
+      );
+
+      let totalDuration = 0;
+      const categories: Record<string, number> = {};
+
+      for (const { account, pubkey } of accounts) {
+        try {
+          const parsed = parseCaseStudyAccount(account.data, pubkey);
+          if (parsed) {
+            totalDuration += parsed.durationDays;
+            const category = parsed.treatmentCategoryName;
+            categories[category] = (categories[category] || 0) + 1;
+          }
+        } catch (e) {
+          // Skip malformed accounts
+        }
+      }
+
+      return {
+        totalStudies: accounts.length,
+        categoryStats: categories,
+        avgDuration: accounts.length > 0 ? totalDuration / accounts.length : 0,
+      };
+    } catch (error) {
+      console.error('Error getting aggregate stats:', error);
+      return { totalStudies: 0, categoryStats: {}, avgDuration: 0 };
     }
   }
 
@@ -1094,7 +1143,7 @@ export class BlockchainService {
   }> {
     try {
       const blockHeight = await this.connection.getBlockHeight();
-      
+
       // getHealth() is not supported by all RPC endpoints, so we check if network responds
       let health: 'ok' | 'behind' | 'unknown' = 'ok';
       try {
@@ -1144,3 +1193,6 @@ export class BlockchainService {
     }
   }
 }
+
+export const blockchainService = new BlockchainService();
+export default blockchainService;

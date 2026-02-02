@@ -1,14 +1,16 @@
 import { FunctionalComponent } from 'preact';
-import { useState, useContext, useEffect } from 'preact/hooks';
-import { WalletContext } from '../context/WalletContext';
-import { PublicKey } from '@solana/web3.js';
+import { useState, useEffect } from 'preact/hooks';
+import { PublicKey, Connection } from '@solana/web3.js';
 import {
   noirService,
   CIRCUIT_METADATA,
 } from '../services/privacy';
 import type { ProofResult, CircuitType } from '../services/privacy';
+import { useWallet } from '../context/WalletContext';
 import { fetchPendingCaseStudies, submitValidatorApproval } from '../services/BlockchainIntegration';
 import { blinkService } from '../services/BlinkService';
+import { DbcTokenService } from '../services/DbcTokenService';
+import { SOLANA_CONFIG } from '../config/solana';
 
 interface ValidationTask {
   caseStudyId: string;
@@ -50,7 +52,7 @@ interface ValidationState {
 }
 
 export const ValidationDashboard: FunctionalComponent = () => {
-  const { publicKey, connected } = useContext(WalletContext);
+  const { publicKey, connected, signTransaction } = useWallet();
   const [state, setState] = useState<ValidationState>({
     tasks: [],
     selected: null,
@@ -67,17 +69,17 @@ export const ValidationDashboard: FunctionalComponent = () => {
     lastQueueRefresh: 0,
   });
 
-  // Initialize Noir service on mount
-  useEffect(() => {
-    noirService.initialize().catch(console.error);
-  }, []);
-
   const [submitStatus, setSubmitStatus] = useState<{
     type: 'success' | 'error' | 'info' | null;
     message: string;
   }>({ type: null, message: '' });
 
   const [isLoading, setIsLoading] = useState(false);
+
+  // Initialize Noir service on mount
+  useEffect(() => {
+    noirService.initialize().catch(console.error);
+  }, []);
 
   // Fetch validation queue
   useEffect(() => {
@@ -96,10 +98,10 @@ export const ValidationDashboard: FunctionalComponent = () => {
             approvalCount: cs.approvalCount,
             status: 'pending',
             encryptedData: {
-              baselineSeverity: Math.floor(Math.random() * 5) + 5,
-              outcomeSeverity: Math.floor(Math.random() * 5) + 2,
-              durationDays: Math.floor(Math.random() * 60) + 14,
-              costUsd: Math.floor(Math.random() * 1000) + 100,
+              baselineSeverity: 7, // Default for ZK proof simulation
+              outcomeSeverity: 3,  // Default for ZK proof simulation
+              durationDays: cs.durationDays,
+              costUsd: 150,        // Median fallback
               hasBaseline: true,
               hasOutcome: true,
               hasDuration: true,
@@ -139,8 +141,14 @@ export const ValidationDashboard: FunctionalComponent = () => {
         }
 
         if (publicKey) {
-          const mockPendingRewards = Math.floor(Math.random() * 50) + 10;
-          setState((s) => ({ ...s, pendingRewards: mockPendingRewards }));
+          const connection = new Connection(SOLANA_CONFIG.rpcEndpoint[SOLANA_CONFIG.network]);
+          DbcTokenService.getValidatorReputation(connection, publicKey)
+            .then(reputation => {
+              if (reputation) {
+                setState((s) => ({ ...s, pendingRewards: reputation.pendingRewards }));
+              }
+            })
+            .catch(console.error);
         }
       } catch (error) {
         console.error('Error fetching validation queue:', error);
@@ -183,10 +191,10 @@ export const ValidationDashboard: FunctionalComponent = () => {
           approvalCount: cs.approvalCount,
           status: 'pending',
           encryptedData: {
-            baselineSeverity: Math.floor(Math.random() * 5) + 5,
-            outcomeSeverity: Math.floor(Math.random() * 5) + 2,
-            durationDays: Math.floor(Math.random() * 60) + 14,
-            costUsd: Math.floor(Math.random() * 1000) + 100,
+            baselineSeverity: 7,
+            outcomeSeverity: 3,
+            durationDays: cs.durationDays,
+            costUsd: 150,
             hasBaseline: true,
             hasOutcome: true,
             hasDuration: true,
@@ -202,7 +210,7 @@ export const ValidationDashboard: FunctionalComponent = () => {
     }
   };
 
-  const claimRewards = async () => {
+  const handleClaimReward = async () => {
     if (!publicKey || state.pendingRewards === 0) return;
     setState((s) => ({ ...s, isClaimingRewards: true }));
     await new Promise(r => setTimeout(r, 1500));
@@ -210,27 +218,6 @@ export const ValidationDashboard: FunctionalComponent = () => {
     setSubmitStatus({ type: 'success', message: '✅ Rewards claimed!' });
   };
 
-  const handleApproval = async (approved: boolean) => {
-    if (!state.selected || !publicKey) return;
-    setIsLoading(true);
-    try {
-      // Logic for submission
-      setState((s) => ({
-        ...s,
-        tasks: s.tasks.map(t => t.caseStudyId === state.selected?.caseStudyId ? { ...t, status: approved ? 'approved' : 'rejected' } : t),
-        selected: null,
-      }));
-      setSubmitStatus({ type: 'success', message: `✅ Validation ${approved ? 'approved' : 'flagged'}.` });
-    } catch (error) {
-      setSubmitStatus({ type: 'error', message: '❌ Submission failed.' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  /**
-   * Enhanced validation approval with real blockchain transactions
-   */
   const handleApproval = async (approved: boolean) => {
     if (!state.selected || !publicKey || !connected) {
       setSubmitStatus({
@@ -252,43 +239,30 @@ export const ValidationDashboard: FunctionalComponent = () => {
     setIsLoading(true);
 
     try {
-      // Step 1: Prepare validation
+      // Prepare validation
       setSubmitStatus({
         type: 'info',
-        message: '🔄 Step 1/3: Preparing validation with ZK proofs...',
+        message: '🔄 Preparing validation with ZK proofs...',
       });
 
-      // Step 2: Submit to blockchain
-      setSubmitStatus({
-        type: 'info',
-        message: '🔄 Step 2/3: Submitting validation to blockchain...',
-      });
-
-      // Convert case study ID to PublicKey
+      // Submit to blockchain
       const caseStudyPubkey = new PublicKey(state.selected.caseStudyId);
 
-      // Submit real validation to blockchain
       const result = await submitValidatorApproval(
         publicKey,
-        walletContext.signTransaction,
+        signTransaction,
         caseStudyPubkey,
         state.validationType,
         approved,
         state.stakeAmount
       );
 
-      // Step 3: Confirm transaction
       if (result.success) {
-        setSubmitStatus({
-          type: 'info',
-          message: '🔄 Step 3/3: Confirming validation on blockchain...',
-        });
-
         // Wait for confirmation
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         // Update local state
-        const updatedTasks = state.tasks.map((task) =>
+        const updatedTasks: ValidationTask[] = state.tasks.map((task) =>
           task.caseStudyId === state.selected!.caseStudyId
             ? {
               ...task,
@@ -312,25 +286,15 @@ export const ValidationDashboard: FunctionalComponent = () => {
 
         setSubmitStatus({
           type: 'success',
-          message: `✅ Validation submitted to blockchain${proofMessage}! Transaction: ${result.transactionSignature?.slice(0, 20)}... ${approved ? 'Case study approved.' : 'Concerns flagged for review.'
-            }`,
-        });
-
-        console.log('Blockchain Validation Submitted:', {
-          validator: publicKey.toString(),
-          caseStudyId: state.selected.caseStudyId,
-          approved,
-          transactionSignature: result.transactionSignature,
-          zkProofs: state.generatedProofs.length,
+          message: `✅ Validation submitted! Transaction: ${result.transactionSignature?.slice(0, 20)}... ${approved ? 'Approved.' : 'Flagged.'}`,
         });
       } else {
-        throw new Error(result.message || 'Validation submission failed');
+        throw new Error(result.message || 'Validation failed');
       }
     } catch (error) {
       setSubmitStatus({
         type: 'error',
-        message: `❌ Validation failed: ${error instanceof Error ? error.message : 'Unknown error'
-          }`,
+        message: `❌ Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
       });
     } finally {
       setIsLoading(false);
@@ -339,12 +303,27 @@ export const ValidationDashboard: FunctionalComponent = () => {
 
   return (
     <div class="w-full max-w-4xl mx-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-8 rounded-2xl border-2 border-blue-500 shadow-xl">
-      <div class="mb-10">
-        <h2 class="text-3xl font-black mb-2 uppercase tracking-tighter flex items-center gap-3">
-          <span class="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-lg text-2xl">✓</span>
-          <span>Validation Dashboard</span>
-        </h2>
-        <p class="text-slate-600 dark:text-slate-300 font-medium">Verify truth. Earn DBC.</p>
+      <div class="mb-10 flex justify-between items-start">
+        <div>
+          <h2 class="text-3xl font-black mb-2 uppercase tracking-tighter flex items-center gap-3">
+            <span class="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-lg text-2xl">✓</span>
+            <span>Validation Dashboard</span>
+          </h2>
+          <p class="text-slate-600 dark:text-slate-300 font-medium">Verify truth. Earn DBC.</p>
+        </div>
+        <div class="text-right">
+          <p class="text-[10px] font-black uppercase opacity-50 mb-1">Pending Rewards</p>
+          <div class="flex items-center gap-3">
+            <span class="text-2xl font-black text-blue-600">{state.pendingRewards} DBC</span>
+            <button
+              onClick={handleClaimReward}
+              disabled={state.pendingRewards === 0 || state.isClaimingRewards}
+              class="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white text-[10px] font-black uppercase px-3 py-2 rounded-lg transition-all"
+            >
+              {state.isClaimingRewards ? '⌛' : 'Claim'}
+            </button>
+          </div>
+        </div>
       </div>
 
       {submitStatus.type && (
@@ -361,27 +340,43 @@ export const ValidationDashboard: FunctionalComponent = () => {
           <div class="bg-slate-50 dark:bg-slate-800/50 border rounded-2xl p-8">
             <h3 class="text-xl font-black mb-6 uppercase flex justify-between">
               <span>📋 Pending ({state.tasks.length})</span>
-              <button onClick={refreshQueue} class="text-xs bg-blue-600 text-white px-3 py-1 rounded">Refresh</button>
+              <button
+                onClick={refreshQueue}
+                disabled={state.isRefreshingQueue}
+                class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded transition-all"
+              >
+                {state.isRefreshingQueue ? 'Refeshing...' : 'Refresh'}
+              </button>
             </h3>
             <div class="space-y-4">
               {state.tasks.map(task => (
                 <div
                   key={task.caseStudyId}
                   onClick={() => selectCaseStudy(task)}
-                  class={`p-5 border-2 rounded-xl cursor-pointer ${state.selected?.caseStudyId === task.caseStudyId ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-slate-200 dark:border-slate-700'}`}
+                  class={`p-5 border-2 rounded-xl cursor-pointer transition-all ${state.selected?.caseStudyId === task.caseStudyId ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md' : 'border-slate-200 dark:border-slate-700 hover:border-blue-300'}`}
                 >
-                  <h4 class="font-black uppercase">{task.protocol}</h4>
-                  <div class="flex justify-between text-xs mt-3 opacity-70">
+                  <div class="flex justify-between items-start mb-2">
+                    <h4 class="font-black uppercase text-sm">{task.protocol}</h4>
+                    <span class={`text-[8px] font-black px-2 py-1 rounded uppercase ${task.status === 'pending' ? 'bg-amber-100 text-amber-700' : task.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      {task.status}
+                    </span>
+                  </div>
+                  <div class="flex justify-between text-[10px] mt-3 opacity-70 font-bold">
                     <span>{task.submittedAt.toLocaleDateString()}</span>
                     <span>{task.approvalCount}/3 Approvals</span>
                   </div>
                 </div>
               ))}
+              {state.tasks.length === 0 && (
+                <div class="text-center py-10 opacity-30 font-black uppercase text-xs">
+                  No pending validations found
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        <div class="bg-slate-50 dark:bg-slate-800/50 border rounded-2xl p-8">
+        <div class="bg-slate-50 dark:bg-slate-800/50 border rounded-2xl p-8 h-fit sticky top-8">
           <h3 class="text-xl font-black mb-6 uppercase flex items-center gap-3">
             <span>🔍 Review</span>
           </h3>
@@ -389,64 +384,78 @@ export const ValidationDashboard: FunctionalComponent = () => {
             <div class="space-y-6">
               <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border">
                 <p class="text-[10px] font-black uppercase opacity-50 mb-1">Protocol</p>
-                <p class="font-black uppercase">{state.selected.protocol}</p>
+                <p class="font-black uppercase text-sm">{state.selected.protocol}</p>
               </div>
 
-              {/* Solana Blink */}
-              <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200">
-                <p class="font-black text-blue-800 text-[10px] uppercase mb-2">Share Mission</p>
-                <button
-                  onClick={() => {
-                    const blink = blinkService.generateBlink(`validate/${state.selected?.caseStudyId}`);
-                    navigator.clipboard.writeText(blink);
-                    setSubmitStatus({ type: 'success', message: '📋 Blink copied!' });
-                  }}
-                  class="w-full py-2 bg-blue-600 text-white rounded text-[10px] font-black uppercase"
-                >
-                  Copy Blink URL
-                </button>
+              <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border">
+                <p class="text-[10px] font-black uppercase opacity-50 mb-1">Duration</p>
+                <p class="font-black uppercase text-sm">{state.selected.encryptedData?.durationDays} Days</p>
               </div>
 
               <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-200">
-                <p class="font-black text-purple-800 text-[10px] uppercase mb-2">ZK Verification</p>
+                <div class="flex justify-between items-center mb-3">
+                  <p class="font-black text-purple-800 dark:text-purple-400 text-[10px] uppercase">Privacy Verification</p>
+                  <span class="bg-purple-600 text-[8px] text-white px-2 py-0.5 rounded-full font-black">NOIR ZK</span>
+                </div>
                 <button
                   onClick={generateZKProofs}
                   disabled={state.isGeneratingProofs}
-                  class="w-full py-3 bg-purple-600 text-white rounded text-xs font-black uppercase"
+                  class="w-full py-3 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white rounded-xl text-xs font-black uppercase transition-all shadow-sm"
                 >
-                  {state.isGeneratingProofs ? 'Verifying...' : 'Verify Data Quality'}
+                  {state.isGeneratingProofs ? '🧬 Generating Proofs...' : 'Verify Data Policy'}
                 </button>
                 {state.generatedProofs.length > 0 && (
-                  <div class="mt-3 space-y-1">
+                  <div class="mt-4 space-y-2">
                     {state.generatedProofs.map((p, i) => (
-                      <div key={i} class="text-[10px] font-bold flex justify-between">
-                        <span>{CIRCUIT_METADATA[p.circuitType].name}</span>
-                        <span class={p.verified ? 'text-green-600' : 'text-red-600'}>{p.verified ? '✓' : '✗'}</span>
+                      <div key={i} class="text-[10px] font-bold flex justify-between items-center bg-white/50 dark:bg-slate-900/50 p-2 rounded-lg">
+                        <span class="opacity-70">{CIRCUIT_METADATA[p.circuitType]?.name || p.circuitType}</span>
+                        <span class={p.verified ? 'text-green-600 flex items-center gap-1' : 'text-red-600 flex items-center gap-1'}>
+                          {p.verified ? '✓ Verified' : '✗ Failed'}
+                        </span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
 
-              <div class="grid gap-3 pt-4 border-t">
+              <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200">
+                <p class="font-black text-blue-800 dark:text-blue-400 text-[10px] uppercase mb-2">Viral Growth</p>
                 <button
-                  onClick={() => handleApproval(true)}
-                  disabled={isLoading}
-                  class="w-full bg-green-600 hover:bg-green-700 disabled:bg-slate-400 text-white font-black py-4 rounded-xl uppercase text-xs transition-all"
+                  onClick={() => {
+                    const blink = blinkService.generateBlink(`validate/${state.selected?.caseStudyId}`);
+                    navigator.clipboard.writeText(blink);
+                    setSubmitStatus({ type: 'success', message: '📋 Blink copied to clipboard!' });
+                  }}
+                  class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10px] font-black uppercase transition-all"
                 >
-                  {isLoading ? '⏳ Submitting...' : '✅ Approve Protocol'}
+                  Copy Solana Blink
                 </button>
-                <button
-                  onClick={() => handleApproval(false)}
-                  disabled={isLoading}
-                  class="w-full bg-red-600 hover:bg-red-700 disabled:bg-slate-400 text-white font-black py-4 rounded-xl uppercase text-xs transition-all"
-                >
-                  {isLoading ? '⏳ Submitting...' : '⚠️ Flag Concerns'}
-                </button>
+              </div>
+
+              <div class="grid gap-3 pt-6 border-t dark:border-slate-700">
+                <div class="flex gap-2">
+                  <button
+                    onClick={() => handleApproval(true)}
+                    disabled={isLoading}
+                    class="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-slate-400 text-white font-black py-4 rounded-xl uppercase text-xs transition-all shadow-md active:scale-95"
+                  >
+                    {isLoading ? '⏳' : '✅ Approve'}
+                  </button>
+                  <button
+                    onClick={() => handleApproval(false)}
+                    disabled={isLoading}
+                    class="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-slate-400 text-white font-black py-4 rounded-xl uppercase text-xs transition-all shadow-md active:scale-95"
+                  >
+                    {isLoading ? '⏳' : '⚠️ Flag'}
+                  </button>
+                </div>
               </div>
             </div>
           ) : (
-            <p class="text-center py-10 opacity-30 font-black uppercase text-xs border-2 border-dashed rounded-xl">Select a task</p>
+            <div class="flex flex-col items-center justify-center py-20 opacity-30 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl">
+              <span class="text-4xl mb-4 text-slate-400">📋</span>
+              <p class="text-center font-black uppercase text-[10px] max-w-[120px]">Select a submission to verify</p>
+            </div>
           )}
         </div>
       </div>

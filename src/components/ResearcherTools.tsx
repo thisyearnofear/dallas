@@ -15,11 +15,14 @@
  */
 
 import { FunctionalComponent } from 'preact';
-import { useState, useEffect, useCallback, useContext } from 'preact/hooks';
-import { WalletContext, type WalletContextType } from '../context/WalletContext';
+import { useState, useContext, useEffect } from 'preact/hooks';
+import { PublicKey, Connection } from '@solana/web3.js';
+import { WalletContext, useWallet, type WalletContextType } from '../context/WalletContext';
+import { blockchainService } from '../services/BlockchainService';
+import { SOLANA_CONFIG } from '../config/solana';
 import { useTheme } from '../context/ThemeContext';
-import { 
-  arciumMPCService, 
+import {
+  arciumMPCService,
   type MPCAccessRequest,
   type CommitteeMember,
   DEFAULT_MPC_CONFIG,
@@ -81,12 +84,24 @@ const processAggregateData = async (): Promise<{
   aggregateMetrics: AggregateMetrics;
   privacyProofs: Array<{ metric: string; verified: boolean; proofHash: string }>;
 }> => {
-  // Simulate fetching encrypted case studies and processing with ZK proofs
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  
+  // Fetch real aggregate stats from the blockchain
+  const realStats = await blockchainService.getAggregateStats();
+
   const protocolStats = generateEnhancedProtocolStats();
-  const aggregateMetrics = generateEnhancedAggregateMetrics();
-  
+  const baseAggregate = generateEnhancedAggregateMetrics();
+
+  // Merge real stats into aggregate metrics
+  const aggregateMetrics: AggregateMetrics = {
+    ...baseAggregate,
+    totalStudies: realStats.totalStudies,
+    totalPatients: realStats.totalStudies, // Approximate for demo
+    conditionDistribution: realStats.categoryStats,
+    treatmentDuration: {
+      ...baseAggregate.treatmentDuration,
+      avg: realStats.avgDuration,
+    }
+  };
+
   // Generate privacy proofs for aggregate calculations
   const privacyProofs = [
     { metric: 'sample_size', verified: true, proofHash: 'zk_proof_sample_' + Math.random().toString(36).slice(2, 10) },
@@ -94,7 +109,7 @@ const processAggregateData = async (): Promise<{
     { metric: 'data_completeness', verified: true, proofHash: 'zk_proof_complete_' + Math.random().toString(36).slice(2, 10) },
     { metric: 'outlier_detection', verified: true, proofHash: 'zk_proof_outlier_' + Math.random().toString(36).slice(2, 10) },
   ];
-  
+
   return { protocolStats, aggregateMetrics, privacyProofs };
 };
 
@@ -212,7 +227,7 @@ export const ResearcherTools: FunctionalComponent = () => {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
   const isMobile = useIsMobile();
-  
+
   const [activeTab, setActiveTab] = useState<'overview' | 'protocols' | 'comparison' | 'export' | 'access'>('overview');
   const [protocolStats, setProtocolStats] = useState<ProtocolStats[]>([]);
   const [aggregateMetrics, setAggregateMetrics] = useState<AggregateMetrics | null>(null);
@@ -221,11 +236,11 @@ export const ResearcherTools: FunctionalComponent = () => {
   const [privacyProofs, setPrivacyProofs] = useState<Array<{ metric: string; verified: boolean; proofHash: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  
+
   // Comparison state
   const [selectedProtocols, setSelectedProtocols] = useState<string[]>([]);
   const [comparisonMetric, setComparisonMetric] = useState<'improvement' | 'duration' | 'cost' | 'safety'>('improvement');
-  
+
   // Export state
   const [exportFormat, setExportFormat] = useState<'csv' | 'json' | 'pdf'>('csv');
   const [exportFilters, setExportFilters] = useState({
@@ -233,28 +248,28 @@ export const ResearcherTools: FunctionalComponent = () => {
     protocols: [] as string[],
     minSampleSize: 10,
   });
-  
+
   // Access request state
   const [justification, setJustification] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Load data with enhanced privacy-preserving analytics
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
-      
+
       try {
         // Process aggregate data with ZK proofs
         const { protocolStats, aggregateMetrics, privacyProofs } = await processAggregateData();
-        
+
         setProtocolStats(protocolStats);
         setAggregateMetrics(aggregateMetrics);
         setPrivacyProofs(privacyProofs);
         setExports(generateMockExports());
-        
+
         // Initialize MPC service and load any existing requests
         await arciumMPCService.initialize();
-        
+
         console.log('Research data loaded with privacy proofs:', privacyProofs);
       } catch (error) {
         console.error('Error loading research data:', error);
@@ -262,21 +277,21 @@ export const ResearcherTools: FunctionalComponent = () => {
         setIsLoading(false);
       }
     };
-    
+
     loadData();
   }, []);
 
   // Refresh aggregate data
   const refreshData = async () => {
     setIsRefreshing(true);
-    
+
     try {
       const { protocolStats, aggregateMetrics, privacyProofs } = await processAggregateData();
-      
+
       setProtocolStats(protocolStats);
       setAggregateMetrics(aggregateMetrics);
       setPrivacyProofs(privacyProofs);
-      
+
       console.log('Research data refreshed with new privacy proofs');
     } catch (error) {
       console.error('Error refreshing research data:', error);
@@ -284,21 +299,21 @@ export const ResearcherTools: FunctionalComponent = () => {
       setIsRefreshing(false);
     }
   };
-  
+
   // Enhanced MPC access request with real committee management
   const handleRequestAccess = async (caseStudyId: string) => {
     if (!publicKey || !connected) {
       alert('Please connect your wallet first');
       return;
     }
-    
+
     if (justification.length < 50) {
       alert('Justification must be at least 50 characters');
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       // Create access request with real committee formation
       const request = await arciumMPCService.requestAccess(publicKey, {
@@ -308,10 +323,10 @@ export const ResearcherTools: FunctionalComponent = () => {
         encryptionScheme: 'aes-256',
         preferredThreshold: 3,
       });
-      
+
       setAccessRequests(prev => [request, ...prev]);
       setJustification('');
-      
+
       console.log('MPC Access Request Created:', {
         requestId: request.id,
         caseStudyId,
@@ -319,10 +334,10 @@ export const ResearcherTools: FunctionalComponent = () => {
         threshold: request.threshold,
         requester: publicKey.toString(),
       });
-      
+
       // Simulate committee notification
       alert(`✅ Access request created! Committee of ${request.committee.length} validators formed. Threshold: ${request.threshold} approvals needed.`);
-      
+
     } catch (error) {
       console.error('Failed to create access request:', error);
       alert(`❌ Request failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -344,15 +359,15 @@ export const ResearcherTools: FunctionalComponent = () => {
       memberToApprove.approvedAt = Date.now();
 
       // Update the request
-      setAccessRequests(prev => 
+      setAccessRequests(prev =>
         prev.map(r => r.id === requestId ? { ...r, committee: [...request.committee] } : r)
       );
 
       const approvedCount = request.committee.filter(m => m.hasApproved).length;
-      
+
       if (approvedCount >= request.threshold) {
         // Update status to approved
-        setAccessRequests(prev => 
+        setAccessRequests(prev =>
           prev.map(r => r.id === requestId ? { ...r, status: 'approved' } : r)
         );
         alert(`🎉 Request approved! ${approvedCount}/${request.committee.length} validators approved. Data can now be decrypted.`);
@@ -361,7 +376,7 @@ export const ResearcherTools: FunctionalComponent = () => {
       }
     }
   };
-  
+
   // Handle export
   const handleExport = () => {
     const newExport: ResearchExport = {
@@ -372,22 +387,21 @@ export const ResearcherTools: FunctionalComponent = () => {
       size: Math.floor(Math.random() * 5000000) + 500000,
       downloadUrl: '#',
     };
-    
+
     setExports(prev => [newExport, ...prev]);
   };
-  
+
   // Format file size
   const formatFileSize = (bytes: number): string => {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
   };
-  
+
   if (!publicKey) {
     return (
-      <div class={`w-full max-w-6xl mx-auto p-6 rounded-2xl border-2 transition-all duration-300 ${
-        isDark ? 'bg-slate-900 text-white border-yellow-500/50' : 'bg-white text-slate-900 border-yellow-400 shadow-lg'
-      }`}>
+      <div class={`w-full max-w-6xl mx-auto p-6 rounded-2xl border-2 transition-all duration-300 ${isDark ? 'bg-slate-900 text-white border-yellow-500/50' : 'bg-white text-slate-900 border-yellow-400 shadow-lg'
+        }`}>
         <div class="flex items-center gap-3 mb-3">
           <span class="text-3xl">🔬</span>
           <h2 class={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
@@ -400,12 +414,11 @@ export const ResearcherTools: FunctionalComponent = () => {
       </div>
     );
   }
-  
+
   if (isLoading) {
     return (
-      <div class={`w-full max-w-6xl mx-auto p-8 rounded-2xl border-2 transition-all duration-300 ${
-        isDark ? 'bg-slate-900 text-white border-yellow-500/50' : 'bg-white text-slate-900 border-yellow-400 shadow-lg'
-      }`}>
+      <div class={`w-full max-w-6xl mx-auto p-8 rounded-2xl border-2 transition-all duration-300 ${isDark ? 'bg-slate-900 text-white border-yellow-500/50' : 'bg-white text-slate-900 border-yellow-400 shadow-lg'
+        }`}>
         <div class="text-center py-10">
           <div class="animate-spin text-4xl mb-4">🔬</div>
           <p class="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest text-xs">
@@ -415,7 +428,7 @@ export const ResearcherTools: FunctionalComponent = () => {
       </div>
     );
   }
-  
+
   return (
     <div class="w-full max-w-6xl mx-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 md:p-8 rounded-2xl border-2 border-yellow-500 shadow-xl transition-all duration-300">
       {/* Header */}
@@ -430,7 +443,7 @@ export const ResearcherTools: FunctionalComponent = () => {
               Aggregate data analysis, protocol effectiveness tracking, and cross-study comparisons.
             </p>
           </div>
-          
+
           {/* Quick Stats & Controls */}
           <div class="flex flex-col sm:flex-row gap-4">
             <div class="flex gap-4">
@@ -443,7 +456,7 @@ export const ResearcherTools: FunctionalComponent = () => {
                 <div class="text-xs uppercase tracking-wider text-slate-500">Patients</div>
               </div>
             </div>
-            
+
             {/* Refresh Button */}
             <button
               onClick={refreshData}
@@ -458,7 +471,7 @@ export const ResearcherTools: FunctionalComponent = () => {
             </button>
           </div>
         </div>
-        
+
         {/* Privacy Proofs Status */}
         {privacyProofs.length > 0 && (
           <div class="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-200 dark:border-purple-800/50">
@@ -470,13 +483,12 @@ export const ResearcherTools: FunctionalComponent = () => {
             </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
               {privacyProofs.map((proof, idx) => (
-                <div 
+                <div
                   key={idx}
-                  class={`p-2 rounded-lg text-[10px] font-bold flex justify-between items-center ${
-                    proof.verified 
-                      ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' 
+                  class={`p-2 rounded-lg text-[10px] font-bold flex justify-between items-center ${proof.verified
+                      ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
                       : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
-                  }`}
+                    }`}
                 >
                   <span class="capitalize">{proof.metric.replace('_', ' ')}</span>
                   <span>{proof.verified ? '✓' : '✗'}</span>
@@ -489,7 +501,7 @@ export const ResearcherTools: FunctionalComponent = () => {
           </div>
         )}
       </div>
-      
+
       {/* Tab Navigation */}
       <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
         {(['overview', 'protocols', 'comparison', 'export', 'access'] as const).map(tab => (
@@ -499,8 +511,8 @@ export const ResearcherTools: FunctionalComponent = () => {
             class={`
               px-4 py-2 rounded-lg text-xs md:text-sm font-bold uppercase tracking-wider whitespace-nowrap
               transition-colors touch-manipulation
-              ${activeTab === tab 
-                ? 'bg-yellow-500 text-white' 
+              ${activeTab === tab
+                ? 'bg-yellow-500 text-white'
                 : isDark ? 'bg-slate-800 text-slate-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}
             `}
           >
@@ -513,42 +525,42 @@ export const ResearcherTools: FunctionalComponent = () => {
           </button>
         ))}
       </div>
-      
+
       {/* Overview Tab */}
       {activeTab === 'overview' && aggregateMetrics && (
         <div class="space-y-6">
           {/* Key Metrics */}
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <MetricCard 
-              label="Total Studies" 
+            <MetricCard
+              label="Total Studies"
               value={aggregateMetrics.totalStudies.toLocaleString()}
               icon="📊"
               color="blue"
               isDark={isDark}
             />
-            <MetricCard 
-              label="Total Patients" 
+            <MetricCard
+              label="Total Patients"
               value={aggregateMetrics.totalPatients.toLocaleString()}
               icon="👥"
               color="green"
               isDark={isDark}
             />
-            <MetricCard 
-              label="Avg Age" 
+            <MetricCard
+              label="Avg Age"
               value={aggregateMetrics.avgAge.toFixed(1)}
               icon="🎂"
               color="purple"
               isDark={isDark}
             />
-            <MetricCard 
-              label="Avg Cost" 
+            <MetricCard
+              label="Avg Cost"
               value={`$${aggregateMetrics.costRange.avg}`}
               icon="💰"
               color="yellow"
               isDark={isDark}
             />
           </div>
-          
+
           {/* Condition Distribution */}
           <div class={`p-4 md:p-6 rounded-xl ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
             <h3 class="font-bold mb-4 flex items-center gap-2">
@@ -563,7 +575,7 @@ export const ResearcherTools: FunctionalComponent = () => {
                     <span class="font-bold">{percentage}%</span>
                   </div>
                   <div class={`h-2 rounded-full ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}>
-                    <div 
+                    <div
                       class="h-full bg-yellow-500 rounded-full"
                       style={{ width: `${percentage}%` }}
                     />
@@ -572,7 +584,7 @@ export const ResearcherTools: FunctionalComponent = () => {
               ))}
             </div>
           </div>
-          
+
           {/* Gender Distribution */}
           <div class={`p-4 md:p-6 rounded-xl ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
             <h3 class="font-bold mb-4 flex items-center gap-2">
@@ -582,11 +594,10 @@ export const ResearcherTools: FunctionalComponent = () => {
             <div class="flex gap-4">
               {Object.entries(aggregateMetrics.genderDistribution).map(([gender, percentage]) => (
                 <div key={gender} class="flex-1 text-center">
-                  <div class={`text-3xl font-black ${
-                    gender === 'male' ? 'text-blue-500' :
-                    gender === 'female' ? 'text-pink-500' :
-                    'text-purple-500'
-                  }`}>
+                  <div class={`text-3xl font-black ${gender === 'male' ? 'text-blue-500' :
+                      gender === 'female' ? 'text-pink-500' :
+                        'text-purple-500'
+                    }`}>
                     {percentage}%
                   </div>
                   <div class="text-sm text-slate-500 capitalize">{gender}</div>
@@ -596,7 +607,7 @@ export const ResearcherTools: FunctionalComponent = () => {
           </div>
         </div>
       )}
-      
+
       {/* Protocols Tab */}
       {activeTab === 'protocols' && (
         <div class="space-y-4">
@@ -620,12 +631,11 @@ export const ResearcherTools: FunctionalComponent = () => {
                     <td class="p-3 text-center">
                       <div class="flex items-center justify-center gap-2">
                         <div class={`w-16 h-2 rounded-full ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}>
-                          <div 
-                            class={`h-full rounded-full ${
-                              protocol.effectivenessScore >= 8 ? 'bg-green-500' :
-                              protocol.effectivenessScore >= 6 ? 'bg-yellow-500' :
-                              'bg-red-500'
-                            }`}
+                          <div
+                            class={`h-full rounded-full ${protocol.effectivenessScore >= 8 ? 'bg-green-500' :
+                                protocol.effectivenessScore >= 6 ? 'bg-yellow-500' :
+                                  'bg-red-500'
+                              }`}
                             style={{ width: `${(protocol.effectivenessScore / 10) * 100}%` }}
                           />
                         </div>
@@ -644,7 +654,7 @@ export const ResearcherTools: FunctionalComponent = () => {
           </div>
         </div>
       )}
-      
+
       {/* Comparison Tab */}
       {activeTab === 'comparison' && (
         <div class="space-y-6">
@@ -674,7 +684,7 @@ export const ResearcherTools: FunctionalComponent = () => {
               ))}
             </div>
           </div>
-          
+
           {/* Metric Selection */}
           <div class={`p-4 md:p-6 rounded-xl ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
             <h3 class="font-bold mb-4">Comparison Metric</h3>
@@ -695,7 +705,7 @@ export const ResearcherTools: FunctionalComponent = () => {
               ))}
             </div>
           </div>
-          
+
           {/* Comparison Chart */}
           {selectedProtocols.length > 0 && (
             <div class={`p-4 md:p-6 rounded-xl ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
@@ -705,26 +715,26 @@ export const ResearcherTools: FunctionalComponent = () => {
                   .filter(p => selectedProtocols.includes(p.protocol))
                   .map(protocol => {
                     const value = comparisonMetric === 'improvement' ? protocol.avgImprovement :
-                                  comparisonMetric === 'duration' ? protocol.avgDuration :
-                                  comparisonMetric === 'cost' ? protocol.avgCost :
-                                  100 - protocol.sideEffectRate;
+                      comparisonMetric === 'duration' ? protocol.avgDuration :
+                        comparisonMetric === 'cost' ? protocol.avgCost :
+                          100 - protocol.sideEffectRate;
                     const maxValue = comparisonMetric === 'improvement' ? 100 :
-                                     comparisonMetric === 'duration' ? 100 :
-                                     comparisonMetric === 'cost' ? 2000 :
-                                     100;
-                    
+                      comparisonMetric === 'duration' ? 100 :
+                        comparisonMetric === 'cost' ? 2000 :
+                          100;
+
                     return (
                       <div key={protocol.protocol}>
                         <div class="flex justify-between text-sm mb-1">
                           <span class="font-medium">{protocol.protocol}</span>
                           <span class="font-bold">
                             {comparisonMetric === 'cost' ? `$${value.toLocaleString()}` :
-                             comparisonMetric === 'safety' ? `${value.toFixed(1)}% safe` :
-                             `${value.toFixed(1)}${comparisonMetric === 'improvement' ? '%' : ' days'}`}
+                              comparisonMetric === 'safety' ? `${value.toFixed(1)}% safe` :
+                                `${value.toFixed(1)}${comparisonMetric === 'improvement' ? '%' : ' days'}`}
                           </span>
                         </div>
                         <div class={`h-4 rounded-full ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}>
-                          <div 
+                          <div
                             class="h-full bg-yellow-500 rounded-full transition-all duration-500"
                             style={{ width: `${Math.min(100, (value / maxValue) * 100)}%` }}
                           />
@@ -737,7 +747,7 @@ export const ResearcherTools: FunctionalComponent = () => {
           )}
         </div>
       )}
-      
+
       {/* Export Tab */}
       {activeTab === 'export' && (
         <div class="space-y-6">
@@ -747,7 +757,7 @@ export const ResearcherTools: FunctionalComponent = () => {
               <span>📥</span>
               <span>Export Configuration</span>
             </h3>
-            
+
             <div class="space-y-4">
               <div>
                 <label class="text-sm font-medium mb-2 block">Format</label>
@@ -768,7 +778,7 @@ export const ResearcherTools: FunctionalComponent = () => {
                   ))}
                 </div>
               </div>
-              
+
               <button
                 onClick={handleExport}
                 class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-lg transition-colors"
@@ -777,22 +787,21 @@ export const ResearcherTools: FunctionalComponent = () => {
               </button>
             </div>
           </div>
-          
+
           {/* Previous Exports */}
           <div class={`p-4 md:p-6 rounded-xl ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
             <h3 class="font-bold mb-4">Previous Exports</h3>
             <div class="space-y-2">
               {exports.map(export_ => (
-                <div 
+                <div
                   key={export_.id}
-                  class={`flex items-center justify-between p-3 rounded-lg ${
-                    isDark ? 'bg-slate-700' : 'bg-white'
-                  }`}
+                  class={`flex items-center justify-between p-3 rounded-lg ${isDark ? 'bg-slate-700' : 'bg-white'
+                    }`}
                 >
                   <div class="flex items-center gap-3">
                     <span class="text-2xl">
                       {export_.format === 'csv' ? '📊' :
-                       export_.format === 'json' ? '📋' : '📄'}
+                        export_.format === 'json' ? '📋' : '📄'}
                     </span>
                     <div>
                       <p class="font-bold">{export_.name}</p>
@@ -810,7 +819,7 @@ export const ResearcherTools: FunctionalComponent = () => {
           </div>
         </div>
       )}
-      
+
       {/* Access Tab */}
       {activeTab === 'access' && (
         <div class="space-y-6">
@@ -822,7 +831,7 @@ export const ResearcherTools: FunctionalComponent = () => {
                 <span>Request Data Access</span>
               </h3>
             </PrivacyTooltip>
-            
+
             <div class="space-y-4">
               <div>
                 <label class="text-sm font-medium mb-2 block">
@@ -832,16 +841,15 @@ export const ResearcherTools: FunctionalComponent = () => {
                   value={justification}
                   onChange={(e) => setJustification((e.target as HTMLTextAreaElement).value)}
                   placeholder="Explain your research purpose and how you will use the data..."
-                  class={`w-full p-3 rounded-lg border ${
-                    isDark ? 'bg-slate-900 border-slate-600 text-white' : 'bg-white border-slate-300'
-                  }`}
+                  class={`w-full p-3 rounded-lg border ${isDark ? 'bg-slate-900 border-slate-600 text-white' : 'bg-white border-slate-300'
+                    }`}
                   rows={4}
                 />
                 <div class="text-right text-xs text-slate-500 mt-1">
                   {justification.length} / 50 min
                 </div>
               </div>
-              
+
               <button
                 onClick={() => handleRequestAccess('cs_research_001')}
                 disabled={isSubmitting || justification.length < 50}
@@ -851,7 +859,7 @@ export const ResearcherTools: FunctionalComponent = () => {
               </button>
             </div>
           </div>
-          
+
           {/* Active Requests */}
           {accessRequests.length > 0 && (
             <div class={`p-4 md:p-6 rounded-xl ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
@@ -860,36 +868,34 @@ export const ResearcherTools: FunctionalComponent = () => {
                 {accessRequests.map(request => {
                   const committeeStatus = arciumMPCService.getCommitteeStatus(request.id);
                   const progress = committeeStatus?.progress || 0;
-                  
+
                   return (
-                    <div 
+                    <div
                       key={request.id}
-                      class={`p-4 rounded-lg border-2 ${
-                        request.status === 'approved' ? 'border-green-500 bg-green-50 dark:bg-green-900/20' :
-                        request.status === 'active' ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' :
-                        'border-slate-200 dark:border-slate-700'
-                      } ${isDark ? 'bg-slate-900' : 'bg-white'}`}
+                      class={`p-4 rounded-lg border-2 ${request.status === 'approved' ? 'border-green-500 bg-green-50 dark:bg-green-900/20' :
+                          request.status === 'active' ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' :
+                            'border-slate-200 dark:border-slate-700'
+                        } ${isDark ? 'bg-slate-900' : 'bg-white'}`}
                     >
                       <div class="flex items-center justify-between mb-2">
                         <span class="font-bold">Case Study: {request.caseStudyId}</span>
-                        <span class={`text-xs font-bold uppercase px-2 py-1 rounded ${
-                          request.status === 'approved' ? 'bg-green-500 text-white' :
-                          request.status === 'active' ? 'bg-yellow-500 text-white' :
-                          'bg-slate-500 text-white'
-                        }`}>
+                        <span class={`text-xs font-bold uppercase px-2 py-1 rounded ${request.status === 'approved' ? 'bg-green-500 text-white' :
+                            request.status === 'active' ? 'bg-yellow-500 text-white' :
+                              'bg-slate-500 text-white'
+                          }`}>
                           {request.status}
                         </span>
                       </div>
-                      
+
                       <p class="text-sm text-slate-500 mb-3 line-clamp-2">{request.justification}</p>
-                      
+
                       <div>
                         <div class="flex justify-between text-xs mb-1">
                           <span>Committee Approvals</span>
                           <span>{committeeStatus?.approved || 0} / {request.threshold} required</span>
                         </div>
                         <div class={`h-2 rounded-full ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}>
-                          <div 
+                          <div
                             class="h-full bg-yellow-500 rounded-full transition-all duration-500"
                             style={{ width: `${Math.min(100, progress * 100)}%` }}
                           />
@@ -924,7 +930,7 @@ const MetricCard: FunctionalComponent<MetricCardProps> = ({ label, value, icon, 
     purple: isDark ? 'bg-purple-900/30 text-purple-400' : 'bg-purple-50 text-purple-700',
     yellow: isDark ? 'bg-yellow-900/30 text-yellow-400' : 'bg-yellow-50 text-yellow-700',
   };
-  
+
   return (
     <div class={`p-4 rounded-xl ${colorClasses[color]}`}>
       <div class="text-2xl mb-2">{icon}</div>

@@ -5,6 +5,7 @@
  */
 
 import { PublicKey } from '@solana/web3.js';
+import { Buffer } from 'buffer';
 import { BlockchainService, CaseStudyData, ValidationData, TransactionResult } from './BlockchainService';
 import { encryptHealthData } from '../utils/encryption';
 import { cacheService } from './CacheService';
@@ -102,7 +103,7 @@ export async function submitCaseStudyToBlockchain(
       // Case study submitted successfully
       // Note: DBC rewards are handled by the treasury program after validation
       const qualityScore = 75; // This would come from validation in production
-      
+
       return {
         success: true,
         caseStudyPubkey: result.accountPubkey,
@@ -171,7 +172,7 @@ export async function submitValidatorApproval(
     if (result.success) {
       // Validation submitted successfully
       // Note: DBC staking is handled by the treasury program
-      
+
       return {
         success: true,
         transactionSignature: result.signature,
@@ -256,13 +257,14 @@ export async function fetchPendingCaseStudies(): Promise<{
     validationStatus: number;
     approvalCount: number;
     reputationScore: number;
+    durationDays: number;
   }>;
   error?: string;
 }> {
   try {
     const service = getBlockchainService();
     const caseStudies = await service.getPendingCaseStudies();
-    
+
     return {
       success: true,
       caseStudies,

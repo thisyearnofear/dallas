@@ -602,6 +602,52 @@ export function calculateStakingRewards(
 }
 
 /**
+ * Fetch validator reputation from on-chain account
+ */
+export async function getValidatorReputation(
+  connection: Connection,
+  validator: PublicKey
+): Promise<{
+  totalValidations: number;
+  accurateValidations: number;
+  accuracyRate: number;
+  tier: ValidatorTier;
+  pendingRewards: number;
+} | null> {
+  try {
+    const [reputationPDA] = getValidatorReputationPDA(validator);
+    const account = await connection.getAccountInfo(reputationPDA);
+
+    if (!account || !account.data) return null;
+
+    const data = account.data;
+    if (data.length < 48) return null; // discriminator (8) + validator (32) + 2x u32 (8)
+
+    // Using DataView for consistent byte access
+    const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+
+    // According to listValidators layout:
+    // pubkey: 8-40
+    // totalValidations: 40-44
+    // accurateValidations: 44-48
+    const totalValidations = view.getUint32(40, true);
+    const accurateValidations = view.getUint32(44, true);
+    const accuracyRate = totalValidations > 0 ? (accurateValidations / totalValidations) * 100 : 0;
+
+    return {
+      totalValidations,
+      accurateValidations,
+      accuracyRate,
+      tier: calculateTier(totalValidations, accuracyRate),
+      pendingRewards: calculateValidatorReward(totalValidations, accuracyRate),
+    };
+  } catch (error) {
+    console.warn('Error fetching validator reputation:', error);
+    return null;
+  }
+}
+
+/**
  * Claim validator rewards from treasury
  */
 export async function claimValidatorRewards(
@@ -679,6 +725,7 @@ export const DbcTokenService = {
   calculateStakingRewards,
   claimValidatorRewards,
   listValidators,
+  getValidatorReputation,
 } as const;
 
 export default DbcTokenService;

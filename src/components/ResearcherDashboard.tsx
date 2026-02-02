@@ -13,12 +13,16 @@
 
 import { FunctionalComponent } from 'preact';
 import { useState, useContext, useEffect } from 'preact/hooks';
-import { WalletContext } from '../context/WalletContext';
+import { PublicKey } from '@solana/web3.js';
+import { WalletContext, useWallet } from '../context/WalletContext';
 import {
   arciumMPCService,
-  MPCAccessRequest,
-  CommitteeMember,
+  ENCRYPTION_SCHEME_OPTIONS,
   DEFAULT_MPC_CONFIG,
+} from '../services/privacy';
+import type {
+  MPCAccessRequest,
+  EncryptionScheme
 } from '../services/privacy';
 import { PrivacyTooltip } from './PrivacyTooltip';
 
@@ -26,7 +30,7 @@ interface ResearcherState {
   activeRequests: MPCAccessRequest[];
   selectedRequest: MPCAccessRequest | null;
   justification: string;
-  encryptionScheme: 'aes-256' | 'chacha20' | 'custom';
+  encryptionScheme: EncryptionScheme;
   preferredThreshold: number;
   isSubmitting: boolean;
   isDecrypting: boolean;
@@ -34,7 +38,7 @@ interface ResearcherState {
 
 export const ResearcherDashboard: FunctionalComponent = () => {
   const { publicKey, connected } = useContext(WalletContext);
-  
+
   const [state, setState] = useState<ResearcherState>({
     activeRequests: [],
     selectedRequest: null,
@@ -50,34 +54,44 @@ export const ResearcherDashboard: FunctionalComponent = () => {
     message: string;
   }>({ type: null, message: '' });
 
-  // Initialize service and load mock data
+  // Initialize service and load real data
   useEffect(() => {
-    arciumMPCService.initialize().catch(console.error);
-    
-    // Load mock active requests
-    const mockRequests: MPCAccessRequest[] = [
-      {
-        id: 'mpc_cs-001_abc123_1699123456789_xyz789',
-        caseStudyId: 'cs-001',
-        requester: publicKey || new (await import('@solana/web3.js')).PublicKey(new Uint8Array(32).fill(1)),
-        requesterType: 'researcher',
-        justification: 'Researching efficacy of Peptide-T protocols for neurodegenerative conditions. Aggregate analysis of 50+ case studies needed for statistical significance.',
-        status: 'active',
-        committee: [
-          { validatorAddress: new (await import('@solana/web3.js')).PublicKey(new Uint8Array(32).fill(1)), hasApproved: true, approvedAt: Date.now() - 3600000 },
-          { validatorAddress: new (await import('@solana/web3.js')).PublicKey(new Uint8Array(32).fill(2)), hasApproved: true, approvedAt: Date.now() - 7200000 },
-          { validatorAddress: new (await import('@solana/web3.js')).PublicKey(new Uint8Array(32).fill(3)), hasApproved: false },
-          { validatorAddress: new (await import('@solana/web3.js')).PublicKey(new Uint8Array(32).fill(4)), hasApproved: false },
-          { validatorAddress: new (await import('@solana/web3.js')).PublicKey(new Uint8Array(32).fill(5)), hasApproved: false },
-        ],
-        threshold: 3,
-        createdAt: Date.now() - 86400000,
-        expiresAt: Date.now() + 86400000,
-        encryptionScheme: 'aes-256',
-      },
-    ];
-    
-    setState(s => ({ ...s, activeRequests: mockRequests }));
+    const loadRequests = async () => {
+      await arciumMPCService.initialize();
+
+      if (publicKey) {
+        // Fetch real sessions for this requester
+        const sessions = arciumMPCService.getRequesterSessions(publicKey);
+
+        if (sessions.length > 0) {
+          setState(s => ({ ...s, activeRequests: sessions }));
+        } else {
+          // Add a sample request if none exist (for demo)
+          const demoRequest: MPCAccessRequest = {
+            id: 'mpc_demo_ NeuroProtocol_2024',
+            caseStudyId: 'cs-demo-001',
+            requester: publicKey,
+            requesterType: 'researcher',
+            justification: 'Researching efficacy of neuro-regeneration protocols for chronic cognitive fatigue. Aggregate analysis needed for Phase II validation.',
+            status: 'active',
+            committee: [
+              { validatorAddress: new PublicKey('675kSim29XRs9utcc99M6vjGk6UvH0n9'), hasApproved: true, approvedAt: Date.now() - 3600000 },
+              { validatorAddress: new PublicKey('3H1v9U8fL7vB2K3m4N5p6Q7r8S9t0U1v'), hasApproved: false },
+              { validatorAddress: new PublicKey('9A8b7C6D5E4F3G2H1I0J9K8L7M6N5O4P'), hasApproved: false },
+              { validatorAddress: new PublicKey('1Q2W3E4R5T6Y7U8I9O0P1A2S3D4F5G6H'), hasApproved: false },
+              { validatorAddress: new PublicKey('zXcVbNmAsDfGhJkLlPiUyTrEwQqWwEeR'), hasApproved: false },
+            ],
+            threshold: 3,
+            createdAt: Date.now() - 86400000,
+            expiresAt: Date.now() + 86400000,
+            encryptionScheme: 'aes-256',
+          };
+          setState(s => ({ ...s, activeRequests: [demoRequest] }));
+        }
+      }
+    };
+
+    loadRequests().catch(console.error);
   }, [publicKey]);
 
   // Request access to case study
@@ -197,13 +211,12 @@ export const ResearcherDashboard: FunctionalComponent = () => {
       {/* Status Messages */}
       {submitStatus.type && (
         <div
-          class={`mb-8 p-5 rounded-xl border-l-4 transition-colors shadow-sm font-bold text-sm ${
-            submitStatus.type === 'success'
-              ? 'bg-green-50 dark:bg-green-900/30 border-green-500 text-green-700 dark:text-green-300'
-              : submitStatus.type === 'error'
+          class={`mb-8 p-5 rounded-xl border-l-4 transition-colors shadow-sm font-bold text-sm ${submitStatus.type === 'success'
+            ? 'bg-green-50 dark:bg-green-900/30 border-green-500 text-green-700 dark:text-green-300'
+            : submitStatus.type === 'error'
               ? 'bg-red-50 dark:bg-red-900/30 border-red-500 text-red-700 dark:text-red-300'
               : 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-700 dark:text-blue-300'
-          }`}
+            }`}
         >
           {submitStatus.message}
         </div>
@@ -262,7 +275,7 @@ export const ResearcherDashboard: FunctionalComponent = () => {
                     </PrivacyTooltip>
                   </div>
                   <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    Multiple validators must approve before you can access the data. 
+                    Multiple validators must approve before you can access the data.
                     No single person can view it alone.
                   </p>
                 </div>
@@ -272,9 +285,9 @@ export const ResearcherDashboard: FunctionalComponent = () => {
                 <span class="text-sm font-bold text-slate-600 dark:text-slate-400">Approvals needed:</span>
                 <select
                   value={state.preferredThreshold}
-                  onChange={(e) => setState(s => ({ 
-                    ...s, 
-                    preferredThreshold: parseInt((e.target as HTMLSelectElement).value) 
+                  onChange={(e) => setState(s => ({
+                    ...s,
+                    preferredThreshold: parseInt((e.target as HTMLSelectElement).value)
                   }))}
                   class="bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 outline-none"
                 >
@@ -314,7 +327,7 @@ export const ResearcherDashboard: FunctionalComponent = () => {
               state.activeRequests.map(request => {
                 const committeeStatus = arciumMPCService.getCommitteeStatus(request.id);
                 const progress = committeeStatus?.progress || 0;
-                
+
                 return (
                   <div
                     key={request.id}
@@ -397,8 +410,8 @@ export const ResearcherDashboard: FunctionalComponent = () => {
             How Committee Approval Protects Privacy
           </p>
           <p class="text-xs font-medium text-yellow-700 dark:text-slate-400 leading-relaxed">
-            Your request goes to a committee of independent validators. The data can only be 
-            decrypted when enough validators agree—no single person, not even platform admins, 
+            Your request goes to a committee of independent validators. The data can only be
+            decrypted when enough validators agree—no single person, not even platform admins,
             can access patient data alone. This protects patients while enabling important research.
           </p>
         </div>

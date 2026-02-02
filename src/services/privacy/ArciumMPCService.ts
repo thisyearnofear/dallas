@@ -122,11 +122,60 @@ export class ArciumMPCService {
   async initialize(): Promise<void> {
     if (this.initialized) return;
 
+    // Load persisted sessions from localStorage
+    this.loadSessions();
+
     console.log('🔐 ArciumMPCService initialized');
     console.log('ℹ️ Using Shamir Secret Sharing for threshold decryption');
     console.log('ℹ️ Full Arcium MPC integration available in future version');
 
     this.initialized = true;
+  }
+
+  private loadSessions() {
+    if (typeof localStorage === 'undefined') return;
+    try {
+      const stored = localStorage.getItem('dallas_mpc_sessions');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        Object.entries(parsed).forEach(([id, session]: [string, any]) => {
+          // Convert back to proper types (PublicKey)
+          const request: MPCAccessRequest = {
+            ...session,
+            requester: new PublicKey(session.requester),
+            committee: session.committee.map((m: any) => ({
+              ...m,
+              validatorAddress: new PublicKey(m.validatorAddress),
+              shareCommitment: m.shareCommitment ? new Uint8Array(Object.values(m.shareCommitment)) : undefined
+            }))
+          };
+          this.activeSessions.set(id, request);
+        });
+      }
+    } catch (error) {
+      console.warn('Failed to load MPC sessions:', error);
+    }
+  }
+
+  private saveSessions() {
+    if (typeof localStorage === 'undefined') return;
+    try {
+      const toStore: Record<string, any> = {};
+      this.activeSessions.forEach((session, id) => {
+        toStore[id] = {
+          ...session,
+          requester: session.requester.toString(),
+          committee: session.committee.map(m => ({
+            ...m,
+            validatorAddress: m.validatorAddress.toString(),
+            shareCommitment: m.shareCommitment ? Array.from(m.shareCommitment) : undefined
+          }))
+        };
+      });
+      localStorage.setItem('dallas_mpc_sessions', JSON.stringify(toStore));
+    } catch (error) {
+      console.warn('Failed to save MPC sessions:', error);
+    }
   }
 
   /**
@@ -176,6 +225,7 @@ export class ArciumMPCService {
 
     // Store session
     this.activeSessions.set(sessionId, request);
+    this.saveSessions();
 
     console.log('🔐 Threshold decryption request created:', sessionId);
     console.log(`   Committee: ${committee.length} validators`);
@@ -237,6 +287,7 @@ export class ArciumMPCService {
       console.log('✅ Threshold reached! Access granted for decryption.');
     }
 
+    this.saveSessions();
     return session;
   }
 
@@ -340,7 +391,45 @@ export class ArciumMPCService {
     if (session.status !== 'pending' && session.status !== 'active') return false;
 
     this.activeSessions.delete(sessionId);
+    this.saveSessions();
     return true;
+  }
+
+  /**
+   * Get committee status for a session
+   */
+  getCommitteeStatus(sessionId: string): {
+    total: number;
+    approved: number;
+    threshold: number;
+    progress: number;
+  } | undefined {
+    const session = this.activeSessions.get(sessionId);
+    if (!session) return undefined;
+
+    const approved = session.committee.filter(m => m.hasApproved).length;
+    return {
+      total: session.committee.length,
+      approved,
+      threshold: session.threshold,
+      progress: approved / session.threshold,
+    };
+  }
+
+  /**
+   * Format time remaining for a session
+   */
+  formatTimeRemaining(expiresAt: number): string {
+    const remaining = expiresAt - Date.now();
+    if (remaining <= 0) return 'Expired';
+
+    const hours = Math.floor(remaining / (60 * 60 * 1000));
+    const minutes = Math.floor((remaining % (60 * 60 * 1000)) / (60 * 1000));
+
+    if (hours > 24) {
+      return `${Math.floor(hours / 24)}d ${hours % 24}h`;
+    }
+    return `${hours}h ${minutes}m`;
   }
 
   /**
