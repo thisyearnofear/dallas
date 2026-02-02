@@ -224,11 +224,18 @@ export function WalletProvider({ children }: { children: any }) {
     } catch (error: any) {
       console.error('Connection error:', error);
       let errorMessage = 'Connection failed';
-      if (error.message) {
+      
+      // Handle specific Phantom errors
+      if (error.message === 'Unexpected error') {
+        errorMessage = 'Wallet connection failed. Please try: 1) Unlock your Phantom wallet, 2) Refresh the page, 3) Check if you have other wallet extensions that might conflict';
+      } else if (error.message) {
         errorMessage = error.message;
       } else if (error.name === 'UserRejectedRequestError') {
         errorMessage = 'Connection was rejected by user';
+      } else if (error.code === 4001) {
+        errorMessage = 'User rejected the connection request';
       }
+      
       throw new Error(errorMessage);
     } finally {
       setConnecting(false);
