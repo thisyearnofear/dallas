@@ -268,6 +268,37 @@ export interface FilterConfig<T> {
   operator: 'eq' | 'ne' | 'gt' | 'lt' | 'contains';
 }
 
+// ============= Health & Wearable Types =============
+
+export type HealthMetricType = 'glucose' | 'sleep' | 'steps' | 'heart_rate' | 'blood_pressure';
+
+export interface HealthMetric {
+  type: HealthMetricType;
+  value: number;
+  unit: string;
+  timestamp: number;
+  metadata?: Record<string, unknown>;
+  deviceId?: string;
+  source: 'garmin' | 'dexcom' | 'apple_health' | 'manual';
+}
+
+export interface HealthInsight {
+  metricType: HealthMetricType;
+  period: 'daily' | 'weekly' | 'monthly';
+  averageValue: number;
+  minValue: number;
+  maxValue: number;
+  consistencyScore: number; // 0-100
+  timestamp: number;
+}
+
+export interface CompressedAccount {
+  address: PublicKey;
+  merkleRoot: Uint8Array;
+  proof: Uint8Array;
+  dataHash: Uint8Array;
+}
+
 // ============= Re-export from other type files =============
 
 export * from './community';
