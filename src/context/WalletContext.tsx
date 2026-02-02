@@ -126,6 +126,10 @@ export function WalletProvider({ children }: { children: any }) {
         return provider;
       }
     }
+    // Also check for phantom.solana (newer versions)
+    if ('phantom' in window && (window as any).phantom?.solana) {
+      return (window as any).phantom.solana;
+    }
     return null;
   };
 
@@ -135,6 +139,15 @@ export function WalletProvider({ children }: { children: any }) {
       const provider = getProvider();
       if (provider) {
         try {
+          // Check if already connected without prompting
+          if (provider.isConnected && provider.publicKey) {
+            const pubkeyStr = provider.publicKey.toString ? provider.publicKey.toString() : provider.publicKey;
+            setPublicKey(new PublicKey(pubkeyStr));
+            setConnected(true);
+            return;
+          }
+          
+          // Try silent connection
           const response = await provider.connect({ onlyIfTrusted: true });
           if (response?.publicKey) {
             const pubkeyStr = response.publicKey.toString ? response.publicKey.toString() : response.publicKey;
@@ -147,7 +160,10 @@ export function WalletProvider({ children }: { children: any }) {
         }
       }
     };
-    checkConnection();
+    
+    // Delay slightly to ensure Phantom is fully injected
+    const timer = setTimeout(checkConnection, 500);
+    return () => clearTimeout(timer);
   }, []);
 
   // Listen for account changes
@@ -212,28 +228,48 @@ export function WalletProvider({ children }: { children: any }) {
         throw new Error('Phantom wallet not found. Please install Phantom browser extension.');
       }
 
-      // Check if wallet is already connected
-      if (provider.connect) {
-        const response = await provider.connect();
-        if (response?.publicKey) {
-          const pubkeyStr = response.publicKey.toString ? response.publicKey.toString() : response.publicKey;
-          setPublicKey(new PublicKey(pubkeyStr));
-          setConnected(true);
-        }
+      // Check if already connected
+      if (provider.isConnected && provider.publicKey) {
+        const pubkeyStr = provider.publicKey.toString ? provider.publicKey.toString() : provider.publicKey;
+        setPublicKey(new PublicKey(pubkeyStr));
+        setConnected(true);
+        setConnecting(false);
+        return;
+      }
+
+      // Check Phantom network
+      const phantomNetwork = provider.network || provider.cluster;
+      if (phantomNetwork && phantomNetwork !== 'devnet' && SOLANA_CONFIG.network === 'devnet') {
+        console.warn(`Phantom is on ${phantomNetwork}, expected devnet`);
+        // Don't throw, just warn - user can still connect but transactions may fail
+      }
+
+      // Request connection with timeout
+      const connectPromise = provider.connect();
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Connection timeout')), 30000);
+      });
+      
+      const response = await Promise.race([connectPromise, timeoutPromise]);
+      
+      if (response?.publicKey) {
+        const pubkeyStr = response.publicKey.toString ? response.publicKey.toString() : response.publicKey;
+        setPublicKey(new PublicKey(pubkeyStr));
+        setConnected(true);
       }
     } catch (error: any) {
       console.error('Connection error:', error);
       let errorMessage = 'Connection failed';
       
       // Handle specific Phantom errors
-      if (error.message === 'Unexpected error') {
-        errorMessage = 'Wallet connection failed. Please try: 1) Unlock your Phantom wallet, 2) Refresh the page, 3) Check if you have other wallet extensions that might conflict';
-      } else if (error.message) {
-        errorMessage = error.message;
-      } else if (error.name === 'UserRejectedRequestError') {
+      if (error.message === 'Unexpected error' || error.code === -32603) {
+        errorMessage = 'Phantom wallet error. Please try:\n1) Unlock your Phantom wallet\n2) Switch to Devnet in Phantom settings\n3) Refresh the page\n4) Disable other wallet extensions temporarily';
+      } else if (error.message === 'User rejected the request.') {
         errorMessage = 'Connection was rejected by user';
       } else if (error.code === 4001) {
         errorMessage = 'User rejected the connection request';
+      } else if (error.message) {
+        errorMessage = error.message;
       }
       
       throw new Error(errorMessage);
