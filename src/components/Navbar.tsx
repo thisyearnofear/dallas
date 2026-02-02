@@ -9,6 +9,7 @@ const navigationItems = [
     { href: "/attention-tokens", label: "Token Market", icon: "💎", description: "Trade community tokens", highlight: true },
     { href: "/validators", label: "Validators", icon: "⚖️", description: "Earn by validating", highlight: true },
     { href: "/membership", label: "Join Us", icon: "🤝", description: "Become a fighter" },
+    { href: "/agents", label: "Fleet Intel", icon: "🤖", description: "Manage AI agents", highlight: true },
     { href: "/underground", label: "Underground", icon: "🕋", description: "Secret operations", secret: true },
     { href: "/links", label: "Resources", icon: "🔗", description: "Tools & info" }
 ];
@@ -100,7 +101,7 @@ export function Navbar() {
                                 </div>
                             )}
                         </div>
-                        
+
                         {/* Membership Progress */}
                         {hasMembership && membership && (
                             <div class="mt-3">
@@ -111,7 +112,7 @@ export function Navbar() {
                                     </span>
                                 </div>
                                 <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                    <div 
+                                    <div
                                         class="bg-brand rounded-full h-2 transition-all duration-500"
                                         style={{ width: `${Math.max(0, Math.min(100, ((membership.expiresAt.getTime() - Date.now()) / (365 * 24 * 60 * 60 * 1000)) * 100))}%` }}
                                     />
@@ -148,7 +149,7 @@ export function Navbar() {
             {/* Support Link */}
             {!isCollapsed && (
                 <div class="mt-4 px-4 pb-4">
-                    <a 
+                    <a
                         href="/links"
                         class="block bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 p-3 rounded-lg transition-colors"
                     >

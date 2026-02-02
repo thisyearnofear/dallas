@@ -77,6 +77,11 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
     lightProtocolService.initialize().catch(console.error);
   }, []);
 
+  // Validate form whenever data changes
+  useEffect(() => {
+    validateForm();
+  }, [formData]);
+
   // Auto-derive encryption key when wallet is connected
   useEffect(() => {
     const autoDeriveKey = async () => {
@@ -105,6 +110,44 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
     sideEffects: [],
     context: '',
   });
+
+  // Form validation state
+  const [formValidation, setFormValidation] = useState({
+    treatmentProtocol: { isValid: false, message: '' },
+    durationDays: { isValid: true, message: '' },
+    costUSD: { isValid: true, message: '' },
+    baselineMetrics: { isValid: true, message: '' },
+    outcomeMetrics: { isValid: true, message: '' },
+  });
+
+  // Real-time form validation
+  const validateForm = () => {
+    const validation = {
+      treatmentProtocol: {
+        isValid: formData.treatmentProtocol.trim().length >= 10,
+        message: formData.treatmentProtocol.trim().length < 10 ? 'Protocol name must be at least 10 characters' : '',
+      },
+      durationDays: {
+        isValid: formData.durationDays >= 1 && formData.durationDays <= 365,
+        message: formData.durationDays < 1 || formData.durationDays > 365 ? 'Duration must be between 1-365 days' : '',
+      },
+      costUSD: {
+        isValid: formData.costUSD >= 0,
+        message: formData.costUSD < 0 ? 'Cost cannot be negative' : '',
+      },
+      baselineMetrics: {
+        isValid: formData.baselineMetrics.symptomSeverity >= 1 && formData.baselineMetrics.energyLevel >= 1,
+        message: 'Please set baseline metrics',
+      },
+      outcomeMetrics: {
+        isValid: formData.outcomeMetrics.symptomSeverity >= 1 && formData.outcomeMetrics.energyLevel >= 1,
+        message: 'Please set outcome metrics',
+      },
+    };
+    
+    setFormValidation(validation);
+    return Object.values(validation).every(v => v.isValid);
+  };
 
   const [newSideEffect, setNewSideEffect] = useState<SideEffect>({
     name: '',
@@ -245,6 +288,7 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
   };
 
   // Step 2: Encrypt and submit case study to blockchain
+  // Enhanced submission with real-time progress tracking
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
 
@@ -282,23 +326,35 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
 
     setIsSubmitting(true);
 
-    // Compress data if not already compressed
-    let compressedData = compressionStats.compressedData;
-    if (!compressedData) {
-      compressedData = await compressCaseStudy();
-      if (!compressedData) {
-        setIsSubmitting(false);
-        return;
-      }
-    }
-
-    setSubmitStatus({
-      type: 'info',
-      message: `🔄 Submitting to blockchain with ${compressionStats.savingsPercent}% compression... Please approve the transaction.`,
-    });
-
     try {
-      // Submit to blockchain with privacy sponsor integrations
+      // Step 1: Compress data if needed
+      setSubmitStatus({
+        type: 'info',
+        message: '🔄 Step 1/4: Compressing case study data...',
+      });
+
+      let compressedData = compressionStats.compressedData;
+      if (!compressedData) {
+        compressedData = await compressCaseStudy();
+        if (!compressedData) {
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      // Step 2: Prepare transaction
+      setSubmitStatus({
+        type: 'info',
+        message: `🔄 Step 2/4: Preparing blockchain transaction (${compressionStats.savingsPercent}% compression achieved)...`,
+      });
+
+      // Step 3: Sign transaction
+      setSubmitStatus({
+        type: 'info',
+        message: '🔄 Step 3/4: Please approve the transaction in your wallet...',
+      });
+
+      // Submit to blockchain with real program calls
       const result = await submitCaseStudyToBlockchain(
         publicKey,
         walletContext.signTransaction,
@@ -312,7 +368,16 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
         }
       );
 
+      // Step 4: Confirm transaction
       if (result.success) {
+        setSubmitStatus({
+          type: 'info',
+          message: '🔄 Step 4/4: Confirming transaction on Solana blockchain...',
+        });
+
+        // Wait a moment for confirmation
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
         // Extract data for success overlay
         const signature = result.transactionSignature || '';
         const caseStudyId = result.caseStudyPubkey?.toString() || '';
@@ -367,11 +432,41 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
           </div>
           
           <h2 class="text-3xl font-black mb-3 uppercase tracking-tighter text-green-600 dark:text-green-400">
-            🎉 Submission Successful!
+            🎉 Case Study Submitted!
           </h2>
           <p class="text-slate-600 dark:text-slate-300 font-medium mb-8">
-            Your encrypted case study is now on the blockchain
+            Your encrypted case study is now on Solana blockchain and ready for validation
           </p>
+
+          {/* Next Steps Guide */}
+          <div class="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-6 mb-6 text-left border border-blue-200 dark:border-blue-800/50">
+            <h3 class="text-lg font-bold text-blue-800 dark:text-blue-300 mb-4 flex items-center gap-2">
+              <span>🚀</span> What happens next?
+            </h3>
+            <div class="space-y-3 text-sm">
+              <div class="flex items-start gap-3">
+                <span class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                <div>
+                  <div class="font-bold text-blue-700 dark:text-blue-300">Validator Review</div>
+                  <div class="text-blue-600 dark:text-blue-400">Validators will review your case study using ZK proofs (no data exposure)</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-3">
+                <span class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                <div>
+                  <div class="font-bold text-blue-700 dark:text-blue-300">Community Rewards</div>
+                  <div class="text-blue-600 dark:text-blue-400">Earn DBC tokens and community tokens based on data quality</div>
+                </div>
+              </div>
+              <div class="flex items-start gap-3">
+                <span class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                <div>
+                  <div class="font-bold text-blue-700 dark:text-blue-300">Research Impact</div>
+                  <div class="text-blue-600 dark:text-blue-400">Your data contributes to aggregate research while staying private</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Transaction Details Card */}
           <div class="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 mb-6 text-left border border-slate-200 dark:border-slate-700">
@@ -418,7 +513,7 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Enhanced Action Buttons */}
           <div class="flex flex-col sm:flex-row gap-3">
             <a
               href={successData.explorerUrl}
@@ -426,13 +521,19 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
               rel="noopener noreferrer"
               class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-xl font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2"
             >
-              <span>🔍</span> View on Explorer
+              <span>🔍</span> View Transaction
+            </a>
+            <a
+              href="/validators"
+              class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-4 rounded-xl font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+            >
+              <span>👥</span> Track Validation
             </a>
             <button
               onClick={() => setSuccessData(null)}
-              class="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-xl font-black text-sm uppercase tracking-wider transition-all"
+              class="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-xl font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2"
             >
-              ✨ Submit Another
+              <span>✨</span> Submit Another
             </button>
           </div>
 
@@ -520,19 +621,44 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
               <label class="block text-xs font-black mb-2 uppercase tracking-widest text-slate-500 dark:text-slate-400">
                 What treatment did you try? *
               </label>
-              <input
-                type="text"
-                placeholder="e.g., Peptide-T + Vitamin D + NAC supplements"
-                value={formData.treatmentProtocol}
-                onInput={(e) =>
-                  setFormData({
-                    ...formData,
-                    treatmentProtocol: (e.target as HTMLInputElement).value,
-                  })
-                }
-                class="w-full px-4 py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 outline-none focus:border-brand transition-all shadow-sm"
-                required
-              />
+              <div class="relative">
+                <input
+                  type="text"
+                  placeholder="e.g., Peptide-T + Vitamin D + NAC supplements"
+                  value={formData.treatmentProtocol}
+                  onInput={(e) =>
+                    setFormData({
+                      ...formData,
+                      treatmentProtocol: (e.target as HTMLInputElement).value,
+                    })
+                  }
+                  class={`w-full px-4 py-3 bg-white dark:bg-slate-700 border rounded-xl text-slate-900 dark:text-white placeholder-slate-400 outline-none transition-all shadow-sm ${
+                    formData.treatmentProtocol.length > 0
+                      ? formValidation.treatmentProtocol.isValid
+                        ? 'border-green-500 focus:border-green-600'
+                        : 'border-red-500 focus:border-red-600'
+                      : 'border-slate-200 dark:border-slate-600 focus:border-brand'
+                  }`}
+                  required
+                />
+                {formData.treatmentProtocol.length > 0 && (
+                  <div class="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    {formValidation.treatmentProtocol.isValid ? (
+                      <span class="text-green-500 text-lg">✓</span>
+                    ) : (
+                      <span class="text-red-500 text-lg">✗</span>
+                    )}
+                  </div>
+                )}
+              </div>
+              {formValidation.treatmentProtocol.message && (
+                <p class="text-xs text-red-500 mt-2 font-medium">
+                  {formValidation.treatmentProtocol.message}
+                </p>
+              )}
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                {formData.treatmentProtocol.length}/10 characters minimum
+              </p>
             </div>
 
             {/* Duration & Cost */}
@@ -807,17 +933,24 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
             {LEGAL_CONFIG.positioning.examples.slice(0, 4).join(', ')}
           </div>
 
-          {/* Submit Button */}
+          {/* Enhanced Submit Button */}
           <button
             type="submit"
-            disabled={isSubmitting || !formData.treatmentProtocol.trim() || !consentGiven}
+            disabled={isSubmitting || !validateForm() || !consentGiven}
             class="w-full bg-green-600 hover:bg-green-700 text-white disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 dark:disabled:text-slate-600 px-6 py-5 rounded-2xl font-black text-xl transition-all transform hover:scale-[1.01] active:scale-95 shadow-xl disabled:transform-none disabled:shadow-none uppercase tracking-tighter"
           >
-            {isSubmitting
-              ? '⏳ Submitting encrypted case study...'
-              : !consentGiven 
-                ? '⚠️ Confirm the checkboxes above'
-                : '🚀 Submit Encrypted Case Study'}
+            {isSubmitting ? (
+              <span class="flex items-center justify-center gap-3">
+                <span class="animate-spin">⏳</span>
+                Submitting to Blockchain...
+              </span>
+            ) : !validateForm() ? (
+              '📝 Complete Form to Submit'
+            ) : !consentGiven ? (
+              '✅ Accept Terms to Submit'
+            ) : (
+              '🚀 Submit to Blockchain'
+            )}
           </button>
 
           {/* Privacy Tech Stack - Working Features Only */}

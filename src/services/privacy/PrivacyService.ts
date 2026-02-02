@@ -542,17 +542,17 @@ export class PrivacyService {
   /**
    * Calculate privacy score for a case study
    */
-  calculatePrivacyScore(features: {
-    hasEncryption: boolean;
-    zkProofCount: number;
-    hasCompression: boolean;
-    hasMPC: boolean;
-  }): number {
+  calculatePrivacyScore(
+    hasEncryption: boolean,
+    hasZkProofs: boolean,
+    hasCompression: boolean,
+    hasMPC: boolean
+  ): number {
     let score = 0;
-    if (features.hasEncryption) score += PRIVACY_SCORE_WEIGHTS.encryption;
-    if (features.zkProofCount > 0) score += PRIVACY_SCORE_WEIGHTS.zk_proofs;
-    if (features.hasCompression) score += PRIVACY_SCORE_WEIGHTS.compression;
-    if (features.hasMPC) score += PRIVACY_SCORE_WEIGHTS.mpc;
+    if (hasEncryption) score += PRIVACY_SCORE_WEIGHTS.encryption;
+    if (hasZkProofs) score += PRIVACY_SCORE_WEIGHTS.zk_proofs;
+    if (hasCompression) score += PRIVACY_SCORE_WEIGHTS.compression;
+    if (hasMPC) score += PRIVACY_SCORE_WEIGHTS.mpc;
     return Math.min(score, 100);
   }
 

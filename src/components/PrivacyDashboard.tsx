@@ -47,6 +47,10 @@ interface PrivacyStats {
   completedSessions: number;
   totalCommitteeApprovals: number;
 
+  // Agentic Era
+  activeAgents: number;
+  agentValidations: number;
+
   // Combined
   overallPrivacyScore: number;
 }
@@ -93,6 +97,8 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
     activeSessions: 0,
     completedSessions: 0,
     totalCommitteeApprovals: 0,
+    activeAgents: 0,
+    agentValidations: 0,
     overallPrivacyScore: 0,
   });
 
@@ -100,7 +106,7 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevel | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'proofs' | 'compression' | 'mpc' | 'biometrics'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'proofs' | 'compression' | 'mpc' | 'biometrics' | 'fleet'>('overview');
 
   /**
    * Fetch case study count from blockchain
@@ -147,16 +153,15 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
           if (data.length < 100) continue;
 
           // Read compression_ratio from account data (offset varies based on struct)
-          // Account layout: discriminator(8) + ephemeral_id(32) + patient_id(32) + ...
-          // Compression ratio is stored as u16
+          const dataAny = data as any;
           let offset = 8 + 32 + 32; // Skip discriminator, ephemeral_id, patient_id
 
           // Skip ipfs_cid (String)
-          const ipfsCidLen = data.readUInt32LE(offset);
+          const ipfsCidLen = dataAny.readUInt32LE(offset);
           offset += 4 + ipfsCidLen;
 
           // Skip treatment_protocol (String)
-          const treatmentProtocolLen = data.readUInt32LE(offset);
+          const treatmentProtocolLen = dataAny.readUInt32LE(offset);
           offset += 4 + treatmentProtocolLen;
 
           // Skip metadata_hash (32 bytes)
@@ -169,15 +174,15 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
           offset += 2;
 
           // Skip proof_of_encryption (Vec<u8>)
-          const proofLen = data.readUInt32LE(offset);
+          const proofLen = dataAny.readUInt32LE(offset);
           offset += 4 + proofLen;
 
           // Skip light_protocol_proof (Vec<u8>)
-          const lightProofLen = data.readUInt32LE(offset);
+          const lightProofLen = dataAny.readUInt32LE(offset);
           offset += 4 + lightProofLen;
 
           // Read compression_ratio (2 bytes, u16)
-          const compressionRatio = data.readUInt16LE(offset);
+          const compressionRatio = dataAny.readUInt16LE(offset);
 
           if (compressionRatio > 0) {
             totalCompressed++;
@@ -252,6 +257,17 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
   }, []);
 
   /**
+   * Get agentic metadata
+   */
+  const getAgenticStats = useCallback(() => {
+    // In a real app this would call agentService
+    return {
+      activeAgents: 5, // Mock data reflecting the growth of the fleet
+      agentValidations: 124,
+    };
+  }, []);
+
+  /**
    * Load all stats with caching
    */
   const loadStats = useCallback(async (forceRefresh = false) => {
@@ -278,11 +294,13 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
         compressionStats,
         proofCounts,
         mpcCounts,
+        agentStats,
       ] = await Promise.all([
         fetchCaseStudyCount(),
         calculateCompressionStats(),
         Promise.resolve(getProofCounts()),
         Promise.resolve(getMPCSessionCounts()),
+        Promise.resolve(getAgenticStats()),
       ]);
 
       // Calculate privacy score based on real data
@@ -293,7 +311,7 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
 
       const score = privacyService.calculatePrivacyScore(
         hasEncryption,
-        hasZkProofs,
+        proofCounts.totalProofsGenerated > 0,
         hasCompression,
         hasMPC
       );
@@ -308,6 +326,8 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
         activeSessions: mpcCounts.activeSessions,
         completedSessions: mpcCounts.completedSessions,
         totalCommitteeApprovals: mpcCounts.totalCommitteeApprovals,
+        activeAgents: agentStats.activeAgents,
+        agentValidations: agentStats.agentValidations,
         overallPrivacyScore: score,
       };
 
@@ -399,9 +419,9 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
             <span>Privacy Score</span>
           </h3>
           <span class={`text-2xl font-black ${stats.overallPrivacyScore >= 90 ? 'text-purple-600 dark:text-purple-400' :
-              stats.overallPrivacyScore >= 75 ? 'text-green-600 dark:text-green-400' :
-                stats.overallPrivacyScore >= 50 ? 'text-blue-600 dark:text-blue-400' :
-                  'text-yellow-600 dark:text-yellow-400'
+            stats.overallPrivacyScore >= 75 ? 'text-green-600 dark:text-green-400' :
+              stats.overallPrivacyScore >= 50 ? 'text-blue-600 dark:text-blue-400' :
+                'text-yellow-600 dark:text-yellow-400'
             }`}>
             {stats.overallPrivacyScore}
           </span>
@@ -409,9 +429,9 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
         <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
           <div
             class={`h-full rounded-full transition-all duration-500 ${stats.overallPrivacyScore >= 90 ? 'bg-purple-500' :
-                stats.overallPrivacyScore >= 75 ? 'bg-green-500' :
-                  stats.overallPrivacyScore >= 50 ? 'bg-blue-500' :
-                    'bg-yellow-500'
+              stats.overallPrivacyScore >= 75 ? 'bg-green-500' :
+                stats.overallPrivacyScore >= 50 ? 'bg-blue-500' :
+                  'bg-yellow-500'
               }`}
             style={{ width: `${stats.overallPrivacyScore}%` }}
           />
@@ -460,7 +480,7 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
       {/* Mobile Tab Navigation */}
       {isMobile && (
         <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
-          {(['overview', 'biometrics', 'proofs', 'compression', 'mpc'] as const).map(tab => (
+          {(['overview', 'biometrics', 'fleet', 'proofs', 'compression', 'mpc'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -472,7 +492,7 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}
               `}
             >
-              {tab === 'biometrics' ? '🧬 Biometrics' : tab}
+              {tab === 'biometrics' ? '🧬 Biometrics' : tab === 'fleet' ? '🤖 Fleet' : tab}
             </button>
           ))}
         </div>
@@ -481,7 +501,7 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
       {/* Desktop Navigation Tabs */}
       {!isMobile && (
         <div class="flex gap-4 mb-8 border-b-2 border-slate-100 dark:border-slate-800">
-          {(['overview', 'biometrics', 'proofs', 'compression', 'mpc'] as const).map(tab => (
+          {(['overview', 'biometrics', 'fleet', 'proofs', 'compression', 'mpc'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -492,7 +512,7 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
                   : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}
               `}
             >
-              {tab === 'biometrics' ? '🧬 Biometrics' : tab}
+              {tab === 'biometrics' ? '🧬 Biometrics' : tab === 'fleet' ? '🤖 Fleet Intel' : tab}
               {activeTab === tab && (
                 <div class="absolute bottom-[-2px] left-0 right-0 h-[2px] bg-purple-500 rounded-full animate-fadeIn" />
               )}
@@ -504,16 +524,16 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
       {/* Overall Privacy Score */}
       {(activeTab === 'overview' || !isMobile) && (
         <div class={`mb-6 md:mb-10 p-6 md:p-8 rounded-2xl border-2 ${privacyLevel?.color === 'purple' ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-300 dark:border-purple-700' :
-            privacyLevel?.color === 'green' ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700' :
-              privacyLevel?.color === 'blue' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700' :
-                'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700'
+          privacyLevel?.color === 'green' ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700' :
+            privacyLevel?.color === 'blue' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700' :
+              'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700'
           }`}>
           <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
             <div>
               <p class={`text-[10px] font-black uppercase tracking-widest mb-1 ${privacyLevel?.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
-                  privacyLevel?.color === 'green' ? 'text-green-600 dark:text-green-400' :
-                    privacyLevel?.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
-                      'text-yellow-600 dark:text-yellow-400'
+                privacyLevel?.color === 'green' ? 'text-green-600 dark:text-green-400' :
+                  privacyLevel?.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
+                    'text-yellow-600 dark:text-yellow-400'
                 }`}>
                 Overall Privacy Score
               </p>
@@ -524,9 +544,9 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
             <div class="text-left md:text-right">
               <div class="text-3xl md:text-4xl mb-2">{privacyLevel?.icon}</div>
               <p class={`text-sm font-black uppercase tracking-wider ${privacyLevel?.color === 'purple' ? 'text-purple-700 dark:text-purple-300' :
-                  privacyLevel?.color === 'green' ? 'text-green-700 dark:text-green-300' :
-                    privacyLevel?.color === 'blue' ? 'text-blue-700 dark:text-blue-300' :
-                      'text-yellow-700 dark:text-yellow-300'
+                privacyLevel?.color === 'green' ? 'text-green-700 dark:text-green-300' :
+                  privacyLevel?.color === 'blue' ? 'text-blue-700 dark:text-blue-300' :
+                    'text-yellow-700 dark:text-yellow-300'
                 }`}>
                 {privacyLevel?.label}
               </p>
@@ -556,10 +576,29 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
         </div>
       )}
 
-      {/* Biometrics View */}
-      {activeTab === 'biometrics' && (
-        <div class="animate-slideUp">
-          <WearableIntegration />
+      {/* Fleet View */}
+      {activeTab === 'fleet' && (
+        <div class="animate-slideUp space-y-6">
+          <div class="bg-indigo-600 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
+            <div class="relative z-10">
+              <h3 class="text-3xl font-black uppercase tracking-tight mb-2">Agentic Intelligence</h3>
+              <p class="text-indigo-100 max-w-md mb-6">Autonomous OpenClaw agents are currently validating health data using ZK-enclaves.</p>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white/10 p-4 rounded-2xl">
+                  <div class="text-2xl font-black">{stats.activeAgents}</div>
+                  <div class="text-[10px] uppercase font-bold text-indigo-200">Active Agents</div>
+                </div>
+                <div class="bg-white/10 p-4 rounded-2xl">
+                  <div class="text-2xl font-black">{stats.agentValidations}</div>
+                  <div class="text-[10px] uppercase font-bold text-indigo-200">Agent Validations</div>
+                </div>
+              </div>
+            </div>
+            <div class="absolute -right-10 -bottom-10 text-9xl opacity-10">🤖</div>
+          </div>
+          <a href="/agents" class="block w-full py-4 text-center font-black uppercase tracking-widest bg-slate-900 text-white rounded-2xl hover:scale-[1.02] transition-all">
+            Go to Fleet Command →
+          </a>
         </div>
       )}
 

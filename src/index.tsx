@@ -42,6 +42,7 @@ import Underground from "./pages/underground";
 import { Experiences } from "./pages/experiences";
 import Validators from "./pages/validators";
 import AttentionTokens from "./pages/attention-tokens";
+import FleetPage from "./pages/agents";
 import { NotFound } from "./pages/_404";
 
 import "./style.css";
@@ -70,80 +71,81 @@ export function App() {
 
     return (
         <ThemeProvider>
-        <SettingsProvider>
-        <WalletProvider>
-            <LocationProvider>
-                <SwipeGestures>
-                    {/* Legal: Terms acceptance modal (first-time or version update) */}
-                    <TermsAcceptanceModal isOpen={showTermsModal} onAccept={acceptTerms} />
+            <SettingsProvider>
+                <WalletProvider>
+                    <LocationProvider>
+                        <SwipeGestures>
+                            {/* Legal: Terms acceptance modal (first-time or version update) */}
+                            <TermsAcceptanceModal isOpen={showTermsModal} onAccept={acceptTerms} />
 
-                    {/* Privacy onboarding (first-time users) */}
-                    <PrivacyOnboardingModal 
-                        isOpen={showPrivacyOnboarding} 
-                        onComplete={() => setShowPrivacyOnboarding(false)} 
-                    />
+                            {/* Privacy onboarding (first-time users) */}
+                            <PrivacyOnboardingModal
+                                isOpen={showPrivacyOnboarding}
+                                onComplete={() => setShowPrivacyOnboarding(false)}
+                            />
 
-                    {/* Mobile Progress & Live Counter */}
-                    <ProgressTracker />
-                    <LiveCounter />
+                            {/* Mobile Progress & Live Counter */}
+                            <ProgressTracker />
+                            <LiveCounter />
 
-                    <ErrorBoundary>
-                        <Header />
-                    </ErrorBoundary>
-                    <div class="flex flex-1 relative items-stretch">
-                        {/* Desktop Navbar - only render on large screens */}
-                        <ErrorBoundary>
-                            <Navbar />
-                        </ErrorBoundary>
-                        
-                        {/* Mobile Bottom Navigation */}
-                        <ErrorBoundary>
-                            <MobileNav />
-                        </ErrorBoundary>
-                        
-                        <div class="w-full p-4 sm:p-6 lg:p-10 pb-24 lg:pb-10">
                             <ErrorBoundary>
-                                <Router>
-                                    <Route path="/" component={Home} />
-                                    <Route path="/experiences" component={Experiences} />
-                                    <Route path="/validators" component={Validators} />
-                                    <Route path="/attention-tokens" component={AttentionTokens} />
-                                    <Route path="/products" component={Products} />
-                                    <Route path="/links" component={Links} />
-                                    <Route path="/donate" component={Donate} />
-                                    <Route path="/membership" component={Membership} />
-                                    <Route path="/achievements" component={Achievements} />
-                                    <Route path="/testimonials" component={Testimonials} />
-                                    <Route path="/referrals" component={Referrals} />
-                                    <Route path="/underground" component={Underground} />
-                                    <Route default component={NotFound} />
-                                </Router>
+                                <Header />
                             </ErrorBoundary>
-                        </div>
-                    </div>
-                    <ErrorBoundary>
-                        <Footer />
-                    </ErrorBoundary>
+                            <div class="flex flex-1 relative items-stretch">
+                                {/* Desktop Navbar - only render on large screens */}
+                                <ErrorBoundary>
+                                    <Navbar />
+                                </ErrorBoundary>
 
-                    {/* Mobile Enhancements */}
-                    <FloatingActionButton />
-                    <ScrollToTop />
-                    <NotificationToast notification={notification} />
+                                {/* Mobile Bottom Navigation */}
+                                <ErrorBoundary>
+                                    <MobileNav />
+                                </ErrorBoundary>
 
-                    {/* Authentic 90s Experience */}
-                    <Authentic90sPopups />
-                    <LiveActivityNotifications />
-                    <WinnerPopup />
+                                <div class="w-full p-4 sm:p-6 lg:p-10 pb-24 lg:pb-10">
+                                    <ErrorBoundary>
+                                        <Router>
+                                            <Route path="/" component={Home} />
+                                            <Route path="/experiences" component={Experiences} />
+                                            <Route path="/validators" component={Validators} />
+                                            <Route path="/attention-tokens" component={AttentionTokens} />
+                                            <Route path="/products" component={Products} />
+                                            <Route path="/links" component={Links} />
+                                            <Route path="/donate" component={Donate} />
+                                            <Route path="/membership" component={Membership} />
+                                            <Route path="/achievements" component={Achievements} />
+                                            <Route path="/testimonials" component={Testimonials} />
+                                            <Route path="/referrals" component={Referrals} />
+                                            <Route path="/underground" component={Underground} />
+                                            <Route path="/agents" component={FleetPage} />
+                                            <Route default component={NotFound} />
+                                        </Router>
+                                    </ErrorBoundary>
+                                </div>
+                            </div>
+                            <ErrorBoundary>
+                                <Footer />
+                            </ErrorBoundary>
 
-                    {/* Settings */}
-                    <SettingsPanel />
+                            {/* Mobile Enhancements */}
+                            <FloatingActionButton />
+                            <ScrollToTop />
+                            <NotificationToast notification={notification} />
 
-                    {/* Legal: Persistent disclaimer banner */}
-                    {termsAccepted && <DisclaimerBanner variant="minimal" />}
-                </SwipeGestures>
-            </LocationProvider>
-        </WalletProvider>
-        </SettingsProvider>
+                            {/* Authentic 90s Experience */}
+                            <Authentic90sPopups />
+                            <LiveActivityNotifications />
+                            <WinnerPopup />
+
+                            {/* Settings */}
+                            <SettingsPanel />
+
+                            {/* Legal: Persistent disclaimer banner */}
+                            {termsAccepted && <DisclaimerBanner variant="minimal" />}
+                        </SwipeGestures>
+                    </LocationProvider>
+                </WalletProvider>
+            </SettingsProvider>
         </ThemeProvider>
     );
 }
