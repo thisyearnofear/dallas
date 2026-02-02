@@ -243,6 +243,39 @@ export async function requestValidatorReview(
 }
 
 /**
+ * Fetch all pending case studies for validators
+ */
+export async function fetchPendingCaseStudies(): Promise<{
+  success: boolean;
+  caseStudies?: Array<{
+    pubkey: PublicKey;
+    submitter: PublicKey;
+    protocol: string;
+    createdAt: Date;
+    validationStatus: number;
+    approvalCount: number;
+    reputationScore: number;
+  }>;
+  error?: string;
+}> {
+  try {
+    const service = getBlockchainService();
+    const caseStudies = await service.getPendingCaseStudies();
+    
+    return {
+      success: true,
+      caseStudies,
+    };
+  } catch (error) {
+    console.error('Error fetching pending case studies:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
  * Fetch case study from blockchain and decrypt locally
  */
 export async function fetchAndDecryptCaseStudy(

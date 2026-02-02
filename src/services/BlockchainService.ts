@@ -931,6 +931,112 @@ export class BlockchainService {
   }
 
   /**
+   * Get all case studies pending validation (for validators)
+   * CaseStudy account size: 254 bytes
+   */
+  async getPendingCaseStudies(
+    limit: number = 20
+  ): Promise<Array<{
+    pubkey: PublicKey;
+    submitter: PublicKey;
+    protocol: string;
+    createdAt: Date;
+    validationStatus: number;
+    approvalCount: number;
+    reputationScore: number;
+  }>> {
+    try {
+      const accounts = await this.connection.getProgramAccounts(
+        this.caseStudyProgramId,
+        {
+          filters: [
+            { dataSize: 254 }, // CaseStudy account size
+          ],
+        }
+      );
+
+      const pending: Array<{
+        pubkey: PublicKey;
+        submitter: PublicKey;
+        protocol: string;
+        createdAt: Date;
+        validationStatus: number;
+        approvalCount: number;
+        reputationScore: number;
+      }> = [];
+
+      for (const { pubkey, account } of accounts) {
+        try {
+          const data = account.data;
+          if (data.length < 200) continue;
+
+          let offset = 8; // Skip discriminator
+          offset += 32; // ephemeral_id
+          
+          const submitter = new PublicKey(data.slice(offset, offset + 32));
+          offset += 32;
+
+          // ipfs_cid (String)
+          const ipfsCidLen = data.readUInt32LE(offset);
+          offset += 4 + ipfsCidLen;
+
+          // metadata_hash
+          offset += 32;
+
+          // treatment_category
+          const treatmentCategory = data.readUInt8(offset);
+          offset += 1;
+
+          // duration_days
+          const durationDays = data.readUInt16LE(offset);
+          offset += 2;
+
+          // created_at (i64)
+          const createdAt = Number(data.readBigInt64LE(offset));
+          offset += 8;
+
+          // validation_status (enum: 0=Pending, 1=Approved, 2=Rejected, 3=UnderReview)
+          const validationStatus = data.readUInt8(offset);
+          offset += 1;
+
+          // approval_count (u32)
+          const approvalCount = data.readUInt32LE(offset);
+          offset += 4;
+
+          // rejection_count
+          offset += 4;
+
+          // reputation_score (u8)
+          const reputationScore = data.readUInt8(offset);
+
+          // Only include pending case studies (status 0 or 3)
+          if (validationStatus === 0 || validationStatus === 3) {
+            const categoryNames = ['Experimental', 'Approved', 'Alternative'];
+            pending.push({
+              pubkey,
+              submitter,
+              protocol: `${categoryNames[treatmentCategory] || 'Unknown'} Protocol (${durationDays} days)`,
+              createdAt: new Date(createdAt * 1000),
+              validationStatus,
+              approvalCount,
+              reputationScore,
+            });
+          }
+        } catch (e) {
+          console.warn('Failed to parse case study:', e);
+        }
+      }
+
+      // Sort by date, newest first
+      pending.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      return pending.slice(0, limit);
+    } catch (error) {
+      console.error('Error getting pending case studies:', error);
+      return [];
+    }
+  }
+
+  /**
    * Get all validator stakes for a case study
    */
   async getValidatorStakesForCaseStudy(

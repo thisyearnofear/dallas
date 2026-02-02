@@ -4,7 +4,7 @@ import { WalletContext, WalletContextType, TIER_STYLES } from '../context/Wallet
 import { useTheme } from '../context/ThemeContext';
 import { useDbcToken } from '../hooks/useDbcToken';
 import { DbcTokenService, calculateTier } from '../services/DbcTokenService';
-import { submitValidatorApproval, fetchUserCaseStudies } from '../services/BlockchainIntegration';
+import { submitValidatorApproval, fetchPendingCaseStudies } from '../services/BlockchainIntegration';
 import { PublicKey } from '@solana/web3.js';
 import { PrivacyTooltip } from './PrivacyTooltip';
 
@@ -56,19 +56,19 @@ export const ValidatorDashboard: FunctionalComponent = () => {
 
         setLoading(true);
         try {
-            // Fetch real case studies from blockchain that need validation
-            // This will query all case studies and filter for those needing validation
-            const result = await fetchUserCaseStudies(publicKey);
+            // Fetch ALL pending case studies from blockchain (not just user's own)
+            const result = await fetchPendingCaseStudies();
 
             if (result.success && result.caseStudies) {
-                // Convert to validation format and filter for those needing validation
+                // Convert to validation format - exclude user's own case studies
                 const validationCaseStudies: CaseStudyForValidation[] = result.caseStudies
-                    .filter(cs => !cs.isApproved && cs.approvalCount < 3) // Need 3 approvals
+                    .filter(cs => !cs.submitter.equals(publicKey)) // Can't validate own studies
+                    .filter(cs => cs.approvalCount < 5) // Need 5 weighted approvals
                     .map(cs => ({
                         pubkey: cs.pubkey,
                         protocol: cs.protocol,
                         createdAt: cs.createdAt,
-                        isApproved: cs.isApproved,
+                        isApproved: false,
                         approvalCount: cs.approvalCount,
                         needsValidation: true,
                     }));
