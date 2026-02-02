@@ -1,6 +1,7 @@
 /**
  * Case Study Gallery Component
  * Displays submitted case studies with their validation status
+ * Supports both light and dark modes
  */
 
 import { FunctionalComponent } from 'preact';
@@ -114,9 +115,9 @@ export const CaseStudyGallery: FunctionalComponent = () => {
 
   const getStatusBadge = (status: string) => {
     const styles = {
-      pending: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-      approved: 'bg-green-500/20 text-green-400 border-green-500/30',
-      rejected: 'bg-red-500/20 text-red-400 border-red-500/30',
+      pending: 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-500/30',
+      approved: 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 border-green-300 dark:border-green-500/30',
+      rejected: 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400 border-red-300 dark:border-red-500/30',
     };
     return styles[status as keyof typeof styles] || styles.pending;
   };
@@ -132,10 +133,10 @@ export const CaseStudyGallery: FunctionalComponent = () => {
   if (error) {
     return (
       <div class="text-center py-12">
-        <div class="text-red-400 mb-4">⚠️ {error}</div>
+        <div class="text-red-600 dark:text-red-400 mb-4">⚠️ {error}</div>
         <button
           onClick={loadCaseStudies}
-          class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors"
+          class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
         >
           Retry
         </button>
@@ -154,7 +155,7 @@ export const CaseStudyGallery: FunctionalComponent = () => {
             class={`px-4 py-2 rounded-lg capitalize transition-all ${
               filter === f
                 ? 'bg-emerald-600 text-white'
-                : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                : 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700'
             }`}
           >
             {f === 'mine' ? 'My Submissions' : f}
@@ -164,7 +165,7 @@ export const CaseStudyGallery: FunctionalComponent = () => {
 
       {/* Case Studies Grid */}
       {caseStudies.length === 0 ? (
-        <div class="text-center py-12 text-slate-400">
+        <div class="text-center py-12 text-gray-500 dark:text-slate-400">
           <div class="text-4xl mb-4">📋</div>
           <p>No case studies found</p>
           {filter === 'mine' && (
@@ -176,12 +177,12 @@ export const CaseStudyGallery: FunctionalComponent = () => {
           {caseStudies.map((study) => (
             <div
               key={study.pubkey}
-              class="bg-slate-800/50 border border-slate-700 rounded-lg p-6 hover:border-emerald-500/30 transition-all"
+              class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-6 hover:border-emerald-300 dark:hover:border-emerald-500/30 transition-all shadow-sm dark:shadow-none"
             >
               <div class="flex flex-wrap items-start justify-between gap-4">
                 <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-3 mb-2">
-                    <h3 class="text-lg font-semibold text-white truncate">
+                  <div class="flex items-center gap-3 mb-2 flex-wrap">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white truncate">
                       {study.protocol}
                     </h3>
                     <span
@@ -192,45 +193,45 @@ export const CaseStudyGallery: FunctionalComponent = () => {
                       {study.validationStatus}
                     </span>
                     {study.hasAttentionToken && (
-                      <span class="px-2 py-1 text-xs rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                      <span class="px-2 py-1 text-xs rounded-full bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-400 border border-purple-300 dark:border-purple-500/30">
                         🪙 Token
                       </span>
                     )}
                     {study.isPaused && (
-                      <span class="px-2 py-1 text-xs rounded-full bg-red-500/20 text-red-400 border border-red-500/30">
+                      <span class="px-2 py-1 text-xs rounded-full bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-400 border border-red-300 dark:border-red-500/30">
                         ⏸️ Paused
                       </span>
                     )}
                   </div>
 
-                  <div class="text-sm text-slate-400 space-y-1">
+                  <div class="text-sm text-gray-600 dark:text-slate-400 space-y-1">
                     <p>
                       Submitted: {study.submittedAt.toLocaleDateString()} at{' '}
                       {study.submittedAt.toLocaleTimeString()}
                     </p>
                     <p>Duration: {study.durationDays} days</p>
-                    <p class="font-mono text-xs text-slate-500 truncate">
+                    <p class="font-mono text-xs text-gray-400 dark:text-slate-500 truncate">
                       CID: {study.ipfsCid}
                     </p>
                   </div>
                 </div>
 
                 <div class="flex flex-wrap gap-4 text-sm">
-                  <div class="text-center px-4 py-2 bg-slate-900/50 rounded-lg">
-                    <div class="text-emerald-400 font-semibold">{study.approvalCount}</div>
-                    <div class="text-slate-500 text-xs">Approvals</div>
+                  <div class="text-center px-4 py-2 bg-gray-50 dark:bg-slate-900/50 rounded-lg">
+                    <div class="text-emerald-600 dark:text-emerald-400 font-semibold">{study.approvalCount}</div>
+                    <div class="text-gray-500 dark:text-slate-500 text-xs">Approvals</div>
                   </div>
-                  <div class="text-center px-4 py-2 bg-slate-900/50 rounded-lg">
-                    <div class="text-red-400 font-semibold">{study.rejectionCount}</div>
-                    <div class="text-slate-500 text-xs">Rejections</div>
+                  <div class="text-center px-4 py-2 bg-gray-50 dark:bg-slate-900/50 rounded-lg">
+                    <div class="text-red-600 dark:text-red-400 font-semibold">{study.rejectionCount}</div>
+                    <div class="text-gray-500 dark:text-slate-500 text-xs">Rejections</div>
                   </div>
-                  <div class="text-center px-4 py-2 bg-slate-900/50 rounded-lg">
-                    <div class="text-blue-400 font-semibold">{study.reputationScore}/100</div>
-                    <div class="text-slate-500 text-xs">Quality Score</div>
+                  <div class="text-center px-4 py-2 bg-gray-50 dark:bg-slate-900/50 rounded-lg">
+                    <div class="text-blue-600 dark:text-blue-400 font-semibold">{study.reputationScore}/100</div>
+                    <div class="text-gray-500 dark:text-slate-500 text-xs">Quality Score</div>
                   </div>
-                  <div class="text-center px-4 py-2 bg-slate-900/50 rounded-lg">
-                    <div class="text-purple-400 font-semibold">{study.compressionRatio}%</div>
-                    <div class="text-slate-500 text-xs">Compressed</div>
+                  <div class="text-center px-4 py-2 bg-gray-50 dark:bg-slate-900/50 rounded-lg">
+                    <div class="text-purple-600 dark:text-purple-400 font-semibold">{study.compressionRatio}%</div>
+                    <div class="text-gray-500 dark:text-slate-500 text-xs">Compressed</div>
                   </div>
                 </div>
               </div>
