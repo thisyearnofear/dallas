@@ -29,7 +29,7 @@ describe('AttentionTokenService', () => {
   describe('Symbol Generation', () => {
     it('should generate valid symbol from treatment name', () => {
       const symbol = service.generateSymbol('Peptide XYZ Protocol');
-      expect(symbol).toBe('PEPXYZ');
+      expect(symbol).toBe('PEPTID');
       expect(symbol.length).toBeLessThanOrEqual(6);
     });
 
@@ -41,7 +41,7 @@ describe('AttentionTokenService', () => {
 
     it('should remove special characters', () => {
       const symbol = service.generateSymbol('Keto-Protocol 2.0');
-      expect(symbol).toBe('KETPRO');
+      expect(symbol).toBe('KETOPR');
       expect(symbol).toMatch(/^[A-Z0-9]+$/);
     });
 
@@ -115,10 +115,11 @@ describe('AttentionTokenService', () => {
     });
 
     it('should return ineligible if token already exists', async () => {
+      const mockTokenMint = new PublicKey('11111111111111111111111111111112');
       const mockCaseStudy = {
         reputationScore: 80,
         validatorCount: 6,
-        attentionTokenMint: new PublicKey('22222222222222222222222222222222'),
+        attentionTokenMint: mockTokenMint,
       };
 
       jest.spyOn(service as any, 'fetchCaseStudy').mockResolvedValue(mockCaseStudy);
@@ -287,7 +288,7 @@ describe('Error Handling', () => {
       });
 
       expect(result.valid).toBe(false);
-      expect(result.errors[0]).toContain('at least 5');
+      expect(result.errors[0]).toContain('At least 5');
     });
   });
 

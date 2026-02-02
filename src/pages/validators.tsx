@@ -1,4 +1,5 @@
 import { ValidatorDashboard } from '../components/ValidatorDashboard';
+import { ValidatorReputationSystem } from '../components/ValidatorReputationSystem';
 import { NetworkStatus } from '../components/NetworkStatus';
 import { useContext } from 'preact/hooks';
 import { WalletContext, WalletContextType } from '../context/WalletContext';
@@ -43,8 +44,9 @@ export function Validators() {
                     /* Connected: 2-column layout with dashboard on left, sidebar on right */
                     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
                         {/* Validator Dashboard - Main Content */}
-                        <div class="lg:col-span-3">
+                        <div class="lg:col-span-3 space-y-8">
                             <ValidatorDashboard />
+                            <ValidatorReputationSystem />
                         </div>
 
                         {/* Sidebar */}
@@ -60,6 +62,9 @@ export function Validators() {
                     <div class="space-y-6">
                         {/* Validator Dashboard - Compact */}
                         <ValidatorDashboard />
+                        
+                        {/* Validator Reputation System */}
+                        <ValidatorReputationSystem />
                         
                         {/* Info Cards Grid - Horizontal layout when not connected */}
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

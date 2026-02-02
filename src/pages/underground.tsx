@@ -24,10 +24,12 @@ import {
     RetroBadge,
     AudioEffects 
 } from "../components/RetroAesthetics";
+import { PrivacyDashboard } from "../components/PrivacyDashboard";
+import { ResearcherTools } from "../components/ResearcherTools";
 import { useState, useEffect } from "preact/hooks";
 
 export function Underground() {
-    const [activeSection, setActiveSection] = useState<'command' | 'office' | 'market' | 'intel' | 'history'>('command');
+    const [activeSection, setActiveSection] = useState<'command' | 'office' | 'market' | 'intel' | 'history' | 'privacy' | 'research'>('command');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
     const [collapsedSections, setCollapsedSections] = useState<{[key: string]: boolean}>({});
@@ -103,7 +105,9 @@ export function Underground() {
                         { id: 'office', label: 'OFFICE', desc: 'RON' },
                         { id: 'market', label: 'MARKET', desc: 'BUY' },
                         { id: 'intel', label: 'INTEL', desc: 'WAR' },
-                        { id: 'history', label: 'ARCHIVE', desc: 'DOCS' }
+                        { id: 'history', label: 'ARCHIVE', desc: 'DOCS' },
+                        { id: 'privacy', label: 'PRIVACY', desc: 'ZK' },
+                        { id: 'research', label: 'RESEARCH', desc: 'LAB' }
                     ].map((section) => (
                         <RetroButton
                             key={section.id}
@@ -493,6 +497,106 @@ export function Underground() {
                             </div>
                         </div>
                     </div>
+                </div>
+            )}
+
+            {/* Privacy Dashboard */}
+            {activeSection === 'privacy' && (
+                <div class="p-6 space-y-8 max-w-7xl mx-auto animate-fadeIn">
+                    {/* Page Header */}
+                    <div class="bg-white dark:bg-slate-900 border-4 border-slate-300 dark:border-slate-800 p-6 rounded-xl shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                        <div class="text-center relative z-10">
+                            <div class="text-2xl font-black text-purple-600 dark:text-purple-400 mb-1 uppercase tracking-[0.2em]">Privacy Command Center</div>
+                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">zero_knowledge_protocols_active</div>
+                        </div>
+                    </div>
+
+                    {/* Privacy Dashboard Component */}
+                    <PrivacyDashboard />
+
+                    {/* Privacy Info Cards */}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pb-12">
+                        <div class="bg-gradient-to-br from-purple-900 to-slate-900 dark:to-black p-8 rounded-2xl border border-purple-600/30 shadow-xl group">
+                            <h3 class="font-black text-purple-300 mb-6 uppercase tracking-widest text-sm flex items-center gap-2">
+                                <span class="text-xl">🔐</span>
+                                Zero-Knowledge Proofs
+                            </h3>
+                            <div class="space-y-3 text-[10px] font-black uppercase tracking-widest text-purple-200/70">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-purple-400">✓</span>
+                                    <span>Noir circuits for validation</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-purple-400">✓</span>
+                                    <span>Private data verification</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-purple-400">✓</span>
+                                    <span>On-chain proof storage</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-blue-900 to-slate-900 dark:to-black p-8 rounded-2xl border border-blue-600/30 shadow-xl group">
+                            <h3 class="font-black text-blue-300 mb-6 uppercase tracking-widest text-sm flex items-center gap-2">
+                                <span class="text-xl">📦</span>
+                                Light Protocol
+                            </h3>
+                            <div class="space-y-3 text-[10px] font-black uppercase tracking-widest text-blue-200/70">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-blue-400">✓</span>
+                                    <span>ZK compression enabled</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-blue-400">✓</span>
+                                    <span>90%+ storage savings</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-blue-400">✓</span>
+                                    <span>Scalable case studies</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-green-900 to-slate-900 dark:to-black p-8 rounded-2xl border border-green-600/30 shadow-xl group">
+                            <h3 class="font-black text-green-300 mb-6 uppercase tracking-widest text-sm flex items-center gap-2">
+                                <span class="text-xl">🤝</span>
+                                Arcium MPC
+                            </h3>
+                            <div class="space-y-3 text-[10px] font-black uppercase tracking-widest text-green-200/70">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-green-400">✓</span>
+                                    <span>Multi-party computation</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-green-400">✓</span>
+                                    <span>Threshold decryption</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-green-400">✓</span>
+                                    <span>Committee governance</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Research Lab */}
+            {activeSection === 'research' && (
+                <div class="p-6 space-y-8 max-w-7xl mx-auto animate-fadeIn">
+                    {/* Page Header */}
+                    <div class="bg-white dark:bg-slate-900 border-4 border-slate-300 dark:border-slate-800 p-6 rounded-xl shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/5 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                        <div class="text-center relative z-10">
+                            <div class="text-2xl font-black text-green-600 dark:text-green-400 mb-1 uppercase tracking-[0.2em]">Research Laboratory</div>
+                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">aggregate_analysis_tools_active</div>
+                        </div>
+                    </div>
+
+                    {/* Researcher Tools Component */}
+                    <ResearcherTools />
                 </div>
             )}
         </div>
