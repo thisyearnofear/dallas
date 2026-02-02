@@ -980,6 +980,12 @@ export class BlockchainService {
           const ipfsCidLen = data.readUInt32LE(offset);
           offset += 4 + ipfsCidLen;
 
+          // treatment_protocol (String) - ACTUAL PROTOCOL NAME
+          const treatmentProtocolLen = data.readUInt32LE(offset);
+          offset += 4;
+          const treatmentProtocol = data.slice(offset, offset + treatmentProtocolLen).toString('utf8');
+          offset += treatmentProtocolLen;
+
           // metadata_hash
           offset += 32;
 
@@ -1011,11 +1017,10 @@ export class BlockchainService {
 
           // Only include pending case studies (status 0 or 3)
           if (validationStatus === 0 || validationStatus === 3) {
-            const categoryNames = ['Experimental', 'Approved', 'Alternative'];
             pending.push({
               pubkey,
               submitter,
-              protocol: `${categoryNames[treatmentCategory] || 'Unknown'} Protocol (${durationDays} days)`,
+              protocol: treatmentProtocol, // Use actual protocol name from blockchain
               createdAt: new Date(createdAt * 1000),
               validationStatus,
               approvalCount,

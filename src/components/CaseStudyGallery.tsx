@@ -74,6 +74,12 @@ export const CaseStudyGallery: FunctionalComponent = () => {
           const ipfsCid = data.slice(offset, offset + ipfsCidLen).toString('utf8');
           offset += ipfsCidLen;
 
+          // treatment_protocol - String (4 byte length + data) - ACTUAL PROTOCOL NAME
+          const treatmentProtocolLen = data.readUInt32LE(offset);
+          offset += 4;
+          const treatmentProtocol = data.slice(offset, offset + treatmentProtocolLen).toString('utf8');
+          offset += treatmentProtocolLen;
+
           // metadata_hash (32 bytes)
           offset += 32;
 
@@ -130,9 +136,8 @@ export const CaseStudyGallery: FunctionalComponent = () => {
           if (filter === 'pending' && status !== 'pending') continue;
           if (filter === 'approved' && status !== 'approved') continue;
 
-          // Generate protocol name from category
-          const categoryNames = ['Experimental', 'Approved', 'Alternative'];
-          const protocol = `${categoryNames[treatmentCategory] || 'Unknown'} Protocol (${durationDays} days)`;
+          // Use actual protocol name from blockchain data
+          const protocol = treatmentProtocol;
 
           parsed.push({
             pubkey: pubkey.toString(),
