@@ -1,4 +1,4 @@
-# Dallas Buyers Club: Health Community Tokenization Platform
+# Dallas Buyers Club: Overview
 
 **A platform for forming communities around health causes, wellness initiatives, and ailments.**
 
@@ -6,22 +6,22 @@ Privacy-preserving infrastructure for decentralized health research. Communities
 
 ---
 
-## Problem Statement
+## The Problem
 
 - **Patients are isolated** - No easy way to find others with same condition
 - **Data is siloed** - Valuable treatment experiences trapped in forums, lost
 - **Research is slow** - 10-15 years from discovery to treatment
 - **Privacy is compromised** - Share data = lose control
 
-## Solution: Community Tokenization Platform
+## The Solution
 
-We provide infrastructure that enables anyone to form communities around wellness remedies:
+We provide infrastructure that enables anyone to form communities around wellness remedies. Each community:
 
-- **Launch their own token** (via Bags API bonding curves - free to create)
-- **Organize by category** (supplement, lifestyle, device, protocol)
-- **Validate contributions privately** (ZK proofs, no data exposure)
-- **Fund research collectively** (community treasuries, not handouts)
-- **Own their destiny** (governance, not platform control)
+- **Launches their own token** (via Bags API bonding curves - free to create)
+- **Organizes by category** (supplement, lifestyle, device, protocol)
+- **Validates contributions privately** (ZK proofs, no data exposure)
+- **Funds research collectively** (community treasuries, not handouts)
+- **Owns their destiny** (governance, not platform control)
 
 ### Core Innovation: Separation of Concerns
 
@@ -35,14 +35,30 @@ We provide infrastructure that enables anyone to form communities around wellnes
 
 ---
 
+## Token Economics
+
+### DBC (Platform Token)
+- Fixed supply: 1B tokens (burned mint authority)
+- Team ownership: 1.74% (17.4M DBC)
+- Utility: Governance, coordination, fee burns
+- No inflation: Value from utility, not handouts
+
+### Community Tokens (Per Cause)
+- Launch via Bags API bonding curves
+- Self-funding through trading volume
+- Creator earns 1% of volume forever
+- Communities control their own treasuries
+
+---
+
 ## Privacy Stack
 
 | Technology | Status | Integration |
 |------------|--------|-------------|
-| **Noir (Aztec)** | ✅ Complete | 4 circuits, 26 tests passing |
-| **Light Protocol** | ✅ Complete | ZK compression 2x-50x ratios |
-| **Arcium MPC** | ✅ Complete | Threshold decryption K-of-N |
-| **IPFS/Arweave** | ✅ Complete | Encrypted off-chain storage |
+| **Noir (Aztec)** | Complete | 4 circuits, 26 tests passing |
+| **Light Protocol** | Complete | ZK compression 2x-50x ratios |
+| **Arcium MPC** | Complete | Threshold decryption K-of-N |
+| **IPFS/Arweave** | Complete | Encrypted off-chain storage |
 
 **Noir Circuits:**
 - `symptom_improvement`: Proves health improved without revealing scores
@@ -52,28 +68,25 @@ We provide infrastructure that enables anyone to form communities around wellnes
 
 ---
 
-## Token Economics
+## User Journeys
 
-### DBC Token (Platform)
-- **Supply:** 1,000,000,000 (fixed, burned mint authority)
-- **Team ownership:** 1.74% (17.4M DBC)
-- **Utility:** Governance, coordination, fee burns
-- **No inflation:** Value from utility, not handouts
+### Patient: Find Your Community
+1. **Discover** - Browse communities by condition
+2. **Connect** - Join community (buy token or apply)
+3. **Participate** - Submit encrypted case study (ZK proof)
+4. **Benefit** - Access token-gated resources, earn tokens
 
-### Community Tokens (Per Cause)
-- Launch via Bags API bonding curves
-- Self-funding through trading volume
-- Creator earns 1% of volume forever
-- Communities control their own treasuries
+### Community Creator: Launch Your Cause
+1. **Design** - Define mission, set validation rules
+2. **Launch** - Use platform UI (no code), pay 0.5 SOL fee
+3. **Grow** - Recruit members, fund research
+4. **Earn** - 1% of trading volume forever
 
-### Fee Model
-| Source | Fee |
-|--------|-----|
-| Community token launch | 0.5 SOL |
-| Case study submission | 0.1 SOL |
-| Trading volume | 0.5% of community token trades |
-
-**Fee Distribution:** 50% buy/burn DBC, 25% development, 25% community grants
+### Validator: Monetize Expertise
+1. **Stake DBC** - Lock 1,000+ DBC as collateral
+2. **Validate** - Review case studies with ZK proofs
+3. **Earn** - SOL fees from submissions, community tokens
+4. **Advance** - Build reputation, unlock premium validations
 
 ---
 
@@ -100,11 +113,11 @@ npm run dev
 
 | Document | Purpose |
 |----------|---------|
-| [`docs/1_OVERVIEW.md`](docs/1_OVERVIEW.md) | Platform overview |
-| [`docs/2_ARCHITECTURE.md`](docs/2_ARCHITECTURE.md) | Technical architecture |
-| [`docs/3_PRIVACY.md`](docs/3_PRIVACY.md) | Privacy technology details |
-| [`docs/4_TOKENOMICS.md`](docs/4_TOKENOMICS.md) | Token economics |
-| [`docs/5_DEPLOYMENT.md`](docs/5_DEPLOYMENT.md) | Deployment & development |
+| [`1_OVERVIEW.md`](1_OVERVIEW.md) | This file - platform overview |
+| [`2_ARCHITECTURE.md`](2_ARCHITECTURE.md) | Technical architecture |
+| [`3_PRIVACY.md`](3_PRIVACY.md) | Privacy technology details |
+| [`4_TOKENOMICS.md`](4_TOKENOMICS.md) | Token economics & flows |
+| [`5_DEPLOYMENT.md`](5_DEPLOYMENT.md) | Deployment & development |
 
 ---
 
@@ -131,32 +144,7 @@ circuits/           # Noir ZK circuits
 ├── duration_verification/
 ├── data_completeness/
 └── cost_range/
-
-docs/               # Documentation
-├── 1_OVERVIEW.md
-├── 2_ARCHITECTURE.md
-├── 3_PRIVACY.md
-├── 4_TOKENOMICS.md
-└── 5_DEPLOYMENT.md
 ```
-
----
-
-## Deployment Addresses
-
-### Devnet
-| Program | Address |
-|---------|---------|
-| DBC Token | `21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB` |
-| DBC Mint | `8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT` |
-| Treasury | `C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk` |
-| Membership | `CB6yknfo1cBWhVH2ifkMAS2tKaDa9c9mgRiZpCzHwjzu` |
-| Case Study | `8tma3jnv8ZazAKxawZsE5yh3NPt1ymsEoysS2B1w2Gxx` |
-
-### Mainnet
-| Program | Address |
-|---------|---------|
-| DBC Token | `J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump` |
 
 ---
 
