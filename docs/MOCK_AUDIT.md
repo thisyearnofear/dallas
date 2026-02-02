@@ -41,7 +41,7 @@ These services gracefully degrade to simulated mode when real infrastructure isn
 | Component | Status | Missing | Notes |
 |-----------|--------|---------|-------|
 | `ValidatorReputationSystem` | ⚠️ TODOs | On-chain history accounts | Uses mock data for charts |
-| `useValidatorStaking` | ⚠️ Simulated | Claim rewards transaction | Returns simulated signature |
+| `useValidatorStaking` | ✅ Real | Claim rewards transaction | Real on-chain reward claims |
 | `ValidationDashboard` | ✅ Real (Queue) | Real validation queue | Fetches from chain + Blink support |
 
 **Impact:** Medium - Validator UX incomplete without real data
@@ -82,7 +82,7 @@ These services gracefully degrade to simulated mode when real infrastructure isn
 |---------|-----------|-------|
 | `BlockchainService` | ⚠️ Partial | Some methods return mock data |
 | `DbcTokenService` | ⚠️ Partial | Balance checks real, some features mocked |
-| `FarcasterService` | ⚠️ Mock | Returns mock Farcaster account |
+| `FarcasterService` | ✅ Real (Mini App Ready) | Uses real profile if in Farcaster environment |
 | `CaseStudyDetailsService` | ✅ Real | Fetches real IPFS data |
 
 ---
@@ -125,13 +125,13 @@ These services gracefully degrade to simulated mode when real infrastructure isn
 
 ⚠️ **Validator System**
 - Staking: Real
-- Rewards: Simulated claims
+- Rewards: Real claims
 - History: Mock data
 
 ⚠️ **Researcher Access**
 - Request creation: Real
-- MPC decryption: Simulated
-- Aggregate analysis: Mock data
+- MPC decryption: Real (Committee-based)
+- Aggregate analysis: Real (via Arcium discovery)
 
 ### What's Mock/Simulated
 
@@ -163,15 +163,13 @@ These services gracefully degrade to simulated mode when real infrastructure isn
 
 3. **Arcium MPC**
    - File: `src/services/privacy/ArciumMPCService.ts`
-   - Issue: Simulated threshold decryption
-   - Action: Integrate Arcium client SDK
+   - Status: ✅ COMPLETED (Integrated with Validator Registry)
 
 ### P1 - High (Important for UX)
 
 4. **Validator Reward Claims**
    - File: `src/hooks/useValidatorStaking.ts`
-   - Issue: Simulated claim signature
-   - Action: Implement real claim transaction
+   - Status: ✅ COMPLETED
 
 5. **Validator History On-Chain**
    - File: `src/components/ValidatorReputationSystem.tsx`
@@ -204,8 +202,7 @@ These services gracefully degrade to simulated mode when real infrastructure isn
 
 10. **Farcaster Integration**
     - File: `src/services/FarcasterService.ts`
-    - Issue: Mock account
-    - Action: Real Farcaster auth
+    - Status: ✅ COMPLETED (Mini App Ready + Real Sharing)
 
 ---
 

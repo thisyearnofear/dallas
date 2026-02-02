@@ -61,7 +61,7 @@ function generateReferralCode(address: string): string {
 export function ReferralSystem() {
     const { publicKey } = useWallet();
     const { membership, hasMembership } = useMembership();
-    
+
     const [selectedMethod, setSelectedMethod] = useState<'link' | 'email' | 'social'>('link');
     const [referralCode, setReferralCode] = useState<string>("");
     const [email, setEmail] = useState("");
@@ -95,13 +95,16 @@ export function ReferralSystem() {
 
     const handleShare = useCallback(async (platform: string) => {
         const url = `${window.location.origin}?ref=${referralCode}`;
-        
+
         switch (platform) {
             case 'twitter':
                 window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(url)}`);
                 break;
             case 'facebook':
                 window.open(`https://facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`);
+                break;
+            case 'farcaster':
+                window.open(`https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${encodeURIComponent(url)}`);
                 break;
             case 'copy':
                 await navigator.clipboard.writeText(`${shareText} ${url}`);
@@ -114,7 +117,7 @@ export function ReferralSystem() {
 
     const sendEmail = useCallback(() => {
         if (!email) return;
-        
+
         // In production, this would call an API to send the email
         // For now, we open the user's email client
         const subject = encodeURIComponent("Join me in the Dallas Buyers Club");
@@ -122,7 +125,7 @@ export function ReferralSystem() {
             `${message || shareText}\n\nUse my referral code: ${referralCode}\nJoin at: ${window.location.origin}?ref=${referralCode}`
         );
         window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-        
+
         setSuccessMessage("Email client opened!");
         setShowSuccess(true);
         setEmail("");
@@ -203,7 +206,7 @@ export function ReferralSystem() {
             {/* Referral Progress */}
             <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
                 <h2 class="text-2xl font-bold mb-6 text-slate-900 dark:text-white">🏆 Your Referral Journey</h2>
-                
+
                 {/* Progress Bar */}
                 <div class="mb-8">
                     <div class="flex justify-between text-sm font-bold text-slate-600 dark:text-slate-400 mb-3">
@@ -211,7 +214,7 @@ export function ReferralSystem() {
                         <span>{referralCount}/{nextReward.referralsNeeded} referrals</span>
                     </div>
                     <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-4 shadow-inner">
-                        <div 
+                        <div
                             class="bg-gradient-to-r from-brand to-brand-accent rounded-full h-4 transition-all duration-700 shadow-sm"
                             style={{ width: `${progressPercent}%` }}
                         />
@@ -221,15 +224,15 @@ export function ReferralSystem() {
                 {/* Reward Levels */}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {REFERRAL_REWARDS.map((reward) => (
-                        <div 
+                        <div
                             key={reward.level}
                             class={`
                                 p-5 rounded-xl border-2 transition-all duration-300 transform hover:scale-105
-                                ${referralCount >= reward.referralsNeeded 
-                                    ? 'bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-300 dark:border-green-600 shadow-sm' 
+                                ${referralCount >= reward.referralsNeeded
+                                    ? 'bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-300 dark:border-green-600 shadow-sm'
                                     : referralCount >= reward.referralsNeeded - 2
-                                    ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border-yellow-300 dark:border-yellow-600 shadow-sm'
-                                    : 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700'
+                                        ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border-yellow-300 dark:border-yellow-600 shadow-sm'
+                                        : 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700'
                                 }
                             `}
                         >
@@ -264,7 +267,7 @@ export function ReferralSystem() {
                             Share this code with friends to earn DBC rewards
                         </div>
                     </div>
-                    <button 
+                    <button
                         onClick={() => handleShare('copy')}
                         class="bg-brand text-white font-bold py-3 px-8 rounded-lg hover:bg-brand-accent transition-all transform hover:scale-105 shadow-md"
                     >
@@ -276,7 +279,7 @@ export function ReferralSystem() {
             {/* Share Methods */}
             <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
                 <h2 class="text-xl font-bold mb-6 text-slate-900 dark:text-white">📤 Share with Others</h2>
-                
+
                 {/* Method Tabs */}
                 <div class="flex mb-8 bg-slate-100 dark:bg-slate-800 rounded-xl p-1.5 shadow-inner">
                     {[
@@ -289,8 +292,8 @@ export function ReferralSystem() {
                             onClick={() => setSelectedMethod(method.id as any)}
                             class={`
                                 flex-1 py-2.5 px-4 rounded-lg font-bold transition-all duration-300 text-sm flex items-center justify-center gap-2
-                                ${selectedMethod === method.id 
-                                    ? 'bg-white dark:bg-slate-700 text-brand shadow-md transform scale-[1.02]' 
+                                ${selectedMethod === method.id
+                                    ? 'bg-white dark:bg-slate-700 text-brand shadow-md transform scale-[1.02]'
                                     : 'text-slate-500 dark:text-slate-400 hover:text-brand'}
                             `}
                         >
@@ -306,13 +309,13 @@ export function ReferralSystem() {
                         <div class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700">
                             <p class="text-sm font-bold text-slate-600 dark:text-slate-300 mb-4 italic">Share this link with anyone who needs hope:</p>
                             <div class="flex flex-col sm:flex-row items-stretch gap-3">
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     value={`${window.location.origin}?ref=${referralCode}`}
                                     readonly
                                     class="flex-grow p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 font-mono text-sm shadow-inner outline-none focus:border-brand transition-colors text-slate-800 dark:text-slate-200"
                                 />
-                                <button 
+                                <button
                                     onClick={() => handleShare('copy')}
                                     class="bg-brand text-white font-bold py-4 px-8 rounded-lg hover:bg-brand-accent transition-all transform hover:scale-105 shadow-lg whitespace-nowrap"
                                 >
@@ -333,8 +336,8 @@ export function ReferralSystem() {
                     <div class="space-y-5 animate-fadeIn">
                         <div>
                             <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Email Address</label>
-                            <input 
-                                type="email" 
+                            <input
+                                type="email"
                                 value={email}
                                 onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
                                 placeholder="friend@example.com"
@@ -343,14 +346,14 @@ export function ReferralSystem() {
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Personal Message (Optional)</label>
-                            <textarea 
+                            <textarea
                                 value={message}
                                 onChange={(e) => setMessage((e.target as HTMLTextAreaElement).value)}
                                 placeholder="Add a personal note about how the club helped you..."
                                 class="w-full p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 focus:border-brand outline-none h-32 resize-none transition-colors shadow-inner text-slate-800 dark:text-slate-200"
                             />
                         </div>
-                        <button 
+                        <button
                             onClick={sendEmail}
                             disabled={!email}
                             class="w-full bg-brand text-white font-bold py-4 px-8 rounded-xl hover:bg-brand-accent transition-all transform hover:scale-[1.01] shadow-lg disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed disabled:transform-none"
@@ -362,20 +365,26 @@ export function ReferralSystem() {
 
                 {selectedMethod === 'social' && (
                     <div class="space-y-6 animate-fadeIn">
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <button 
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                            <button
                                 onClick={() => handleShare('twitter')}
                                 class="bg-[#1DA1F2] text-white font-bold py-4 px-6 rounded-xl hover:brightness-110 transition-all transform hover:scale-105 shadow-md"
                             >
                                 🐦 Twitter
                             </button>
-                            <button 
+                            <button
+                                onClick={() => handleShare('farcaster')}
+                                class="bg-[#855DCD] text-white font-bold py-4 px-6 rounded-xl hover:brightness-110 transition-all transform hover:scale-105 shadow-md"
+                            >
+                                🎭 Farcaster
+                            </button>
+                            <button
                                 onClick={() => handleShare('facebook')}
                                 class="bg-[#1877F2] text-white font-bold py-4 px-6 rounded-xl hover:brightness-110 transition-all transform hover:scale-105 shadow-md"
                             >
                                 📘 Facebook
                             </button>
-                            <button 
+                            <button
                                 onClick={() => handleShare('copy')}
                                 class="bg-slate-600 text-white font-bold py-4 px-6 rounded-xl hover:bg-slate-700 transition-all transform hover:scale-105 shadow-md"
                             >

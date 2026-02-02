@@ -388,29 +388,39 @@ export function useValidatorStaking(): UseValidatorStakingReturn {
             return { success: false, error: 'No rewards to claim' };
         }
 
+        setStakingState(prev => ({ ...prev, isLoading: true, error: null }));
+
         try {
-            // In production, this would create a claim rewards transaction
-            // For now, simulate the claim
-            console.log(`Claiming ${stakingState.rewards.pendingRewards} DBC rewards`);
+            // Create claim rewards transaction
+            const transaction = await DbcTokenService.claimValidatorRewards(
+                connection,
+                publicKey
+            );
 
-            // Simulate transaction delay
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            // Sign and send transaction
+            const signedTransaction = await signTransaction(transaction);
+            const signature = await connection.sendRawTransaction(signedTransaction.serialize());
 
-            // Update rewards state
-            setStakingState(prev => ({
-                ...prev,
-                rewards: {
-                    ...prev.rewards,
-                    totalEarned: prev.rewards.totalEarned + prev.rewards.pendingRewards,
-                    pendingRewards: 0,
-                    lastRewardClaim: Date.now(),
-                },
-            }));
+            // Confirm transaction
+            await connection.confirmTransaction(signature, 'confirmed');
 
-            return { success: true, signature: 'simulated_claim_signature' };
+            // Invalidate cache and refresh data after successful claim
+            if (publicKey) {
+                const cacheKey = `validator_${publicKey.toString()}`;
+                cacheService.delete(cacheKey);
+            }
+            await refreshStakingData();
+
+            return { success: true, signature };
 
         } catch (error) {
             console.error('Reward claim failed:', error);
+            setStakingState(prev => ({
+                ...prev,
+                isLoading: false,
+                error: error instanceof Error ? error.message : 'Reward claim failed',
+            }));
+
             return {
                 success: false,
                 error: error instanceof Error ? error.message : 'Reward claim failed'

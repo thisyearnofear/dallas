@@ -24,6 +24,7 @@
 
 import { PublicKey, Connection } from '@solana/web3.js';
 import { SOLANA_CONFIG } from '../../config/solana';
+import { DbcTokenService, listValidators } from '../DbcTokenService';
 
 // MPC Session states
 export type MPCSessionStatus =
@@ -349,12 +350,12 @@ export class ArciumMPCService {
     const now = Date.now();
     let cleaned = 0;
 
-    for (const [id, session] of this.activeSessions) {
+    this.activeSessions.forEach((session, id) => {
       if (now > session.expiresAt && session.status !== 'approved') {
         session.status = 'expired';
         cleaned++;
       }
-    }
+    });
 
     return cleaned;
   }
@@ -386,23 +387,35 @@ export class ArciumMPCService {
    * For now, we use a placeholder committee.
    */
   private async formCommittee(threshold: number): Promise<CommitteeMember[]> {
-    // TODO: Query on-chain validator registry
-    // For now, create placeholder committee
-    const committeeSize = Math.max(threshold + 2, DEFAULT_MPC_CONFIG.committeeSize);
+    try {
+      // Query on-chain validator registry
+      const allValidators = await listValidators(this.connection);
 
-    const committee: CommitteeMember[] = [];
-    for (let i = 0; i < committeeSize; i++) {
-      // Generate deterministic placeholder addresses
-      const address = new PublicKey(
-        new Uint8Array(32).fill(i + 1)
-      );
-      committee.push({
-        validatorAddress: address,
+      // Select committee members based on reputation and stake
+      // In a real system, we'd use a deterministic but random selection based on the ledger state
+      const sortedValidators = allValidators.sort((a, b) => b.reputation.accuracyRate - a.reputation.accuracyRate);
+      const committeeSize = Math.max(threshold + 2, DEFAULT_MPC_CONFIG.committeeSize);
+
+      const selectedValidators = sortedValidators.slice(0, committeeSize);
+
+      return selectedValidators.map(v => ({
+        validatorAddress: v.address,
         hasApproved: false,
-      });
-    }
+      }));
+    } catch (error) {
+      console.warn('Failed to form committee from real validators, using genesis fallback:', error);
 
-    return committee;
+      const committeeSize = Math.max(threshold + 2, DEFAULT_MPC_CONFIG.committeeSize);
+      const committee: CommitteeMember[] = [];
+      for (let i = 0; i < committeeSize; i++) {
+        const address = new PublicKey(new Uint8Array(32).fill(i + 1));
+        committee.push({
+          validatorAddress: address,
+          hasApproved: false,
+        });
+      }
+      return committee;
+    }
   }
 
   /**

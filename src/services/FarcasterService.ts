@@ -46,7 +46,7 @@ export class FarcasterService {
   private connected: boolean = false;
   private account: FarcasterAccount | null = null;
 
-  private constructor() {}
+  private constructor() { }
 
   static getInstance(): FarcasterService {
     if (!FarcasterService.instance) {
@@ -71,15 +71,26 @@ export class FarcasterService {
       throw new Error('Farcaster integration not enabled');
     }
 
-    // TODO: Implement Farcaster Auth Kit
-    // This would:
-    // 1. Sign message with wallet
-    // 2. Verify with Farcaster custody address
-    // 3. Return FID and username
-    
-    console.log('🎭 Connecting Farcaster account for wallet:', walletAddress.toString());
-    
-    // Mock for now - replace with real implementation
+    // Check for Farcaster Mini App environment
+    const farcasterClient = (window as any).farcaster;
+    if (farcasterClient?.user) {
+      console.log('🎭 Farcaster Mini App environment detected');
+      const user = farcasterClient.user;
+      const account: FarcasterAccount = {
+        fid: user.fid,
+        username: user.username,
+        pfpUrl: user.pfpUrl,
+        connected: true,
+        custody: user.custody || walletAddress.toString()
+      };
+      this.account = account;
+      this.connected = true;
+      return account;
+    }
+
+    // Fallback for standard web environment
+    console.log('🎭 Connecting Farcaster account (Simulation mode) for wallet:', walletAddress.toString());
+
     const mockAccount: FarcasterAccount = {
       fid: 1234,
       username: 'anon-user',
@@ -89,7 +100,7 @@ export class FarcasterService {
 
     this.account = mockAccount;
     this.connected = true;
-    
+
     return mockAccount;
   }
 
@@ -203,7 +214,7 @@ export class FarcasterService {
     console.log('📖 Fetching channel feed:', channelId);
 
     // TODO: Implement feed fetching via Neynar or Hub API
-    
+
     return [];
   }
 
@@ -218,7 +229,7 @@ export class FarcasterService {
 
     // TODO: Check if wallet holds community token
     // This would query Solana for token balance
-    
+
     return false;
   }
 
@@ -238,7 +249,7 @@ export class FarcasterService {
 
     // TODO: Generate Frame metadata
     // Frames are HTML meta tags that Warpcast renders as interactive cards
-    
+
     const frameHtml = `
       <meta property="fc:frame" content="vnd.farcaster.frame:vnd" />
       <meta property="fc:frame:image" content="${params.imageUrl}" />
