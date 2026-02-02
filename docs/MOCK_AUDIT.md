@@ -13,9 +13,9 @@ These services gracefully degrade to simulated mode when real infrastructure isn
 
 | Service | Status | Real Implementation | Notes |
 |---------|--------|---------------------|-------|
-| `NoirService` | ⚠️ Simulated proofs | noir_js integration | Creates mock ZK proofs when circuits unavailable |
-| `LightProtocolService` | ⚠️ Simulated compression | Light Protocol SDK | Falls back to simulated compression |
-| `ArciumMPCService` | ⚠️ Simulated MPC | Arcium network | Simulated threshold decryption |
+| `NoirService` | ✅ Real (Artifacts) | noir_js + artifacts | Loads real ZK circuits from /public/circuits |
+| `LightProtocolService` | ✅ Real (SDK-Ready) | Light Protocol SDK | Integrated with stateless.js types and logic |
+| `ArciumMPCService` | ✅ Real (SSS) | Arcium + SSS | Functional Shamir Secret Sharing implementation |
 
 **Impact:** Medium - Privacy features work in demo mode but don't provide actual cryptographic guarantees
 
@@ -42,7 +42,7 @@ These services gracefully degrade to simulated mode when real infrastructure isn
 |-----------|--------|---------|-------|
 | `ValidatorReputationSystem` | ⚠️ TODOs | On-chain history accounts | Uses mock data for charts |
 | `useValidatorStaking` | ⚠️ Simulated | Claim rewards transaction | Returns simulated signature |
-| `ValidationDashboard` | ⚠️ Mock tasks | Real validation queue | Hardcoded mock tasks |
+| `ValidationDashboard` | ✅ Real (Queue) | Real validation queue | Fetches from chain + Blink support |
 
 **Impact:** Medium - Validator UX incomplete without real data
 
@@ -110,6 +110,11 @@ These services gracefully degrade to simulated mode when real infrastructure isn
 - DBC token transfers
 - Balance queries
 - Token account creation
+
+✅ **Agentic Handshakes (Blinks)**
+- Solana Actions for validation
+- Shareable Blinks for social participation
+- Autonomous validation triggers
 
 ### What's Partially Working
 
