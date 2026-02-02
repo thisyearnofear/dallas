@@ -9,6 +9,8 @@ import { useConnection } from "@solana/wallet-adapter-react";
 import { fetchDbcBalance, formatDbc } from "../services/DbcTokenService";
 import { SOLANA_CONFIG } from "../config/solana";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { privacyService } from "../services/privacy/PrivacyService";
+import { cacheService } from "../services/CacheService";
 
 export function Header() {
     const { connected, signMessage, publicKey } = useWallet();
@@ -18,18 +20,39 @@ export function Header() {
     const [isDecrypting, setIsDecrypting] = useState(false);
     const [dbcBalance, setDbcBalance] = useState<number | null>(null);
     const [solBalance, setSolBalance] = useState<number | null>(null);
+    const [privacyScore, setPrivacyScore] = useState(0);
+    const [privacyLevel, setPrivacyLevel] = useState(privacyService.getPrivacyLevel(0));
 
     useEffect(() => {
         // Check if we're using a temporary session key or a wallet-derived key
-        const checkEncryption = () => {
-             setIsEncrypted(encryptionService.isWalletKeyActive());
+        const checkSovereignty = () => {
+            setIsEncrypted(encryptionService.isWalletKeyActive());
+
+            // Fetch privacy score from cache or calculate
+            const cachedStats = cacheService.get('privacy_dashboard_stats') as any;
+            if (cachedStats) {
+                setPrivacyScore(cachedStats.overallPrivacyScore);
+                setPrivacyLevel(privacyService.getPrivacyLevel(cachedStats.overallPrivacyScore));
+            } else if (publicKey) {
+                // Fallback: estimate if service is available
+                if (privacyService.isInitialized()) {
+                    const estimated = privacyService.calculatePrivacyScore({
+                        hasEncryption: encryptionService.isWalletKeyActive(),
+                        zkProofCount: 2, // Assume some activity if returning
+                        hasCompression: true,
+                        hasMPC: encryptionService.isWalletKeyActive()
+                    });
+                    setPrivacyScore(estimated);
+                    setPrivacyLevel(privacyService.getPrivacyLevel(estimated));
+                }
+            }
         };
         // Initial check
-        checkEncryption();
-        // Poll for changes (simple way to keep sync without complex context for now)
-        const interval = setInterval(checkEncryption, 1000);
+        checkSovereignty();
+        // Poll for changes
+        const interval = setInterval(checkSovereignty, 2000);
         return () => clearInterval(interval);
-    }, []);
+    }, [publicKey]);
 
     // Fetch DBC and SOL balances when wallet is connected
     useEffect(() => {
@@ -112,7 +135,7 @@ export function Header() {
                     {connected && !isEncrypted && (
                         <>
                             <div class="w-[2px] h-5 bg-gray-dark mx-1 sm:mx-3"></div>
-                            <button 
+                            <button
                                 onClick={handleDecrypt}
                                 disabled={isDecrypting}
                                 class="bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-3 py-1 rounded shadow-md transition-colors animate-pulse"
@@ -122,28 +145,40 @@ export function Header() {
                         </>
                     )}
                     {connected && isEncrypted && (
-                         <>
+                        <>
                             <div class="w-[2px] h-5 bg-gray-dark mx-1 sm:mx-3"></div>
-                            <span class="text-green-600 text-sm font-bold flex items-center gap-1">
+                            <span class="text-green-600 dark:text-green-400 text-sm font-bold flex items-center gap-1">
                                 🔐 SECURE
                             </span>
+                            <div class="w-[2px] h-5 bg-gray-dark mx-1 sm:mx-2"></div>
+                            <a
+                                href="/underground"
+                                class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:scale-105 transition-all group"
+                            >
+                                <span class="text-xs">{privacyLevel.icon}</span>
+                                <span class="text-[10px] font-black uppercase tracking-tighter text-slate-500 group-hover:text-brand">Sovereignty:</span>
+                                <span class={`text-[10px] font-black ${privacyScore > 80 ? 'text-purple-500' :
+                                    privacyScore > 50 ? 'text-green-500' : 'text-blue-500'
+                                    }`}>
+                                    {privacyScore}%
+                                </span>
+                            </a>
                         </>
                     )}
-                    
+
                     {/* Popup Toggle */}
                     <div class="w-[2px] h-5 bg-gray-dark mx-1 sm:mx-3"></div>
-                    <button 
+                    <button
                         onClick={() => toggleSetting("popupsEnabled")}
-                        class={`text-sm font-bold px-3 py-1 rounded shadow-md transition-colors border-2 ${
-                            settings.popupsEnabled 
-                                ? "bg-yellow-500 hover:bg-yellow-600 text-black border-yellow-700 animate-pulse" 
-                                : "bg-white hover:bg-gray-100 text-gray-900 border-gray-400 shadow-lg"
-                        }`}
+                        class={`text-sm font-bold px-3 py-1 rounded shadow-md transition-colors border-2 ${settings.popupsEnabled
+                            ? "bg-yellow-500 hover:bg-yellow-600 text-black border-yellow-700 animate-pulse"
+                            : "bg-white hover:bg-gray-100 text-gray-900 border-gray-400 shadow-lg"
+                            }`}
                         title={settings.popupsEnabled ? "Disable 90s popups" : "Enable 90s popups"}
                     >
                         {settings.popupsEnabled ? "🎲 POPUPS ON" : "🚫 POPUPS OFF"}
                     </button>
-                    
+
                     {/* Theme Toggle */}
                     <div class="w-[2px] h-5 bg-gray-dark mx-1 sm:mx-3"></div>
                     <ThemeToggle />
@@ -171,22 +206,22 @@ export function Header() {
 
                     {/* Wallet/User Section */}
                     <div class="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:ml-auto">
-                         <WalletButton />
-                         <div class="hidden sm:flex flex-col items-end gap-1">
-                             <p class="text-sm sm:text-lg whitespace-nowrap">
-                                 Hi, <b>{meta.author}</b>
-                             </p>
-                             <div class="flex whitespace-nowrap text-xs sm:text-sm">
-                                 <a class="text-brand italic cursor-not-allowed">
-                                     settings
-                                 </a>
-                                 <p class="text-brand italic font-medium mx-2">-</p>
-                                 <a class="text-brand italic cursor-not-allowed">
-                                     logout
-                                 </a>
-                             </div>
-                         </div>
-                     </div>
+                        <WalletButton />
+                        <div class="hidden sm:flex flex-col items-end gap-1">
+                            <p class="text-sm sm:text-lg whitespace-nowrap">
+                                Hi, <b>{meta.author}</b>
+                            </p>
+                            <div class="flex whitespace-nowrap text-xs sm:text-sm">
+                                <a class="text-brand italic cursor-not-allowed">
+                                    settings
+                                </a>
+                                <p class="text-brand italic font-medium mx-2">-</p>
+                                <a class="text-brand italic cursor-not-allowed">
+                                    logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -195,7 +230,7 @@ export function Header() {
 
 function ThemeToggle() {
     const { theme, toggleTheme } = useTheme();
-    
+
     const getThemeIcon = () => {
         switch (theme) {
             case "light": return "☀️";
@@ -204,7 +239,7 @@ function ThemeToggle() {
             default: return "☀️";
         }
     };
-    
+
     const getThemeLabel = () => {
         switch (theme) {
             case "light": return "LIGHT";
@@ -213,9 +248,9 @@ function ThemeToggle() {
             default: return "LIGHT";
         }
     };
-    
+
     return (
-        <button 
+        <button
             onClick={toggleTheme}
             class="text-sm font-bold px-3 py-1 rounded shadow-md transition-colors border-2 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-900 dark:text-white border-gray-400 dark:border-gray-600"
             title={`Current theme: ${theme}. Click to cycle through light/dark/system.`}

@@ -2,12 +2,13 @@ import { useState } from 'preact/hooks';
 import { EncryptedCaseStudyForm } from '../components/EncryptedCaseStudyForm';
 import { ProtocolDiscovery } from '../components/ProtocolDiscovery';
 import { CaseStudyGallery } from '../components/CaseStudyGallery';
+import { WearableIntegration } from '../components/WearableIntegration';
 import { useWallet } from '../context/WalletContext';
 import { attentionTokenService } from '../services/AttentionTokenService';
 import { CATEGORY_INFO, CommunityCategory } from '../types/community';
 import { AttentionTokenCreationStatus } from '../types/attentionToken';
 
-type Tab = 'discover' | 'studies' | 'create' | 'share';
+type Tab = 'discover' | 'studies' | 'create' | 'share' | 'sync';
 
 // ENHANCEMENT: Interactive Community Creation Form Component
 function CommunityCreationForm() {
@@ -72,7 +73,7 @@ function CommunityCreationForm() {
             Your community token is live and ready for members to join.
           </p>
         </div>
-        
+
         <div class="bg-white dark:bg-slate-800 rounded-xl p-6 mb-6">
           <div class="text-sm font-bold text-slate-500 dark:text-slate-400 mb-2">Token Mint Address</div>
           <div class="font-mono text-sm bg-slate-100 dark:bg-slate-900 p-3 rounded break-all">
@@ -123,11 +124,10 @@ function CommunityCreationForm() {
             <button
               key={cat}
               onClick={() => setCategory(cat as CommunityCategory)}
-              class={`p-4 rounded-xl font-bold transition-all text-sm border flex flex-col items-center gap-2 ${
-                category === cat
+              class={`p-4 rounded-xl font-bold transition-all text-sm border flex flex-col items-center gap-2 ${category === cat
                   ? 'bg-blue-600 text-white border-blue-400 shadow-lg'
                   : 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600'
-              }`}
+                }`}
             >
               <span class="text-3xl">{info.icon}</span>
               <span class="text-xs uppercase tracking-tight">{info.label}</span>
@@ -205,11 +205,10 @@ function CommunityCreationForm() {
           </div>
           <button
             onClick={() => setSocialEnabled(!socialEnabled)}
-            class={`px-4 py-2 rounded-lg font-bold text-xs transition-all ${
-              socialEnabled
+            class={`px-4 py-2 rounded-lg font-bold text-xs transition-all ${socialEnabled
                 ? 'bg-purple-600 text-white'
                 : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
-            }`}
+              }`}
           >
             {socialEnabled ? '✓ Enabled' : 'Disabled'}
           </button>
@@ -268,6 +267,10 @@ export function Experiences() {
               <span>Anonymous by default</span>
             </div>
             <div class="flex items-center gap-2">
+              <span class="text-2xl">🧬</span>
+              <span>Biometric ingestion</span>
+            </div>
+            <div class="flex items-center gap-2">
               <span class="text-2xl">🔐</span>
               <span>Encrypted case studies</span>
             </div>
@@ -280,43 +283,48 @@ export function Experiences() {
         <div class="flex gap-1 border-b border-gray-300 dark:border-gray-700 overflow-x-auto">
           <button
             onClick={() => setActiveTab('discover')}
-            class={`py-4 px-4 font-bold text-sm sm:text-base transition-all whitespace-nowrap ${
-              activeTab === 'discover'
+            class={`py-4 px-4 font-bold text-sm sm:text-base transition-all whitespace-nowrap ${activeTab === 'discover'
                 ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300'
-            }`}
+              }`}
           >
             🌐 Communities
           </button>
           <button
             onClick={() => setActiveTab('studies')}
-            class={`py-4 px-4 font-bold text-sm sm:text-base transition-all whitespace-nowrap ${
-              activeTab === 'studies'
+            class={`py-4 px-4 font-bold text-sm sm:text-base transition-all whitespace-nowrap ${activeTab === 'studies'
                 ? 'border-b-2 border-orange-500 text-orange-600 dark:text-orange-400'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300'
-            }`}
+              }`}
           >
             📊 Case Studies
           </button>
           <button
             onClick={() => setActiveTab('create')}
-            class={`py-4 px-4 font-bold text-sm sm:text-base transition-all whitespace-nowrap ${
-              activeTab === 'create'
+            class={`py-4 px-4 font-bold text-sm sm:text-base transition-all whitespace-nowrap ${activeTab === 'create'
                 ? 'border-b-2 border-purple-500 text-purple-600 dark:text-purple-400'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300'
-            }`}
+              }`}
           >
             🚀 Launch
           </button>
           <button
             onClick={() => setActiveTab('share')}
-            class={`py-4 px-4 font-bold text-sm sm:text-base transition-all whitespace-nowrap ${
-              activeTab === 'share'
+            class={`py-4 px-4 font-bold text-sm sm:text-base transition-all whitespace-nowrap ${activeTab === 'share'
                 ? 'border-b-2 border-green-500 text-green-600 dark:text-green-400'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300'
-            }`}
+              }`}
           >
             📋 Share
+          </button>
+          <button
+            onClick={() => setActiveTab('sync')}
+            class={`py-4 px-4 font-bold text-sm sm:text-base transition-all whitespace-nowrap ${activeTab === 'sync'
+                ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400'
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300'
+              }`}
+          >
+            🧬 Sync
           </button>
         </div>
       </div>
@@ -327,6 +335,11 @@ export function Experiences() {
         {activeTab === 'studies' && <CaseStudyGallery />}
         {activeTab === 'create' && <CommunityCreationForm />}
         {activeTab === 'share' && <EncryptedCaseStudyForm />}
+        {activeTab === 'sync' && (
+          <div class="animate-fadeIn">
+            <WearableIntegration />
+          </div>
+        )}
       </div>
 
       {/* Information Section */}
