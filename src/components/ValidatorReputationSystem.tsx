@@ -25,8 +25,14 @@ import {
   calculateTier, 
   type ValidatorTier,
   TIER_THRESHOLDS,
+  getValidatorReputationPDA,
+  getValidatorStake,
 } from '../services/DbcTokenService';
 import { useIsMobile } from './MobileEnhancements';
+import { SOLANA_CONFIG } from '../config/solana';
+import { cacheService } from '../services/CacheService';
+import { fetchPendingCaseStudies } from '../services/BlockchainIntegration';
+import { Connection, PublicKey } from '@solana/web3.js';
 
 // ============= Types =============
 
@@ -68,69 +74,181 @@ interface AccuracyDataPoint {
   validations: number;
 }
 
-// ============= Mock Data Generators =============
+interface ValidatorReputationData {
+  totalValidations: number;
+  accurateValidations: number;
+  accuracyRate: number;
+  tier: ValidatorTier;
+  totalRewards: number;
+  currentStreak: number;
+  bestStreak: number;
+}
 
-const generateMockHistory = (count: number): ValidationHistory[] => {
-  const types: ('quality' | 'accuracy' | 'safety')[] = ['quality', 'accuracy', 'safety'];
-  const history: ValidationHistory[] = [];
-  
-  for (let i = 0; i < count; i++) {
-    const approved = Math.random() > 0.15; // 85% approval rate
-    history.push({
-      id: `val_${Date.now()}_${i}`,
-      timestamp: Date.now() - i * 86400000,
-      caseStudyId: `cs_${Math.floor(Math.random() * 1000)}`,
-      validationType: types[Math.floor(Math.random() * types.length)],
-      approved,
-      consensus: approved ? (Math.random() > 0.2 ? 'agreed' : 'disagreed') : 'pending',
-      reward: approved ? Math.floor(Math.random() * 25) + 25 : 0,
-      stakeAmount: 10,
-    });
+// ============= RPC Data Fetching =============
+
+/**
+ * Fetch validator reputation data from on-chain account
+ * Uses caching with 30 second TTL
+ */
+async function fetchValidatorReputationData(
+  connection: Connection,
+  validator: PublicKey
+): Promise<ValidatorReputationData | null> {
+  const cacheKey = `validator_reputation_${validator.toString()}`;
+  const TTL = 30 * 1000; // 30 seconds
+
+  // Check cache first
+  const cached = cacheService.get<ValidatorReputationData>(cacheKey);
+  if (cached !== null) {
+    return cached;
   }
-  
-  return history;
-};
 
-const generateMockLeaderboard = (): LeaderboardEntry[] => {
-  const tiers: ValidatorTier[] = ['Platinum', 'Gold', 'Silver', 'Bronze'];
-  const entries: LeaderboardEntry[] = [];
-  
-  for (let i = 0; i < 20; i++) {
-    const tier = tiers[Math.min(Math.floor(i / 5), 3)];
-    entries.push({
-      rank: i + 1,
-      address: `${Math.random().toString(36).substring(2, 8)}...${Math.random().toString(36).substring(2, 6)}`,
+  try {
+    // Get reputation account PDA
+    const [reputationPDA] = getValidatorReputationPDA(validator);
+    
+    // Fetch account info
+    const accountInfo = await connection.getAccountInfo(reputationPDA);
+    
+    if (!accountInfo || !accountInfo.data) {
+      // No reputation account yet - return default data
+      const defaultData: ValidatorReputationData = {
+        totalValidations: 0,
+        accurateValidations: 0,
+        accuracyRate: 0,
+        tier: 'Bronze',
+        totalRewards: 0,
+        currentStreak: 0,
+        bestStreak: 0,
+      };
+      cacheService.set(cacheKey, defaultData, TTL);
+      return defaultData;
+    }
+
+    // Parse reputation data from account
+    // Account structure: discriminator (8) + total_validations (4) + accurate_validations (4) + total_rewards (8) + streak (4) + best_streak (4)
+    const data = accountInfo.data;
+    let offset = 8; // Skip discriminator
+
+    const totalValidations = data.readUInt32LE(offset);
+    offset += 4;
+
+    const accurateValidations = data.readUInt32LE(offset);
+    offset += 4;
+
+    const totalRewards = Number(data.readBigUInt64LE(offset));
+    offset += 8;
+
+    const currentStreak = data.readUInt32LE(offset);
+    offset += 4;
+
+    const bestStreak = data.readUInt32LE(offset);
+
+    const accuracyRate = totalValidations > 0 
+      ? Math.round((accurateValidations / totalValidations) * 100)
+      : 0;
+
+    const tier = calculateTier(totalValidations, accuracyRate);
+
+    const reputationData: ValidatorReputationData = {
+      totalValidations,
+      accurateValidations,
+      accuracyRate,
       tier,
-      totalValidations: Math.floor(Math.random() * 500) + 50,
-      accuracyRate: Math.floor(Math.random() * 20) + 80,
-      totalRewards: Math.floor(Math.random() * 10000) + 1000,
-      isCurrentUser: i === 5, // Mock current user at rank 6
-    });
-  }
-  
-  return entries.sort((a, b) => b.accuracyRate - a.accuracyRate || b.totalValidations - a.totalValidations)
-    .map((e, i) => ({ ...e, rank: i + 1 }));
-};
+      totalRewards,
+      currentStreak,
+      bestStreak,
+    };
 
-const generateAccuracyHistory = (): AccuracyDataPoint[] => {
+    // Cache the result
+    cacheService.set(cacheKey, reputationData, TTL);
+    return reputationData;
+  } catch (error) {
+    console.error('Error fetching validator reputation:', error);
+    return null;
+  }
+}
+
+/**
+ * Fetch validation history from blockchain
+ * TODO: Implement when validation history accounts are deployed on-chain
+ * For now, returns empty array with console.warn
+ */
+async function fetchValidationHistory(
+  _connection: Connection,
+  _validator: PublicKey
+): Promise<ValidationHistory[]> {
+  // TODO: Implement when validator history accounts are available on-chain
+  // This requires a program account that tracks individual validation records
+  console.warn('[ValidatorReputationSystem] Validation history not yet available on-chain. Using empty history.');
+  return [];
+}
+
+/**
+ * Fetch accuracy history from blockchain
+ * TODO: Implement when historical accuracy data is available on-chain
+ * For now, generates minimal mock data based on current accuracy rate
+ */
+async function fetchAccuracyHistory(
+  _connection: Connection,
+  _validator: PublicKey,
+  currentAccuracy: number
+): Promise<AccuracyDataPoint[]> {
+  // TODO: Implement when historical accuracy tracking is available on-chain
+  // This would require daily/periodic accuracy snapshots stored on-chain
+  console.warn('[ValidatorReputationSystem] Historical accuracy data not yet available on-chain. Using generated data based on current accuracy.');
+  
+  // Generate minimal mock data centered around current accuracy
   const data: AccuracyDataPoint[] = [];
-  let accuracy = 75;
+  let accuracy = Math.max(60, currentAccuracy - 10);
   
   for (let i = 29; i >= 0; i--) {
     const date = new Date();
     date.setDate(date.getDate() - i);
-    accuracy += (Math.random() - 0.5) * 5;
+    // Trend towards current accuracy
+    const targetAccuracy = currentAccuracy > 0 ? currentAccuracy : 75;
+    accuracy += (targetAccuracy - accuracy) * 0.1 + (Math.random() - 0.5) * 3;
     accuracy = Math.max(60, Math.min(100, accuracy));
     
     data.push({
       date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       accuracy: Math.round(accuracy),
-      validations: Math.floor(Math.random() * 10) + 1,
+      validations: Math.floor(Math.random() * 5) + 1,
     });
   }
   
   return data;
-};
+}
+
+/**
+ * Fetch leaderboard data from blockchain
+ * TODO: Implement when leaderboard program is deployed
+ * For now, returns empty array with console.warn
+ */
+async function fetchLeaderboard(
+  _connection: Connection,
+  _currentUser: PublicKey
+): Promise<LeaderboardEntry[]> {
+  // TODO: Implement when leaderboard program is available on-chain
+  // This would require querying all validator reputation accounts and sorting
+  console.warn('[ValidatorReputationSystem] Leaderboard not yet available on-chain. Using empty leaderboard.');
+  return [];
+}
+
+/**
+ * Fetch disputes from blockchain
+ * TODO: Implement when dispute resolution program is deployed
+ * For now, returns empty array with console.warn
+ */
+async function fetchDisputes(
+  _connection: Connection,
+  _validator: PublicKey
+): Promise<Dispute[]> {
+  // TODO: Implement when dispute accounts are available on-chain
+  // This would require querying dispute accounts by validator
+  console.warn('[ValidatorReputationSystem] Dispute data not yet available on-chain. Using empty disputes.');
+  return [];
+}
 
 // ============= Components =============
 
@@ -149,54 +267,74 @@ export const ValidatorReputationSystem: FunctionalComponent = () => {
   const [disputes, setDisputes] = useState<Dispute[]>([]);
   const [accuracyHistory, setAccuracyHistory] = useState<AccuracyDataPoint[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [reputationData, setReputationData] = useState<ValidatorReputationData | null>(null);
+  
+  const connection = new Connection(SOLANA_CONFIG.rpcEndpoint[SOLANA_CONFIG.network], 'confirmed');
   
   const calculatedTier = calculateTier(validationCount, accuracyRate);
   
-  // Load data
+  // Load data from blockchain
   useEffect(() => {
     const loadData = async () => {
+      if (!publicKey) {
+        setIsLoading(false);
+        return;
+      }
+      
       setIsLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
       
-      setHistory(generateMockHistory(50));
-      setLeaderboard(generateMockLeaderboard());
-      setAccuracyHistory(generateAccuracyHistory());
-      setDisputes([
-        {
-          id: 'disp_001',
-          caseStudyId: 'cs_123',
-          filedBy: '0xabc...def',
-          filedAt: Date.now() - 86400000,
-          reason: 'Validation appears to contradict evidence in case study',
-          status: 'pending',
-          validatorStakeAtRisk: 10,
-        },
-      ]);
-      
-      setIsLoading(false);
+      try {
+        // Fetch reputation data from on-chain account
+        const repData = await fetchValidatorReputationData(connection, publicKey);
+        setReputationData(repData);
+        
+        // Fetch validation history (TODO: real on-chain data when available)
+        const historyData = await fetchValidationHistory(connection, publicKey);
+        setHistory(historyData);
+        
+        // Fetch accuracy history (TODO: real on-chain data when available)
+        const accuracyData = await fetchAccuracyHistory(
+          connection, 
+          publicKey, 
+          repData?.accuracyRate || accuracyRate
+        );
+        setAccuracyHistory(accuracyData);
+        
+        // Fetch leaderboard (TODO: real on-chain data when available)
+        const leaderboardData = await fetchLeaderboard(connection, publicKey);
+        setLeaderboard(leaderboardData);
+        
+        // Fetch disputes (TODO: real on-chain data when available)
+        const disputesData = await fetchDisputes(connection, publicKey);
+        setDisputes(disputesData);
+        
+      } catch (error) {
+        console.error('Error loading validator data:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
     
     loadData();
-  }, []);
+  }, [publicKey, connection, accuracyRate]);
   
-  // Calculate statistics
+  // Calculate statistics from real data
   const stats = {
-    totalValidations: history.length,
-    agreedValidations: history.filter(h => h.consensus === 'agreed').length,
-    disagreedValidations: history.filter(h => h.consensus === 'disagreed').length,
-    totalRewards: history.reduce((sum, h) => sum + h.reward, 0),
-    averageReward: history.length > 0 
-      ? history.reduce((sum, h) => sum + h.reward, 0) / history.length 
+    totalValidations: reputationData?.totalValidations ?? validationCount,
+    agreedValidations: reputationData?.accurateValidations ?? 0,
+    disagreedValidations: (reputationData?.totalValidations ?? validationCount) - (reputationData?.accurateValidations ?? 0),
+    totalRewards: reputationData?.totalRewards ?? 0,
+    averageReward: (reputationData?.totalValidations ?? 0) > 0 
+      ? (reputationData?.totalRewards ?? 0) / (reputationData?.totalValidations ?? 1)
       : 0,
-    currentStreak: calculateStreak(history),
-    bestStreak: calculateBestStreak(history),
+    currentStreak: reputationData?.currentStreak ?? 0,
+    bestStreak: reputationData?.bestStreak ?? 0,
   };
   
   const nextTier = getNextTier(calculatedTier);
   const nextTierRequirements = nextTier ? {
-    validationsNeeded: Math.max(0, TIER_THRESHOLDS[nextTier].minValidations - validationCount),
-    accuracyNeeded: Math.max(0, TIER_THRESHOLDS[nextTier].minAccuracy - accuracyRate),
+    validationsNeeded: Math.max(0, TIER_THRESHOLDS[nextTier].minValidations - (reputationData?.totalValidations ?? validationCount)),
+    accuracyNeeded: Math.max(0, TIER_THRESHOLDS[nextTier].minAccuracy - (reputationData?.accuracyRate ?? accuracyRate)),
   } : null;
   
   if (!publicKey) {
@@ -306,7 +444,7 @@ export const ValidatorReputationSystem: FunctionalComponent = () => {
             />
             <StatCard 
               label="Accuracy Rate" 
-              value={`${accuracyRate}%`} 
+              value={`${reputationData?.accuracyRate ?? accuracyRate}%`} 
               icon="🎯"
               color="green"
               isDark={isDark}
@@ -333,27 +471,34 @@ export const ValidatorReputationSystem: FunctionalComponent = () => {
               <span>📈</span>
               <span>30-Day Accuracy History</span>
             </h3>
-            <div class="h-32 md:h-48 flex items-end gap-1">
-              {accuracyHistory.map((point, i) => (
-                <div 
-                  key={i}
-                  class="flex-1 flex flex-col items-center gap-1"
-                >
+            {accuracyHistory.length > 0 ? (
+              <div class="h-32 md:h-48 flex items-end gap-1">
+                {accuracyHistory.map((point, i) => (
                   <div 
-                    class={`w-full rounded-t transition-all duration-300 ${
-                      point.accuracy >= 90 ? 'bg-green-500' :
-                      point.accuracy >= 75 ? 'bg-blue-500' :
-                      point.accuracy >= 60 ? 'bg-yellow-500' : 'bg-red-500'
-                    }`}
-                    style={{ height: `${point.accuracy}%` }}
-                    title={`${point.date}: ${point.accuracy}% (${point.validations} validations)`}
-                  />
-                  {i % 5 === 0 && (
-                    <span class="text-[8px] text-slate-400 hidden md:block">{point.date}</span>
-                  )}
-                </div>
-              ))}
-            </div>
+                    key={i}
+                    class="flex-1 flex flex-col items-center gap-1"
+                  >
+                    <div 
+                      class={`w-full rounded-t transition-all duration-300 ${
+                        point.accuracy >= 90 ? 'bg-green-500' :
+                        point.accuracy >= 75 ? 'bg-blue-500' :
+                        point.accuracy >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                      }`}
+                      style={{ height: `${point.accuracy}%` }}
+                      title={`${point.date}: ${point.accuracy}% (${point.validations} validations)`}
+                    />
+                    {i % 5 === 0 && (
+                      <span class="text-[8px] text-slate-400 hidden md:block">{point.date}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div class="text-center py-8 text-slate-500">
+                <p>No accuracy history available yet.</p>
+                <p class="text-sm mt-1">Start validating case studies to build your history.</p>
+              </div>
+            )}
           </div>
           
           {/* Next Tier Progress */}
@@ -373,16 +518,16 @@ export const ValidatorReputationSystem: FunctionalComponent = () => {
                 <div>
                   <div class="flex justify-between text-sm mb-1">
                     <span class={isDark ? 'text-slate-400' : 'text-slate-600'}>
-                      Validations ({validationCount} / {TIER_THRESHOLDS[nextTier].minValidations})
+                      Validations ({reputationData?.totalValidations ?? validationCount} / {TIER_THRESHOLDS[nextTier].minValidations})
                     </span>
                     <span class="font-bold">
-                      {Math.min(100, Math.round((validationCount / TIER_THRESHOLDS[nextTier].minValidations) * 100))}%
+                      {Math.min(100, Math.round(((reputationData?.totalValidations ?? validationCount) / TIER_THRESHOLDS[nextTier].minValidations) * 100))}%
                     </span>
                   </div>
                   <div class={`h-2 rounded-full ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}>
                     <div 
                       class="h-full bg-purple-500 rounded-full transition-all duration-500"
-                      style={{ width: `${Math.min(100, (validationCount / TIER_THRESHOLDS[nextTier].minValidations) * 100)}%` }}
+                      style={{ width: `${Math.min(100, ((reputationData?.totalValidations ?? validationCount) / TIER_THRESHOLDS[nextTier].minValidations) * 100)}%` }}
                     />
                   </div>
                 </div>
@@ -390,16 +535,16 @@ export const ValidatorReputationSystem: FunctionalComponent = () => {
                 <div>
                   <div class="flex justify-between text-sm mb-1">
                     <span class={isDark ? 'text-slate-400' : 'text-slate-600'}>
-                      Accuracy ({accuracyRate}% / {TIER_THRESHOLDS[nextTier].minAccuracy}%)
+                      Accuracy ({reputationData?.accuracyRate ?? accuracyRate}% / {TIER_THRESHOLDS[nextTier].minAccuracy}%)
                     </span>
                     <span class="font-bold">
-                      {Math.min(100, Math.round((accuracyRate / TIER_THRESHOLDS[nextTier].minAccuracy) * 100))}%
+                      {Math.min(100, Math.round(((reputationData?.accuracyRate ?? accuracyRate) / TIER_THRESHOLDS[nextTier].minAccuracy) * 100))}%
                     </span>
                   </div>
                   <div class={`h-2 rounded-full ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`}>
                     <div 
                       class="h-full bg-green-500 rounded-full transition-all duration-500"
-                      style={{ width: `${Math.min(100, (accuracyRate / TIER_THRESHOLDS[nextTier].minAccuracy) * 100)}%` }}
+                      style={{ width: `${Math.min(100, ((reputationData?.accuracyRate ?? accuracyRate) / TIER_THRESHOLDS[nextTier].minAccuracy) * 100)}%` }}
                     />
                   </div>
                 </div>
@@ -412,96 +557,112 @@ export const ValidatorReputationSystem: FunctionalComponent = () => {
       {/* History Tab */}
       {activeTab === 'history' && (
         <div class="space-y-4">
-          <div class={`overflow-x-auto rounded-xl ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
-            <table class="w-full text-sm">
-              <thead>
-                <tr class={`border-b ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
-                  <th class="text-left p-3 font-bold">Date</th>
-                  <th class="text-left p-3 font-bold">Type</th>
-                  <th class="text-left p-3 font-bold">Decision</th>
-                  <th class="text-left p-3 font-bold">Consensus</th>
-                  <th class="text-right p-3 font-bold">Reward</th>
-                </tr>
-              </thead>
-              <tbody>
-                {history.slice(0, 20).map((entry) => (
-                  <tr key={entry.id} class={`border-b ${isDark ? 'border-slate-700/50' : 'border-slate-200/50'}`}>
-                    <td class="p-3">{new Date(entry.timestamp).toLocaleDateString()}</td>
-                    <td class="p-3">
-                      <span class={`px-2 py-1 rounded text-xs font-bold uppercase ${
-                        entry.validationType === 'quality' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
-                        entry.validationType === 'accuracy' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
-                        'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-                      }`}>
-                        {entry.validationType}
-                      </span>
-                    </td>
-                    <td class="p-3">
-                      <span class={entry.approved ? 'text-green-500' : 'text-red-500'}>
-                        {entry.approved ? '✅ Approved' : '❌ Rejected'}
-                      </span>
-                    </td>
-                    <td class="p-3">
-                      <span class={
-                        entry.consensus === 'agreed' ? 'text-green-500' :
-                        entry.consensus === 'disagreed' ? 'text-red-500' :
-                        'text-yellow-500'
-                      }>
-                        {entry.consensus === 'agreed' ? '✓ Agreed' :
-                         entry.consensus === 'disagreed' ? '✗ Disagreed' :
-                         '⏳ Pending'}
-                      </span>
-                    </td>
-                    <td class="p-3 text-right font-bold">
-                      {entry.reward > 0 ? `+${entry.reward} DBC` : '-'}
-                    </td>
+          {history.length > 0 ? (
+            <div class={`overflow-x-auto rounded-xl ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class={`border-b ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
+                    <th class="text-left p-3 font-bold">Date</th>
+                    <th class="text-left p-3 font-bold">Type</th>
+                    <th class="text-left p-3 font-bold">Decision</th>
+                    <th class="text-left p-3 font-bold">Consensus</th>
+                    <th class="text-right p-3 font-bold">Reward</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {history.slice(0, 20).map((entry) => (
+                    <tr key={entry.id} class={`border-b ${isDark ? 'border-slate-700/50' : 'border-slate-200/50'}`}>
+                      <td class="p-3">{new Date(entry.timestamp).toLocaleDateString()}</td>
+                      <td class="p-3">
+                        <span class={`px-2 py-1 rounded text-xs font-bold uppercase ${
+                          entry.validationType === 'quality' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                          entry.validationType === 'accuracy' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
+                          'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+                        }`}>
+                          {entry.validationType}
+                        </span>
+                      </td>
+                      <td class="p-3">
+                        <span class={entry.approved ? 'text-green-500' : 'text-red-500'}>
+                          {entry.approved ? '✅ Approved' : '❌ Rejected'}
+                        </span>
+                      </td>
+                      <td class="p-3">
+                        <span class={
+                          entry.consensus === 'agreed' ? 'text-green-500' :
+                          entry.consensus === 'disagreed' ? 'text-red-500' :
+                          'text-yellow-500'
+                        }>
+                          {entry.consensus === 'agreed' ? '✓ Agreed' :
+                           entry.consensus === 'disagreed' ? '✗ Disagreed' :
+                           '⏳ Pending'}
+                        </span>
+                      </td>
+                      <td class="p-3 text-right font-bold">
+                        {entry.reward > 0 ? `+${entry.reward} DBC` : '-'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div class={`text-center py-10 rounded-xl ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
+              <div class="text-4xl mb-3">📋</div>
+              <p class="font-bold">No Validation History</p>
+              <p class="text-sm text-slate-500 mt-1">Start validating case studies to see your history here.</p>
+            </div>
+          )}
         </div>
       )}
       
       {/* Leaderboard Tab */}
       {activeTab === 'leaderboard' && (
         <div class="space-y-4">
-          <div class={`rounded-xl overflow-hidden ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
-            {leaderboard.map((entry, i) => (
-              <div 
-                key={entry.address}
-                class={`flex items-center gap-3 p-3 ${
-                  entry.isCurrentUser ? (isDark ? 'bg-purple-900/30' : 'bg-purple-50') : ''
-                } ${i !== leaderboard.length - 1 ? (isDark ? 'border-b border-slate-700' : 'border-b border-slate-200') : ''}`}
-              >
-                <div class={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                  entry.rank === 1 ? 'bg-yellow-500 text-white' :
-                  entry.rank === 2 ? 'bg-gray-400 text-white' :
-                  entry.rank === 3 ? 'bg-amber-600 text-white' :
-                  isDark ? 'bg-slate-700 text-slate-400' : 'bg-slate-200 text-slate-600'
-                }`}>
-                  {entry.rank}
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-2">
-                    <span class="font-bold truncate">{entry.address}</span>
-                    {entry.isCurrentUser && (
-                      <span class="text-xs bg-purple-500 text-white px-2 py-0.5 rounded-full">You</span>
-                    )}
+          {leaderboard.length > 0 ? (
+            <div class={`rounded-xl overflow-hidden ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
+              {leaderboard.map((entry, i) => (
+                <div 
+                  key={entry.address}
+                  class={`flex items-center gap-3 p-3 ${
+                    entry.isCurrentUser ? (isDark ? 'bg-purple-900/30' : 'bg-purple-50') : ''
+                  } ${i !== leaderboard.length - 1 ? (isDark ? 'border-b border-slate-700' : 'border-b border-slate-200') : ''}`}
+                >
+                  <div class={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                    entry.rank === 1 ? 'bg-yellow-500 text-white' :
+                    entry.rank === 2 ? 'bg-gray-400 text-white' :
+                    entry.rank === 3 ? 'bg-amber-600 text-white' :
+                    isDark ? 'bg-slate-700 text-slate-400' : 'bg-slate-200 text-slate-600'
+                  }`}>
+                    {entry.rank}
                   </div>
-                  <div class="flex items-center gap-2 text-xs text-slate-500">
-                    <span>{entry.tier} {TIER_THRESHOLDS[entry.tier].icon}</span>
-                    <span>•</span>
-                    <span>{entry.totalValidations} validations</span>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                      <span class="font-bold truncate">{entry.address}</span>
+                      {entry.isCurrentUser && (
+                        <span class="text-xs bg-purple-500 text-white px-2 py-0.5 rounded-full">You</span>
+                      )}
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-slate-500">
+                      <span>{entry.tier} {TIER_THRESHOLDS[entry.tier].icon}</span>
+                      <span>•</span>
+                      <span>{entry.totalValidations} validations</span>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="font-bold text-green-500">{entry.accuracyRate}%</div>
+                    <div class="text-xs text-slate-500">{entry.totalRewards.toLocaleString()} DBC</div>
                   </div>
                 </div>
-                <div class="text-right">
-                  <div class="font-bold text-green-500">{entry.accuracyRate}%</div>
-                  <div class="text-xs text-slate-500">{entry.totalRewards.toLocaleString()} DBC</div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div class={`text-center py-10 rounded-xl ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
+              <div class="text-4xl mb-3">🏆</div>
+              <p class="font-bold">Leaderboard Coming Soon</p>
+              <p class="text-sm text-slate-500 mt-1">Validator rankings will be available once the leaderboard program is deployed.</p>
+            </div>
+          )}
         </div>
       )}
       
@@ -593,34 +754,6 @@ const StatCard: FunctionalComponent<StatCardProps> = ({ label, value, icon, colo
 };
 
 // ============= Helper Functions =============
-
-function calculateStreak(history: ValidationHistory[]): number {
-  let streak = 0;
-  for (const entry of history) {
-    if (entry.consensus === 'agreed') {
-      streak++;
-    } else if (entry.consensus === 'disagreed') {
-      break;
-    }
-  }
-  return streak;
-}
-
-function calculateBestStreak(history: ValidationHistory[]): number {
-  let bestStreak = 0;
-  let currentStreak = 0;
-  
-  for (const entry of history) {
-    if (entry.consensus === 'agreed') {
-      currentStreak++;
-      bestStreak = Math.max(bestStreak, currentStreak);
-    } else if (entry.consensus === 'disagreed') {
-      currentStreak = 0;
-    }
-  }
-  
-  return bestStreak;
-}
 
 function getNextTier(currentTier: ValidatorTier): ValidatorTier | null {
   const tiers: ValidatorTier[] = ['Bronze', 'Silver', 'Gold', 'Platinum'];

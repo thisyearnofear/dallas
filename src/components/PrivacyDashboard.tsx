@@ -25,6 +25,10 @@ import {
   type PrivacyLevel,
 } from '../services/privacy';
 import { useIsMobile } from './MobileEnhancements';
+import { useWallet } from '../context/WalletContext';
+import { SOLANA_CONFIG } from '../config/solana';
+import { cacheService } from '../services/CacheService';
+import { PublicKey } from '@solana/web3.js';
 
 interface PrivacyStats {
   // Noir
@@ -46,16 +50,38 @@ interface PrivacyStats {
   overallPrivacyScore: number;
 }
 
+interface ProofCounts {
+  totalProofsGenerated: number;
+  totalProofsVerified: number;
+}
+
+interface MPCSessionCounts {
+  activeSessions: number;
+  completedSessions: number;
+  totalCommitteeApprovals: number;
+}
+
+interface CompressionStats {
+  totalCompressed: number;
+  totalBytesSaved: number;
+  averageCompressionRatio: number;
+}
+
 interface PrivacyDashboardProps {
   compact?: boolean;
   showTips?: boolean;
 }
+
+// Cache key for privacy stats
+const PRIVACY_STATS_CACHE_KEY = 'privacy_dashboard_stats';
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({ 
   compact = false,
   showTips = true,
 }) => {
   const isMobile = useIsMobile();
+  const { connection } = useWallet();
   const [stats, setStats] = useState<PrivacyStats>({
     totalProofsGenerated: 0,
     totalProofsVerified: 0,
@@ -70,70 +96,259 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
   });
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevel | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'proofs' | 'compression' | 'mpc'>('overview');
 
-  // Initialize services and load stats
-  useEffect(() => {
-    const init = async () => {
-      await privacyService.initialize();
+  /**
+   * Fetch case study count from blockchain
+   */
+  const fetchCaseStudyCount = useCallback(async () => {
+    try {
+      const caseStudyProgramId = new PublicKey(SOLANA_CONFIG.blockchain.caseStudyProgramId);
       
-      // Load stats from services
-      const noirProofs = noirService.getProofs();
-      const lightStats = lightProtocolService.getStats();
-      const activeMPC = arciumMPCService.getActiveSessions();
-      const completedMPC = arciumMPCService.getCompletedSessions();
-      
-      // Calculate privacy score
-      const score = privacyService.calculatePrivacyScore(
-        true, // encryption
-        noirProofs.length > 0, // zk proofs
-        lightStats.totalCompressed > 0, // compression
-        activeMPC.length > 0 || completedMPC.length > 0 // mpc
-      );
-      
-      setStats({
-        totalProofsGenerated: noirProofs.length || 156,
-        totalProofsVerified: noirProofs.filter(p => p.verified).length || 148,
-        circuitsUsed: noirService.getAvailableCircuits().map(c => c.type),
-        totalCompressed: lightStats.totalCompressed || 89,
-        totalBytesSaved: lightStats.totalBytesSaved || 425000,
-        averageCompressionRatio: lightStats.totalCompressed > 0 
-          ? lightStats.totalBytesSaved / lightStats.totalCompressed / 100 
-          : 12.5,
-        activeSessions: activeMPC.length || 3,
-        completedSessions: completedMPC.length || 12,
-        totalCommitteeApprovals: 47,
-        overallPrivacyScore: score || 92,
+      // Get all case study accounts for the program
+      const accounts = await connection.getProgramAccounts(caseStudyProgramId, {
+        filters: [
+          { dataSize: 254 }, // CaseStudy account size
+        ],
       });
       
-      setPrivacyLevel(privacyService.getPrivacyLevel(score || 92));
-      setIsLoading(false);
+      return accounts.length;
+    } catch (err) {
+      console.error('Error fetching case study count:', err);
+      return 0;
+    }
+  }, [connection]);
+
+  /**
+   * Calculate compression stats from real data
+   */
+  const calculateCompressionStats = useCallback(async () => {
+    try {
+      const caseStudyProgramId = new PublicKey(SOLANA_CONFIG.blockchain.caseStudyProgramId);
+      
+      // Get all case study accounts to calculate compression
+      const accounts = await connection.getProgramAccounts(caseStudyProgramId, {
+        filters: [
+          { dataSize: 254 }, // CaseStudy account size
+        ],
+      });
+      
+      let totalCompressed = 0;
+      let totalBytesSaved = 0;
+      let totalCompressionRatio = 0;
+      
+      for (const { account } of accounts) {
+        try {
+          const data = account.data;
+          if (data.length < 100) continue;
+          
+          // Read compression_ratio from account data (offset varies based on struct)
+          // Account layout: discriminator(8) + ephemeral_id(32) + patient_id(32) + ...
+          // Compression ratio is stored as u16
+          let offset = 8 + 32 + 32; // Skip discriminator, ephemeral_id, patient_id
+          
+          // Skip ipfs_cid (String)
+          const ipfsCidLen = data.readUInt32LE(offset);
+          offset += 4 + ipfsCidLen;
+          
+          // Skip treatment_protocol (String)
+          const treatmentProtocolLen = data.readUInt32LE(offset);
+          offset += 4 + treatmentProtocolLen;
+          
+          // Skip metadata_hash (32 bytes)
+          offset += 32;
+          
+          // Skip treatment_category (1 byte)
+          offset += 1;
+          
+          // Skip duration_days (2 bytes)
+          offset += 2;
+          
+          // Skip proof_of_encryption (Vec<u8>)
+          const proofLen = data.readUInt32LE(offset);
+          offset += 4 + proofLen;
+          
+          // Skip light_protocol_proof (Vec<u8>)
+          const lightProofLen = data.readUInt32LE(offset);
+          offset += 4 + lightProofLen;
+          
+          // Read compression_ratio (2 bytes, u16)
+          const compressionRatio = data.readUInt16LE(offset);
+          
+          if (compressionRatio > 0) {
+            totalCompressed++;
+            // Estimate bytes saved based on compression ratio
+            // Assuming average case study size of ~500 bytes
+            const originalSize = 500;
+            const compressedSize = Math.floor(originalSize / compressionRatio);
+            const bytesSaved = originalSize - compressedSize;
+            
+            totalBytesSaved += bytesSaved;
+            totalCompressionRatio += compressionRatio;
+          }
+        } catch (e) {
+          // Skip accounts that can't be parsed
+          continue;
+        }
+      }
+      
+      const averageCompressionRatio = totalCompressed > 0 
+        ? totalCompressionRatio / totalCompressed 
+        : 0;
+      
+      const result: CompressionStats = {
+        totalCompressed,
+        totalBytesSaved,
+        averageCompressionRatio,
+      };
+      
+      return result;
+    } catch (err) {
+      console.error('Error calculating compression stats:', err);
+      const result: CompressionStats = {
+        totalCompressed: 0,
+        totalBytesSaved: 0,
+        averageCompressionRatio: 0,
+      };
+      return result;
+    }
+  }, [connection]);
+
+  /**
+   * Get proof counts from noirService
+   */
+  const getProofCounts = useCallback(() => {
+    const proofs = noirService.getProofs();
+    const result: ProofCounts = {
+      totalProofsGenerated: proofs.length,
+      totalProofsVerified: proofs.filter(p => p.verified).length,
     };
-    
-    init();
+    return result;
   }, []);
 
-  // Refresh stats periodically
+  /**
+   * Get MPC session counts from arciumMPCService
+   */
+  const getMPCSessionCounts = useCallback(() => {
+    const activeMPC = arciumMPCService.getActiveSessions();
+    const completedMPC = arciumMPCService.getCompletedSessions();
+    
+    // Calculate total committee approvals
+    let totalCommitteeApprovals = 0;
+    for (const session of [...activeMPC, ...completedMPC]) {
+      totalCommitteeApprovals += session.committee.filter(m => m.hasApproved).length;
+    }
+    
+    const result: MPCSessionCounts = {
+      activeSessions: activeMPC.length,
+      completedSessions: completedMPC.length,
+      totalCommitteeApprovals,
+    };
+    return result;
+  }, []);
+
+  /**
+   * Load all stats with caching
+   */
+  const loadStats = useCallback(async (forceRefresh = false) => {
+    try {
+      setError(null);
+      
+      // Check cache first if not forcing refresh
+      if (!forceRefresh) {
+        const cached = cacheService.get<PrivacyStats>(PRIVACY_STATS_CACHE_KEY);
+        if (cached) {
+          setStats(cached);
+          setPrivacyLevel(privacyService.getPrivacyLevel(cached.overallPrivacyScore));
+          setIsLoading(false);
+          return;
+        }
+      }
+      
+      // Initialize privacy service
+      await privacyService.initialize();
+      
+      // Fetch real data in parallel
+      const [
+        caseStudyCount,
+        compressionStats,
+        proofCounts,
+        mpcCounts,
+      ] = await Promise.all([
+        fetchCaseStudyCount(),
+        calculateCompressionStats(),
+        Promise.resolve(getProofCounts()),
+        Promise.resolve(getMPCSessionCounts()),
+      ]);
+      
+      // Calculate privacy score based on real data
+      const hasEncryption = caseStudyCount > 0;
+      const hasZkProofs = proofCounts.totalProofsGenerated > 0;
+      const hasCompression = compressionStats.totalCompressed > 0;
+      const hasMPC = mpcCounts.activeSessions > 0 || mpcCounts.completedSessions > 0;
+      
+      const score = privacyService.calculatePrivacyScore(
+        hasEncryption,
+        hasZkProofs,
+        hasCompression,
+        hasMPC
+      );
+      
+      const newStats: PrivacyStats = {
+        totalProofsGenerated: proofCounts.totalProofsGenerated,
+        totalProofsVerified: proofCounts.totalProofsVerified,
+        circuitsUsed: noirService.getAvailableCircuits().map(c => c.type),
+        totalCompressed: compressionStats.totalCompressed,
+        totalBytesSaved: compressionStats.totalBytesSaved,
+        averageCompressionRatio: compressionStats.averageCompressionRatio,
+        activeSessions: mpcCounts.activeSessions,
+        completedSessions: mpcCounts.completedSessions,
+        totalCommitteeApprovals: mpcCounts.totalCommitteeApprovals,
+        overallPrivacyScore: score,
+      };
+      
+      // Update state
+      setStats(newStats);
+      setPrivacyLevel(privacyService.getPrivacyLevel(score));
+      
+      // Cache the results
+      cacheService.set(PRIVACY_STATS_CACHE_KEY, newStats, CACHE_TTL);
+      
+    } catch (err) {
+      console.error('Error loading privacy stats:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load privacy stats');
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  }, [fetchCaseStudyCount, calculateCompressionStats, getProofCounts, getMPCSessionCounts]);
+
+  /**
+   * Handle manual refresh
+   */
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    await loadStats(true);
+  }, [loadStats]);
+
+  // Initialize services and load stats on mount
+  useEffect(() => {
+    loadStats();
+  }, [loadStats]);
+
+  // Refresh stats periodically (every 30 seconds)
   useEffect(() => {
     if (isLoading) return;
     
     const interval = setInterval(() => {
-      const lightStats = lightProtocolService.getStats();
-      const activeMPC = arciumMPCService.getActiveSessions();
-      const completedMPC = arciumMPCService.getCompletedSessions();
-      
-      setStats(prev => ({
-        ...prev,
-        totalCompressed: lightStats.totalCompressed || prev.totalCompressed,
-        totalBytesSaved: lightStats.totalBytesSaved || prev.totalBytesSaved,
-        activeSessions: activeMPC.length || prev.activeSessions,
-        completedSessions: completedMPC.length || prev.completedSessions,
-      }));
-    }, 30000); // Refresh every 30 seconds
+      loadStats(false);
+    }, 30000);
     
     return () => clearInterval(interval);
-  }, [isLoading]);
+  }, [isLoading, loadStats]);
 
   // Format bytes
   const formatBytes = useCallback((bytes: number) => lightProtocolService.formatBytes(bytes), []);
@@ -146,6 +361,28 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
           <p class="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest text-xs">
             Initializing Privacy Stack...
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div class="w-full max-w-4xl mx-auto bg-white dark:bg-slate-900 p-8 rounded-2xl border-2 border-red-200 dark:border-red-800 shadow-xl">
+        <div class="text-center py-6">
+          <div class="text-4xl mb-4">⚠️</div>
+          <p class="text-red-600 dark:text-red-400 font-bold mb-4">
+            Error loading privacy stats
+          </p>
+          <p class="text-slate-500 dark:text-slate-400 text-sm mb-6">{error}</p>
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-bold text-sm transition-colors disabled:opacity-50"
+          >
+            {isRefreshing ? 'Retrying...' : 'Retry'}
+          </button>
         </div>
       </div>
     );
@@ -200,15 +437,25 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
 
   return (
     <div class="w-full max-w-4xl mx-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-4 md:p-8 rounded-2xl border-2 border-purple-500 shadow-xl transition-all duration-300">
-      {/* Header */}
-      <div class="mb-6 md:mb-10">
-        <h2 class="text-2xl md:text-3xl font-black mb-2 uppercase tracking-tighter flex items-center gap-3">
-          <span class="bg-purple-100 dark:bg-purple-900/50 p-2 rounded-lg text-xl md:text-2xl">🛡️</span>
-          <span>Privacy Dashboard</span>
-        </h2>
-        <p class="text-slate-600 dark:text-slate-300 font-medium leading-relaxed text-sm md:text-base">
-          Real-time status of your privacy protection across all technologies.
-        </p>
+      {/* Header with Refresh Button */}
+      <div class="mb-6 md:mb-10 flex items-start justify-between">
+        <div>
+          <h2 class="text-2xl md:text-3xl font-black mb-2 uppercase tracking-tighter flex items-center gap-3">
+            <span class="bg-purple-100 dark:bg-purple-900/50 p-2 rounded-lg text-xl md:text-2xl">🛡️</span>
+            <span>Privacy Dashboard</span>
+          </h2>
+          <p class="text-slate-600 dark:text-slate-300 font-medium leading-relaxed text-sm md:text-base">
+            Real-time status of your privacy protection across all technologies.
+          </p>
+        </div>
+        <button
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
+          title="Refresh data"
+        >
+          <span class={`text-lg ${isRefreshing ? 'animate-spin' : ''}`}>🔄</span>
+        </button>
       </div>
 
       {/* Mobile Tab Navigation */}
@@ -291,7 +538,7 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
       )}
 
       {/* Technology Cards */}
-      {(activeTab === 'overview' || activeTab === 'proofs' || !isMobile) && (
+      {(activeTab === 'overview' || activeTab === 'proofs' || activeTab === 'compression' || activeTab === 'mpc' || !isMobile) && (
         <div class={`grid grid-cols-1 ${isMobile ? '' : 'md:grid-cols-3'} gap-4 md:gap-6 mb-6 md:mb-10`}>
           {/* Noir Card */}
           {(activeTab === 'overview' || activeTab === 'proofs' || !isMobile) && (
@@ -409,11 +656,11 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
                   <div class="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                     <div 
                       class="h-full bg-yellow-500 rounded-full"
-                      style={{ width: `${(stats.completedSessions / (stats.completedSessions + stats.activeSessions)) * 100}%` }}
+                      style={{ width: `${(stats.completedSessions / (stats.completedSessions + stats.activeSessions || 1)) * 100}%` }}
                     />
                   </div>
                   <span class="text-xs font-bold text-yellow-700 dark:text-yellow-300">
-                    {Math.round((stats.completedSessions / (stats.completedSessions + stats.activeSessions)) * 100)}%
+                    {Math.round((stats.completedSessions / (stats.completedSessions + stats.activeSessions || 1)) * 100)}%
                   </span>
                 </div>
               </div>
