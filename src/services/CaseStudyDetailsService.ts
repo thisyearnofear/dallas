@@ -2,11 +2,16 @@
  * Case Study Details Service
  * Fetches and decrypts encrypted case study data from IPFS
  * 
- * Privacy Note: Decryption happens locally in the browser using
- * the user's ephemeral key. The server never sees unencrypted data.
+ * Privacy Architecture:
+ * - Data is encrypted client-side before IPFS upload
+ * - Encryption key derived from wallet signature (deterministic)
+ * - Only the wallet owner can derive the key and decrypt
+ * - Platform never sees plaintext or encryption keys
+ * - All decryption happens locally in user's browser
  */
 
 import { PublicKey } from '@solana/web3.js';
+import { decryptHealthData, deriveEncryptionKey } from '../utils/encryption';
 
 // IPFS Gateway URLs (fallback order)
 const IPFS_GATEWAYS = [
@@ -51,6 +56,7 @@ export interface FetchDetailsResult {
   success: boolean;
   data?: DecryptedCaseStudyDetails;
   error?: string;
+  requiresWallet?: boolean;
 }
 
 /**
@@ -95,36 +101,56 @@ async function fetchFromIpfs(cid: string): Promise<Uint8Array | null> {
 }
 
 /**
- * Decrypt data using the ephemeral key
- * 
- * Note: This is a simplified implementation. In production, this would use
- * the actual encryption scheme (AES-256-GCM or ChaCha20-Poly1305) with
- * the ephemeral key derived from the user's wallet.
+ * Detect if data is encrypted (base64 with nonce) or plaintext JSON
  */
-async function decryptData(
-  encryptedData: Uint8Array,
-  ephemeralKey: Uint8Array
+function detectDataFormat(data: Uint8Array): 'encrypted' | 'json' | 'unknown' {
+  const text = new TextDecoder().decode(data);
+  
+  // Try to parse as JSON first
+  try {
+    const parsed = JSON.parse(text);
+    if (parsed && typeof parsed === 'object') {
+      return 'json';
+    }
+  } catch {
+    // Not JSON, might be encrypted
+  }
+  
+  // Check if it's valid base64 (encrypted data format)
+  try {
+    const decoded = Buffer.from(text, 'base64');
+    // Encrypted data: nonce (24 bytes) + ciphertext (at least 16 bytes for secretbox overhead)
+    if (decoded.length >= 40) {
+      return 'encrypted';
+    }
+  } catch {
+    // Not valid base64
+  }
+  
+  return 'unknown';
+}
+
+/**
+ * Decrypt data using wallet-derived key
+ * 
+ * Privacy: This requires user's wallet signature to derive the decryption key.
+ * The platform never sees the key - it's derived locally and used immediately.
+ */
+async function decryptWithWallet(
+  encryptedBase64: string,
+  walletPublicKey: PublicKey,
+  signMessage: (message: Uint8Array) => Promise<Uint8Array>
 ): Promise<DecryptedCaseStudyDetails | null> {
   try {
-    // For demo purposes, we'll try to parse as JSON first
-    // (in case the data is stored unencrypted for testing)
-    const text = new TextDecoder().decode(encryptedData);
+    // Derive encryption key from wallet (deterministic - same wallet = same key)
+    const encryptionKey = await deriveEncryptionKey(walletPublicKey, signMessage);
     
-    // Try to parse as JSON
-    try {
-      const parsed = JSON.parse(text);
-      if (parsed && typeof parsed === 'object') {
-        console.log('Data appears to be unencrypted JSON, parsing directly');
-        return normalizeCaseStudyData(parsed);
-      }
-    } catch {
-      // Not JSON, continue with decryption attempt
-    }
-
-    // TODO: Implement actual decryption
-    // For now, return mock data for testing
-    console.warn('Encrypted data detected but decryption not yet implemented');
-    return null;
+    // Decrypt the data
+    const decryptedJson = decryptHealthData(encryptedBase64, encryptionKey);
+    
+    // Parse the decrypted JSON
+    const parsed = JSON.parse(decryptedJson);
+    return normalizeCaseStudyData(parsed);
   } catch (error) {
     console.error('Decryption failed:', error);
     return null;
@@ -160,52 +186,84 @@ function normalizeCaseStudyData(data: any): DecryptedCaseStudyDetails | null {
 /**
  * Fetch and decrypt case study details from IPFS
  * 
+ * Privacy Model:
+ * 1. Fetches encrypted blob from IPFS (public, but encrypted)
+ * 2. If data is plaintext JSON (testing), returns it directly
+ * 3. If encrypted: requires wallet signature to derive decryption key
+ * 4. Decryption happens locally - key never leaves browser
+ * 
  * @param cid - IPFS Content Identifier
- * @param ephemeralKey - Optional ephemeral key for decryption (if not stored with data)
+ * @param walletPublicKey - User's wallet public key (to derive key)
+ * @param signMessage - Wallet sign function (to derive key)
  * @returns FetchDetailsResult with decrypted data or error
  */
 export async function fetchCaseStudyDetails(
   cid: string,
-  ephemeralKey?: Uint8Array
+  walletPublicKey?: PublicKey,
+  signMessage?: (message: Uint8Array) => Promise<Uint8Array>
 ): Promise<FetchDetailsResult> {
   try {
     // Fetch encrypted data from IPFS
-    const encryptedData = await fetchFromIpfs(cid);
+    const data = await fetchFromIpfs(cid);
     
-    if (!encryptedData) {
+    if (!data) {
       return {
         success: false,
         error: 'Failed to fetch data from IPFS. The content may be unavailable or the CID may be invalid.',
       };
     }
 
-    // If no key provided, try to parse as unencrypted (for testing)
-    if (!ephemeralKey) {
-      const text = new TextDecoder().decode(encryptedData);
-      try {
-        const parsed = JSON.parse(text);
-        if (parsed && typeof parsed === 'object') {
-          const normalized = normalizeCaseStudyData(parsed);
-          if (normalized) {
-            return { success: true, data: normalized };
-          }
-        }
-      } catch {
-        // Not valid JSON, need decryption
-      }
-    }
+    // Detect data format
+    const format = detectDataFormat(data);
+    console.log(`Detected data format: ${format}`);
 
-    // Decrypt the data
-    const decrypted = await decryptData(encryptedData, ephemeralKey || new Uint8Array());
-    
-    if (!decrypted) {
+    if (format === 'json') {
+      // Unencrypted JSON (testing mode)
+      const text = new TextDecoder().decode(data);
+      const parsed = JSON.parse(text);
+      const normalized = normalizeCaseStudyData(parsed);
+      
+      if (normalized) {
+        return { success: true, data: normalized };
+      }
+      
       return {
         success: false,
-        error: 'Failed to decrypt case study data. You may not have permission to view this content.',
+        error: 'Invalid data format received from IPFS.',
       };
     }
 
-    return { success: true, data: decrypted };
+    if (format === 'encrypted') {
+      // Encrypted data - need wallet to decrypt
+      if (!walletPublicKey || !signMessage) {
+        return {
+          success: false,
+          requiresWallet: true,
+          error: 'This case study is encrypted. Please connect your wallet to decrypt and view your data.',
+        };
+      }
+
+      const encryptedBase64 = new TextDecoder().decode(data);
+      const decrypted = await decryptWithWallet(
+        encryptedBase64,
+        walletPublicKey,
+        signMessage
+      );
+      
+      if (!decrypted) {
+        return {
+          success: false,
+          error: 'Decryption failed. This may not be your case study, or the data may be corrupted.',
+        };
+      }
+
+      return { success: true, data: decrypted };
+    }
+
+    return {
+      success: false,
+      error: 'Unknown data format. The case study data may be corrupted or stored in an unsupported format.',
+    };
   } catch (error) {
     console.error('Error fetching case study details:', error);
     return {

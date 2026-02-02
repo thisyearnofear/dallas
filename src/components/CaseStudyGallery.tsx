@@ -126,7 +126,15 @@ export const CaseStudyGallery: FunctionalComponent = () => {
     setDetailsData(null);
     setDetailsError(null);
 
-    const result = await fetchCaseStudyDetails(study.ipfsCid);
+    // Get wallet signing function from context
+    const wallet = walletContext as any;
+    const signMessage = wallet?.signMessage;
+
+    const result = await fetchCaseStudyDetails(
+      study.ipfsCid,
+      publicKey || undefined,
+      signMessage
+    );
     
     if (result.success && result.data) {
       setDetailsData(result.data);
@@ -318,10 +326,21 @@ export const CaseStudyGallery: FunctionalComponent = () => {
                 <div class="text-center py-8">
                   <div class="text-4xl mb-4">🔒</div>
                   <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                    Unable to Load Details
+                    {detailsError.includes('encrypted') ? 'Encrypted Data' : 'Unable to Load Details'}
                   </h3>
                   <p class="text-gray-600 dark:text-slate-400 mb-4">{detailsError}</p>
-                  <div class="text-xs text-gray-400 dark:text-slate-500 font-mono bg-gray-100 dark:bg-slate-900 p-3 rounded-lg">
+                  {!publicKey && detailsError.includes('wallet') && (
+                    <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                      <p class="text-sm text-blue-700 dark:text-blue-400 mb-2">
+                        💡 Connect your wallet to decrypt your case studies
+                      </p>
+                      <p class="text-xs text-blue-600 dark:text-blue-500">
+                        Your data is encrypted with a key derived from your wallet signature.
+                        Only you can decrypt it.
+                      </p>
+                    </div>
+                  )}
+                  <div class="text-xs text-gray-400 dark:text-slate-500 font-mono bg-gray-100 dark:bg-slate-900 p-3 rounded-lg mt-4">
                     CID: {selectedStudy.ipfsCid}
                   </div>
                 </div>
