@@ -24,6 +24,7 @@ import {
   PRIVACY_SCORE_WEIGHTS,
   type PrivacyLevel,
 } from '../services/privacy';
+import { WearableIntegration } from './WearableIntegration';
 import { useIsMobile } from './MobileEnhancements';
 import { useWallet } from '../context/WalletContext';
 import { SOLANA_CONFIG } from '../config/solana';
@@ -35,17 +36,17 @@ interface PrivacyStats {
   totalProofsGenerated: number;
   totalProofsVerified: number;
   circuitsUsed: string[];
-  
+
   // Light Protocol
   totalCompressed: number;
   totalBytesSaved: number;
   averageCompressionRatio: number;
-  
+
   // Arcium MPC
   activeSessions: number;
   completedSessions: number;
   totalCommitteeApprovals: number;
-  
+
   // Combined
   overallPrivacyScore: number;
 }
@@ -76,7 +77,7 @@ interface PrivacyDashboardProps {
 const PRIVACY_STATS_CACHE_KEY = 'privacy_dashboard_stats';
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({ 
+export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
   compact = false,
   showTips = true,
 }) => {
@@ -99,7 +100,7 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevel | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'proofs' | 'compression' | 'mpc'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'proofs' | 'compression' | 'mpc' | 'biometrics'>('overview');
 
   /**
    * Fetch case study count from blockchain
@@ -107,14 +108,14 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
   const fetchCaseStudyCount = useCallback(async () => {
     try {
       const caseStudyProgramId = new PublicKey(SOLANA_CONFIG.blockchain.caseStudyProgramId);
-      
+
       // Get all case study accounts for the program
       const accounts = await connection.getProgramAccounts(caseStudyProgramId, {
         filters: [
           { dataSize: 254 }, // CaseStudy account size
         ],
       });
-      
+
       return accounts.length;
     } catch (err) {
       console.error('Error fetching case study count:', err);
@@ -128,56 +129,56 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
   const calculateCompressionStats = useCallback(async () => {
     try {
       const caseStudyProgramId = new PublicKey(SOLANA_CONFIG.blockchain.caseStudyProgramId);
-      
+
       // Get all case study accounts to calculate compression
       const accounts = await connection.getProgramAccounts(caseStudyProgramId, {
         filters: [
           { dataSize: 254 }, // CaseStudy account size
         ],
       });
-      
+
       let totalCompressed = 0;
       let totalBytesSaved = 0;
       let totalCompressionRatio = 0;
-      
+
       for (const { account } of accounts) {
         try {
           const data = account.data;
           if (data.length < 100) continue;
-          
+
           // Read compression_ratio from account data (offset varies based on struct)
           // Account layout: discriminator(8) + ephemeral_id(32) + patient_id(32) + ...
           // Compression ratio is stored as u16
           let offset = 8 + 32 + 32; // Skip discriminator, ephemeral_id, patient_id
-          
+
           // Skip ipfs_cid (String)
           const ipfsCidLen = data.readUInt32LE(offset);
           offset += 4 + ipfsCidLen;
-          
+
           // Skip treatment_protocol (String)
           const treatmentProtocolLen = data.readUInt32LE(offset);
           offset += 4 + treatmentProtocolLen;
-          
+
           // Skip metadata_hash (32 bytes)
           offset += 32;
-          
+
           // Skip treatment_category (1 byte)
           offset += 1;
-          
+
           // Skip duration_days (2 bytes)
           offset += 2;
-          
+
           // Skip proof_of_encryption (Vec<u8>)
           const proofLen = data.readUInt32LE(offset);
           offset += 4 + proofLen;
-          
+
           // Skip light_protocol_proof (Vec<u8>)
           const lightProofLen = data.readUInt32LE(offset);
           offset += 4 + lightProofLen;
-          
+
           // Read compression_ratio (2 bytes, u16)
           const compressionRatio = data.readUInt16LE(offset);
-          
+
           if (compressionRatio > 0) {
             totalCompressed++;
             // Estimate bytes saved based on compression ratio
@@ -185,7 +186,7 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
             const originalSize = 500;
             const compressedSize = Math.floor(originalSize / compressionRatio);
             const bytesSaved = originalSize - compressedSize;
-            
+
             totalBytesSaved += bytesSaved;
             totalCompressionRatio += compressionRatio;
           }
@@ -194,17 +195,17 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
           continue;
         }
       }
-      
-      const averageCompressionRatio = totalCompressed > 0 
-        ? totalCompressionRatio / totalCompressed 
+
+      const averageCompressionRatio = totalCompressed > 0
+        ? totalCompressionRatio / totalCompressed
         : 0;
-      
+
       const result: CompressionStats = {
         totalCompressed,
         totalBytesSaved,
         averageCompressionRatio,
       };
-      
+
       return result;
     } catch (err) {
       console.error('Error calculating compression stats:', err);
@@ -235,13 +236,13 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
   const getMPCSessionCounts = useCallback(() => {
     const activeMPC = arciumMPCService.getActiveSessions();
     const completedMPC = arciumMPCService.getCompletedSessions();
-    
+
     // Calculate total committee approvals
     let totalCommitteeApprovals = 0;
     for (const session of [...activeMPC, ...completedMPC]) {
       totalCommitteeApprovals += session.committee.filter(m => m.hasApproved).length;
     }
-    
+
     const result: MPCSessionCounts = {
       activeSessions: activeMPC.length,
       completedSessions: completedMPC.length,
@@ -256,7 +257,7 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
   const loadStats = useCallback(async (forceRefresh = false) => {
     try {
       setError(null);
-      
+
       // Check cache first if not forcing refresh
       if (!forceRefresh) {
         const cached = cacheService.get<PrivacyStats>(PRIVACY_STATS_CACHE_KEY);
@@ -267,10 +268,10 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
           return;
         }
       }
-      
+
       // Initialize privacy service
       await privacyService.initialize();
-      
+
       // Fetch real data in parallel
       const [
         caseStudyCount,
@@ -283,20 +284,20 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
         Promise.resolve(getProofCounts()),
         Promise.resolve(getMPCSessionCounts()),
       ]);
-      
+
       // Calculate privacy score based on real data
       const hasEncryption = caseStudyCount > 0;
       const hasZkProofs = proofCounts.totalProofsGenerated > 0;
       const hasCompression = compressionStats.totalCompressed > 0;
       const hasMPC = mpcCounts.activeSessions > 0 || mpcCounts.completedSessions > 0;
-      
+
       const score = privacyService.calculatePrivacyScore(
         hasEncryption,
         hasZkProofs,
         hasCompression,
         hasMPC
       );
-      
+
       const newStats: PrivacyStats = {
         totalProofsGenerated: proofCounts.totalProofsGenerated,
         totalProofsVerified: proofCounts.totalProofsVerified,
@@ -309,14 +310,14 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
         totalCommitteeApprovals: mpcCounts.totalCommitteeApprovals,
         overallPrivacyScore: score,
       };
-      
+
       // Update state
       setStats(newStats);
       setPrivacyLevel(privacyService.getPrivacyLevel(score));
-      
+
       // Cache the results
       cacheService.set(PRIVACY_STATS_CACHE_KEY, newStats, CACHE_TTL);
-      
+
     } catch (err) {
       console.error('Error loading privacy stats:', err);
       setError(err instanceof Error ? err.message : 'Failed to load privacy stats');
@@ -342,11 +343,11 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
   // Refresh stats periodically (every 30 seconds)
   useEffect(() => {
     if (isLoading) return;
-    
+
     const interval = setInterval(() => {
       loadStats(false);
     }, 30000);
-    
+
     return () => clearInterval(interval);
   }, [isLoading, loadStats]);
 
@@ -397,23 +398,21 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
             <span>🛡️</span>
             <span>Privacy Score</span>
           </h3>
-          <span class={`text-2xl font-black ${
-            stats.overallPrivacyScore >= 90 ? 'text-purple-600 dark:text-purple-400' :
-            stats.overallPrivacyScore >= 75 ? 'text-green-600 dark:text-green-400' :
-            stats.overallPrivacyScore >= 50 ? 'text-blue-600 dark:text-blue-400' :
-            'text-yellow-600 dark:text-yellow-400'
-          }`}>
+          <span class={`text-2xl font-black ${stats.overallPrivacyScore >= 90 ? 'text-purple-600 dark:text-purple-400' :
+              stats.overallPrivacyScore >= 75 ? 'text-green-600 dark:text-green-400' :
+                stats.overallPrivacyScore >= 50 ? 'text-blue-600 dark:text-blue-400' :
+                  'text-yellow-600 dark:text-yellow-400'
+            }`}>
             {stats.overallPrivacyScore}
           </span>
         </div>
         <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-          <div 
-            class={`h-full rounded-full transition-all duration-500 ${
-              stats.overallPrivacyScore >= 90 ? 'bg-purple-500' :
-              stats.overallPrivacyScore >= 75 ? 'bg-green-500' :
-              stats.overallPrivacyScore >= 50 ? 'bg-blue-500' :
-              'bg-yellow-500'
-            }`}
+          <div
+            class={`h-full rounded-full transition-all duration-500 ${stats.overallPrivacyScore >= 90 ? 'bg-purple-500' :
+                stats.overallPrivacyScore >= 75 ? 'bg-green-500' :
+                  stats.overallPrivacyScore >= 50 ? 'bg-blue-500' :
+                    'bg-yellow-500'
+              }`}
             style={{ width: `${stats.overallPrivacyScore}%` }}
           />
         </div>
@@ -461,19 +460,42 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
       {/* Mobile Tab Navigation */}
       {isMobile && (
         <div class="flex gap-2 mb-4 overflow-x-auto pb-2">
-          {(['overview', 'proofs', 'compression', 'mpc'] as const).map(tab => (
+          {(['overview', 'biometrics', 'proofs', 'compression', 'mpc'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               class={`
                 px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider whitespace-nowrap
                 transition-colors touch-manipulation
-                ${activeTab === tab 
-                  ? 'bg-purple-500 text-white' 
+                ${activeTab === tab
+                  ? 'bg-purple-500 text-white'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}
               `}
             >
-              {tab}
+              {tab === 'biometrics' ? '🧬 Biometrics' : tab}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Desktop Navigation Tabs */}
+      {!isMobile && (
+        <div class="flex gap-4 mb-8 border-b-2 border-slate-100 dark:border-slate-800">
+          {(['overview', 'biometrics', 'proofs', 'compression', 'mpc'] as const).map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              class={`
+                pb-4 px-2 text-sm font-black uppercase tracking-widest transition-all relative
+                ${activeTab === tab
+                  ? 'text-purple-600 dark:text-purple-400'
+                  : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}
+              `}
+            >
+              {tab === 'biometrics' ? '🧬 Biometrics' : tab}
+              {activeTab === tab && (
+                <div class="absolute bottom-[-2px] left-0 right-0 h-[2px] bg-purple-500 rounded-full animate-fadeIn" />
+              )}
             </button>
           ))}
         </div>
@@ -481,20 +503,18 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
 
       {/* Overall Privacy Score */}
       {(activeTab === 'overview' || !isMobile) && (
-        <div class={`mb-6 md:mb-10 p-6 md:p-8 rounded-2xl border-2 ${
-          privacyLevel?.color === 'purple' ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-300 dark:border-purple-700' :
-          privacyLevel?.color === 'green' ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700' :
-          privacyLevel?.color === 'blue' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700' :
-          'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700'
-        }`}>
+        <div class={`mb-6 md:mb-10 p-6 md:p-8 rounded-2xl border-2 ${privacyLevel?.color === 'purple' ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-300 dark:border-purple-700' :
+            privacyLevel?.color === 'green' ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700' :
+              privacyLevel?.color === 'blue' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700' :
+                'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-300 dark:border-yellow-700'
+          }`}>
           <div class="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
             <div>
-              <p class={`text-[10px] font-black uppercase tracking-widest mb-1 ${
-                privacyLevel?.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
-                privacyLevel?.color === 'green' ? 'text-green-600 dark:text-green-400' :
-                privacyLevel?.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
-                'text-yellow-600 dark:text-yellow-400'
-              }`}>
+              <p class={`text-[10px] font-black uppercase tracking-widest mb-1 ${privacyLevel?.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
+                  privacyLevel?.color === 'green' ? 'text-green-600 dark:text-green-400' :
+                    privacyLevel?.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
+                      'text-yellow-600 dark:text-yellow-400'
+                }`}>
                 Overall Privacy Score
               </p>
               <p class="text-4xl md:text-5xl font-black tracking-tighter">
@@ -503,18 +523,17 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
             </div>
             <div class="text-left md:text-right">
               <div class="text-3xl md:text-4xl mb-2">{privacyLevel?.icon}</div>
-              <p class={`text-sm font-black uppercase tracking-wider ${
-                privacyLevel?.color === 'purple' ? 'text-purple-700 dark:text-purple-300' :
-                privacyLevel?.color === 'green' ? 'text-green-700 dark:text-green-300' :
-                privacyLevel?.color === 'blue' ? 'text-blue-700 dark:text-blue-300' :
-                'text-yellow-700 dark:text-yellow-300'
-              }`}>
+              <p class={`text-sm font-black uppercase tracking-wider ${privacyLevel?.color === 'purple' ? 'text-purple-700 dark:text-purple-300' :
+                  privacyLevel?.color === 'green' ? 'text-green-700 dark:text-green-300' :
+                    privacyLevel?.color === 'blue' ? 'text-blue-700 dark:text-blue-300' :
+                      'text-yellow-700 dark:text-yellow-300'
+                }`}>
                 {privacyLevel?.label}
               </p>
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{privacyLevel?.description}</p>
             </div>
           </div>
-          
+
           {/* Score Breakdown */}
           <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-6">
             <div class="bg-white/50 dark:bg-black/20 p-3 rounded-lg">
@@ -537,11 +556,18 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
         </div>
       )}
 
+      {/* Biometrics View */}
+      {activeTab === 'biometrics' && (
+        <div class="animate-slideUp">
+          <WearableIntegration />
+        </div>
+      )}
+
       {/* Technology Cards */}
-      {(activeTab === 'overview' || activeTab === 'proofs' || activeTab === 'compression' || activeTab === 'mpc' || !isMobile) && (
+      {(activeTab === 'overview' || activeTab === 'proofs' || activeTab === 'compression' || activeTab === 'mpc') && (
         <div class={`grid grid-cols-1 ${isMobile ? '' : 'md:grid-cols-3'} gap-4 md:gap-6 mb-6 md:mb-10`}>
           {/* Noir Card */}
-          {(activeTab === 'overview' || activeTab === 'proofs' || !isMobile) && (
+          {(activeTab === 'overview' || activeTab === 'proofs') && (
             <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-4 md:p-6">
               <div class="flex items-center gap-3 mb-4">
                 <span class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center text-xl flex-shrink-0">🔐</span>
@@ -550,7 +576,7 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
                   <p class="text-[10px] text-blue-600 dark:text-blue-400 uppercase tracking-widest">ZK-SNARK Proofs</p>
                 </div>
               </div>
-              
+
               <div class="space-y-3">
                 <div class="flex justify-between items-center">
                   <span class="text-xs text-slate-600 dark:text-slate-400">Proofs Generated</span>
@@ -590,7 +616,7 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
                   <p class="text-[10px] text-green-600 dark:text-green-400 uppercase tracking-widest">ZK Compression</p>
                 </div>
               </div>
-              
+
               <div class="space-y-3">
                 <div class="flex justify-between items-center">
                   <span class="text-xs text-slate-600 dark:text-slate-400">Compressed</span>
@@ -633,7 +659,7 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
                   <p class="text-[10px] text-yellow-600 dark:text-yellow-400 uppercase tracking-widest">Threshold Decryption</p>
                 </div>
               </div>
-              
+
               <div class="space-y-3">
                 <div class="flex justify-between items-center">
                   <span class="text-xs text-slate-600 dark:text-slate-400">Active Sessions</span>
@@ -654,7 +680,7 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
                 <p class="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Committee Status</p>
                 <div class="flex items-center gap-2">
                   <div class="flex-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       class="h-full bg-yellow-500 rounded-full"
                       style={{ width: `${(stats.completedSessions / (stats.completedSessions + stats.activeSessions || 1)) * 100}%` }}
                     />

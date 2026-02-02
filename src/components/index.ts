@@ -19,6 +19,7 @@ export { ValidatorDashboard } from './ValidatorDashboard';
 export { ValidatorReputationSystem } from './ValidatorReputationSystem';
 export { ResearcherDashboard } from './ResearcherDashboard';
 export { ResearcherTools } from './ResearcherTools';
+export { WearableIntegration } from './WearableIntegration';
 
 // Mobile Components
 export {
@@ -63,7 +64,8 @@ export { AttentionTokenAnalyticsDashboard } from './AttentionTokenAnalyticsDashb
 
 // Membership Components
 export { MembershipSystem } from './MembershipSystem';
-export { MembershipPurchase } from './MembershipFlow';
+export { MembershipPurchase } from './MembershipPurchase';
+export { MembershipFlow } from './MembershipFlow';
 
 // Privacy Components
 export { PrivacyTooltip } from './PrivacyTooltip';
@@ -77,15 +79,15 @@ export { AchievementSystem } from './AchievementSystem';
 export { ReferralSystem } from './ReferralSystem';
 
 // Retro/Theme Components
-export { RetroAesthetics, InfomercialPopup } from './RetroAesthetics';
+export { InfomercialPopup, RetroButton, RetroModal, RetroTerminal } from './RetroAesthetics';
 export { Authentic90sPopups, LiveActivityNotifications, WinnerPopup } from './Authentic90sPopups';
 
 // Shared UI Components
 export {
   TermsAcceptanceModal,
   DisclaimerBanner,
-  ProgressIndicator,
 } from './SharedUIComponents';
+export { ProgressIndicator } from './ProgressIndicator';
 
 // Error Handling
 export { ErrorBoundary } from './ErrorBoundary';

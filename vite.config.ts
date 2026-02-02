@@ -10,22 +10,22 @@ function copyCircuitsPlugin() {
     writeBundle() {
       const circuitsDir = './circuits';
       const distCircuitsDir = './dist/circuits';
-      
+
       try {
         // Create dist/circuits directory
         mkdirSync(distCircuitsDir, { recursive: true });
-        
+
         // Copy each circuit's target folder
         const circuits = readdirSync(circuitsDir);
         for (const circuit of circuits) {
           const targetDir = join(circuitsDir, circuit, 'target');
           const destDir = join(distCircuitsDir, circuit, 'target');
-          
+
           try {
             const stats = statSync(targetDir);
             if (stats.isDirectory()) {
               mkdirSync(destDir, { recursive: true });
-              
+
               // Copy JSON files
               const files = readdirSync(targetDir);
               for (const file of files) {
@@ -52,22 +52,28 @@ function copyCircuitsPlugin() {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-	plugins: [preact(), copyCircuitsPlugin()],
-	define: {
-		global: 'globalThis',
-		'process.env': {},
-	},
-	resolve: {
-		alias: {
-			process: 'process/browser',
-			buffer: 'buffer',
-		},
-	},
-	optimizeDeps: {
-		esbuildOptions: {
-			define: {
-				global: 'globalThis',
-			},
-		},
-	},
+  plugins: [preact(), copyCircuitsPlugin()],
+  define: {
+    global: 'globalThis',
+    'process.env': {},
+  },
+  resolve: {
+    alias: {
+      process: 'process/browser',
+      buffer: 'buffer',
+    },
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      define: {
+        global: 'globalThis',
+      },
+    },
+  },
+  build: {
+    target: 'esnext',
+  },
+  worker: {
+    format: 'es',
+  },
 });

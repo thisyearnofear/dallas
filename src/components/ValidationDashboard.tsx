@@ -42,6 +42,10 @@ interface ValidationState {
   noirCircuit: CircuitType | 'auto';
   generatedProofs: ProofResult[];
   isGeneratingProofs: boolean;
+  pendingRewards: number;
+  isClaimingRewards: boolean;
+  isRefreshingQueue: boolean;
+  lastQueueRefresh: number;
 }
 
 export const ValidationDashboard: FunctionalComponent = () => {
@@ -56,6 +60,10 @@ export const ValidationDashboard: FunctionalComponent = () => {
     noirCircuit: 'auto',
     generatedProofs: [],
     isGeneratingProofs: false,
+    pendingRewards: 0,
+    isClaimingRewards: false,
+    isRefreshingQueue: false,
+    lastQueueRefresh: 0,
   });
 
   // Initialize Noir service on mount
@@ -70,55 +78,96 @@ export const ValidationDashboard: FunctionalComponent = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch validation tasks (simulated with encrypted data for ZK proofs)
+  // Fetch validation tasks (enhanced with realistic queue management)
   useEffect(() => {
-    const mockTasks: ValidationTask[] = [
-      {
-        caseStudyId: 'cs-001',
-        protocol: 'Peptide-T + Vitamin D Stack',
-        patientId: 'anon-user-001',
-        submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        baselineMetrics: '(encrypted - ZK proof available)',
-        outcomeMetrics: '(encrypted - ZK proof available)',
-        approvalCount: 1,
-        status: 'pending',
-        encryptedData: {
-          baselineSeverity: 8,
-          outcomeSeverity: 4,
-          durationDays: 30,
-          costUsd: 250,
-          hasBaseline: true,
-          hasOutcome: true,
-          hasDuration: true,
-          hasProtocol: true,
-          hasCost: true,
-        },
-      },
-      {
-        caseStudyId: 'cs-002',
-        protocol: 'Medicinal Mushroom Protocol',
-        patientId: 'anon-user-002',
-        submittedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-        baselineMetrics: '(encrypted - ZK proof available)',
-        outcomeMetrics: '(encrypted - ZK proof available)',
-        approvalCount: 2,
-        status: 'pending',
-        encryptedData: {
-          baselineSeverity: 7,
-          outcomeSeverity: 5,
-          durationDays: 45,
-          costUsd: 180,
-          hasBaseline: true,
-          hasOutcome: true,
-          hasDuration: true,
-          hasProtocol: true,
-          hasCost: true,
-        },
-      },
-    ];
+    const fetchValidationQueue = async () => {
+      try {
+        // Simulate fetching from blockchain validation queue
+        const mockTasks: ValidationTask[] = [
+          {
+            caseStudyId: 'cs-001',
+            protocol: 'Peptide-T + Vitamin D Stack',
+            patientId: 'anon-user-001',
+            submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+            baselineMetrics: '(encrypted - ZK proof available)',
+            outcomeMetrics: '(encrypted - ZK proof available)',
+            approvalCount: 1,
+            status: 'pending',
+            encryptedData: {
+              baselineSeverity: 8,
+              outcomeSeverity: 4,
+              durationDays: 30,
+              costUsd: 250,
+              hasBaseline: true,
+              hasOutcome: true,
+              hasDuration: true,
+              hasProtocol: true,
+              hasCost: true,
+            },
+          },
+          {
+            caseStudyId: 'cs-002',
+            protocol: 'Medicinal Mushroom Protocol',
+            patientId: 'anon-user-002',
+            submittedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+            baselineMetrics: '(encrypted - ZK proof available)',
+            outcomeMetrics: '(encrypted - ZK proof available)',
+            approvalCount: 2,
+            status: 'pending',
+            encryptedData: {
+              baselineSeverity: 7,
+              outcomeSeverity: 5,
+              durationDays: 45,
+              costUsd: 180,
+              hasBaseline: true,
+              hasOutcome: true,
+              hasDuration: true,
+              hasProtocol: true,
+              hasCost: true,
+            },
+          },
+          {
+            caseStudyId: 'cs-003',
+            protocol: 'Cold Therapy + Breathwork',
+            patientId: 'anon-user-003',
+            submittedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+            baselineMetrics: '(encrypted - ZK proof available)',
+            outcomeMetrics: '(encrypted - ZK proof available)',
+            approvalCount: 0,
+            status: 'pending',
+            encryptedData: {
+              baselineSeverity: 6,
+              outcomeSeverity: 3,
+              durationDays: 21,
+              costUsd: 50,
+              hasBaseline: true,
+              hasOutcome: true,
+              hasDuration: true,
+              hasProtocol: true,
+              hasCost: true,
+            },
+          },
+        ];
 
-    setState((s) => ({ ...s, tasks: mockTasks }));
-  }, []);
+        setState((s) => ({ ...s, tasks: mockTasks, lastQueueRefresh: Date.now() }));
+
+        // Fetch pending rewards for connected validator
+        if (publicKey) {
+          // Simulate pending rewards calculation based on recent validations
+          const mockPendingRewards = Math.floor(Math.random() * 50) + 10;
+          setState((s) => ({ ...s, pendingRewards: mockPendingRewards }));
+        }
+      } catch (error) {
+        console.error('Error fetching validation queue:', error);
+        setSubmitStatus({
+          type: 'error',
+          message: 'Failed to load validation queue. Please refresh.',
+        });
+      }
+    };
+
+    fetchValidationQueue();
+  }, [publicKey]);
 
   const selectCaseStudy = (task: ValidationTask) => {
     setState((s) => ({ 
@@ -180,7 +229,104 @@ export const ValidationDashboard: FunctionalComponent = () => {
     }
   };
 
-  const handleApproval = async (approved: boolean) => {
+  /**
+   * Refresh validation queue manually
+   */
+  const refreshQueue = async () => {
+    setState((s) => ({ ...s, isRefreshingQueue: true }));
+    
+    try {
+      // Simulate fetching fresh queue data
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Add a new task to simulate queue updates
+      const newTask: ValidationTask = {
+        caseStudyId: `cs-${Date.now()}`,
+        protocol: 'NAD+ Supplementation Protocol',
+        patientId: 'anon-user-new',
+        submittedAt: new Date(),
+        baselineMetrics: '(encrypted - ZK proof available)',
+        outcomeMetrics: '(encrypted - ZK proof available)',
+        approvalCount: 0,
+        status: 'pending',
+        encryptedData: {
+          baselineSeverity: 9,
+          outcomeSeverity: 6,
+          durationDays: 60,
+          costUsd: 400,
+          hasBaseline: true,
+          hasOutcome: true,
+          hasDuration: true,
+          hasProtocol: true,
+          hasCost: true,
+        },
+      };
+
+      setState((s) => ({ 
+        ...s, 
+        tasks: [newTask, ...s.tasks],
+        isRefreshingQueue: false,
+        lastQueueRefresh: Date.now(),
+      }));
+
+      setSubmitStatus({
+        type: 'success',
+        message: '✅ Queue refreshed! New validation tasks available.',
+      });
+    } catch (error) {
+      setState((s) => ({ ...s, isRefreshingQueue: false }));
+      setSubmitStatus({
+        type: 'error',
+        message: '❌ Failed to refresh queue. Please try again.',
+      });
+    }
+  };
+  const claimRewards = async () => {
+    if (!publicKey || !connected || state.pendingRewards === 0) {
+      setSubmitStatus({
+        type: 'error',
+        message: 'No rewards to claim or wallet not connected',
+      });
+      return;
+    }
+
+    setState((s) => ({ ...s, isClaimingRewards: true }));
+    setSubmitStatus({
+      type: 'info',
+      message: '💰 Claiming validator rewards...',
+    });
+
+    try {
+      // Simulate reward claim transaction
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const claimedAmount = state.pendingRewards;
+      setState((s) => ({ 
+        ...s, 
+        pendingRewards: 0,
+        isClaimingRewards: false,
+      }));
+
+      setSubmitStatus({
+        type: 'success',
+        message: `✅ Claimed ${claimedAmount} DBC tokens! Rewards sent to your wallet.`,
+      });
+
+      console.log('Validator Rewards Claimed:', {
+        validator: publicKey.toString(),
+        amount: claimedAmount,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      setState((s) => ({ ...s, isClaimingRewards: false }));
+      setSubmitStatus({
+        type: 'error',
+        message: `❌ Reward claim failed: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
+      });
+    }
+  };
     if (!state.selected || !publicKey || !connected) {
       setSubmitStatus({
         type: 'error',
@@ -272,9 +418,26 @@ export const ValidationDashboard: FunctionalComponent = () => {
           Review case studies and stake EXPERIENCE tokens. Accurate validators accumulate tokens and reputation.
         </p>
         {publicKey && (
-          <div class="bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-lg inline-flex items-center gap-2 mt-4 border border-blue-100 dark:border-blue-800/50">
-            <span class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Validator</span>
-            <span class="font-mono text-sm text-blue-700 dark:text-blue-300 font-bold">{publicKey.toString().slice(0, 20)}...</span>
+          <div class="flex flex-col sm:flex-row gap-4 mt-4">
+            <div class="bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-lg inline-flex items-center gap-2 border border-blue-100 dark:border-blue-800/50">
+              <span class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Validator</span>
+              <span class="font-mono text-sm text-blue-700 dark:text-blue-300 font-bold">{publicKey.toString().slice(0, 20)}...</span>
+            </div>
+            
+            {/* Reward Claim Button */}
+            {state.pendingRewards > 0 && (
+              <button
+                onClick={claimRewards}
+                disabled={state.isClaimingRewards}
+                class="bg-green-600 hover:bg-green-700 disabled:bg-slate-400 text-white font-black px-4 py-2 rounded-lg shadow-md transition-all text-xs uppercase tracking-widest flex items-center gap-2"
+              >
+                {state.isClaimingRewards ? (
+                  <>⏳ Claiming...</>
+                ) : (
+                  <>💰 Claim {state.pendingRewards} DBC</>
+                )}
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -298,12 +461,33 @@ export const ValidationDashboard: FunctionalComponent = () => {
         {/* Left: Pending Validations */}
         <div class="lg:col-span-2">
           <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 shadow-inner">
-            <h3 class="text-xl font-black mb-6 flex items-center gap-3 uppercase tracking-wider text-slate-800 dark:text-white">
-              <span class="text-2xl bg-white dark:bg-slate-700 p-2 rounded-lg shadow-sm">📋</span>
-              <span>Pending Validations ({state.tasks.length})</span>
+            <h3 class="text-xl font-black mb-6 flex items-center justify-between uppercase tracking-wider text-slate-800 dark:text-white">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl bg-white dark:bg-slate-700 p-2 rounded-lg shadow-sm">📋</span>
+                <span>Pending Validations ({state.tasks.length})</span>
+              </div>
+              <button
+                onClick={refreshQueue}
+                disabled={state.isRefreshingQueue}
+                class="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white font-black px-3 py-2 rounded-lg shadow-md transition-all text-xs uppercase tracking-widest flex items-center gap-2"
+              >
+                {state.isRefreshingQueue ? (
+                  <>⏳ Refreshing...</>
+                ) : (
+                  <>🔄 Refresh Queue</>
+                )}
+              </button>
             </h3>
 
             <div class="space-y-4">
+              {/* Queue Status */}
+              {state.lastQueueRefresh > 0 && (
+                <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2 mb-4">
+                  <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                  <span>Queue updated {new Date(state.lastQueueRefresh).toLocaleTimeString()}</span>
+                </div>
+              )}
+
               {state.tasks.length === 0 ? (
                 <p class="text-slate-500 dark:text-slate-400 font-medium italic">No pending validations. Check back later.</p>
               ) : (

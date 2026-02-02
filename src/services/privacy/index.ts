@@ -33,14 +33,10 @@ export type {
 export {
   LightProtocolService,
   lightProtocolService,
-  DEFAULT_COMPRESSION_OPTIONS,
-  COMPRESSION_RATIO_OPTIONS,
 } from './LightProtocolService';
 
 export type {
-  CompressionOptions,
   CompressedCaseStudy,
-  CompressionStats,
 } from './LightProtocolService';
 
 // Arcium MPC Threshold Decryption Service
