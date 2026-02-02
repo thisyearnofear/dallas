@@ -1128,15 +1128,28 @@ export class BlockchainService {
   }> {
     try {
       const blockHeight = await this.connection.getBlockHeight();
-      const health = await this.connection.getHealth();
+      
+      // getHealth() is not supported by all RPC endpoints, so we check if network responds
+      let health: 'ok' | 'behind' | 'unknown' = 'ok';
+      try {
+        // Use getSlot as a health check since getHealth isn't universally supported
+        await this.connection.getSlot();
+      } catch {
+        health = 'unknown';
+      }
 
       // Get recent performance samples for TPS calculation
-      const perfSamples = await this.connection.getRecentPerformanceSamples(1);
-      const tps = perfSamples.length > 0 ? perfSamples[0].numTransactions / perfSamples[0].samplePeriodSecs : 0;
+      let tps = 0;
+      try {
+        const perfSamples = await this.connection.getRecentPerformanceSamples(1);
+        tps = perfSamples.length > 0 ? perfSamples[0].numTransactions / perfSamples[0].samplePeriodSecs : 0;
+      } catch {
+        // Some endpoints don't support this either
+      }
 
       return {
         blockHeight,
-        health: health === 'ok' ? 'ok' : 'behind',
+        health,
         tps: Math.round(tps),
       };
     } catch (error) {
