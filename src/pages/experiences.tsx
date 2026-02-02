@@ -3,6 +3,7 @@ import { EncryptedCaseStudyForm } from '../components/EncryptedCaseStudyForm';
 import { ProtocolDiscovery } from '../components/ProtocolDiscovery';
 import { CaseStudyGallery } from '../components/CaseStudyGallery';
 import { WearableIntegration } from '../components/WearableIntegration';
+import { TokenImage, getTokenImageUrl } from '../components/TokenImageManager';
 import { useWallet } from '../context/WalletContext';
 import { attentionTokenService } from '../services/AttentionTokenService';
 import { CATEGORY_INFO, CommunityCategory } from '../types/community';
@@ -46,7 +47,7 @@ function CommunityCreationForm() {
         treatmentName: name,
         treatmentCategory: CATEGORY_INFO[category].label,
         description: description,
-        imageUrl: imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=400&background=random`,
+        imageUrl: imageUrl || getTokenImageUrl(name.toUpperCase().replace(/\s+/g, '').slice(0, 8)),
         submitter: wallet.publicKey,
         communityCategory: category,
         isCommunityToken: true,

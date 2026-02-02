@@ -16,6 +16,7 @@ import {
   CaseStudyWithAttentionToken,
 } from '../types/attentionToken';
 import { AttentionTokenAnalyticsDashboard } from './AttentionTokenAnalyticsDashboard';
+import { TokenImage, getTokenImageUrl } from './TokenImageManager';
 
 const MIN_DBC_FOR_PROMOTION = 10000;
 const PROMOTION_COST_DBC = 10000;
@@ -89,7 +90,7 @@ export const AttentionTokenMarket: React.FC = () => {
               treatmentName: 'Treatment', // Would need to be stored in account or fetched from URI
               treatmentCategory: 'General',
               description: 'Treatment description',
-              imageUrl: 'https://via.placeholder.com/400',
+              imageUrl: getTokenImageUrl('TREATMENT'),
               reputationScore: parsed.reputationScore,
               validatorCount: parsed.approvalCount,
               validators: [],
@@ -102,7 +103,7 @@ export const AttentionTokenMarket: React.FC = () => {
                 name: `Attention Token`,
                 symbol: 'ATT',
                 description: 'Treatment attention token',
-                imageUrl: 'https://via.placeholder.com/400',
+                imageUrl: getTokenImageUrl('ATT'),
                 submitter: parsed.submitter,
                 validators: [],
                 treatmentName: 'Treatment',
