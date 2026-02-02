@@ -15,6 +15,7 @@ import {
   BagsFeeShareConfig,
   BagsTokenLaunchRequest,
   BagsTokenLaunchResponse,
+  CaseStudyWithAttentionToken,
   CreateAttentionTokenParams,
   SymbolGenerationOptions,
   ValidatorInfo,

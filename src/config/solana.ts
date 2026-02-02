@@ -30,7 +30,7 @@ export const SOLANA_CONFIG = {
     // Treasury Program (deploy to SolPG, then update)
     treasuryProgramId: 'C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk', // Deployed on devnet
     membershipProgramId: 'CB6yknfo1cBWhVH2ifkMAS2tKaDa9c9mgRiZpCzHwjzu', // Deployed on devnet
-    
+
     // DBC Token Program (devnet)
     dbcTokenProgramIdDevnet: '21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB',
     dbcMintAddressDevnet: '8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT',
@@ -41,8 +41,8 @@ export const SOLANA_CONFIG = {
   bagsApi: {
     url: '/api/bags',
     key: 'proxied', // Handled server-side via API route
-    partnerConfig: import.meta.env.VITE_BAGS_PARTNER_CONFIG || '', // For referral fee sharing
-    rateLimit: parseInt(import.meta.env.VITE_BAGS_RATE_LIMIT || '1000'),
+    partnerConfig: process.env.VITE_BAGS_PARTNER_CONFIG || '', // For referral fee sharing
+    rateLimit: parseInt(process.env.VITE_BAGS_RATE_LIMIT || '1000'),
   },
 
   // Attention token configuration

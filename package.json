@@ -15,8 +15,13 @@
 		"extends": "preact"
 	},
 	"dependencies": {
+		"@arcium-hq/client": "^0.3.0",
+		"@aztec/bb.js": "^3.0.0",
 		"@coral-xyz/anchor": "^0.29.0",
+		"@lightprotocol/stateless.js": "^0.7.0",
 		"@modelcontextprotocol/sdk": "^1.24.2",
+		"@noir-lang/backend_barretenberg": "0.36.0",
+		"@noir-lang/noir_js": "^1.0.0-beta.15",
 		"@nullshot/mcp": "^0.3.6",
 		"@solana/spl-memo": "^0.2.5",
 		"@solana/spl-token": "^0.4.14",
@@ -26,7 +31,6 @@
 		"@solana/wallet-adapter-wallets": "^0.19.37",
 		"@solana/web3.js": "^1.98.4",
 		"bs58": "^6.0.0",
-
 		"preact": "^10.22.0",
 		"preact-iso": "^2.6.3",
 		"preact-render-to-string": "^6.6.3",

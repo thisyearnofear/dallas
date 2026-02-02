@@ -50,16 +50,16 @@ export function fromBaseUnits(baseUnits: bigint | number): number {
  */
 export function formatDbc(amount: number, options?: { compact?: boolean; maxDecimals?: number }): string {
   const { compact = false, maxDecimals = 2 } = options || {};
-  
+
   if (compact && amount >= 1_000_000) {
     return `${(amount / 1_000_000).toFixed(1)}M DBC`;
   }
   if (compact && amount >= 1_000) {
     return `${(amount / 1_000).toFixed(1)}K DBC`;
   }
-  
-  return `${amount.toLocaleString(undefined, { 
-    maximumFractionDigits: maxDecimals 
+
+  return `${amount.toLocaleString(undefined, {
+    maximumFractionDigits: maxDecimals
   })} DBC`;
 }
 
@@ -81,7 +81,7 @@ export async function checkDbcAccountExists(
 ): Promise<{ exists: boolean; balance: number; address: PublicKey }> {
   try {
     const tokenAccount = await getDbcTokenAccount(owner);
-    
+
     try {
       const accountInfo = await connection.getTokenAccountBalance(tokenAccount);
       return {
@@ -111,9 +111,9 @@ export async function createDbcAccountInstruction(
   payer: PublicKey
 ): Promise<Transaction> {
   const { createAssociatedTokenAccountInstruction } = await import('@solana/spl-token');
-  
+
   const tokenAccount = await getDbcTokenAccount(owner);
-  
+
   const instruction = createAssociatedTokenAccountInstruction(
     payer,
     tokenAccount,
@@ -121,7 +121,7 @@ export async function createDbcAccountInstruction(
     DBC_MINT,
     TOKEN_2022_PROGRAM_ID
   );
-  
+
   return new Transaction().add(instruction);
 }
 
@@ -135,11 +135,11 @@ export async function fetchDbcBalance(
 ): Promise<{ balance: number; address: PublicKey | null }> {
   try {
     const { exists, balance, address } = await checkDbcAccountExists(connection, owner);
-    
+
     if (!exists) {
       return { balance: 0, address: null };
     }
-    
+
     return { balance, address };
   } catch (error) {
     console.error('Error fetching DBC balance:', error);
@@ -173,14 +173,25 @@ export function getValidatorReputationPDA(validator: PublicKey): [PublicKey, num
  * Stake account PDA
  */
 export function getStakePDA(validator: PublicKey, timestamp: bigint): [PublicKey, number] {
-  const timestampBytes = Buffer.alloc(8);
-  timestampBytes.writeBigInt64LE(timestamp);
-  
+  // Convert timestamp to bytes using a simpler approach
+  const timestampStr = timestamp.toString();
+  const timestampBytes = Buffer.from(timestampStr);
+
   return PublicKey.findProgramAddressSync(
     [Buffer.from('stake'), validator.toBuffer(), timestampBytes],
     TREASURY_PROGRAM_ID
   );
 }
+
+// ============= Staking Configuration =============
+
+export const STAKING_CONFIG = {
+  MINIMUM_STAKE: 100,        // 100 DBC minimum to become validator
+  LOCK_DAYS: 7,              // 7-day lock period
+  UNSTAKE_DELAY_HOURS: 24,   // 24-hour delay before unstaking
+  SLASH_PERCENTAGE: 10,      // 10% slashed for inaccurate validations
+  REWARD_MULTIPLIER: 1.5,    // 1.5x max reward multiplier for high stakes
+} as const;
 
 // ============= Reward Configuration =============
 // Aligned with dbc_common::REWARD_CONFIG
@@ -268,29 +279,254 @@ export const TIER_THRESHOLDS: Record<ValidatorTier, TierThreshold> = {
  * Calculate validator tier
  */
 export function calculateTier(totalValidations: number, accuracyRate: number): ValidatorTier {
-  if (totalValidations >= TIER_THRESHOLDS.Platinum.minValidations && 
-      accuracyRate >= TIER_THRESHOLDS.Platinum.minAccuracy) {
+  if (totalValidations >= TIER_THRESHOLDS.Platinum.minValidations &&
+    accuracyRate >= TIER_THRESHOLDS.Platinum.minAccuracy) {
     return 'Platinum';
   }
-  if (totalValidations >= TIER_THRESHOLDS.Gold.minValidations && 
-      accuracyRate >= TIER_THRESHOLDS.Gold.minAccuracy) {
+  if (totalValidations >= TIER_THRESHOLDS.Gold.minValidations &&
+    accuracyRate >= TIER_THRESHOLDS.Gold.minAccuracy) {
     return 'Gold';
   }
-  if (totalValidations >= TIER_THRESHOLDS.Silver.minValidations && 
-      accuracyRate >= TIER_THRESHOLDS.Silver.minAccuracy) {
+  if (totalValidations >= TIER_THRESHOLDS.Silver.minValidations &&
+    accuracyRate >= TIER_THRESHOLDS.Silver.minAccuracy) {
     return 'Silver';
   }
   return 'Bronze';
 }
 
-// ============= Staking Configuration =============
+// ============= Staking Implementation =============
 
-export const STAKING_CONFIG = {
-  MINIMUM_STAKE: 100,           // 100 DBC minimum
-  LOCK_DAYS: 7,                 // 7 day lock period
-  SLASH_BURN_PERCENT: 50,       // 50% of slash burned
-  SLASH_TREASURY_PERCENT: 50,   // 50% to treasury
-} as const;
+/**
+ * Stake DBC tokens to become a validator
+ * Requires minimum 1,000 DBC stake
+ */
+export async function stakeTokens(
+  connection: Connection,
+  wallet: PublicKey,
+  amount: number,
+  payer: PublicKey
+): Promise<Transaction> {
+  if (amount < STAKING_CONFIG.MINIMUM_STAKE) {
+    throw new Error(`Minimum stake is ${STAKING_CONFIG.MINIMUM_STAKE} DBC`);
+  }
+
+  const timestamp = BigInt(Date.now());
+  const [stakePDA] = getStakePDA(wallet, timestamp);
+  const [treasuryPDA] = getTreasuryPDA();
+  const [reputationPDA] = getValidatorReputationPDA(wallet);
+
+  const userTokenAccount = await getDbcTokenAccount(wallet);
+  const treasuryTokenAccount = await getDbcTokenAccount(treasuryPDA);
+
+  // Create stake transaction
+  const transaction = new Transaction();
+
+  // Add create stake account instruction
+  const createStakeInstruction = {
+    programId: TREASURY_PROGRAM_ID,
+    keys: [
+      { pubkey: stakePDA, isSigner: false, isWritable: true },
+      { pubkey: wallet, isSigner: true, isWritable: false },
+      { pubkey: payer, isSigner: true, isWritable: true },
+      { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
+    ],
+    data: Buffer.concat([
+      Buffer.from([0]), // CreateStake instruction discriminator
+      Buffer.from(timestamp.toString()),
+      Buffer.from(toBaseUnits(amount).toString()),
+    ]),
+  };
+
+  transaction.add(createStakeInstruction);
+
+  // Add token transfer instruction
+  const { createTransferInstruction } = await import('@solana/spl-token');
+  const transferInstruction = createTransferInstruction(
+    userTokenAccount,
+    treasuryTokenAccount,
+    wallet,
+    toBaseUnits(amount),
+    [],
+    TOKEN_2022_PROGRAM_ID
+  );
+
+  transaction.add(transferInstruction);
+
+  return transaction;
+}
+
+/**
+ * Unstake DBC tokens (after lock period)
+ */
+export async function unstakeTokens(
+  connection: Connection,
+  wallet: PublicKey,
+  stakeAccount: PublicKey
+): Promise<Transaction> {
+  const [treasuryPDA] = getTreasuryPDA();
+  const userTokenAccount = await getDbcTokenAccount(wallet);
+  const treasuryTokenAccount = await getDbcTokenAccount(treasuryPDA);
+
+  const transaction = new Transaction();
+
+  // Add unstake instruction
+  const unstakeInstruction = {
+    programId: TREASURY_PROGRAM_ID,
+    keys: [
+      { pubkey: stakeAccount, isSigner: false, isWritable: true },
+      { pubkey: wallet, isSigner: true, isWritable: false },
+      { pubkey: treasuryPDA, isSigner: false, isWritable: true },
+      { pubkey: userTokenAccount, isSigner: false, isWritable: true },
+      { pubkey: treasuryTokenAccount, isSigner: false, isWritable: true },
+      { pubkey: TOKEN_2022_PROGRAM_ID, isSigner: false, isWritable: false },
+    ],
+    data: Buffer.from([1]), // Unstake instruction discriminator
+  };
+
+  transaction.add(unstakeInstruction);
+
+  return transaction;
+}
+
+/**
+ * Get validator stake information
+ */
+export async function getValidatorStake(
+  connection: Connection,
+  validator: PublicKey
+): Promise<{
+  totalStaked: number;
+  activeStakes: Array<{
+    account: PublicKey;
+    amount: number;
+    stakedAt: number;
+    unlockAt: number;
+    canUnstake: boolean;
+  }>;
+  reputation: {
+    totalValidations: number;
+    accurateValidations: number;
+    accuracyRate: number;
+    tier: ValidatorTier;
+  };
+}> {
+  try {
+    // Get reputation account
+    const [reputationPDA] = getValidatorReputationPDA(validator);
+    const reputationAccount = await connection.getAccountInfo(reputationPDA);
+
+    let reputation = {
+      totalValidations: 0,
+      accurateValidations: 0,
+      accuracyRate: 0,
+      tier: 'Bronze' as ValidatorTier,
+    };
+
+    if (reputationAccount) {
+      // Parse reputation data (simplified - in production would use proper deserialization)
+      const data = reputationAccount.data;
+      if (data.length >= 16) {
+        const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+        reputation.totalValidations = view.getUint32(0, true); // little-endian
+        reputation.accurateValidations = view.getUint32(4, true); // little-endian
+        reputation.accuracyRate = reputation.totalValidations > 0
+          ? (reputation.accurateValidations / reputation.totalValidations) * 100
+          : 0;
+        reputation.tier = calculateTier(reputation.totalValidations, reputation.accuracyRate);
+      }
+    }
+
+    // Get stake accounts (simplified - in production would query program accounts)
+    const activeStakes: Array<{
+      account: PublicKey;
+      amount: number;
+      stakedAt: number;
+      unlockAt: number;
+      canUnstake: boolean;
+    }> = [];
+
+    let totalStaked = 0;
+
+    // For now, return mock data since we don't have deployed programs
+    // In production, this would query actual stake accounts
+
+    return {
+      totalStaked,
+      activeStakes,
+      reputation,
+    };
+  } catch (error) {
+    console.error('Error fetching validator stake:', error);
+    return {
+      totalStaked: 0,
+      activeStakes: [],
+      reputation: {
+        totalValidations: 0,
+        accurateValidations: 0,
+        accuracyRate: 0,
+        tier: 'Bronze',
+      },
+    };
+  }
+}
+
+/**
+ * Check if validator meets minimum staking requirements
+ */
+export async function isValidValidator(
+  connection: Connection,
+  validator: PublicKey
+): Promise<{ isValid: boolean; reason?: string; stakeAmount: number }> {
+  const stakeInfo = await getValidatorStake(connection, validator);
+
+  if (stakeInfo.totalStaked < STAKING_CONFIG.MINIMUM_STAKE) {
+    return {
+      isValid: false,
+      reason: `Insufficient stake. Need ${STAKING_CONFIG.MINIMUM_STAKE} DBC, have ${stakeInfo.totalStaked} DBC`,
+      stakeAmount: stakeInfo.totalStaked,
+    };
+  }
+
+  return {
+    isValid: true,
+    stakeAmount: stakeInfo.totalStaked,
+  };
+}
+
+/**
+ * Calculate staking rewards for validators
+ * Based on validation accuracy and volume
+ */
+export function calculateStakingRewards(
+  validationCount: number,
+  accuracyRate: number,
+  stakeAmount: number
+): {
+  baseReward: number;
+  accuracyBonus: number;
+  stakeBonus: number;
+  totalReward: number;
+} {
+  const baseReward = calculateValidatorReward(validationCount, accuracyRate);
+
+  // Accuracy bonus: up to 50% extra for high accuracy
+  const accuracyBonus = accuracyRate >= 90 ? baseReward * 0.5 :
+    accuracyRate >= 80 ? baseReward * 0.3 :
+      accuracyRate >= 70 ? baseReward * 0.1 : 0;
+
+  // Stake bonus: larger stakes get slightly higher rewards (max 25% bonus)
+  const stakeMultiplier = Math.min(1.25, 1 + (stakeAmount / 10000) * 0.1);
+  const stakeBonus = baseReward * (stakeMultiplier - 1);
+
+  const totalReward = baseReward + accuracyBonus + stakeBonus;
+
+  return {
+    baseReward,
+    accuracyBonus,
+    stakeBonus,
+    totalReward,
+  };
+}
 
 // ============= Export Service =============
 
@@ -300,36 +536,41 @@ export const DbcTokenService = {
   DBC_DECIMALS,
   TOKEN_2022_PROGRAM_ID,
   TREASURY_PROGRAM_ID,
-  
+
   // Conversion
   toBaseUnits,
   fromBaseUnits,
   formatDbc,
-  
+
   // Account Management
   getDbcTokenAccount,
   checkDbcAccountExists,
   createDbcAccountInstruction,
   fetchDbcBalance,
-  
+
   // PDAs
   getTreasuryPDA,
   getValidatorReputationPDA,
   getStakePDA,
-  
+
   // Rewards
   REWARD_AMOUNTS,
   EMISSION_SCHEDULE,
   calculateSubmissionReward,
   calculateValidatorReward,
   getCurrentEmissionYear,
-  
+
   // Tiers
   TIER_THRESHOLDS,
   calculateTier,
-  
+
   // Staking
   STAKING_CONFIG,
+  stakeTokens,
+  unstakeTokens,
+  getValidatorStake,
+  isValidValidator,
+  calculateStakingRewards,
 } as const;
 
 export default DbcTokenService;

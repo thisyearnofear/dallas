@@ -3,7 +3,7 @@
  * Tests for attention token creation, analytics, and market functionality
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { PublicKey } from '@solana/web3.js';
 import { AttentionTokenService } from '../services/AttentionTokenService';
 import {
@@ -15,13 +15,14 @@ import {
 } from '../utils/attentionTokenErrors';
 
 // Mock fetch globally
-global.fetch = vi.fn();
+// @ts-ignore - jest mock
+global.fetch = jest.fn();
 
 describe('AttentionTokenService', () => {
   let service: AttentionTokenService;
   
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
     service = new AttentionTokenService();
   });
 
@@ -65,7 +66,7 @@ describe('AttentionTokenService', () => {
       };
 
       // Mock the fetch call
-      vi.spyOn(service as any, 'fetchCaseStudy').mockResolvedValue(mockCaseStudy);
+      jest.spyOn(service as any, 'fetchCaseStudy').mockResolvedValue(mockCaseStudy);
 
       const eligibility = await service.checkEligibility(
         new PublicKey('11111111111111111111111111111111'),
@@ -84,7 +85,7 @@ describe('AttentionTokenService', () => {
         attentionTokenMint: undefined,
       };
 
-      vi.spyOn(service as any, 'fetchCaseStudy').mockResolvedValue(mockCaseStudy);
+      jest.spyOn(service as any, 'fetchCaseStudy').mockResolvedValue(mockCaseStudy);
 
       const eligibility = await service.checkEligibility(
         new PublicKey('11111111111111111111111111111111'),
@@ -102,7 +103,7 @@ describe('AttentionTokenService', () => {
         attentionTokenMint: undefined,
       };
 
-      vi.spyOn(service as any, 'fetchCaseStudy').mockResolvedValue(mockCaseStudy);
+      jest.spyOn(service as any, 'fetchCaseStudy').mockResolvedValue(mockCaseStudy);
 
       const eligibility = await service.checkEligibility(
         new PublicKey('11111111111111111111111111111111'),
@@ -120,7 +121,7 @@ describe('AttentionTokenService', () => {
         attentionTokenMint: new PublicKey('22222222222222222222222222222222'),
       };
 
-      vi.spyOn(service as any, 'fetchCaseStudy').mockResolvedValue(mockCaseStudy);
+      jest.spyOn(service as any, 'fetchCaseStudy').mockResolvedValue(mockCaseStudy);
 
       const eligibility = await service.checkEligibility(
         new PublicKey('11111111111111111111111111111111'),

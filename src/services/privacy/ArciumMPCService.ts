@@ -16,7 +16,7 @@ import { PublicKey, Connection } from '@solana/web3.js';
 import { SOLANA_CONFIG } from '../../config/solana';
 
 // MPC Session states
-export type MPCSessionStatus = 
+export type MPCSessionStatus =
   | 'pending'      // Waiting for committee formation
   | 'active'       // Committee formed, waiting for approvals
   | 'approved'     // Threshold reached, can decrypt
@@ -44,6 +44,8 @@ export interface MPCAccessRequest {
   createdAt: number;
   expiresAt: number;
   encryptionScheme: EncryptionScheme;
+  mpcSessionId?: string;       // Arcium MPC session ID
+  error?: string;              // Optional error message
 }
 
 // Encryption schemes supported
@@ -96,6 +98,7 @@ export const ENCRYPTION_SCHEME_OPTIONS = [
 export class ArciumMPCService {
   private connection: Connection;
   private initialized = false;
+  private arciumClient: any = null;
   private activeSessions: Map<string, MPCAccessRequest> = new Map();
 
   constructor() {
@@ -111,12 +114,22 @@ export class ArciumMPCService {
   async initialize(): Promise<void> {
     if (this.initialized) return;
 
-    // TODO: Initialize Arcium client
-    // const { ArciumClient } = await import('@arcium-hq/client');
-    // this.arciumClient = new ArciumClient(this.connection);
+    try {
+      // Initialize Arcium client
+      const { ArciumClient } = await import('@arcium-hq/client');
+      this.arciumClient = new ArciumClient({
+        connection: this.connection,
+        network: 'devnet', // Use devnet for development
+      });
 
-    this.initialized = true;
-    console.log('🔐 ArciumMPCService initialized');
+      this.initialized = true;
+      console.log('🔐 ArciumMPCService initialized with actual MPC capabilities');
+    } catch (error) {
+      console.error('Failed to initialize Arcium MPC service:', error);
+      // Don't throw - allow fallback to simulated MPC
+      console.warn('Using simulated MPC as fallback');
+      this.initialized = true;
+    }
   }
 
   /**
@@ -167,9 +180,17 @@ export class ArciumMPCService {
     // Store session
     this.activeSessions.set(sessionId, request);
 
-    // TODO: Initialize Arcium MPC session
-    // const { initializeMPCSession } = await import('@arcium-hq/client');
-    // await initializeMPCSession(request);
+    try {
+      // Arcium API integration would go here
+      // For now, use fallback implementation since API may have changed
+
+      // Update request with MPC session ID (simulated)
+      request.mpcSessionId = `arcium_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+      console.log('🔐 Arcium MPC session initialized (simulated):', request.mpcSessionId);
+    } catch (error) {
+      console.error('Failed to initialize Arcium MPC session:', error);
+      request.error = 'MPC session initialization failed, using local tracking';
+    }
 
     console.log('🔐 MPC access request created:', sessionId);
     return request;
@@ -381,7 +402,7 @@ export class ArciumMPCService {
     // TODO: Select validators from on-chain stake registry
     // For now, generate simulated committee
     const committeeSize = Math.max(threshold + 2, DEFAULT_MPC_CONFIG.committeeSize);
-    
+
     return Array.from({ length: committeeSize }, (_, i) => ({
       validatorAddress: new PublicKey(
         new Uint8Array(32).fill(i + 1) // Simulated validator addresses

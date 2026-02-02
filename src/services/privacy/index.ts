@@ -75,6 +75,18 @@ export type {
   PrivacyEnhancedAccessRequest,
 } from './PrivacyService';
 
+// Centralized Privacy Service Manager
+export {
+  PrivacyServiceManager,
+  privacyServiceManager,
+} from './PrivacyServiceManager';
+
+export type {
+  PrivacyServiceStatus,
+  PrivacyCaseStudyData,
+  PrivacyProcessingResult,
+} from './PrivacyServiceManager';
+
 // Private Messaging Service
 export {
   PrivateMessagingService,
