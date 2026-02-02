@@ -21,7 +21,7 @@ Test environment with devnet DBC tokens for development.
 | DBC Mint (devnet) | `8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT` | ✅ Created |
 | Treasury | `C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk` | ✅ Initialized |
 | Membership | `CB6yknfo1cBWhVH2ifkMAS2tKaDa9c9mgRiZpCzHwjzu` | ✅ Deployed |
-| Case Study | `EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6` | ✅ Deployed |
+| Case Study | `8tma3jnv8ZazAKxawZsE5yh3NPt1ymsEoysS2B1w2Gxx` | ✅ Deployed |
 
 ---
 
