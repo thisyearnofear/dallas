@@ -7,6 +7,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 // Import polyfills for browser compatibility
 import "./polyfills";
 
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Header } from "./components/Header";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
@@ -37,10 +38,10 @@ import { Membership } from "./pages/membership";
 import { Achievements } from "./pages/achievements";
 import { Testimonials } from "./pages/testimonials";
 import { Referrals } from "./pages/referrals";
-import { Underground } from "./pages/underground";
+import Underground from "./pages/underground";
 import { Experiences } from "./pages/experiences";
-import { Validators } from "./pages/validators";
-import { AttentionTokens } from "./pages/attention-tokens";
+import Validators from "./pages/validators";
+import AttentionTokens from "./pages/attention-tokens";
 import { NotFound } from "./pages/_404";
 
 import "./style.css";
@@ -86,33 +87,43 @@ export function App() {
                     <ProgressTracker />
                     <LiveCounter />
 
-                    <Header />
+                    <ErrorBoundary>
+                        <Header />
+                    </ErrorBoundary>
                     <div class="flex flex-1 relative items-stretch">
                         {/* Desktop Navbar - only render on large screens */}
-                        <Navbar />
+                        <ErrorBoundary>
+                            <Navbar />
+                        </ErrorBoundary>
                         
                         {/* Mobile Bottom Navigation */}
-                        <MobileNav />
+                        <ErrorBoundary>
+                            <MobileNav />
+                        </ErrorBoundary>
                         
                         <div class="w-full p-4 sm:p-6 lg:p-10 pb-24 lg:pb-10">
-                            <Router>
-                                <Route path="/" component={Home} />
-                                <Route path="/experiences" component={Experiences} />
-                                <Route path="/validators" component={Validators} />
-                                <Route path="/attention-tokens" component={AttentionTokens} />
-                                <Route path="/products" component={Products} />
-                                <Route path="/links" component={Links} />
-                                <Route path="/donate" component={Donate} />
-                                <Route path="/membership" component={Membership} />
-                                <Route path="/achievements" component={Achievements} />
-                                <Route path="/testimonials" component={Testimonials} />
-                                <Route path="/referrals" component={Referrals} />
-                                <Route path="/underground" component={Underground} />
-                                <Route default component={NotFound} />
-                            </Router>
+                            <ErrorBoundary>
+                                <Router>
+                                    <Route path="/" component={Home} />
+                                    <Route path="/experiences" component={Experiences} />
+                                    <Route path="/validators" component={Validators} />
+                                    <Route path="/attention-tokens" component={AttentionTokens} />
+                                    <Route path="/products" component={Products} />
+                                    <Route path="/links" component={Links} />
+                                    <Route path="/donate" component={Donate} />
+                                    <Route path="/membership" component={Membership} />
+                                    <Route path="/achievements" component={Achievements} />
+                                    <Route path="/testimonials" component={Testimonials} />
+                                    <Route path="/referrals" component={Referrals} />
+                                    <Route path="/underground" component={Underground} />
+                                    <Route default component={NotFound} />
+                                </Router>
+                            </ErrorBoundary>
                         </div>
                     </div>
-                    <Footer />
+                    <ErrorBoundary>
+                        <Footer />
+                    </ErrorBoundary>
 
                     {/* Mobile Enhancements */}
                     <FloatingActionButton />

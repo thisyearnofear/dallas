@@ -19,6 +19,7 @@ import { Connection, PublicKey, Transaction } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { DbcTokenService, ValidatorTier } from '../services/DbcTokenService';
 import { SOLANA_CONFIG } from '../config/solana';
+import { cacheService } from '../services/CacheService';
 
 // Staking state interface
 export interface ValidatorStakingState {
@@ -134,13 +135,47 @@ export function useValidatorStaking(): UseValidatorStakingReturn {
 
     /**
      * Refresh all staking data
+     * Uses caching to reduce RPC calls
      */
     const refreshStakingData = useCallback(async () => {
         if (!publicKey) return;
 
         setStakingState(prev => ({ ...prev, isLoading: true, error: null }));
 
+        const cacheKey = `validator_${publicKey.toString()}`;
+        const TTL = 30 * 1000; // 30 seconds
+
         try {
+            // Check cache first
+            const cached = cacheService.get<{
+                totalStaked: number;
+                availableBalance: number;
+                isValidValidator: boolean;
+                activeStakes: ValidatorStakingState['activeStakes'];
+                reputation: ValidatorStakingState['reputation'];
+                estimatedDailyRewards: number;
+            }>(cacheKey);
+
+            if (cached !== null) {
+                console.log(`[CacheService] Cache hit for validator: ${publicKey.toString().slice(0, 8)}...`);
+                setStakingState(prev => ({
+                    ...prev,
+                    totalStaked: cached.totalStaked,
+                    availableBalance: cached.availableBalance,
+                    isValidValidator: cached.isValidValidator,
+                    activeStakes: cached.activeStakes,
+                    reputation: cached.reputation,
+                    rewards: {
+                        ...prev.rewards,
+                        estimatedDailyRewards: cached.estimatedDailyRewards,
+                    },
+                    isLoading: false,
+                }));
+                return;
+            }
+
+            console.log(`[CacheService] Cache miss for validator: ${publicKey.toString().slice(0, 8)}...`);
+
             // Fetch DBC balance
             const { balance } = await DbcTokenService.fetchDbcBalance(connection, publicKey);
 
@@ -168,6 +203,22 @@ export function useValidatorStaking(): UseValidatorStakingReturn {
                 ...stake,
                 daysRemaining: Math.max(0, Math.ceil((stake.unlockAt - Date.now()) / (24 * 60 * 60 * 1000))),
             }));
+
+            // Prepare data for cache
+            const cacheData = {
+                totalStaked: stakeInfo.totalStaked,
+                availableBalance: balance,
+                isValidValidator: validatorCheck.isValid,
+                activeStakes: processedStakes,
+                reputation: {
+                    ...stakeInfo.reputation,
+                    nextTierRequirements,
+                },
+                estimatedDailyRewards,
+            };
+
+            // Store in cache
+            cacheService.set(cacheKey, cacheData, TTL);
 
             setStakingState(prev => ({
                 ...prev,
@@ -233,7 +284,12 @@ export function useValidatorStaking(): UseValidatorStakingReturn {
             // Confirm transaction
             await connection.confirmTransaction(signature, 'confirmed');
 
-            // Refresh data after successful stake
+            // Invalidate cache and refresh data after successful stake
+            if (publicKey) {
+                const cacheKey = `validator_${publicKey.toString()}`;
+                cacheService.delete(cacheKey);
+                console.log(`[CacheService] Invalidated validator cache after stake: ${publicKey.toString().slice(0, 8)}...`);
+            }
             await refreshStakingData();
 
             setStakingState(prev => ({ ...prev, isStaking: false }));
@@ -293,7 +349,12 @@ export function useValidatorStaking(): UseValidatorStakingReturn {
             // Confirm transaction
             await connection.confirmTransaction(signature, 'confirmed');
 
-            // Refresh data after successful unstake
+            // Invalidate cache and refresh data after successful unstake
+            if (publicKey) {
+                const cacheKey = `validator_${publicKey.toString()}`;
+                cacheService.delete(cacheKey);
+                console.log(`[CacheService] Invalidated validator cache after unstake: ${publicKey.toString().slice(0, 8)}...`);
+            }
             await refreshStakingData();
 
             setStakingState(prev => ({ ...prev, isUnstaking: false }));

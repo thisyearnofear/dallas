@@ -4,11 +4,14 @@
  */
 
 import { AttentionTokenMarket } from '../components/AttentionTokenMarket';
+import { withErrorBoundary } from '../components/ErrorBoundaryWrapper';
 
-export function AttentionTokens() {
+function AttentionTokens() {
   return (
     <div className="min-h-screen">
       <AttentionTokenMarket />
     </div>
   );
 }
+
+export default withErrorBoundary(AttentionTokens, 'AttentionTokens');

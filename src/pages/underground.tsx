@@ -27,8 +27,9 @@ import {
 import { PrivacyDashboard } from "../components/PrivacyDashboard";
 import { ResearcherTools } from "../components/ResearcherTools";
 import { useState, useEffect } from "preact/hooks";
+import { withErrorBoundary } from "../components/ErrorBoundaryWrapper";
 
-export function Underground() {
+function Underground() {
     const [activeSection, setActiveSection] = useState<'command' | 'office' | 'market' | 'intel' | 'history' | 'privacy' | 'research'>('command');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
@@ -602,3 +603,5 @@ export function Underground() {
         </div>
     );
 }
+
+export default withErrorBoundary(Underground, 'Underground');

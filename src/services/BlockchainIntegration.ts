@@ -7,6 +7,7 @@
 import { PublicKey } from '@solana/web3.js';
 import { BlockchainService, CaseStudyData, ValidationData, TransactionResult } from './BlockchainService';
 import { encryptHealthData } from '../utils/encryption';
+import { cacheService } from './CacheService';
 
 export interface BlockchainSubmissionResult {
   success: boolean;
@@ -277,6 +278,7 @@ export async function fetchPendingCaseStudies(): Promise<{
 
 /**
  * Fetch case study from blockchain and decrypt locally
+ * Uses caching to reduce RPC calls (5 minute TTL)
  */
 export async function fetchAndDecryptCaseStudy(
   caseStudyPubkey: PublicKey,
@@ -287,15 +289,34 @@ export async function fetchAndDecryptCaseStudy(
   data?: Record<string, any>;
   error?: string;
 }> {
+  const cacheKey = `caseStudy_${caseStudyPubkey.toString()}`;
+  const TTL = 5 * 60 * 1000; // 5 minutes
+
   try {
+    // Check cache first
+    const cached = cacheService.get<{
+      success: boolean;
+      data?: Record<string, any>;
+      error?: string;
+    }>(cacheKey);
+
+    if (cached !== null) {
+      console.log(`[CacheService] Cache hit for case study: ${caseStudyPubkey.toString().slice(0, 8)}...`);
+      return cached;
+    }
+
+    console.log(`[CacheService] Cache miss for case study: ${caseStudyPubkey.toString().slice(0, 8)}...`);
+
     const service = getBlockchainService();
     const caseStudy = await service.fetchCaseStudy(caseStudyPubkey);
 
     if (!caseStudy) {
-      return {
+      const result = {
         success: false,
         error: 'Case study not found on blockchain',
       };
+      cacheService.set(cacheKey, result, TTL);
+      return result;
     }
 
     // Convert encrypted data back to base64 for decryption
@@ -306,7 +327,7 @@ export async function fetchAndDecryptCaseStudy(
     const decryptedBaseline = decryptFunction(encryptedBaselineB64, encryptionKey);
     const decryptedOutcome = decryptFunction(encryptedOutcomeB64, encryptionKey);
 
-    return {
+    const result = {
       success: true,
       data: {
         patientId: caseStudy.patientId.toString(),
@@ -321,6 +342,11 @@ export async function fetchAndDecryptCaseStudy(
         outcomeMetrics: JSON.parse(decryptedOutcome),
       },
     };
+
+    // Store in cache
+    cacheService.set(cacheKey, result, TTL);
+
+    return result;
   } catch (error) {
     console.error('Fetch/decrypt error:', error);
     return {
@@ -332,6 +358,7 @@ export async function fetchAndDecryptCaseStudy(
 
 /**
  * Get all case studies for display in UI
+ * Uses caching to reduce RPC calls (5 minute TTL)
  */
 export async function fetchUserCaseStudies(
   userAddress: PublicKey
@@ -346,15 +373,40 @@ export async function fetchUserCaseStudies(
   }>;
   error?: string;
 }> {
+  const cacheKey = `userCaseStudies_${userAddress.toString()}`;
+  const TTL = 5 * 60 * 1000; // 5 minutes
+
   try {
+    // Check cache first
+    const cached = cacheService.get<{
+      success: boolean;
+      caseStudies?: Array<{
+        pubkey: PublicKey;
+        protocol: string;
+        createdAt: Date;
+        isApproved: boolean;
+        approvalCount: number;
+      }>;
+      error?: string;
+    }>(cacheKey);
+
+    if (cached !== null) {
+      console.log(`[CacheService] Cache hit for user case studies: ${userAddress.toString().slice(0, 8)}...`);
+      return cached;
+    }
+
+    console.log(`[CacheService] Cache miss for user case studies: ${userAddress.toString().slice(0, 8)}...`);
+
     const service = getBlockchainService();
     const caseStudyPubkeys = await service.getCaseStudiesForPatient(userAddress);
 
     if (caseStudyPubkeys.length === 0) {
-      return {
+      const result = {
         success: true,
         caseStudies: [],
       };
+      cacheService.set(cacheKey, result, TTL);
+      return result;
     }
 
     // Fetch details for each case study (in real usage, batch this)
@@ -372,12 +424,17 @@ export async function fetchUserCaseStudies(
       }
     }
 
-    return {
+    const result = {
       success: true,
       caseStudies: caseStudies.sort(
         (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
       ),
     };
+
+    // Store in cache
+    cacheService.set(cacheKey, result, TTL);
+
+    return result;
   } catch (error) {
     console.error('Fetch case studies error:', error);
     return {
@@ -385,6 +442,26 @@ export async function fetchUserCaseStudies(
       error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
+}
+
+/**
+ * Invalidate case study cache for a specific case study
+ * Call this after submitting a new case study or when data changes
+ */
+export function invalidateCaseStudyCache(caseStudyPubkey: PublicKey): void {
+  const cacheKey = `caseStudy_${caseStudyPubkey.toString()}`;
+  cacheService.delete(cacheKey);
+  console.log(`[CacheService] Invalidated case study cache: ${caseStudyPubkey.toString().slice(0, 8)}...`);
+}
+
+/**
+ * Invalidate user case studies cache
+ * Call this after submitting a new case study
+ */
+export function invalidateUserCaseStudiesCache(userAddress: PublicKey): void {
+  const cacheKey = `userCaseStudies_${userAddress.toString()}`;
+  cacheService.delete(cacheKey);
+  console.log(`[CacheService] Invalidated user case studies cache: ${userAddress.toString().slice(0, 8)}...`);
 }
 
 /**

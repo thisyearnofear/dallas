@@ -14,6 +14,7 @@ import {
   calculateTier,
   type ValidatorTier,
 } from '../services/DbcTokenService';
+import { cacheService } from '../services/CacheService';
 
 interface DbcTokenState {
   // Balance
@@ -72,6 +73,7 @@ export function useDbcToken(): UseDbcTokenReturn {
   /**
    * Fetch DBC balance and account info
    * Clean: Single function for all balance operations
+   * Performant: Uses cacheService.dedupe() to prevent duplicate RPC calls
    */
   const fetchBalance = useCallback(async () => {
     if (!publicKey || !connection) {
@@ -79,18 +81,40 @@ export function useDbcToken(): UseDbcTokenReturn {
       return;
     }
 
+    const cacheKey = `balance_${publicKey.toString()}`;
+    const TTL = 10 * 1000; // 10 seconds
+
     try {
-      const { balance, address } = await DbcTokenService.fetchDbcBalance(
-        connection,
-        publicKey
-      );
+      // Use dedupe to prevent multiple simultaneous requests
+      const result = await cacheService.dedupe(cacheKey, async () => {
+        // Check cache first
+        const cached = cacheService.get<{ balance: number; address: PublicKey | null }>(cacheKey);
+        if (cached !== null) {
+          console.log(`[CacheService] Cache hit for balance: ${publicKey.toString().slice(0, 8)}...`);
+          return cached;
+        }
+
+        console.log(`[CacheService] Cache miss for balance: ${publicKey.toString().slice(0, 8)}...`);
+        
+        // Fetch from blockchain
+        const { balance, address } = await DbcTokenService.fetchDbcBalance(
+          connection,
+          publicKey
+        );
+        
+        // Store in cache
+        const data = { balance, address };
+        cacheService.set(cacheKey, data, TTL);
+        
+        return data;
+      });
 
       setState(prev => ({
         ...prev,
-        balance,
-        formattedBalance: formatDbc(balance),
-        tokenAccount: address,
-        accountExists: !!address,
+        balance: result.balance,
+        formattedBalance: formatDbc(result.balance),
+        tokenAccount: result.address,
+        accountExists: !!result.address,
         isLoading: false,
         error: null,
       }));
@@ -136,7 +160,11 @@ export function useDbcToken(): UseDbcTokenReturn {
       // This is a placeholder for the hook structure
       console.log('Creating DBC token account for:', publicKey.toBase58());
       
-      // After creation, refresh balance
+      // After creation, invalidate cache and refresh balance
+      const cacheKey = `balance_${publicKey.toString()}`;
+      cacheService.delete(cacheKey);
+      console.log(`[CacheService] Invalidated cache for balance: ${publicKey.toString().slice(0, 8)}...`);
+      
       await fetchBalance();
     } catch (error) {
       console.error('Error creating DBC account:', error);

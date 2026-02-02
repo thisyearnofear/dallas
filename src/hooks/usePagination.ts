@@ -14,6 +14,7 @@
  */
 
 import { useState, useCallback, useEffect, useRef } from 'preact/hooks';
+import { cacheService } from '../services/CacheService';
 
 // ============= Types =============
 
@@ -32,6 +33,8 @@ interface UsePaginationOptions {
   perPage?: number;
   initialPage?: number;
   prefetchNext?: boolean;
+  cacheKey?: string;
+  cacheTTL?: number;
 }
 
 interface UsePaginationReturn<T> extends PaginationState<T> {
@@ -66,6 +69,8 @@ export function usePagination<T>(
     perPage: initialPerPage = 10,
     initialPage = 1,
     prefetchNext = true,
+    cacheKey: baseCacheKey,
+    cacheTTL = 5 * 60 * 1000, // 5 minutes default
   } = options;
 
   const [state, setState] = useState<PaginationState<T>>({
@@ -92,6 +97,12 @@ export function usePagination<T>(
     };
   }, []);
 
+  // Helper to get cache key for a page
+  const getPageCacheKey = useCallback((page: number, perPage: number): string | null => {
+    if (!baseCacheKey) return null;
+    return `${baseCacheKey}_page_${page}_perPage_${perPage}`;
+  }, [baseCacheKey]);
+
   // Fetch data for a specific page
   const fetchData = useCallback(async (
     page: number,
@@ -112,7 +123,29 @@ export function usePagination<T>(
     }));
 
     try {
-      const result = await fetchFunction(page, perPage);
+      // Check cache first if cacheKey is provided
+      const pageCacheKey = getPageCacheKey(page, perPage);
+      let result: { data: T[]; total: number; hasMore: boolean } | null = null;
+
+      if (pageCacheKey) {
+        const cached = cacheService.get<{ data: T[]; total: number; hasMore: boolean }>(pageCacheKey);
+        if (cached !== null) {
+          console.log(`[CacheService] Cache hit for pagination: ${pageCacheKey}`);
+          result = cached;
+        } else {
+          console.log(`[CacheService] Cache miss for pagination: ${pageCacheKey}`);
+        }
+      }
+
+      // If not cached, fetch from source
+      if (!result) {
+        result = await fetchFunction(page, perPage);
+        
+        // Store in cache if cacheKey is provided
+        if (pageCacheKey) {
+          cacheService.set(pageCacheKey, result, cacheTTL);
+        }
+      }
 
       if (!isMountedRef.current) return;
 
@@ -144,7 +177,7 @@ export function usePagination<T>(
         error: error instanceof Error ? error.message : 'Failed to load data',
       }));
     }
-  }, [fetchFunction, prefetchNext]);
+  }, [fetchFunction, prefetchNext, getPageCacheKey, cacheTTL]);
 
   // Prefetch next page (silent)
   const prefetchPage = useCallback(async (page: number, perPage: number): Promise<void> => {
@@ -177,8 +210,16 @@ export function usePagination<T>(
 
   // Refresh current page
   const refresh = useCallback(async (): Promise<void> => {
+    // Invalidate cache for current page if caching is enabled
+    if (baseCacheKey) {
+      const pageCacheKey = getPageCacheKey(state.page, state.perPage);
+      if (pageCacheKey) {
+        cacheService.delete(pageCacheKey);
+        console.log(`[CacheService] Invalidated cache for refresh: ${pageCacheKey}`);
+      }
+    }
     await fetchData(state.page, state.perPage);
-  }, [fetchData, state.page, state.perPage]);
+  }, [fetchData, state.page, state.perPage, baseCacheKey, getPageCacheKey]);
 
   // Load more (append mode)
   const loadMore = useCallback(async (): Promise<void> => {

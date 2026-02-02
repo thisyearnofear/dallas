@@ -3,8 +3,9 @@ import { ValidatorReputationSystem } from '../components/ValidatorReputationSyst
 import { NetworkStatus } from '../components/NetworkStatus';
 import { useContext } from 'preact/hooks';
 import { WalletContext, WalletContextType } from '../context/WalletContext';
+import { withErrorBoundary } from '../components/ErrorBoundaryWrapper';
 
-export function Validators() {
+function Validators() {
     const walletContext = useContext(WalletContext) as WalletContextType;
     const { publicKey } = walletContext;
     const isConnected = !!publicKey;
@@ -126,6 +127,8 @@ export function Validators() {
         </div>
     );
 }
+
+export default withErrorBoundary(Validators, 'Validators');
 
 // Sidebar Components
 function ValidatorGuide({ compact = false }: { compact?: boolean }) {
