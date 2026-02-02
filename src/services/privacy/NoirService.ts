@@ -176,19 +176,20 @@ export class NoirService {
 
     for (const circuitType of circuitTypes) {
       try {
-        // In production, these would be actual compiled circuit artifacts
-        // For now, create mock artifacts that match the expected structure
-        const mockArtifact = {
-          bytecode: new Uint8Array(1024), // Mock bytecode
-          abi: {
-            parameters: this.getCircuitParameters(circuitType),
-            return_type: null,
-          },
-        };
-        this.circuitCache.set(circuitType, mockArtifact);
-        console.log(`✅ Loaded circuit artifact: ${circuitType}`);
+        // Load compiled circuit artifact
+        const artifactUrl = `/circuits/${circuitType}/target/${circuitType}.json`;
+        const response = await fetch(artifactUrl);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch circuit artifact: ${response.status}`);
+        }
+        
+        const artifact = await response.json();
+        this.circuitCache.set(circuitType, artifact);
+        console.log(`✅ Loaded circuit artifact: ${circuitType} (hash: ${artifact.hash})`);
       } catch (error) {
         console.warn(`Failed to load circuit ${circuitType}:`, error);
+        console.warn('Circuit proofs will fall back to simulated mode');
       }
     }
   }
@@ -259,37 +260,39 @@ export class NoirService {
     // Generate actual ZK proof using Noir
     try {
       const circuitArtifact = this.circuitCache.get('symptom_improvement');
-      if (!circuitArtifact) {
-        throw new Error('Circuit artifact not loaded for symptom_improvement');
+      if (!circuitArtifact || !this.noirInstance || !this.backend) {
+        throw new Error('Noir not properly initialized or circuit not loaded');
       }
 
-      // Use actual Noir proof generation
-      if (this.noirInstance && this.backend) {
-        const noir = new this.noirInstance(circuitArtifact);
-        const backend = new this.backend(circuitArtifact);
+      const noir = new this.noirInstance(circuitArtifact);
+      const backend = new this.backend(circuitArtifact);
 
-        // Prepare inputs for the circuit
-        const circuitInputs = {
-          baseline_severity: inputs.baseline_severity.toString(),
-          outcome_severity: inputs.outcome_severity.toString(),
-          min_improvement_percent: publicInputs.min_improvement_percent.toString(),
-        };
+      // Prepare inputs for the circuit
+      const circuitInputs = {
+        baseline_severity: inputs.baseline_severity.toString(),
+        outcome_severity: inputs.outcome_severity.toString(),
+        min_improvement_percent: publicInputs.min_improvement_percent.toString(),
+      };
 
-        // Generate witness
-        const { witness } = await noir.execute(circuitInputs);
+      console.log('Generating ZK proof for symptom improvement...', circuitInputs);
 
-        // Generate proof
-        const proof = await backend.generateProof(witness);
+      // Generate witness
+      const { witness } = await noir.execute(circuitInputs);
 
-        return {
-          proof: new Uint8Array(proof),
-          publicInputs,
-          circuitType: 'symptom_improvement',
-          verified: await backend.verifyProof(proof),
-        };
-      } else {
-        throw new Error('Noir not properly initialized');
-      }
+      // Generate proof
+      const proof = await backend.generateProof(witness);
+
+      // Verify the proof locally
+      const verified = await backend.verifyProof(proof);
+
+      console.log('✅ ZK proof generated and verified:', { proofSize: proof.length, verified });
+
+      return {
+        proof: new Uint8Array(proof),
+        publicInputs,
+        circuitType: 'symptom_improvement',
+        verified,
+      };
     } catch (error) {
       console.error('Failed to generate ZK proof:', error);
       // Fallback to simulated proof if actual generation fails
@@ -299,7 +302,7 @@ export class NoirService {
         publicInputs,
         circuitType: 'symptom_improvement',
         verified: this.verifySymptomImprovementLogic(inputs, publicInputs),
-        error: 'ZK proof generation failed, using fallback',
+        error: `ZK proof generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
       };
     }
   }
@@ -319,14 +322,46 @@ export class NoirService {
       throw new Error('Duration must be positive');
     }
 
-    const simulatedProof = this.createSimulatedProof('duration_verification');
+    try {
+      const circuitArtifact = this.circuitCache.get('duration_verification');
+      if (!circuitArtifact || !this.noirInstance || !this.backend) {
+        throw new Error('Noir not properly initialized or circuit not loaded');
+      }
 
-    return {
-      proof: simulatedProof,
-      publicInputs,
-      circuitType: 'duration_verification',
-      verified: this.verifyDurationLogic(inputs, publicInputs),
-    };
+      const noir = new this.noirInstance(circuitArtifact);
+      const backend = new this.backend(circuitArtifact);
+
+      const circuitInputs = {
+        duration_days: inputs.duration_days.toString(),
+        min_days: publicInputs.min_days.toString(),
+        max_days: publicInputs.max_days.toString(),
+      };
+
+      console.log('Generating ZK proof for duration verification...', circuitInputs);
+
+      const { witness } = await noir.execute(circuitInputs);
+      const proof = await backend.generateProof(witness);
+      const verified = await backend.verifyProof(proof);
+
+      console.log('✅ Duration proof generated:', { proofSize: proof.length, verified });
+
+      return {
+        proof: new Uint8Array(proof),
+        publicInputs,
+        circuitType: 'duration_verification',
+        verified,
+      };
+    } catch (error) {
+      console.error('Failed to generate duration proof:', error);
+      const simulatedProof = this.createSimulatedProof('duration_verification');
+      return {
+        proof: simulatedProof,
+        publicInputs,
+        circuitType: 'duration_verification',
+        verified: this.verifyDurationLogic(inputs, publicInputs),
+        error: `Proof generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      };
+    }
   }
 
   /**
@@ -344,14 +379,49 @@ export class NoirService {
       throw new Error('Minimum required must be 1-5');
     }
 
-    const simulatedProof = this.createSimulatedProof('data_completeness');
+    try {
+      const circuitArtifact = this.circuitCache.get('data_completeness');
+      if (!circuitArtifact || !this.noirInstance || !this.backend) {
+        throw new Error('Noir not properly initialized or circuit not loaded');
+      }
 
-    return {
-      proof: simulatedProof,
-      publicInputs,
-      circuitType: 'data_completeness',
-      verified: this.verifyCompletenessLogic(inputs, publicInputs),
-    };
+      const noir = new this.noirInstance(circuitArtifact);
+      const backend = new this.backend(circuitArtifact);
+
+      const circuitInputs = {
+        has_baseline: inputs.has_baseline.toString(),
+        has_outcome: inputs.has_outcome.toString(),
+        has_duration: inputs.has_duration.toString(),
+        has_protocol: inputs.has_protocol.toString(),
+        has_cost: inputs.has_cost.toString(),
+        minimum_required: publicInputs.minimum_required.toString(),
+      };
+
+      console.log('Generating ZK proof for data completeness...', circuitInputs);
+
+      const { witness } = await noir.execute(circuitInputs);
+      const proof = await backend.generateProof(witness);
+      const verified = await backend.verifyProof(proof);
+
+      console.log('✅ Completeness proof generated:', { proofSize: proof.length, verified });
+
+      return {
+        proof: new Uint8Array(proof),
+        publicInputs,
+        circuitType: 'data_completeness',
+        verified,
+      };
+    } catch (error) {
+      console.error('Failed to generate completeness proof:', error);
+      const simulatedProof = this.createSimulatedProof('data_completeness');
+      return {
+        proof: simulatedProof,
+        publicInputs,
+        circuitType: 'data_completeness',
+        verified: this.verifyCompletenessLogic(inputs, publicInputs),
+        error: `Proof generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      };
+    }
   }
 
   /**
@@ -369,14 +439,46 @@ export class NoirService {
       throw new Error('Cost must be positive');
     }
 
-    const simulatedProof = this.createSimulatedProof('cost_range');
+    try {
+      const circuitArtifact = this.circuitCache.get('cost_range');
+      if (!circuitArtifact || !this.noirInstance || !this.backend) {
+        throw new Error('Noir not properly initialized or circuit not loaded');
+      }
 
-    return {
-      proof: simulatedProof,
-      publicInputs,
-      circuitType: 'cost_range',
-      verified: this.verifyCostLogic(inputs, publicInputs),
-    };
+      const noir = new this.noirInstance(circuitArtifact);
+      const backend = new this.backend(circuitArtifact);
+
+      const circuitInputs = {
+        cost_usd_cents: inputs.cost_usd_cents.toString(),
+        min_cost_cents: publicInputs.min_cost_cents.toString(),
+        max_cost_cents: publicInputs.max_cost_cents.toString(),
+      };
+
+      console.log('Generating ZK proof for cost range...', circuitInputs);
+
+      const { witness } = await noir.execute(circuitInputs);
+      const proof = await backend.generateProof(witness);
+      const verified = await backend.verifyProof(proof);
+
+      console.log('✅ Cost range proof generated:', { proofSize: proof.length, verified });
+
+      return {
+        proof: new Uint8Array(proof),
+        publicInputs,
+        circuitType: 'cost_range',
+        verified,
+      };
+    } catch (error) {
+      console.error('Failed to generate cost proof:', error);
+      const simulatedProof = this.createSimulatedProof('cost_range');
+      return {
+        proof: simulatedProof,
+        publicInputs,
+        circuitType: 'cost_range',
+        verified: this.verifyCostLogic(inputs, publicInputs),
+        error: `Proof generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      };
+    }
   }
 
   /**
