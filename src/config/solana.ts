@@ -7,7 +7,7 @@
 
 export const SOLANA_CONFIG = {
   // Network: 'devnet', 'testnet', or 'mainnet-beta'
-  network: 'devnet' as const,
+  network: 'devnet' as 'devnet' | 'testnet' | 'mainnet-beta',
 
   // RPC endpoints
   rpcEndpoint: {

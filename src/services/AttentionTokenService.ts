@@ -513,6 +513,33 @@ export class AttentionTokenService {
 
     this.requestCount++;
   }
+
+  /**
+   * Get remaining API calls before rate limit
+   */
+  getRemainingCalls(): number {
+    const now = Date.now();
+    
+    // Reset counter if hour has passed
+    if (now > this.rateLimitResetTime) {
+      this.requestCount = 0;
+      this.rateLimitResetTime = now + 3600000;
+    }
+    
+    return Math.max(0, this.rateLimit - this.requestCount);
+  }
+
+  /**
+   * Check if the service is properly configured
+   */
+  isConfigured(): boolean {
+    // On mainnet, we need an API key
+    if (this.isMainnet) {
+      return !!this.bagsApiKey;
+    }
+    // On devnet, mock mode is always "configured"
+    return true;
+  }
 }
 
 // Export singleton instance

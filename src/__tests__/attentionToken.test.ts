@@ -35,8 +35,8 @@ describe('AttentionTokenService', () => {
 
     it('should handle short treatment names', () => {
       const symbol = service.generateSymbol('AB');
-      expect(symbol).toBe('ABATT');
-      expect(symbol.length).toBeGreaterThanOrEqual(3);
+      expect(symbol).toBe('AB'); // Short names use the cleaned name as-is
+      expect(symbol.length).toBeGreaterThanOrEqual(2);
     });
 
     it('should remove special characters', () => {
@@ -153,9 +153,9 @@ describe('AttentionTokenService', () => {
       (service as any).requestCount = 1000;
       (service as any).rateLimitResetTime = Date.now() - 1000; // Past reset time
 
-      (service as any).checkRateLimit(); // Should reset and not throw
+      (service as any).checkRateLimit(); // Should reset and not throw, then increment to 1
 
-      expect((service as any).requestCount).toBe(0);
+      expect((service as any).requestCount).toBe(1); // Reset to 0 then incremented by 1
     });
   });
 

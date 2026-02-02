@@ -25,6 +25,7 @@ import {
 import { Program, AnchorProvider, BN, web3 } from '@coral-xyz/anchor';
 import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } from '@solana/spl-token';
 import { SOLANA_CONFIG } from '../config/solana';
+import { parseCaseStudyAccount, ValidationStatus } from '../utils/caseStudyParser';
 
 export interface CaseStudyData {
   encryptedBaseline: Uint8Array;
@@ -297,22 +298,25 @@ export class BlockchainService {
       const accountInfo = await this.connection.getAccountInfo(caseStudyPubkey);
       if (!accountInfo) return null;
 
-      // Decode account data (simplified - in real usage, use Anchor client)
-      const data = accountInfo.data;
+      // Import the parser dynamically to avoid circular dependencies
+      const { parseCaseStudyAccount } = await import('../utils/caseStudyParser');
+      const parsed = parseCaseStudyAccount(caseStudyPubkey, accountInfo.data);
+      
+      if (!parsed) return null;
 
-      // This is a placeholder - actual decoding would parse the Anchor account structure
+      // Convert to CaseStudyAccount format
       return {
-        patientId: new PublicKey(data.slice(8, 40)),
-        encryptedBaseline: new Uint8Array(data.slice(40, 10044)),
-        encryptedOutcome: new Uint8Array(data.slice(10044, 20048)),
-        treatmentProtocol: Buffer.from(data.slice(20048, 20552)).toString(),
-        durationDays: data.readUInt32LE(20552),
-        costUsd: data.readUInt32LE(20556),
-        createdAt: Number(data.readBigInt64LE(20560)),
-        isApproved: data[20568] === 1,
-        approvalCount: data.readUInt32LE(20569),
-        validationScore: data.readUInt32LE(20573),
-        bump: data[20577],
+        patientId: parsed.ephemeralId,
+        encryptedBaseline: parsed.metadataHash,
+        encryptedOutcome: new Uint8Array(), // Data is on IPFS
+        treatmentProtocol: parsed.ipfsCid,
+        durationDays: parsed.durationDays,
+        costUsd: 0, // Not stored on-chain
+        createdAt: parsed.createdAt,
+        isApproved: parsed.validationStatus === 'approved',
+        approvalCount: parsed.approvalCount,
+        validationScore: parsed.reputationScore,
+        bump: 0,
       };
     } catch (error) {
       console.error('Error fetching case study:', error);
@@ -932,7 +936,7 @@ export class BlockchainService {
 
   /**
    * Get all case studies pending validation (for validators)
-   * CaseStudy account size: 254 bytes
+   * Uses proper Anchor account parser
    */
   async getPendingCaseStudies(
     limit: number = 20
@@ -967,64 +971,21 @@ export class BlockchainService {
 
       for (const { pubkey, account } of accounts) {
         try {
-          const data = account.data;
-          if (data.length < 200) continue;
+          // Use the proper Anchor account parser
+          const caseStudy = parseCaseStudyAccount(account.data, pubkey);
+          if (!caseStudy) continue;
 
-          let offset = 8; // Skip discriminator
-          offset += 32; // ephemeral_id
-          
-          const submitter = new PublicKey(data.slice(offset, offset + 32));
-          offset += 32;
-
-          // ipfs_cid (String)
-          const ipfsCidLen = data.readUInt32LE(offset);
-          offset += 4 + ipfsCidLen;
-
-          // treatment_protocol (String) - ACTUAL PROTOCOL NAME
-          const treatmentProtocolLen = data.readUInt32LE(offset);
-          offset += 4;
-          const treatmentProtocol = data.slice(offset, offset + treatmentProtocolLen).toString('utf8');
-          offset += treatmentProtocolLen;
-
-          // metadata_hash
-          offset += 32;
-
-          // treatment_category
-          const treatmentCategory = data.readUInt8(offset);
-          offset += 1;
-
-          // duration_days
-          const durationDays = data.readUInt16LE(offset);
-          offset += 2;
-
-          // created_at (i64)
-          const createdAt = Number(data.readBigInt64LE(offset));
-          offset += 8;
-
-          // validation_status (enum: 0=Pending, 1=Approved, 2=Rejected, 3=UnderReview)
-          const validationStatus = data.readUInt8(offset);
-          offset += 1;
-
-          // approval_count (u32)
-          const approvalCount = data.readUInt32LE(offset);
-          offset += 4;
-
-          // rejection_count
-          offset += 4;
-
-          // reputation_score (u8)
-          const reputationScore = data.readUInt8(offset);
-
-          // Only include pending case studies (status 0 or 3)
-          if (validationStatus === 0 || validationStatus === 3) {
+          // Only include pending case studies (Pending or UnderReview)
+          if (caseStudy.validationStatus === ValidationStatus.Pending || 
+              caseStudy.validationStatus === ValidationStatus.UnderReview) {
             pending.push({
               pubkey,
-              submitter,
-              protocol: treatmentProtocol, // Use actual protocol name from blockchain
-              createdAt: new Date(createdAt * 1000),
-              validationStatus,
-              approvalCount,
-              reputationScore,
+              submitter: caseStudy.submitter,
+              protocol: caseStudy.treatmentCategoryName,
+              createdAt: caseStudy.createdAt,
+              validationStatus: caseStudy.validationStatus,
+              approvalCount: caseStudy.approvalCount,
+              reputationScore: caseStudy.reputationScore,
             });
           }
         } catch (e) {
