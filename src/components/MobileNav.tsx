@@ -11,10 +11,9 @@ const mobileNavItems = [
 const moreMenuItems = [
     { href: "/validators", label: "Validators", icon: "⚖️" },
     { href: "/attention-tokens", label: "Token Market", icon: "💎" },
-    { href: "/products", label: "Protocols", icon: "💊" },
+    { href: "/products", label: "Protocols", icon: "🛠️" },
     { href: "/achievements", label: "Achievements", icon: "🏆" },
     { href: "/referrals", label: "Referrals", icon: "📢" },
-    { href: "/testimonials", label: "Stories", icon: "📖" },
     { href: "/donate", label: "Support", icon: "💰" },
 ];
 

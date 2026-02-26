@@ -1,5 +1,3 @@
-import { RonsOfficeExperience, MemoryWall } from "../components/RonsOffice";
-import { SystemBattleboard, PropagandaPosters, ResistanceQuotes } from "../components/SystemVsUnderground";
 import { 
     UndergroundNetwork, 
     SystemResistanceTimer, 
@@ -30,7 +28,7 @@ import { useState, useEffect } from "preact/hooks";
 import { withErrorBoundary } from "../components/ErrorBoundaryWrapper";
 
 function Underground() {
-    const [activeSection, setActiveSection] = useState<'command' | 'office' | 'market' | 'intel' | 'history' | 'privacy' | 'research'>('command');
+    const [activeSection, setActiveSection] = useState<'command' | 'market' | 'privacy' | 'research'>('command');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
     const [collapsedSections, setCollapsedSections] = useState<{[key: string]: boolean}>({});
@@ -103,10 +101,7 @@ function Underground() {
                 <div class="flex flex-wrap gap-1 max-w-7xl mx-auto">
                     {[
                         { id: 'command', label: 'COMMAND', desc: 'HQ' },
-                        { id: 'office', label: 'OFFICE', desc: 'RON' },
-                        { id: 'market', label: 'MARKET', desc: 'BUY' },
-                        { id: 'intel', label: 'INTEL', desc: 'WAR' },
-                        { id: 'history', label: 'ARCHIVE', desc: 'DOCS' },
+                        { id: 'market', label: 'MARKET', desc: 'TRADE' },
                         { id: 'privacy', label: 'PRIVACY', desc: 'ZK' },
                         { id: 'research', label: 'RESEARCH', desc: 'LAB' }
                     ].map((section) => (
@@ -250,14 +245,7 @@ function Underground() {
                 </div>
             )}
 
-            {/* Ron's Office */}
-            {activeSection === 'office' && (
-                <div class="animate-fadeIn">
-                    <RonsOfficeExperience />
-                </div>
-            )}
-
-            {/* Black Market */}
+            {/* Alliance Terminal */}
             {activeSection === 'market' && (
                 <div class="p-6 space-y-8 max-w-7xl mx-auto animate-fadeIn">
                     {/* Market Header */}
@@ -375,126 +363,6 @@ function Underground() {
                                         Act Now! Access is Finite!
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Intelligence */}
-            {activeSection === 'intel' && (
-                <div class="p-6 space-y-10 max-w-7xl mx-auto animate-fadeIn">
-                    <div class="text-center mb-12">
-                        <h1 class="text-4xl font-black text-blue-700 dark:text-blue-400 mb-3 uppercase tracking-tighter flex items-center justify-center gap-4">
-                            <span class="bg-blue-100 dark:bg-blue-900/50 p-3 rounded-2xl">📡</span>
-                            <span>Intelligence Center</span>
-                        </h1>
-                        <p class="text-slate-600 dark:text-slate-400 font-bold uppercase tracking-widest text-xs">Monitor the ongoing battle between system and freedom</p>
-                    </div>
-
-                    <div class="bg-white dark:bg-slate-900 border-4 border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl">
-                        <SystemBattleboard />
-                    </div>
-                    
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                        <div class="bg-white dark:bg-slate-900 border-4 border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl"><PropagandaPosters /></div>
-                        <div class="bg-white dark:bg-slate-900 border-4 border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl"><ResistanceQuotes /></div>
-                    </div>
-
-                    <div class="bg-gradient-to-r from-slate-800 to-slate-950 p-10 rounded-3xl border border-slate-700 shadow-2xl relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-blue-500/10 transition-all duration-1000"></div>
-                        <h3 class="text-xl font-black mb-8 text-white uppercase tracking-[0.3em] flex items-center gap-3 relative z-10">
-                            <span class="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></span>
-                            Resistance Metrics
-                        </h3>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 relative z-10">
-                            {[
-                                { val: '420', label: 'Active Fighters', color: 'text-green-400' },
-                                { val: '23', label: 'Secure Nodes', color: 'text-blue-400' },
-                                { val: '89%', label: 'Success Rate', color: 'text-purple-400' },
-                                { val: '$2.1M', label: 'Value Saved', color: 'text-yellow-400' }
-                            ].map((stat) => (
-                                <div key={stat.label} class="text-center p-6 bg-black/40 backdrop-blur-sm rounded-2xl border border-white/10 shadow-inner group/stat hover:border-white/20 transition-all">
-                                    <div class={`text-4xl font-black mb-2 tracking-tighter group-hover/stat:scale-110 transition-transform ${stat.color}`}>{stat.val}</div>
-                                    <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">{stat.label}</div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* History/Archives */}
-            {activeSection === 'history' && (
-                <div class="p-6 max-w-7xl mx-auto animate-fadeIn">
-                    <div class="text-center mb-12">
-                        <h1 class="text-4xl font-black text-amber-600 dark:text-amber-400 mb-3 uppercase tracking-tighter flex items-center justify-center gap-4">
-                            <span class="bg-amber-100 dark:bg-amber-900/50 p-3 rounded-2xl text-3xl">📜</span>
-                            <span>Underground Archives</span>
-                        </h1>
-                        <p class="text-slate-600 dark:text-slate-400 font-bold uppercase tracking-widest text-xs">Preserving the memory of our fight for freedom</p>
-                    </div>
-                    
-                    <div class="bg-white dark:bg-slate-900 border-4 border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-xl mb-12">
-                        <MemoryWall />
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-12">
-                        <div class="bg-gradient-to-br from-amber-900 to-slate-900 dark:to-black p-8 rounded-2xl border border-amber-600/30 shadow-xl group">
-                            <h3 class="font-black text-amber-300 mb-6 uppercase tracking-widest text-sm flex items-center gap-2">
-                                <span class="text-xl">📚</span>
-                                Historical Records
-                            </h3>
-                            <div class="space-y-4 text-[10px] font-black uppercase tracking-widest">
-                                {[
-                                    { label: 'Club Charter', year: '1985' },
-                                    { label: 'FDA Warning', year: '1986' },
-                                    { label: 'Medical Logs', year: '85-91' },
-                                    { label: 'Legal Wins', year: '23 Cases' }
-                                ].map((doc) => (
-                                    <div key={doc.label} class="flex justify-between items-center border-b border-white/5 pb-2">
-                                        <span class="text-amber-200/70">{doc.label}</span>
-                                        <span class="text-amber-400">{doc.year}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div class="bg-gradient-to-br from-green-900 to-slate-900 dark:to-black p-8 rounded-2xl border border-green-600/30 shadow-xl group">
-                            <h3 class="font-black text-green-300 mb-6 uppercase tracking-widest text-sm flex items-center gap-2">
-                                <span class="text-xl">🏆</span>
-                                Achievements
-                            </h3>
-                            <div class="space-y-3 text-[9px] font-black uppercase tracking-widest text-green-200/70">
-                                <div class="flex items-center gap-3">
-                                    <span class="text-green-400">✓</span>
-                                    <span>Saved 847+ lives</span>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <span class="text-green-400">✓</span>
-                                    <span>Challenged FDA</span>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <span class="text-green-400">✓</span>
-                                    <span>Opened Access</span>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <span class="text-green-400">✓</span>
-                                    <span>Changed Law</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-gradient-to-br from-red-900 to-slate-900 dark:to-black p-8 rounded-2xl border border-red-600/30 shadow-xl group">
-                            <h3 class="font-black text-red-300 mb-6 uppercase tracking-widest text-sm flex items-center gap-2">
-                                <span class="text-xl">💔</span>
-                                Never Forget
-                            </h3>
-                            <div class="space-y-2 text-[9px] font-bold uppercase tracking-widest text-red-200/60 leading-relaxed italic">
-                                <div>Those lost to the system</div>
-                                <div>Patients denied hope</div>
-                                <div>Families torn apart</div>
-                                <div>The fight continues...</div>
                             </div>
                         </div>
                     </div>

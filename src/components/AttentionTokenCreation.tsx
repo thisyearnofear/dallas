@@ -17,8 +17,8 @@ import { CommunityCategory, CATEGORY_INFO, generateSymbol, validateCommunityName
 
 interface AttentionTokenCreationProps {
   caseStudyPda?: PublicKey;          // Optional - standalone community creation doesn't need case study
-  treatmentName: string;
-  treatmentCategory: string;
+  techniqueName: string;
+  techniqueCategory: string;
   description: string;
   imageUrl?: string;
   reputationScore?: number;          // Optional for standalone
@@ -33,8 +33,8 @@ interface AttentionTokenCreationProps {
 
 export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
   caseStudyPda,
-  treatmentName,
-  treatmentCategory,
+  techniqueName,
+  techniqueCategory,
   description,
   imageUrl,
   reputationScore = 0,
@@ -42,7 +42,7 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
   validators = [],
   onTokenCreated,
   communityMode = false,
-  category = 'supplement',
+  category = 'context_management',
   enableSocial = false,
 }) => {
   const { connection, publicKey, signTransaction } = useWallet();
@@ -98,8 +98,8 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
       // ENHANCED: Support both community and case study token creation
       const params: CreateAttentionTokenParams = {
         caseStudyPda: communityMode ? undefined : caseStudyPda,
-        treatmentName,
-        treatmentCategory,
+        techniqueName,
+        techniqueCategory,
         description,
         imageUrl: imageUrl || 'https://via.placeholder.com/400',
         submitter: publicKey,
@@ -275,7 +275,7 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-gray-400">Treatment:</span>
-            <span className="font-bold">{treatmentName}</span>
+            <span className="font-bold">{techniqueName}</span>
           </div>
         </div>
 
@@ -388,11 +388,11 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-gray-400">Treatment:</span>
-            <span className="font-bold">{treatmentName}</span>
+            <span className="font-bold">{techniqueName}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-400">Category:</span>
-            <span>{treatmentCategory}</span>
+            <span>{techniqueCategory}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-400">Reputation:</span>

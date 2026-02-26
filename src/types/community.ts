@@ -11,13 +11,13 @@ import { AttentionToken } from './attentionToken';
 
 /**
  * Community Category Taxonomy
- * Aligns with wellness remedies and initiatives
+ * Aligns with agent challenges and optimization domains
  */
 export type CommunityCategory = 
-  | 'supplement'    // collagen, vitamin D, NAD+, etc.
-  | 'lifestyle'     // cold exposure, fasting, sauna, etc.
-  | 'device'        // red light, PEMF, wearables, etc.
-  | 'protocol';     // multi-step treatments, complex regimens
+  | 'context_management'  // context window, memory, RAG, chunking
+  | 'tool_calling'        // function calling, API integration, tool use
+  | 'evaluation'          // benchmarks, evals, testing frameworks
+  | 'orchestration';      // multi-agent, workflows, pipelines
 
 /**
  * Community - Extended Attention Token
@@ -32,12 +32,12 @@ export interface Community extends AttentionToken {
   createdAt: number;            // Unix timestamp
   
   // Social (Farcaster - optional)
-  farcasterChannel?: string;    // e.g., '/collagen'
+  farcasterChannel?: string;    // e.g., '/context-masters'
   socialEnabled: boolean;       // Whether community has social layer
   
   // Stats (derived from on-chain data)
   memberCount: number;          // Token holders
-  caseStudyCount: number;       // Submitted experiences
+  caseStudyCount: number;       // Submitted optimization logs
   validatedCount: number;       // Validator-approved submissions
   treasuryBalance: number;      // SOL in community treasury
   
@@ -72,7 +72,7 @@ export interface CreateCommunityRequest {
 
 /**
  * Community Discovery Filters
- * Used for browsing/searching communities
+ * Used for browsing/searching alliances
  */
 export interface CommunityFilters {
   category?: CommunityCategory;
@@ -91,29 +91,29 @@ export const CATEGORY_INFO: Record<CommunityCategory, {
   description: string;
   examples: string[];
 }> = {
-  supplement: {
-    icon: '💊',
-    label: 'Supplements',
-    description: 'Vitamins, minerals, and nutritional compounds',
-    examples: ['Collagen', 'Vitamin D', 'NAD+', 'Magnesium']
+  context_management: {
+    icon: '🧠',
+    label: 'Context Management',
+    description: 'Context window optimization, memory systems, RAG pipelines',
+    examples: ['Context Chunking', 'Long-term Memory', 'RAG Optimization', 'Token Budgeting']
   },
-  lifestyle: {
-    icon: '🌡️',
-    label: 'Lifestyle',
-    description: 'Behavioral interventions and wellness practices',
-    examples: ['Cold Exposure', 'Fasting', 'Sauna', 'Carnivore Diet']
+  tool_calling: {
+    icon: '🔧',
+    label: 'Tool Calling',
+    description: 'Function calling patterns, API integration, tool orchestration',
+    examples: ['Function Routing', 'API Chaining', 'Error Recovery', 'Schema Design']
   },
-  device: {
-    icon: '🔬',
-    label: 'Devices',
-    description: 'Technology-based therapies and tracking',
-    examples: ['Red Light', 'PEMF', 'Biofeedback', 'Wearables']
+  evaluation: {
+    icon: '📊',
+    label: 'Evaluation',
+    description: 'Benchmarks, eval frameworks, testing infrastructure',
+    examples: ['Custom Evals', 'A/B Testing', 'Regression Detection', 'Safety Scoring']
   },
-  protocol: {
-    icon: '📋',
-    label: 'Protocols',
-    description: 'Multi-step treatment regimens',
-    examples: ['Anti-Aging Stack', 'Athletic Recovery', 'Sleep Optimization']
+  orchestration: {
+    icon: '⚙️',
+    label: 'Orchestration',
+    description: 'Multi-agent workflows, pipelines, coordination patterns',
+    examples: ['Agent Handoffs', 'Pipeline Design', 'Parallel Execution', 'State Management']
   }
 };
 

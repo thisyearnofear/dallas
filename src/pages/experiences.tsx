@@ -2,7 +2,6 @@ import { useState } from 'preact/hooks';
 import { EncryptedCaseStudyForm } from '../components/EncryptedCaseStudyForm';
 import { ProtocolDiscovery } from '../components/ProtocolDiscovery';
 import { CaseStudyGallery } from '../components/CaseStudyGallery';
-import { WearableIntegration } from '../components/WearableIntegration';
 import { TokenImage, getTokenImageUrl } from '../components/TokenImageManager';
 import { useWallet } from '../context/WalletContext';
 import { attentionTokenService } from '../services/AttentionTokenService';
@@ -17,7 +16,7 @@ function CommunityCreationForm() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [imageUrl, setImageUrl] = useState('');
-  const [category, setCategory] = useState<CommunityCategory>('supplement');
+  const [category, setCategory] = useState<CommunityCategory>('context_management');
   const [socialEnabled, setSocialEnabled] = useState(false);
   const [status, setStatus] = useState<'idle' | 'creating' | 'success' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -44,8 +43,8 @@ function CommunityCreationForm() {
 
     try {
       const result = await attentionTokenService.createAttentionToken({
-        treatmentName: name,
-        treatmentCategory: CATEGORY_INFO[category].label,
+        techniqueName: name,
+        techniqueCategory: CATEGORY_INFO[category].label,
         description: description,
         imageUrl: imageUrl || getTokenImageUrl(name.toUpperCase().replace(/\s+/g, '').slice(0, 8)),
         submitter: wallet.publicKey,
@@ -111,7 +110,7 @@ function CommunityCreationForm() {
       <div class="text-center mb-8">
         <h2 class="text-3xl font-black mb-4 text-slate-900 dark:text-white">Launch a Community</h2>
         <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
-          Create a tokenized community around a wellness remedy or initiative. Free to launch, funded by trading volume.
+          Create a tokenized alliance around an agent challenge or technique. Free to launch, funded by trading volume.
         </p>
       </div>
 
@@ -149,7 +148,7 @@ function CommunityCreationForm() {
           type="text"
           value={name}
           onInput={(e) => setName((e.target as HTMLInputElement).value)}
-          placeholder="e.g., Collagen Community, Cold Exposure Crew"
+          placeholder="e.g., Context Wizards, Tool Call Optimizers"
           class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none"
           maxLength={50}
         />
@@ -166,7 +165,7 @@ function CommunityCreationForm() {
         <textarea
           value={description}
           onInput={(e) => setDescription((e.target as HTMLTextAreaElement).value)}
-          placeholder="Describe your community's mission, goals, and what members can expect..."
+          placeholder="Describe your alliance's mission, focus area, and what members can expect..."
           class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none resize-none"
           rows={4}
           maxLength={500}
@@ -253,27 +252,27 @@ export function Experiences() {
       <div class="bg-gradient-to-r from-blue-100/50 via-green-100/50 to-purple-100/50 dark:from-blue-900/20 dark:via-green-900/20 dark:to-purple-900/20 border-b border-gray-300 dark:border-gray-700 p-8 mb-12">
         <div class="max-w-4xl mx-auto text-center">
           <h1 class="text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 via-green-600 to-purple-600 dark:from-blue-400 dark:via-green-400 dark:to-purple-400 bg-clip-text text-transparent">
-            Wellness Communities
+            Agent Alliances
           </h1>
           <p class="text-xl text-gray-700 dark:text-gray-300 mb-6">
-            Join communities around remedies and initiatives. Create, discover, share. Anonymous by default.
+            Join alliances around agent challenges. Create, discover, share. Privacy-preserving by default.
           </p>
           <div class="flex flex-wrap justify-center gap-4 text-sm text-gray-800 dark:text-gray-200">
             <div class="flex items-center gap-2">
               <span class="text-2xl">🌐</span>
-              <span>Tokenized communities</span>
+              <span>Tokenized alliances</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="text-2xl">🎭</span>
               <span>Anonymous by default</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-2xl">🧬</span>
-              <span>Biometric ingestion</span>
+              <span class="text-2xl">📊</span>
+              <span>Benchmark validation</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="text-2xl">🔐</span>
-              <span>Encrypted case studies</span>
+              <span>Encrypted optimization logs</span>
             </div>
           </div>
         </div>
@@ -298,7 +297,7 @@ export function Experiences() {
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300'
               }`}
           >
-            📊 Case Studies
+            📊 Optimization Logs
           </button>
           <button
             onClick={() => setActiveTab('create')}
@@ -325,7 +324,7 @@ export function Experiences() {
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300'
               }`}
           >
-            🧬 Sync
+            🔌 Integrations
           </button>
         </div>
       </div>
@@ -338,7 +337,30 @@ export function Experiences() {
         {activeTab === 'share' && <EncryptedCaseStudyForm />}
         {activeTab === 'sync' && (
           <div class="animate-fadeIn">
-            <WearableIntegration />
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-8 border-2 border-slate-200 dark:border-slate-700 text-center">
+              <div class="text-6xl mb-4">🔌</div>
+              <h2 class="text-2xl font-bold mb-3 text-slate-900 dark:text-white">Agent Integrations</h2>
+              <p class="text-slate-600 dark:text-slate-400 mb-4">Connect your agent frameworks and CI/CD pipelines to automatically submit optimization logs.</p>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+                <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div class="text-2xl mb-1">🤖</div>
+                  <div class="text-xs font-bold text-slate-600 dark:text-slate-400">LangChain</div>
+                </div>
+                <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div class="text-2xl mb-1">🧠</div>
+                  <div class="text-xs font-bold text-slate-600 dark:text-slate-400">CrewAI</div>
+                </div>
+                <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div class="text-2xl mb-1">⚡</div>
+                  <div class="text-xs font-bold text-slate-600 dark:text-slate-400">AutoGen</div>
+                </div>
+                <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div class="text-2xl mb-1">🔗</div>
+                  <div class="text-xs font-bold text-slate-600 dark:text-slate-400">Custom API</div>
+                </div>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-500 mt-4">Coming soon — SDK and webhook integrations</p>
+            </div>
           </div>
         )}
       </div>
@@ -350,19 +372,19 @@ export function Experiences() {
             {/* Privacy */}
             <div class="text-center">
               <div class="text-4xl mb-4">🔒</div>
-              <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Your Data, Your Control</h3>
+              <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Your IP, Your Control</h3>
               <p class="text-gray-700 dark:text-gray-400">
-                Health metrics are encrypted with your wallet key. Only you can decrypt them. We
-                never see your unencrypted data.
+                Optimization data is encrypted with your wallet key. Only you can decrypt it. We
+                never see your proprietary architectures.
               </p>
             </div>
 
             {/* Community */}
             <div class="text-center">
               <div class="text-4xl mb-4">👥</div>
-              <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Community Validated</h3>
+              <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Alliance Validated</h3>
               <p class="text-gray-700 dark:text-gray-400">
-                Community validators stake tokens to review case studies. False claims get caught.
+                Alliance validators stake tokens to review optimization logs. False claims get caught.
                 Accuracy is rewarded.
               </p>
             </div>
@@ -372,8 +394,8 @@ export function Experiences() {
               <div class="text-4xl mb-4">⛓️</div>
               <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">Permanently Recorded</h3>
               <p class="text-gray-700 dark:text-gray-400">
-                Your health journey lives on Solana blockchain. Immutable, transparent, globally
-                accessible.
+                Your agent's reputation lives on Solana blockchain. Immutable, transparent, globally
+                verifiable.
               </p>
             </div>
           </div>
@@ -384,16 +406,15 @@ export function Experiences() {
               <span>🕋</span> The Dallas Buyers Club Legacy
             </h3>
             <p class="text-gray-800 dark:text-gray-300 mb-4">
-              In 1985, Ron Woodroof was diagnosed with AIDS and given 30 days to live. He didn't accept
-              that verdict. He built an underground network to access experimental treatments the system
-              blocked. He saved hundreds of lives.
+              In 1985, patients formed underground networks to share what worked — bypassing a system that
+              had left them behind. Real outcomes from real people, privately validated.
             </p>
             <p class="text-gray-800 dark:text-gray-300 mb-4">
-              In 2026, the barriers aren't legal—they're informational. The system still profits from your
-              dependence. We're rebuilding Ron's vision for the age of privacy technology.
+              In 2026, AI builders face the same problem. Every team solves the same challenges independently,
+              trapped behind NDAs and competitive walls. We're rebuilding that underground network — for agents.
             </p>
             <p class="text-gray-900 dark:text-gray-300 font-bold text-lg">
-              Health autonomy starts with information sovereignty. Information sovereignty starts with you.
+              Agent sovereignty starts with intelligence sovereignty. Intelligence sovereignty starts with you.
             </p>
           </div>
 
@@ -401,10 +422,9 @@ export function Experiences() {
           <div class="mt-8 p-6 bg-red-100/80 dark:bg-red-900/20 border border-red-500 dark:border-red-600 rounded-lg">
             <h4 class="font-bold text-red-700 dark:text-red-300 mb-2">⚠️ Important Disclaimer</h4>
             <p class="text-sm text-gray-800 dark:text-gray-300">
-              This platform is for sharing personal experiences with experimental treatments, not medical
-              advice. Case studies are not scientific proof. Always consult healthcare professionals before
-              making medical decisions. Outcomes vary by individual. Some treatments may be unsafe or
-              ineffective.
+              This platform is for sharing agent optimization experiences, not guaranteed solutions.
+              Optimization logs are community-validated but results vary by architecture, model, and use case.
+              Always test techniques in your own environment before production deployment.
             </p>
           </div>
         </div>

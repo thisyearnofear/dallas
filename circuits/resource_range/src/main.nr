@@ -1,5 +1,5 @@
-// Cost Range Circuit
-// Proves that treatment cost is within an acceptable range
+// Resource Range Circuit
+// Proves that compute/resource cost is within an acceptable range
 // without revealing the exact cost
 //
 // Private inputs: cost_usd_cents (cost in cents to avoid floats)
@@ -7,7 +7,7 @@
 // Output: Boolean proving cost is within range
 
 fn main(
-    cost_usd_cents: u32,       // Private: Treatment cost in USD cents
+    cost_usd_cents: u32,       // Private: Compute cost in USD cents
     min_cost_cents: u32,       // Public: Minimum acceptable cost
     max_cost_cents: u32,       // Public: Maximum acceptable cost
 ) -> pub bool {

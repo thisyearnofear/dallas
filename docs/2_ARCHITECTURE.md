@@ -5,7 +5,7 @@
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    USER INTERFACE LAYER                       │
-│  [Wallet Connection] → [Case Study Submission] → [Discovery] │
+│  [Wallet Connection] → [Optimization Log Submission] → [Discovery] │
 └──────────────────────┬──────────────────────────────────────┘
                        │
 ┌──────────────────────▼──────────────────────────────────────┐
@@ -34,7 +34,7 @@
                        │
 ┌──────────────────────▼──────────────────────────────────────┐
 │                    STORAGE LAYER                             │
-│  [IPFS] → Encrypted case study payloads                     │
+│  [IPFS] → Encrypted optimization log payloads                │
 │  [Arweave] → Immutable proof logs                           │
 │  [Light Protocol] → ZK-compressed state trees               │
 └─────────────────────────────────────────────────────────────┘
@@ -112,10 +112,10 @@ pub fn slash_validator(
 ### NoirService - ZK Proofs
 ```typescript
 export class NoirService {
-  async proveSymptomImprovement(inputs): Promise<ProofResult>
-  async proveDurationVerification(inputs): Promise<ProofResult>
+  async proveBenchmarkDelta(inputs): Promise<ProofResult>
+  async proveExecutionDuration(inputs): Promise<ProofResult>
   async proveDataCompleteness(inputs): Promise<ProofResult>
-  async proveCostRange(inputs): Promise<ProofResult>
+  async proveResourceRange(inputs): Promise<ProofResult>
   async generateValidationProofs(data): Promise<ProofResult[]>
 }
 ```
@@ -141,11 +141,11 @@ export class ArciumMPCService {
 
 ## Data Flows
 
-### Case Study Submission
+### Optimization Log Submission
 ```
-1. Patient connects wallet
+1. Builder connects wallet
 2. Derives encryption key from wallet signature
-3. Fills case study form
+3. Fills optimization log form
 4. Selects Light Protocol compression ratio (2x-50x)
 5. Data encrypted client-side
 6. Compressed and submitted to blockchain
@@ -155,20 +155,20 @@ export class ArciumMPCService {
 ### Validation Flow
 ```
 1. Validator stakes 1,000+ DBC
-2. Reviews encrypted case study
+2. Reviews encrypted optimization log
 3. Generates Noir ZK proofs (4 circuits)
 4. Submits validation with proof
 5. Reputation score updated
 6. Earns fees on approval
 ```
 
-### Research Access Flow
+### Architect Access Flow
 ```
-1. Researcher requests access with justification
+1. Architect requests access with justification
 2. System forms committee of 5 validators
 3. Validators review and approve (3-of-5 threshold)
 4. Arcium MPC decrypts data
-5. Researcher views aggregated insights
+5. Architect views aggregated insights
 ```
 
 ---

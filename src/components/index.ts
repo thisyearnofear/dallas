@@ -19,7 +19,6 @@ export { ValidatorDashboard } from './ValidatorDashboard';
 export { ValidatorReputationSystem } from './ValidatorReputationSystem';
 export { ResearcherDashboard } from './ResearcherDashboard';
 export { ResearcherTools } from './ResearcherTools';
-export { WearableIntegration } from './WearableIntegration';
 
 // Mobile Components
 export {
@@ -53,7 +52,6 @@ export { CaseStudyGallery } from './CaseStudyGallery';
 export { LiveActivityFeed } from './LiveActivityFeed';
 export { ProtocolCard } from './ProtocolCard';
 export { ProductCard } from './ProductCard';
-export { TestimonialsGrid } from './TestimonialsGrid';
 
 // Token Components
 export { AttentionTokenMarket } from './AttentionTokenMarket';

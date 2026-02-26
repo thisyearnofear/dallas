@@ -226,18 +226,18 @@ function getErrorUserMessage(code: AttentionTokenErrorCode, details?: any): stri
  * Validate attention token creation parameters
  */
 export function validateAttentionTokenParams(params: {
-  treatmentName: string;
+  techniqueName: string;
   description: string;
   reputationScore: number;
   validatorCount: number;
 }): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
 
-  if (!params.treatmentName || params.treatmentName.trim().length < 3) {
+  if (!params.techniqueName || params.techniqueName.trim().length < 3) {
     errors.push('Treatment name must be at least 3 characters');
   }
 
-  if (params.treatmentName && params.treatmentName.length > 50) {
+  if (params.techniqueName && params.techniqueName.length > 50) {
     errors.push('Treatment name must be less than 50 characters');
   }
 

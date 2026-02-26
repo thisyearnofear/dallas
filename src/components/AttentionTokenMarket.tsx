@@ -87,8 +87,8 @@ export const AttentionTokenMarket: React.FC = () => {
             return {
               publicKey: pubkey,
               submitter: parsed.submitter,
-              treatmentName: 'Treatment', // Would need to be stored in account or fetched from URI
-              treatmentCategory: 'General',
+              techniqueName: 'Treatment', // Would need to be stored in account or fetched from URI
+              techniqueCategory: 'General',
               description: 'Treatment description',
               imageUrl: getTokenImageUrl('TREATMENT'),
               reputationScore: parsed.reputationScore,
@@ -106,8 +106,8 @@ export const AttentionTokenMarket: React.FC = () => {
                 imageUrl: getTokenImageUrl('ATT'),
                 submitter: parsed.submitter,
                 validators: [],
-                treatmentName: 'Treatment',
-                treatmentCategory: 'General',
+                techniqueName: 'Treatment',
+                techniqueCategory: 'General',
                 reputationScore: parsed.reputationScore,
                 createdAt: Date.now(),
                 analytics,
@@ -194,7 +194,7 @@ export const AttentionTokenMarket: React.FC = () => {
   const filteredTokens = tokens
     .filter((token) => {
       if (selectedCategory === 'all') return true;
-      return token.treatmentCategory.toLowerCase() === selectedCategory.toLowerCase();
+      return token.techniqueCategory.toLowerCase() === selectedCategory.toLowerCase();
     })
     .sort((a, b) => {
       if (!a.attentionToken?.analytics || !b.attentionToken?.analytics) return 0;
@@ -356,7 +356,7 @@ export const AttentionTokenMarket: React.FC = () => {
               key={token.publicKey.toString()} 
               caseStudy={token} 
               onEnterWarRoom={() => token.attentionToken && setSelectedToken(token.attentionToken)}
-              onPromote={() => handlePromoteToken(token.attentionTokenMint || '', token.treatmentName)}
+              onPromote={() => handlePromoteToken(token.attentionTokenMint || '', token.techniqueName)}
               canPromote={canPromoteToken(token.attentionTokenMint || '')}
               promotionStatus={getPromotionStatus(token.attentionTokenMint || '')}
               promotionCount={getTokenPromotionCount(token.attentionTokenMint || '')}
@@ -400,7 +400,7 @@ const AttentionTokenCard: React.FC<{
       <div className="relative mb-6 overflow-hidden rounded-2xl shadow-inner bg-slate-50 dark:bg-black/20">
         <img
           src={caseStudy.imageUrl}
-          alt={caseStudy.treatmentName}
+          alt={caseStudy.techniqueName}
           className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
         />
         <div className="absolute top-3 right-3 bg-purple-600 text-white px-3 py-1 rounded-full text-[10px] font-black shadow-lg border border-purple-400/30 uppercase tracking-widest">
@@ -410,8 +410,8 @@ const AttentionTokenCard: React.FC<{
       </div>
 
       {/* Token Info */}
-      <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter group-hover:text-purple-600 transition-colors mb-1">{caseStudy.treatmentName}</h3>
-      <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-6">{caseStudy.treatmentCategory}</p>
+      <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter group-hover:text-purple-600 transition-colors mb-1">{caseStudy.techniqueName}</h3>
+      <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-6">{caseStudy.techniqueCategory}</p>
 
       {/* Reputation Badges */}
       <div className="flex flex-wrap gap-2 mb-8">
@@ -503,7 +503,7 @@ const AttentionTokenCard: React.FC<{
               ? 'bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white shadow-lg shadow-purple-500/20'
               : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
           }`}
-          title={promotionStatus.reason || `Promote ${caseStudy.treatmentName}`}
+          title={promotionStatus.reason || `Promote ${caseStudy.techniqueName}`}
         >
           {isPromoting ? (
             'Promoting...'

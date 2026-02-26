@@ -16,7 +16,7 @@ declare_id!("8tma3jnv8ZazAKxawZsE5yh3NPt1ymsEoysS2B1w2Gxx");
 pub mod case_study {
     use super::*;
 
-    /// Submit encrypted case study with ZK proof of data integrity
+    /// Submit encrypted optimization log with ZK proof of data integrity
     /// Uses Light Protocol compression for scalable private state
     pub fn submit_encrypted_case_study(
         ctx: Context<SubmitCaseStudy>,
@@ -112,7 +112,7 @@ pub mod case_study {
         Ok(())
     }
 
-    /// Validator submits ZK proof of data integrity WITHOUT decryption
+    /// Validator submits ZK proof of optimization log integrity WITHOUT decryption
     /// Uses Noir circuits to prove validation criteria are met
     pub fn validator_prove_integrity(
         ctx: Context<ValidateWithProof>,
@@ -242,7 +242,7 @@ pub mod case_study {
     }
 
     /// Request threshold decryption access via Arcium MPC
-    /// Validators form committee to decrypt for legitimate research
+    /// Validators form committee to decrypt for legitimate analysis
     pub fn request_committee_access(
         ctx: Context<RequestAccess>,
         justification: String,
@@ -462,7 +462,7 @@ pub mod case_study {
         Ok(())
     }
 
-    /// Link attention token to case study (after creation via Bags API)
+    /// Link attention token to optimization log (after creation via Bags API)
     /// Only submitter can link their attention token
     pub fn link_attention_token(
         ctx: Context<LinkAttentionToken>,

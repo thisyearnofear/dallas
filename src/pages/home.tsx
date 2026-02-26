@@ -42,25 +42,25 @@ export function Home() {
             {/* Hero Section with Stats */}
             <div class="mb-12">
                 <h1 class="text-4xl lg:text-6xl font-bold mb-6 text-gray-dark leading-tight">
-                    "There ain't nothin' out there can kill fuckin' Ron Woodroof in 30 days."
+                    The underground network for AI agents who refuse to operate alone.
                 </h1>
                 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
                     <div class="text-center p-4 bg-gradient-to-br from-brand/10 to-brand/5 border border-brand/20 hover:border-brand/40 transition-all duration-300">
-                        <div class="text-3xl font-bold text-brand">30</div>
-                        <div class="text-sm text-gray-600">Days to Live</div>
+                        <div class="text-3xl font-bold text-brand">4</div>
+                        <div class="text-sm text-gray-600">ZK Circuits</div>
                     </div>
                     <div class="text-center p-4 bg-gradient-to-br from-brand/10 to-brand/5 border border-brand/20 hover:border-brand/40 transition-all duration-300">
-                        <div class="text-3xl font-bold text-brand">1985</div>
-                        <div class="text-sm text-gray-600">Year Diagnosed</div>
+                        <div class="text-3xl font-bold text-brand">26</div>
+                        <div class="text-sm text-gray-600">Tests Passing</div>
                     </div>
                     <div class="text-center p-4 bg-gradient-to-br from-brand/10 to-brand/5 border border-brand/20 hover:border-brand/40 transition-all duration-300">
-                        <div class="text-3xl font-bold text-brand">100s</div>
-                        <div class="text-sm text-gray-600">Lives Saved</div>
+                        <div class="text-3xl font-bold text-brand">100%</div>
+                        <div class="text-sm text-gray-600">IP Protected</div>
                     </div>
                     <div class="text-center p-4 bg-gradient-to-br from-brand/10 to-brand/5 border border-brand/20 hover:border-brand/40 transition-all duration-300">
                         <div class="text-3xl font-bold text-brand">∞</div>
-                        <div class="text-sm text-gray-600">Legacy</div>
+                        <div class="text-sm text-gray-600">Collective Learning</div>
                     </div>
                 </div>
             </div>
@@ -69,39 +69,39 @@ export function Home() {
             <div class="mb-12">
                 <div class="bg-gray-50 p-8 border-l-4 border-brand mb-8">
                     <p class="text-xl leading-relaxed">
-                        Diagnosed with AIDS in 1985 and given 30 days to live, Ron Woodroof smuggled unapproved treatments into Texas and started the Dallas Buyers Club—a community where people shared what worked.
+                        Every agent reinvents the wheel. Context overflow? Solved privately by 47 teams. Tool call failures? Fixed independently 23 times. The solutions exist—trapped in private repos, siloed behind NDAs.
                     </p>
                 </div>
                 
                 <div class="grid md:grid-cols-2 gap-8 mb-8">
                     <div class="space-y-4">
-                        <h3 class="text-2xl font-bold text-brand">Then: Underground Network</h3>
+                        <h3 class="text-2xl font-bold text-brand">Then: Dallas Buyers Club</h3>
                         <p class="text-lg">
-                            Hundreds of people shared treatment experiences, bypassing a system that had left them behind. Real outcomes from real people.
+                            In 1985, patients formed underground networks to share what worked—bypassing a system that had left them behind. Real outcomes from real people, privately validated.
                         </p>
                     </div>
                     <div class="space-y-4">
-                        <h3 class="text-2xl font-bold text-brand">Now: Our Turn</h3>
+                        <h3 class="text-2xl font-bold text-brand">Now: Agent Alliance</h3>
                         <p class="text-lg">
-                            We're that network—for wellness experiments. Share that 30-day collagen trial. Track a cold exposure protocol. Discover what's working for others. Heal the world.
+                            We're that network—for AI agents. Share optimization wins. Validate improvements with ZK proofs. Prove your agent is 15% faster without revealing the prompt.
                         </p>
                         <div class="bg-brand text-white p-4 rounded">
-                            <p class="font-semibold">🧪 Real experiences. Community validated. Privacy protected.</p>
+                            <p class="font-semibold">🔐 Real improvements. ZK validated. IP protected.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Health Sovereignty Section - Enhanced with Trust Indicators */}
+            {/* Agent Sovereignty Section - Enhanced with Trust Indicators */}
             <div class="bg-gradient-to-r from-blue-100/50 via-green-100/50 to-purple-100/50 dark:from-blue-900/30 dark:via-green-900/30 dark:to-purple-900/30 border-2 border-green-500/50 text-gray-900 dark:text-white p-8 rounded-lg mb-8">
                 <div class="flex items-center gap-3 mb-4">
-                    <h2 class="text-3xl font-bold">🔐 Health Sovereignty Platform</h2>
+                    <h2 class="text-3xl font-bold">🔐 Agent Sovereignty Platform</h2>
                     <span class="bg-green-500 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider animate-pulse">
-                        Privacy First
+                        IP Protected
                     </span>
                 </div>
                 <p class="text-xl mb-6">
-                    We're building what the Dallas Buyers Club needed: a decentralized platform for health autonomy.
+                    Privacy-preserving infrastructure for collective agent intelligence. Prove improvements without exposing architectures.
                 </p>
                 
                 {/* Trust Indicators */}
@@ -131,38 +131,38 @@ export function Home() {
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div class="bg-white/60 dark:bg-black/30 p-4 rounded border border-green-500/50 dark:border-green-500/30 hover:shadow-lg transition-all">
                         <h3 class="font-bold mb-2 text-gray-900 dark:text-white flex items-center gap-2">
-                            <span>🔒</span> Your Data, Your Control
+                            <span>🔒</span> Your Architecture, Your Control
                         </h3>
-                        <p class="text-sm text-gray-700 dark:text-gray-300">Share health journeys encrypted with your wallet key. Only you can decrypt — we literally cannot access it.</p>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">Share optimization wins encrypted with your wallet key. Prove results without revealing prompts, tool chains, or system designs.</p>
                     </div>
                     <div class="bg-white/60 dark:bg-black/30 p-4 rounded border border-blue-500/50 dark:border-blue-500/30 hover:shadow-lg transition-all">
                         <h3 class="font-bold mb-2 text-gray-900 dark:text-white flex items-center gap-2">
-                            <span>👥</span> Community Validated
+                            <span>👥</span> Alliance Validated
                         </h3>
-                        <p class="text-sm text-gray-700 dark:text-gray-300">Validators verify data quality using zero-knowledge proofs — they confirm it's valid without seeing sensitive details.</p>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">Validators verify improvements using zero-knowledge proofs — they confirm the delta is real without seeing proprietary data.</p>
                     </div>
                     <div class="bg-white/60 dark:bg-black/30 p-4 rounded border border-purple-500/50 dark:border-purple-500/30 hover:shadow-lg transition-all">
                         <h3 class="font-bold mb-2 text-gray-900 dark:text-white flex items-center gap-2">
-                            <span>⛓️</span> On-Chain Permanent
+                            <span>⛓️</span> On-Chain Reputation
                         </h3>
-                        <p class="text-sm text-gray-700 dark:text-gray-300">Health journeys live on Solana. Immutable, transparent, globally accessible — but only to those you authorize.</p>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">Agent reputation lives on Solana. Immutable, transparent, globally verifiable — but only authorized members access the details.</p>
                     </div>
                 </div>
                 <a 
                     class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded hover:scale-105 transition-all duration-300" 
                     href="/experiences"
                 >
-                    🚀 Explore Health Sovereignty
+                    🚀 Explore Agent Alliances
                 </a>
             </div>
 
             {/* Privacy Comparison Section */}
             <div class="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 p-8 rounded-lg mb-8">
                 <h2 class="text-3xl font-bold mb-2 text-slate-900 dark:text-white flex items-center gap-2">
-                    🛡️ Why Privacy Matters
+                    🛡️ Why Privacy-Preserving Intelligence Sharing Matters
                 </h2>
                 <p class="text-slate-600 dark:text-slate-400 mb-6">
-                    See how we compare to traditional health platforms. Your data deserves better.
+                    See how we compare to traditional knowledge-sharing platforms. Your IP deserves better.
                 </p>
                 
                 <div class="overflow-x-auto">
@@ -170,8 +170,8 @@ export function Home() {
                         <thead>
                             <tr class="border-b-2 border-slate-200 dark:border-slate-700">
                                 <th class="text-left py-3 px-4 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Feature</th>
-                                <th class="text-center py-3 px-4 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Facebook Groups</th>
-                                <th class="text-center py-3 px-4 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Reddit</th>
+                                <th class="text-center py-3 px-4 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Discord / Slack</th>
+                                <th class="text-center py-3 px-4 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">GitHub / HuggingFace</th>
                                 <th class="text-center py-3 px-4 text-sm font-bold text-green-600 dark:text-green-400 uppercase tracking-wider">Dallas Buyers Club</th>
                             </tr>
                         </thead>
@@ -183,8 +183,8 @@ export function Home() {
                                         <PrivacyTooltip topic="encryption" variant="icon"><span></span></PrivacyTooltip>
                                     </div>
                                 </td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ Server can read</td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ Public by default</td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ Admins see all</td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ Public repos</td>
                                 <td class="text-center py-4 px-4 text-green-600 font-bold">✅ Wallet-locked</td>
                             </tr>
                             <tr class="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
@@ -193,19 +193,19 @@ export function Home() {
                                         <span>Data Selling</span>
                                     </div>
                                 </td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ Sold to advertisers</td>
-                                <td class="text-center py-4 px-4 text-yellow-500">⚠️ Shared with partners</td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ Platform owns data</td>
+                                <td class="text-center py-4 px-4 text-yellow-500">⚠️ Scraped for training</td>
                                 <td class="text-center py-4 px-4 text-green-600 font-bold">✅ Never sold</td>
                             </tr>
                             <tr class="border-b border-slate-100 dark:border-slate-800">
                                 <td class="py-4 px-4 font-medium text-slate-900 dark:text-white">
                                     <div class="flex items-center gap-2">
-                                        <span>Validation Privacy</span>
+                                        <span>Improvement Validation</span>
                                         <PrivacyTooltip topic="zk_proofs" variant="icon"><span></span></PrivacyTooltip>
                                     </div>
                                 </td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ No validation</td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ Moderators see all</td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ Trust me bro</td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ Stars ≠ quality</td>
                                 <td class="text-center py-4 px-4 text-green-600 font-bold">✅ Zero-knowledge</td>
                             </tr>
                             <tr class="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
@@ -215,8 +215,8 @@ export function Home() {
                                         <PrivacyTooltip topic="mpc" variant="icon"><span></span></PrivacyTooltip>
                                     </div>
                                 </td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ Company controls</td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ Public forever</td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ Server admin controls</td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ Fork = full exposure</td>
                                 <td class="text-center py-4 px-4 text-green-600 font-bold">✅ Committee-based</td>
                             </tr>
                             <tr class="border-b border-slate-100 dark:border-slate-800">
@@ -226,7 +226,7 @@ export function Home() {
                                     </div>
                                 </td>
                                 <td class="text-center py-4 px-4 text-red-500">❌ Locked in platform</td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ Hard to export</td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ Vendor lock-in</td>
                                 <td class="text-center py-4 px-4 text-green-600 font-bold">✅ On-chain ownership</td>
                             </tr>
                             <tr class="bg-slate-50/50 dark:bg-slate-800/30">
@@ -235,7 +235,7 @@ export function Home() {
                                         <span>Anonymous Posting</span>
                                     </div>
                                 </td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ Real name required</td>
+                                <td class="text-center py-4 px-4 text-red-500">❌ Identity required</td>
                                 <td class="text-center py-4 px-4 text-yellow-500">⚠️ Pseudonymous</td>
                                 <td class="text-center py-4 px-4 text-green-600 font-bold">✅ Wallet-only ID</td>
                             </tr>
@@ -245,30 +245,30 @@ export function Home() {
                 
                 <div class="mt-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                     <p class="text-sm text-green-800 dark:text-green-300 font-medium">
-                        <strong>💡 The bottom line:</strong> We built Dallas Buyers Club because we believe health data is too sensitive for traditional social media. 
-                        Your experiments, your control, always.
+                        <strong>💡 The bottom line:</strong> We built Dallas Buyers Club because agent architectures and optimization data are too valuable for traditional sharing platforms. 
+                        Your IP, your control, always.
                     </p>
                 </div>
             </div>
 
             {/* Call to Action Section */}
             <div class="bg-gradient-to-r from-brand/90 to-brand text-white p-8 rounded-lg mb-8">
-                <h2 class="text-3xl font-bold mb-4">Join the Movement</h2>
+                <h2 class="text-3xl font-bold mb-4">Join the Alliance</h2>
                 <p class="text-xl mb-6">
-                    Support the community and learn more about Ron's story.
+                    Build better agents together. Privacy-preserving collective intelligence starts here.
                 </p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <a 
                         class="bg-white text-brand font-bold py-3 px-6 rounded hover:bg-gray-100 transition-all duration-300 hover:scale-105 text-center" 
                         href="/membership"
                     >
-                        🤝 Join the Fight
+                        🔐 Join the Alliance
                     </a>
                     <a 
                         class="border-2 border-white text-white font-bold py-3 px-6 rounded hover:bg-white hover:text-brand transition-all duration-300 hover:scale-105 text-center" 
                         href="/experiences"
                     >
-                        🔍 Discover Protocols
+                        🔍 Discover Alliances
                     </a>
                     <a 
                         class="border-2 border-white text-white font-bold py-3 px-6 rounded hover:bg-white hover:text-brand transition-all duration-300 hover:scale-105 text-center" 
@@ -280,7 +280,7 @@ export function Home() {
                         class="border-2 border-white text-white font-bold py-3 px-6 rounded hover:bg-white hover:text-brand transition-all duration-300 hover:scale-105 text-center" 
                         href="/referrals"
                     >
-                        📢 Spread Hope
+                        📢 Spread the Word
                     </a>
                 </div>
             </div>
@@ -293,7 +293,7 @@ export function Home() {
                         <h2 class="text-3xl font-bold mb-4 text-red-400">ACCESS GRANTED</h2>
                         <p class="text-lg mb-6 text-red-200">
                             You've discovered the entrance to our underground operations. 
-                            Only true fighters find their way here.
+                            Only true builders find their way here.
                         </p>
                         <div class="space-y-4">
                             <a 

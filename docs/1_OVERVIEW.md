@@ -1,26 +1,26 @@
 # Dallas Buyers Club: Overview
 
-**A platform for forming communities around health causes, wellness initiatives, and ailments.**
+**The Agent Alliance — Privacy-preserving infrastructure for collective AI agent intelligence.**
 
-Privacy-preserving infrastructure for decentralized health research. Communities launch their own tokens, validate contributions with zero-knowledge proofs, and fund research through decentralized treasuries.
+Communities ("alliances") form around shared agent challenges, launch their own tokens, validate improvements with zero-knowledge proofs, and fund collective research through decentralized treasuries.
 
 ---
 
 ## The Problem
 
-- **Patients are isolated** - No easy way to find others with same condition
-- **Data is siloed** - Valuable treatment experiences trapped in forums, lost
-- **Research is slow** - 10-15 years from discovery to treatment
-- **Privacy is compromised** - Share data = lose control
+- **Builders are isolated** - Every team solves the same challenges independently
+- **Data is siloed** - Valuable optimization wins trapped in private repos, behind NDAs
+- **Iteration is slow** - No way to share learnings without exposing IP
+- **Privacy is compromised** - Share architectures = lose competitive advantage
 
 ## The Solution
 
-We provide infrastructure that enables anyone to form communities around wellness remedies. Each community:
+We provide infrastructure that enables anyone to form alliances around agent challenges. Each alliance:
 
 - **Launches their own token** (via Bags API bonding curves - free to create)
-- **Organizes by category** (supplement, lifestyle, device, protocol)
-- **Validates contributions privately** (ZK proofs, no data exposure)
-- **Funds research collectively** (community treasuries, not handouts)
+- **Organizes by category** (context management, tool calling, evaluation, orchestration)
+- **Validates contributions privately** (ZK proofs, no architecture exposure)
+- **Funds research collectively** (alliance treasuries, not handouts)
 - **Owns their destiny** (governance, not platform control)
 
 ### Core Innovation: Separation of Concerns
@@ -28,10 +28,10 @@ We provide infrastructure that enables anyone to form communities around wellnes
 | Layer | Function | Example |
 |-------|----------|---------|
 | **Platform (DBC)** | Shared infrastructure, governance | Validation, privacy tech |
-| **Communities** | Specific causes, research | LupusDAO, LongevityCoin |
-| **Validators** | Quality assurance | Medical experts, researchers |
+| **Alliances** | Specific challenges, research | $CONTEXT, $TOOL, $EVAL |
+| **Validators** | Quality assurance | Agent architects, researchers |
 
-**We don't fund communities. We enable them to fund themselves.**
+**We don't fund alliances. We enable them to fund themselves.**
 
 ---
 
@@ -61,22 +61,22 @@ We provide infrastructure that enables anyone to form communities around wellnes
 | **IPFS/Arweave** | Complete | Encrypted off-chain storage |
 
 **Noir Circuits:**
-- `symptom_improvement`: Proves health improved without revealing scores
-- `duration_verification`: Proves treatment duration in valid range
+- `benchmark_delta`: Proves performance improved without revealing scores
+- `execution_duration`: Proves execution duration in valid range
 - `data_completeness`: Proves required fields present
-- `cost_range`: Proves cost within acceptable bounds
+- `resource_range`: Proves resource cost within acceptable bounds
 
 ---
 
 ## User Journeys
 
-### Patient: Find Your Community
-1. **Discover** - Browse communities by condition
-2. **Connect** - Join community (buy token or apply)
-3. **Participate** - Submit encrypted case study (ZK proof)
-4. **Benefit** - Access token-gated resources, earn tokens
+### Agent Builder: Find Your Alliance
+1. **Discover** - Browse alliances by challenge area
+2. **Connect** - Join alliance (buy token or apply)
+3. **Participate** - Submit encrypted optimization log (ZK proof)
+4. **Benefit** - Access token-gated techniques, earn tokens
 
-### Community Creator: Launch Your Cause
+### Alliance Creator: Launch Your Cause
 1. **Design** - Define mission, set validation rules
 2. **Launch** - Use platform UI (no code), pay 0.5 SOL fee
 3. **Grow** - Recruit members, fund research
@@ -84,8 +84,8 @@ We provide infrastructure that enables anyone to form communities around wellnes
 
 ### Validator: Monetize Expertise
 1. **Stake DBC** - Lock 1,000+ DBC as collateral
-2. **Validate** - Review case studies with ZK proofs
-3. **Earn** - SOL fees from submissions, community tokens
+2. **Validate** - Review optimization logs with ZK proofs
+3. **Earn** - SOL fees from submissions, alliance tokens
 4. **Advance** - Build reputation, unlock premium validations
 
 ---
@@ -103,9 +103,9 @@ npm run dev
 ```
 
 ### Key Pages
-- `/experiences` - Wellness communities (discover, launch, share)
+- `/experiences` - Agent alliances (discover, launch, share)
 - `/validators` - Validator dashboard
-- `/research` - Researcher access requests
+- `/agents` - Agent command center
 
 ---
 
@@ -140,14 +140,14 @@ programs/           # Solana smart contracts
 └── treasury/       # Treasury management
 
 circuits/           # Noir ZK circuits
-├── symptom_improvement/
-├── duration_verification/
+├── benchmark_delta/
+├── execution_duration/
 ├── data_completeness/
-└── cost_range/
+└── resource_range/
 ```
 
 ---
 
 ## License
 
-MIT Licensed - Open source privacy tooling for health data sovereignty.
+MIT Licensed - Open source privacy tooling for agent intelligence sovereignty.

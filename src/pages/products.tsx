@@ -4,8 +4,8 @@ import { useState } from "preact/hooks";
 
 const CATEGORIES: { id: WellnessProtocol['category'] | 'all'; label: string; icon: string }[] = [
     { id: 'all', label: 'All Protocols', icon: '🌐' },
-    { id: 'supplement', label: 'Supplements', icon: '💊' },
-    { id: 'lifestyle', label: 'Lifestyle', icon: '🌱' },
+    { id: 'context_management', label: 'Supplements', icon: '💊' },
+    { id: 'tool_calling', label: 'Lifestyle', icon: '🌱' },
     { id: 'mind-body', label: 'Mind-Body', icon: '🧘' },
     { id: 'experimental', label: 'Experimental', icon: '🔬' },
 ];

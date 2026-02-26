@@ -1,6 +1,6 @@
 /**
- * Attention Token Types for Dallas Buyers Club
- * Treatment-specific tokens created via Bags API for market discovery
+ * Attention Token Types for Dallas Buyers Club: Agent Alliance
+ * Technique-specific tokens created via Bags API for market discovery
  */
 
 import { PublicKey } from '@solana/web3.js';
@@ -25,8 +25,8 @@ export interface AttentionToken {
   validators: ValidatorInfo[];
   
   // Metadata
-  treatmentName: string;
-  treatmentCategory: string;
+  techniqueName: string;
+  techniqueCategory: string;
   reputationScore: number;
   createdAt: number;
   
@@ -76,19 +76,19 @@ export interface AttentionTokenAnalytics {
 
 /**
  * Attention Token Creation Parameters
- * ENHANCED: Made case study optional, added community fields
+ * ENHANCED: Made optimization log optional, added community fields
  */
 export interface CreateAttentionTokenParams {
   caseStudyPda?: PublicKey;           // Optional for standalone communities
-  treatmentName: string;
-  treatmentCategory: string;
+  techniqueName: string;
+  techniqueCategory: string;
   description: string;
   imageUrl: string;
   submitter: PublicKey;
   validators?: ValidatorInfo[];       // Optional for communities
   reputationScore?: number;           // Optional for communities
   // ADDED: Community-specific parameters
-  communityCategory?: 'supplement' | 'lifestyle' | 'device' | 'protocol';
+  communityCategory?: 'context_management' | 'tool_calling' | 'evaluation' | 'orchestration';
   isCommunityToken?: boolean;
   socialEnabled?: boolean;
 }
@@ -108,11 +108,11 @@ export interface BagsTokenLaunchRequest {
     submitter: string;
     validators: string[];
     reputationScore: number;
-    treatmentName: string;
-    treatmentCategory: string;
+    techniqueName: string;
+    techniqueCategory: string;
     // ADDED: Community-specific metadata
-    communityCategory?: 'supplement' | 'lifestyle' | 'device' | 'protocol';
-    isCommunityToken?: boolean;         // Flag to identify community vs case study tokens
+    communityCategory?: 'context_management' | 'tool_calling' | 'evaluation' | 'orchestration';
+    isCommunityToken?: boolean;         // Flag to identify community vs optimization log tokens
     socialEnabled?: boolean;            // Whether Farcaster integration is enabled
     farcasterChannel?: string;          // Farcaster channel ID if social enabled
   };
@@ -248,13 +248,13 @@ export interface AttentionTokenFilters {
 }
 
 /**
- * Case Study with Attention Token (extended type)
+ * Optimization Log with Attention Token (extended type)
  */
-export interface CaseStudyWithAttentionToken {
+export interface OptimizationLogWithToken {
   publicKey: PublicKey;
   submitter: PublicKey;
-  treatmentName: string;
-  treatmentCategory: string;
+  techniqueName: string;
+  techniqueCategory: string;
   description: string;
   imageUrl: string;
   reputationScore: number;

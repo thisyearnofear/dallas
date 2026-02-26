@@ -3,7 +3,7 @@
  * 
  * Single source of truth for all Noir ZK-SNARK proof operations.
  * Provides a clean, modular interface for generating validation proofs
- * without revealing sensitive health data.
+ * without revealing sensitive agent execution data or proprietary architectures.
  * 
  * Core Principles:
  * - ENHANCEMENT FIRST: Enhances existing validation flow
@@ -14,39 +14,44 @@
 
 // Circuit types supported by the service
 export type CircuitType =
-  | 'symptom_improvement'
-  | 'duration_verification'
+  | 'benchmark_delta'
+  | 'execution_duration'
   | 'data_completeness'
-  | 'cost_range';
+  | 'resource_range';
 
 // Circuit input interfaces (private inputs - not revealed on-chain)
-export interface SymptomImprovementInputs {
-  baseline_severity: number;      // 1-10 scale
-  outcome_severity: number;       // 1-10 scale
+export interface BenchmarkDeltaInputs {
+  baseline_score: number;         // 1-10 scale
+  outcome_score: number;          // 1-10 scale
 }
 
-export interface DurationVerificationInputs {
-  duration_days: number;          // Treatment duration
+export interface ExecutionDurationInputs {
+  duration_days: number;          // Evaluation duration
 }
 
 export interface DataCompletenessInputs {
   has_baseline: boolean;
   has_outcome: boolean;
   has_duration: boolean;
-  has_protocol: boolean;
+  has_strategy: boolean;
   has_cost: boolean;
 }
 
-export interface CostRangeInputs {
-  cost_usd_cents: number;         // Cost in cents (e.g., 50000 = $500)
+export interface ResourceRangeInputs {
+  cost_usd_cents: number;         // Compute cost in cents (e.g., 50000 = $500)
 }
 
+// Backwards compatibility aliases
+export type SymptomImprovementInputs = BenchmarkDeltaInputs;
+export type DurationVerificationInputs = ExecutionDurationInputs;
+export type CostRangeInputs = ResourceRangeInputs;
+
 // Circuit public inputs (visible on-chain)
-export interface SymptomImprovementPublicInputs {
+export interface BenchmarkDeltaPublicInputs {
   min_improvement_percent: number;  // e.g., 20 for 20%
 }
 
-export interface DurationVerificationPublicInputs {
+export interface ExecutionDurationPublicInputs {
   min_days: number;
   max_days: number;
 }
@@ -55,23 +60,28 @@ export interface DataCompletenessPublicInputs {
   minimum_required: number;         // 1-5 fields required
 }
 
-export interface CostRangePublicInputs {
+export interface ResourceRangePublicInputs {
   min_cost_cents: number;
   max_cost_cents: number;
 }
 
+// Backwards compatibility aliases
+export type SymptomImprovementPublicInputs = BenchmarkDeltaPublicInputs;
+export type DurationVerificationPublicInputs = ExecutionDurationPublicInputs;
+export type CostRangePublicInputs = ResourceRangePublicInputs;
+
 // Union types for generic handling
 export type CircuitPrivateInputs =
-  | SymptomImprovementInputs
-  | DurationVerificationInputs
+  | BenchmarkDeltaInputs
+  | ExecutionDurationInputs
   | DataCompletenessInputs
-  | CostRangeInputs;
+  | ResourceRangeInputs;
 
 export type CircuitPublicInputs =
-  | SymptomImprovementPublicInputs
-  | DurationVerificationPublicInputs
+  | BenchmarkDeltaPublicInputs
+  | ExecutionDurationPublicInputs
   | DataCompletenessPublicInputs
-  | CostRangePublicInputs;
+  | ResourceRangePublicInputs;
 
 // Proof result interface
 export interface ProofResult {
@@ -92,38 +102,38 @@ export interface CircuitMetadata {
 
 // Circuit configurations
 export const CIRCUIT_METADATA: Record<CircuitType, CircuitMetadata> = {
-  symptom_improvement: {
-    type: 'symptom_improvement',
-    name: 'Symptom Improvement',
-    description: 'Proves symptom severity improved by at least a threshold percentage',
-    requiredFields: ['baseline_severity', 'outcome_severity'],
+  benchmark_delta: {
+    type: 'benchmark_delta',
+    name: 'Benchmark Delta',
+    description: 'Proves benchmark score improved by at least a threshold percentage without revealing actual scores',
+    requiredFields: ['baseline_score', 'outcome_score'],
   },
-  duration_verification: {
-    type: 'duration_verification',
-    name: 'Duration Verification',
-    description: 'Proves treatment duration is within acceptable bounds',
+  execution_duration: {
+    type: 'execution_duration',
+    name: 'Execution Duration',
+    description: 'Proves evaluation duration is within acceptable bounds',
     requiredFields: ['duration_days'],
   },
   data_completeness: {
     type: 'data_completeness',
     name: 'Data Completeness',
-    description: 'Proves required data fields are present',
-    requiredFields: ['has_baseline', 'has_outcome', 'has_duration', 'has_protocol', 'has_cost'],
+    description: 'Proves required optimization log fields are present',
+    requiredFields: ['has_baseline', 'has_outcome', 'has_duration', 'has_strategy', 'has_cost'],
   },
-  cost_range: {
-    type: 'cost_range',
-    name: 'Cost Range',
-    description: 'Proves treatment cost is within a reasonable range',
+  resource_range: {
+    type: 'resource_range',
+    name: 'Resource Range',
+    description: 'Proves compute cost is within an acceptable range without revealing exact spend',
     requiredFields: ['cost_usd_cents'],
   },
 };
 
 // Default public input values
 export const DEFAULT_PUBLIC_INPUTS: Record<CircuitType, CircuitPublicInputs> = {
-  symptom_improvement: { min_improvement_percent: 20 },
-  duration_verification: { min_days: 7, max_days: 90 },
+  benchmark_delta: { min_improvement_percent: 20 },
+  execution_duration: { min_days: 7, max_days: 90 },
   data_completeness: { minimum_required: 4 },
-  cost_range: { min_cost_cents: 1000, max_cost_cents: 1000000 }, // $10 - $10,000
+  resource_range: { min_cost_cents: 1000, max_cost_cents: 1000000 }, // $10 - $10,000
 };
 
 /**
@@ -172,7 +182,7 @@ export class NoirService {
    * Load circuit artifacts from compiled circuits
    */
   private async loadCircuitArtifacts(): Promise<void> {
-    const circuitTypes: CircuitType[] = ['symptom_improvement', 'duration_verification', 'data_completeness', 'cost_range'];
+    const circuitTypes: CircuitType[] = ['benchmark_delta', 'execution_duration', 'data_completeness', 'resource_range'];
 
     for (const circuitType of circuitTypes) {
       try {
@@ -199,13 +209,13 @@ export class NoirService {
    */
   private getCircuitParameters(circuitType: CircuitType): any[] {
     switch (circuitType) {
-      case 'symptom_improvement':
+      case 'benchmark_delta':
         return [
           { name: 'baseline_severity', type: { kind: 'integer', sign: 'unsigned', width: 32 } },
           { name: 'outcome_severity', type: { kind: 'integer', sign: 'unsigned', width: 32 } },
           { name: 'min_improvement_percent', type: { kind: 'integer', sign: 'unsigned', width: 32 } },
         ];
-      case 'duration_verification':
+      case 'execution_duration':
         return [
           { name: 'duration_days', type: { kind: 'integer', sign: 'unsigned', width: 32 } },
           { name: 'min_days', type: { kind: 'integer', sign: 'unsigned', width: 32 } },
@@ -220,7 +230,7 @@ export class NoirService {
           { name: 'has_cost', type: { kind: 'boolean' } },
           { name: 'minimum_required', type: { kind: 'integer', sign: 'unsigned', width: 32 } },
         ];
-      case 'cost_range':
+      case 'resource_range':
         return [
           { name: 'cost_usd_cents', type: { kind: 'integer', sign: 'unsigned', width: 32 } },
           { name: 'min_cost_cents', type: { kind: 'integer', sign: 'unsigned', width: 32 } },
@@ -247,7 +257,7 @@ export class NoirService {
     inputs: SymptomImprovementInputs,
     publicInputs: SymptomImprovementPublicInputs = DEFAULT_PUBLIC_INPUTS.symptom_improvement as SymptomImprovementPublicInputs
   ): Promise<ProofResult> {
-    this.validateInputs('symptom_improvement', inputs);
+    this.validateInputs('benchmark_delta', inputs);
 
     // Validate severity ranges
     if (inputs.baseline_severity < 1 || inputs.baseline_severity > 10) {
@@ -259,7 +269,7 @@ export class NoirService {
 
     // Generate actual ZK proof using Noir
     try {
-      const circuitArtifact = this.circuitCache.get('symptom_improvement');
+      const circuitArtifact = this.circuitCache.get('benchmark_delta');
       if (!circuitArtifact || !this.noirInstance || !this.backend) {
         throw new Error('Noir not properly initialized or circuit not loaded');
       }
@@ -290,17 +300,17 @@ export class NoirService {
       return {
         proof: new Uint8Array(proof),
         publicInputs,
-        circuitType: 'symptom_improvement',
+        circuitType: 'benchmark_delta',
         verified,
       };
     } catch (error) {
       console.error('Failed to generate ZK proof:', error);
       // Fallback to simulated proof if actual generation fails
-      const simulatedProof = this.createSimulatedProof('symptom_improvement');
+      const simulatedProof = this.createSimulatedProof('benchmark_delta');
       return {
         proof: simulatedProof,
         publicInputs,
-        circuitType: 'symptom_improvement',
+        circuitType: 'benchmark_delta',
         verified: this.verifySymptomImprovementLogic(inputs, publicInputs),
         error: `ZK proof generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
       };
@@ -316,14 +326,14 @@ export class NoirService {
     inputs: DurationVerificationInputs,
     publicInputs: DurationVerificationPublicInputs = DEFAULT_PUBLIC_INPUTS.duration_verification as DurationVerificationPublicInputs
   ): Promise<ProofResult> {
-    this.validateInputs('duration_verification', inputs);
+    this.validateInputs('execution_duration', inputs);
 
     if (inputs.duration_days <= 0) {
       throw new Error('Duration must be positive');
     }
 
     try {
-      const circuitArtifact = this.circuitCache.get('duration_verification');
+      const circuitArtifact = this.circuitCache.get('execution_duration');
       if (!circuitArtifact || !this.noirInstance || !this.backend) {
         throw new Error('Noir not properly initialized or circuit not loaded');
       }
@@ -348,16 +358,16 @@ export class NoirService {
       return {
         proof: new Uint8Array(proof),
         publicInputs,
-        circuitType: 'duration_verification',
+        circuitType: 'execution_duration',
         verified,
       };
     } catch (error) {
       console.error('Failed to generate duration proof:', error);
-      const simulatedProof = this.createSimulatedProof('duration_verification');
+      const simulatedProof = this.createSimulatedProof('execution_duration');
       return {
         proof: simulatedProof,
         publicInputs,
-        circuitType: 'duration_verification',
+        circuitType: 'execution_duration',
         verified: this.verifyDurationLogic(inputs, publicInputs),
         error: `Proof generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
       };
@@ -433,14 +443,14 @@ export class NoirService {
     inputs: CostRangeInputs,
     publicInputs: CostRangePublicInputs = DEFAULT_PUBLIC_INPUTS.cost_range as CostRangePublicInputs
   ): Promise<ProofResult> {
-    this.validateInputs('cost_range', inputs);
+    this.validateInputs('resource_range', inputs);
 
     if (inputs.cost_usd_cents <= 0) {
       throw new Error('Cost must be positive');
     }
 
     try {
-      const circuitArtifact = this.circuitCache.get('cost_range');
+      const circuitArtifact = this.circuitCache.get('resource_range');
       if (!circuitArtifact || !this.noirInstance || !this.backend) {
         throw new Error('Noir not properly initialized or circuit not loaded');
       }
@@ -465,16 +475,16 @@ export class NoirService {
       return {
         proof: new Uint8Array(proof),
         publicInputs,
-        circuitType: 'cost_range',
+        circuitType: 'resource_range',
         verified,
       };
     } catch (error) {
       console.error('Failed to generate cost proof:', error);
-      const simulatedProof = this.createSimulatedProof('cost_range');
+      const simulatedProof = this.createSimulatedProof('resource_range');
       return {
         proof: simulatedProof,
         publicInputs,
-        circuitType: 'cost_range',
+        circuitType: 'resource_range',
         verified: this.verifyCostLogic(inputs, publicInputs),
         error: `Proof generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
       };

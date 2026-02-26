@@ -1,4 +1,4 @@
-//! Dallas Buyers Club - Common Library
+//! Dallas Buyers Club: Agent Alliance - Common Library
 //! 
 //! Single source of truth for constants, types, and utilities
 //! across all programs. Eliminates hardcoded values.
@@ -7,7 +7,7 @@ use anchor_lang::prelude::*;
 
 // ============= TOKEN CONSTANTS =============
 
-/// DBC Token Mint (DALLAS BUYERS CLUB)
+/// DBC Token Mint (DALLAS BUYERS CLUB: Agent Alliance)
 /// Fixed supply, community-owned, Token-2022
 // NOTE: Using devnet token for testing. Change to mainnet token for production:
 // pub const DBC_MINT: &str = "J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump";  // Mainnet pump.fun
@@ -51,7 +51,7 @@ pub struct StakingConfig {
 // ============= REWARD CONFIG =============
 
 pub const REWARD_CONFIG: RewardConfig = RewardConfig {
-    // Case study submission (base + quality bonus)
+    // Optimization log submission (base + quality bonus)
     base_submission_dbc: 50,          // Increased from 10
     base_submission_base: 50_000_000,
     max_submission_dbc: 100,          // 2x for perfect quality

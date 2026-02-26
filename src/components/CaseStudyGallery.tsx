@@ -90,8 +90,8 @@ export const CaseStudyGallery: FunctionalComponent = () => {
           // Build display object
           parsed.push({
             pubkey: pubkey.toString(),
-            protocol: caseStudy.treatmentCategoryName,
-            category: caseStudy.treatmentCategoryName,
+            protocol: caseStudy.techniqueCategoryName,
+            category: caseStudy.techniqueCategoryName,
             submittedAt: caseStudy.createdAt,
             validationStatus: status,
             approvalCount: caseStudy.approvalCount,
@@ -355,7 +355,7 @@ export const CaseStudyGallery: FunctionalComponent = () => {
                       {detailsData.treatmentProtocol}
                     </p>
                     <p class="text-sm text-gray-600 dark:text-slate-400 mt-1">
-                      Category: {detailsData.treatmentCategory}
+                      Category: {detailsData.techniqueCategory}
                     </p>
                   </div>
 

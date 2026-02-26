@@ -61,8 +61,8 @@ export interface ParsedCaseStudy {
   
   // Metadata
   metadataHash: Uint8Array;
-  treatmentCategory: TreatmentCategory;
-  treatmentCategoryName: string;
+  techniqueCategory: TreatmentCategory;
+  techniqueCategoryName: string;
   durationDays: number;
   createdAt: Date;
   
@@ -162,7 +162,7 @@ export function parseCaseStudyAccount(
     offset += 32;
 
     // treatment_category: u8
-    const treatmentCategory = accountData.readUInt8(offset) as TreatmentCategory;
+    const techniqueCategory = accountData.readUInt8(offset) as TreatmentCategory;
     offset += 1;
 
     // duration_days: u16 (2 bytes, little-endian)
@@ -234,8 +234,8 @@ export function parseCaseStudyAccount(
       submitter,
       ipfsCid,
       metadataHash,
-      treatmentCategory,
-      treatmentCategoryName: TREATMENT_CATEGORY_NAMES[treatmentCategory] || 'Unknown',
+      techniqueCategory,
+      techniqueCategoryName: TREATMENT_CATEGORY_NAMES[techniqueCategory] || 'Unknown',
       durationDays,
       createdAt: new Date(createdAtTimestamp * 1000),
       validationStatus,

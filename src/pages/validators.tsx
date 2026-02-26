@@ -19,8 +19,8 @@ function Validators() {
                         Validator Network
                     </h1>
                     <p class="text-xl text-slate-600 dark:text-slate-300 mb-6">
-                        Earn EXPERIENCE tokens by validating case studies with zero-knowledge proofs.
-                        Stake your reputation on data integrity without seeing private health information.
+                        Earn DBC tokens by validating optimization logs with zero-knowledge proofs.
+                        Stake your reputation on data integrity without seeing proprietary agent data.
                     </p>
                     <div class="flex flex-wrap justify-center gap-4 text-sm text-slate-600 dark:text-slate-300">
                         <div class="flex items-center gap-2">
@@ -87,8 +87,8 @@ function Validators() {
                             <div class="text-4xl mb-4">🔐</div>
                             <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white">Verify Without Revealing</h3>
                             <p class="text-slate-600 dark:text-slate-400">
-                                Check data quality and completeness without seeing sensitive health information.
-                                Zero-knowledge proofs protect patient privacy while ensuring data integrity.
+                                Check data quality and completeness without seeing proprietary agent architectures.
+                                Zero-knowledge proofs protect IP while ensuring data integrity.
                             </p>
                         </div>
 
@@ -117,9 +117,9 @@ function Validators() {
                     <div class="mt-12 p-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-600 rounded-lg">
                         <h4 class="font-bold text-yellow-700 dark:text-yellow-300 mb-2">⚠️ Validator Responsibilities</h4>
                         <p class="text-sm text-yellow-600 dark:text-slate-300">
-                            Validators stake 100 DBC minimum and are responsible for accurate assessment of case study quality, 
+                            Validators stake 100 DBC minimum and are responsible for accurate assessment of optimization log quality, 
                             accuracy, and safety. False or malicious validations will result in DBC stake slashing (50% burned, 
-                            50% to treasury). Only validate case studies you can properly assess. When in doubt, abstain from validation.
+                            50% to treasury). Only validate logs you can properly assess. When in doubt, abstain from validation.
                         </p>
                     </div>
                 </div>
@@ -173,7 +173,7 @@ function ValidationTypes({ compact = false }: { compact?: boolean }) {
                     <span class="text-purple-600 dark:text-purple-400">🎯</span>
                     <div>
                         <span class="font-bold text-purple-600 dark:text-purple-400">Accuracy</span>
-                        {!compact && <span class="text-slate-500 dark:text-slate-400 block text-xs">Medical plausibility</span>}
+                        {!compact && <span class="text-slate-500 dark:text-slate-400 block text-xs">Benchmark plausibility</span>}
                     </div>
                 </div>
                 <div class="flex items-center gap-2">

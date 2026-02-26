@@ -50,10 +50,10 @@ describe('Privacy Service Integration', () => {
             const circuits = noirService.getAvailableCircuits();
             expect(circuits).toHaveLength(4);
             expect(circuits.map(c => c.type)).toEqual([
-                'symptom_improvement',
-                'duration_verification',
+                'benchmark_delta',
+                'execution_duration',
                 'data_completeness',
-                'cost_range'
+                'resource_range'
             ]);
         });
 
@@ -63,7 +63,7 @@ describe('Privacy Service Integration', () => {
                 outcome_severity: mockCaseStudyData.outcomeSeverity,
             });
 
-            expect(proof.circuitType).toBe('symptom_improvement');
+            expect(proof.circuitType).toBe('benchmark_delta');
             expect(proof.proof).toBeInstanceOf(Uint8Array);
             expect(proof.verified).toBe(true);
             expect((proof.publicInputs as any).min_improvement_percent).toBe(20);
@@ -74,7 +74,7 @@ describe('Privacy Service Integration', () => {
                 duration_days: mockCaseStudyData.durationDays,
             });
 
-            expect(proof.circuitType).toBe('duration_verification');
+            expect(proof.circuitType).toBe('execution_duration');
             expect(proof.proof).toBeInstanceOf(Uint8Array);
             expect(proof.verified).toBe(true);
         });
@@ -98,7 +98,7 @@ describe('Privacy Service Integration', () => {
                 cost_usd_cents: mockCaseStudyData.costUsd * 100,
             });
 
-            expect(proof.circuitType).toBe('cost_range');
+            expect(proof.circuitType).toBe('resource_range');
             expect(proof.proof).toBeInstanceOf(Uint8Array);
             expect(proof.verified).toBe(true);
         });
@@ -109,10 +109,10 @@ describe('Privacy Service Integration', () => {
             expect(proofs).toHaveLength(4);
             expect(proofs.every(p => p.verified)).toBe(true);
             expect(proofs.map(p => p.circuitType)).toEqual([
-                'symptom_improvement',
-                'duration_verification',
+                'benchmark_delta',
+                'execution_duration',
                 'data_completeness',
-                'cost_range'
+                'resource_range'
             ]);
         });
 

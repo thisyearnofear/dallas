@@ -58,7 +58,7 @@ class AgentService {
                 complexity: 'medium',
                 requiredSkills: ['clinical_literacy', 'web_search'],
                 description: 'Verify patient outcomes for Peptide-T protocol against clinical literature (1987-1992).',
-                metadata: { circuit: 'symptom_improvement' }
+                metadata: { circuit: 'benchmark_delta' }
             },
             {
                 id: 'task_002',

@@ -18,16 +18,19 @@ export interface TransactionResult {
   accountPubkey?: PublicKey;
 }
 
-export interface CaseStudyData {
+export interface OptimizationLogData {
   encryptedBaseline: Uint8Array;
   encryptedOutcome: Uint8Array;
-  treatmentProtocol: string;
-  durationDays: number;
-  costUSD: number;
+  strategyDescription: string;
+  evaluationDays: number;
+  computeCostUSD: number;
   usePrivacyCash?: boolean;
   useShadowWire?: boolean;
   compressionRatio?: number;
 }
+
+/** @deprecated Use OptimizationLogData instead */
+export type CaseStudyData = OptimizationLogData;
 
 export interface ValidationData {
   caseStudyPubkey: PublicKey;
@@ -59,7 +62,7 @@ export interface MPCAccessRequest {
   id: string;
   caseStudyId: string;
   requester: PublicKey;
-  requesterType: 'researcher' | 'validator' | 'patient';
+  requesterType: 'architect' | 'validator' | 'operator';
   justification: string;
   status: 'pending' | 'active' | 'approved' | 'rejected' | 'expired';
   committee: CommitteeMember[];
@@ -132,7 +135,7 @@ export interface ValidatorReputation {
 
 // ============= Community Types =============
 
-export type CommunityCategory = 'supplement' | 'lifestyle' | 'device' | 'protocol';
+export type CommunityCategory = 'context_management' | 'tool_calling' | 'evaluation' | 'orchestration';
 
 export interface Community {
   id: string;
@@ -162,30 +165,33 @@ export interface CreateCommunityRequest {
   researchGoals?: string[];
 }
 
-// ============= Research Types =============
+// ============= Analysis Types =============
 
-export interface ProtocolStats {
-  protocol: string;
-  totalStudies: number;
+export interface TechniqueStats {
+  technique: string;
+  totalLogs: number;
   avgImprovement: number;
   avgDuration: number;
   avgCost: number;
   effectivenessScore: number;
   confidenceInterval: [number, number];
-  sideEffectRate: number;
+  regressionRate: number;
 }
 
+/** @deprecated Use TechniqueStats instead */
+export type ProtocolStats = TechniqueStats;
+
 export interface AggregateMetrics {
-  totalStudies: number;
-  totalPatients: number;
-  avgAge: number;
-  genderDistribution: { male: number; female: number; other: number };
-  conditionDistribution: Record<string, number>;
-  treatmentDuration: { min: number; max: number; avg: number };
+  totalLogs: number;
+  totalOperators: number;
+  avgComplexity: number;
+  providerDistribution: Record<string, number>;
+  challengeDistribution: Record<string, number>;
+  evaluationDuration: { min: number; max: number; avg: number };
   costRange: { min: number; max: number; avg: number };
 }
 
-export interface ResearchExport {
+export interface AnalysisExport {
   id: string;
   name: string;
   createdAt: number;
@@ -193,6 +199,9 @@ export interface ResearchExport {
   size: number;
   downloadUrl: string;
 }
+
+/** @deprecated Use AnalysisExport instead */
+export type ResearchExport = AnalysisExport;
 
 // ============= UI Types =============
 
@@ -268,22 +277,22 @@ export interface FilterConfig<T> {
   operator: 'eq' | 'ne' | 'gt' | 'lt' | 'contains';
 }
 
-// ============= Health & Wearable Types =============
+// ============= Agent Telemetry Types =============
 
-export type HealthMetricType = 'glucose' | 'sleep' | 'steps' | 'heart_rate' | 'blood_pressure';
+export type AgentMetricType = 'latency' | 'token_usage' | 'success_rate' | 'error_rate' | 'throughput';
 
-export interface HealthMetric {
-  type: HealthMetricType;
+export interface AgentMetric {
+  type: AgentMetricType;
   value: number;
   unit: string;
   timestamp: number;
   metadata?: Record<string, unknown>;
-  deviceId?: string;
-  source: 'garmin' | 'dexcom' | 'apple_health' | 'manual';
+  agentId?: string;
+  source: 'openai' | 'anthropic' | 'custom' | 'local';
 }
 
-export interface HealthInsight {
-  metricType: HealthMetricType;
+export interface AgentInsight {
+  metricType: AgentMetricType;
   period: 'daily' | 'weekly' | 'monthly';
   averageValue: number;
   minValue: number;
@@ -291,6 +300,13 @@ export interface HealthInsight {
   consistencyScore: number; // 0-100
   timestamp: number;
 }
+
+/** @deprecated Use AgentMetricType instead */
+export type HealthMetricType = AgentMetricType;
+/** @deprecated Use AgentMetric instead */
+export type HealthMetric = AgentMetric;
+/** @deprecated Use AgentInsight instead */
+export type HealthInsight = AgentInsight;
 
 export interface CompressedAccount {
   address: PublicKey;

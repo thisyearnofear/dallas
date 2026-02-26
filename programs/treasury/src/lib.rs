@@ -1,4 +1,4 @@
-//! Dallas Buyers Club Treasury Program
+//! Dallas Buyers Club: Agent Alliance Treasury Program
 //! 
 //! Community-owned treasury for managing DBC token flows.
 //! Uses dbc_common for constants and configuration.
@@ -57,7 +57,7 @@ pub mod dbc_treasury {
         Ok(())
     }
 
-    /// Distribute rewards for case study submission
+    /// Distribute rewards for optimization log submission
     /// Can be called by case study program (PDA) or governance
     pub fn reward_case_study(
         ctx: Context<RewardCaseStudy>,
@@ -117,7 +117,7 @@ pub mod dbc_treasury {
     }
 
     /// Distribute validator rewards
-    /// Called by case study program after successful validation
+    /// Called by optimization log program after successful validation
     pub fn reward_validator(
         ctx: Context<RewardValidator>,
         validation_count: u32,

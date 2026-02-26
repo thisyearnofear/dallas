@@ -116,7 +116,7 @@ export class BlockchainService {
     }
 
     // Treatment category (0=experimental, 1=approved, 2=alternative)
-    const treatmentCategory = 0;
+    const techniqueCategory = 0;
 
     // Duration days (must be 1-365)
     const durationDays = Math.min(365, Math.max(1, data.durationDays));
@@ -170,7 +170,7 @@ export class BlockchainService {
     offset += 32;
 
     // Write treatment_category (1 byte)
-    (instructionData as any).writeUInt8(treatmentCategory, offset);
+    (instructionData as any).writeUInt8(techniqueCategory, offset);
     offset += 1;
 
     // Write duration_days (2 bytes, u16)
@@ -985,7 +985,7 @@ export class BlockchainService {
             pending.push({
               pubkey,
               submitter: caseStudy.submitter,
-              protocol: caseStudy.treatmentCategoryName,
+              protocol: caseStudy.techniqueCategoryName,
               createdAt: caseStudy.createdAt,
               validationStatus: caseStudy.validationStatus,
               approvalCount: caseStudy.approvalCount,
@@ -1032,7 +1032,7 @@ export class BlockchainService {
           const parsed = parseCaseStudyAccount(account.data, pubkey);
           if (parsed) {
             totalDuration += parsed.durationDays;
-            const category = parsed.treatmentCategoryName;
+            const category = parsed.techniqueCategoryName;
             categories[category] = (categories[category] || 0) + 1;
           }
         } catch (e) {

@@ -122,13 +122,13 @@ export class AttentionTokenService {
   ): Promise<{ tokenMint: PublicKey; bondingCurve: PublicKey; signature: string }> {
     this.checkRateLimit();
 
-    const symbol = this.generateSymbol(params.treatmentName);
+    const symbol = this.generateSymbol(params.techniqueName);
     
     // Determine token name based on mode
     const isCommunity = params.isCommunityToken || !params.caseStudyPda;
     const tokenName = isCommunity 
-      ? params.treatmentName  // Communities use name directly (e.g., "Collagen Community")
-      : `${params.treatmentName} Attention`; // Case studies append "Attention"
+      ? params.techniqueName  // Communities use name directly (e.g., "Collagen Community")
+      : `${params.techniqueName} Attention`; // Case studies append "Attention"
 
     const request: BagsTokenLaunchRequest = {
       name: tokenName,
@@ -141,8 +141,8 @@ export class AttentionTokenService {
         submitter: params.submitter.toString(),
         validators: params.validators?.map((v) => v.publicKey.toString()) || [],
         reputationScore: params.reputationScore || 0,
-        treatmentName: params.treatmentName,
-        treatmentCategory: params.treatmentCategory,
+        techniqueName: params.techniqueName,
+        techniqueCategory: params.techniqueCategory,
         // ADDED: Community-specific metadata
         communityCategory: params.communityCategory,
         isCommunityToken: isCommunity,
@@ -183,7 +183,7 @@ export class AttentionTokenService {
     params: CreateAttentionTokenParams
   ): Promise<{ tokenMint: PublicKey; bondingCurve: PublicKey; signature: string }> {
     // Generate deterministic mock addresses based on params
-    const seed = `${params.treatmentName}-${params.submitter.toString()}-${Date.now()}`;
+    const seed = `${params.techniqueName}-${params.submitter.toString()}-${Date.now()}`;
     const tokenMint = this.generateMockPublicKey(seed + '-mint');
     const bondingCurve = this.generateMockPublicKey(seed + '-curve');
     
@@ -192,14 +192,14 @@ export class AttentionTokenService {
       mint: tokenMint,
       bondingCurve: bondingCurve,
       caseStudyPda: params.caseStudyPda || new PublicKey('11111111111111111111111111111111'),
-      name: params.isCommunityToken ? params.treatmentName : `${params.treatmentName} Attention`,
-      symbol: this.generateSymbol(params.treatmentName),
+      name: params.isCommunityToken ? params.techniqueName : `${params.techniqueName} Attention`,
+      symbol: this.generateSymbol(params.techniqueName),
       description: params.description,
       imageUrl: params.imageUrl,
       submitter: params.submitter,
       validators: params.validators || [],
-      treatmentName: params.treatmentName,
-      treatmentCategory: params.treatmentCategory,
+      techniqueName: params.techniqueName,
+      techniqueCategory: params.techniqueCategory,
       reputationScore: params.reputationScore || 0,
       createdAt: Date.now(),
       analytics: {
@@ -416,8 +416,8 @@ export class AttentionTokenService {
       return {
         publicKey: caseStudyPda,
         submitter: new PublicKey(data.slice(8, 40)),
-        treatmentName: 'Sample Treatment',
-        treatmentCategory: 'supplement',
+        techniqueName: 'Sample Treatment',
+        techniqueCategory: 'context_management',
         description: 'Sample description',
         imageUrl: 'https://example.com/image.png',
         reputationScore: 85,

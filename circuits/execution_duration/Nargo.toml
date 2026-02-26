@@ -1,0 +1,8 @@
+[package]
+name = "execution_duration"
+type = "bin"
+authors = ["Dallas Buyers Club"]
+compiler_version = ">=0.36.0"
+description = "Proves evaluation/execution duration is within a valid range without revealing exact timing"
+
+[dependencies]

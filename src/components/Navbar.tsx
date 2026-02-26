@@ -4,14 +4,14 @@ import { useWallet } from "../context/WalletContext";
 import { useMembership } from "../hooks/useMembership";
 
 const navigationItems = [
-    { href: "/", label: "Home", icon: "🏠", description: "Welcome to the club" },
-    { href: "/experiences", label: "Communities", icon: "🌐", description: "Discover & create", highlight: true },
-    { href: "/attention-tokens", label: "Token Market", icon: "💎", description: "Trade community tokens", highlight: true },
+    { href: "/", label: "Home", icon: "🏠", description: "Welcome to the Alliance" },
+    { href: "/experiences", label: "Alliances", icon: "🌐", description: "Discover & create", highlight: true },
+    { href: "/attention-tokens", label: "Token Market", icon: "💎", description: "Trade alliance tokens", highlight: true },
     { href: "/validators", label: "Validators", icon: "⚖️", description: "Earn by validating", highlight: true },
-    { href: "/membership", label: "Join Us", icon: "🤝", description: "Become a fighter" },
-    { href: "/agents", label: "Fleet Intel", icon: "🤖", description: "Manage AI agents", highlight: true },
+    { href: "/membership", label: "Join Alliance", icon: "🤝", description: "Become a member" },
+    { href: "/agents", label: "Command Center", icon: "🤖", description: "Agent intelligence", highlight: true },
     { href: "/underground", label: "Underground", icon: "🕋", description: "Secret operations", secret: true },
-    { href: "/links", label: "Resources", icon: "🔗", description: "Tools & info" }
+    { href: "/links", label: "Resources", icon: "🔗", description: "Tools & docs" }
 ];
 
 export function Navbar() {
@@ -141,7 +141,7 @@ export function Navbar() {
                         href="/membership"
                         class="block bg-gradient-to-r from-brand to-brand-accent text-white text-center font-bold py-3 px-4 rounded-lg hover:scale-105 transition-transform duration-300"
                     >
-                        💪 Join the Fight
+                        🔐 Join the Alliance
                     </a>
                 </div>
             )}

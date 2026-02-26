@@ -1,18 +1,18 @@
 // Data Completeness Circuit
-// Proves that all required fields are present in a case study
+// Proves that all required fields are present in an optimization log
 // without revealing the actual content of those fields
 //
 // Uses hash commitments to prove field existence
 //
-// Private inputs: field_hashes (hashes of field content)
-// Public inputs: required_field_count, minimum_completeness_percent
+// Private inputs: field presence booleans
+// Public inputs: minimum_required (1-5)
 // Output: Boolean proving completeness threshold met
 
 fn main(
     has_baseline: bool,              // Private: Has baseline metrics
     has_outcome: bool,               // Private: Has outcome metrics
     has_duration: bool,              // Private: Has duration data
-    has_protocol: bool,              // Private: Has protocol description
+    has_protocol: bool,              // Private: Has strategy description
     has_cost: bool,                  // Private: Has cost information
     minimum_required: u8,            // Public: Minimum fields required (1-5)
 ) -> pub bool {

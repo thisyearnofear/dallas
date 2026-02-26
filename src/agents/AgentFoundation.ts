@@ -1,4 +1,5 @@
 // Agent Foundation - Enhancement-First Architecture
+// Dallas Buyers Club: Agent Alliance
 // Following Core Principles: DRY, MODULAR, CLEAN separation
 
 import { transactionHistoryService, TransactionRecord } from '../services/transactionHistory';
@@ -54,7 +55,7 @@ export abstract class EnhancedBusinessAgent {
   }
 }
 
-// ENHANCEMENT: Supply Chain Intelligence (builds on existing products.ts)
+// ENHANCEMENT: Intelligence Coordination (builds on existing services)
 export class SupplyChainAgent extends EnhancedBusinessAgent {
   async makeDecision(params: { product: string; quantity: number }): Promise<AgentDecision> {
     // ENHANCE existing product availability logic
@@ -122,7 +123,7 @@ export class SupplyChainAgent extends EnhancedBusinessAgent {
   }
 }
 
-// ENHANCEMENT: Risk Assessment (builds on existing DangerLevelIndicator)
+// ENHANCEMENT: Risk Assessment (builds on existing network monitoring)
 export class RiskAssessmentAgent extends EnhancedBusinessAgent {
   async makeDecision(params: { transactionAmount: number; location: string }): Promise<AgentDecision> {
     // ENHANCE existing danger level with intelligent analysis

@@ -221,7 +221,7 @@ describe('Error Handling', () => {
   describe('validateAttentionTokenParams', () => {
     it('should validate correct parameters', () => {
       const result = validateAttentionTokenParams({
-        treatmentName: 'Peptide XYZ',
+        techniqueName: 'Peptide XYZ',
         description: 'This is a valid description that is long enough',
         reputationScore: 80,
         validatorCount: 6,
@@ -233,7 +233,7 @@ describe('Error Handling', () => {
 
     it('should reject short treatment name', () => {
       const result = validateAttentionTokenParams({
-        treatmentName: 'AB',
+        techniqueName: 'AB',
         description: 'This is a valid description that is long enough',
         reputationScore: 80,
         validatorCount: 6,
@@ -245,7 +245,7 @@ describe('Error Handling', () => {
 
     it('should reject long treatment name', () => {
       const result = validateAttentionTokenParams({
-        treatmentName: 'A'.repeat(51),
+        techniqueName: 'A'.repeat(51),
         description: 'This is a valid description that is long enough',
         reputationScore: 80,
         validatorCount: 6,
@@ -257,7 +257,7 @@ describe('Error Handling', () => {
 
     it('should reject short description', () => {
       const result = validateAttentionTokenParams({
-        treatmentName: 'Peptide XYZ',
+        techniqueName: 'Peptide XYZ',
         description: 'Too short',
         reputationScore: 80,
         validatorCount: 6,
@@ -269,7 +269,7 @@ describe('Error Handling', () => {
 
     it('should reject low reputation', () => {
       const result = validateAttentionTokenParams({
-        treatmentName: 'Peptide XYZ',
+        techniqueName: 'Peptide XYZ',
         description: 'This is a valid description that is long enough',
         reputationScore: 50,
         validatorCount: 6,
@@ -281,7 +281,7 @@ describe('Error Handling', () => {
 
     it('should reject insufficient validators', () => {
       const result = validateAttentionTokenParams({
-        treatmentName: 'Peptide XYZ',
+        techniqueName: 'Peptide XYZ',
         description: 'This is a valid description that is long enough',
         reputationScore: 80,
         validatorCount: 3,

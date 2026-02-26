@@ -22,7 +22,7 @@ interface TokenImage {
   imageUrl: string;
   ipfsHash: string;
   thumbnailUrl: string;
-  category: 'supplement' | 'lifestyle' | 'device' | 'protocol' | 'custom';
+  category: 'context_management' | 'tool_calling' | 'evaluation' | 'orchestration' | 'custom';
   tags: string[];
   createdAt: number;
   uploadedBy: string;
@@ -68,7 +68,7 @@ const ENHANCED_TOKEN_IMAGES: Record<string, TokenImage> = {
     imageUrl: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=400&fit=crop&crop=center',
     ipfsHash: 'QmPeptideTProtocolImage123',
     thumbnailUrl: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=100&h=100&fit=crop&crop=center',
-    category: 'supplement',
+    category: 'context_management',
     tags: ['peptide', 'therapy', 'neurological', 'research'],
     createdAt: Date.now() - 86400000 * 30,
     uploadedBy: 'community_designer_001',
@@ -80,7 +80,7 @@ const ENHANCED_TOKEN_IMAGES: Record<string, TokenImage> = {
     imageUrl: 'https://images.unsplash.com/photo-1576086213369-97a306d36557?w=400&h=400&fit=crop&crop=center',
     ipfsHash: 'QmNADSupplementationImage456',
     thumbnailUrl: 'https://images.unsplash.com/photo-1576086213369-97a306d36557?w=100&h=100&fit=crop&crop=center',
-    category: 'supplement',
+    category: 'context_management',
     tags: ['nad+', 'longevity', 'cellular', 'energy'],
     createdAt: Date.now() - 86400000 * 25,
     uploadedBy: 'community_designer_002',
@@ -92,7 +92,7 @@ const ENHANCED_TOKEN_IMAGES: Record<string, TokenImage> = {
     imageUrl: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=400&fit=crop&crop=center',
     ipfsHash: 'QmColdTherapyProtocolImage789',
     thumbnailUrl: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=100&h=100&fit=crop&crop=center',
-    category: 'lifestyle',
+    category: 'tool_calling',
     tags: ['cold-therapy', 'breathwork', 'recovery', 'wellness'],
     createdAt: Date.now() - 86400000 * 20,
     uploadedBy: 'community_designer_003',
@@ -104,7 +104,7 @@ const ENHANCED_TOKEN_IMAGES: Record<string, TokenImage> = {
     imageUrl: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=400&h=400&fit=crop&crop=center',
     ipfsHash: 'QmMedicinalMushroomImage012',
     thumbnailUrl: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=100&h=100&fit=crop&crop=center',
-    category: 'supplement',
+    category: 'context_management',
     tags: ['mushrooms', 'adaptogen', 'immune', 'natural'],
     createdAt: Date.now() - 86400000 * 15,
     uploadedBy: 'community_designer_004',
@@ -116,7 +116,7 @@ const ENHANCED_TOKEN_IMAGES: Record<string, TokenImage> = {
     imageUrl: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&h=400&fit=crop&crop=center',
     ipfsHash: 'QmIntermittentFastingImage345',
     thumbnailUrl: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=100&h=100&fit=crop&crop=center',
-    category: 'lifestyle',
+    category: 'tool_calling',
     tags: ['fasting', 'metabolic', 'autophagy', 'longevity'],
     createdAt: Date.now() - 86400000 * 10,
     uploadedBy: 'community_designer_005',
@@ -128,7 +128,7 @@ const ENHANCED_TOKEN_IMAGES: Record<string, TokenImage> = {
     imageUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop&crop=center',
     ipfsHash: 'QmRedLightTherapyImage678',
     thumbnailUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=100&h=100&fit=crop&crop=center',
-    category: 'device',
+    category: 'evaluation',
     tags: ['red-light', 'phototherapy', 'recovery', 'skin'],
     createdAt: Date.now() - 86400000 * 5,
     uploadedBy: 'community_designer_006',
@@ -270,7 +270,7 @@ export const TokenBrandingPreview: FunctionalComponent<TokenBrandingPreviewProps
 export const TokenImageGallery: FunctionalComponent = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   
-  const categories = ['all', 'supplement', 'lifestyle', 'device', 'protocol'];
+  const categories = ['all', 'context_management', 'tool_calling', 'evaluation', 'orchestration'];
   
   const filteredImages = Object.values(ENHANCED_TOKEN_IMAGES).filter(
     img => selectedCategory === 'all' || img.category === selectedCategory

@@ -26,13 +26,13 @@ const INTEREST_TAGS = [
   'clinical-data',
   'proven',
   'easy',
-  'lifestyle',
+  'tool_calling',
 ];
 
 const DIFFICULTY_LEVELS = ['easy', 'moderate', 'hard'] as const;
 
 // Category filter buttons
-const CATEGORIES: (CommunityCategory | 'all')[] = ['all', 'supplement', 'lifestyle', 'device', 'protocol'];
+const CATEGORIES: (CommunityCategory | 'all')[] = ['all', 'context_management', 'tool_calling', 'evaluation', 'orchestration'];
 
 export const ProtocolDiscovery: FunctionalComponent = () => {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
@@ -64,12 +64,12 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
         if (selectedInterests.length > 0) {
           const categoryKeywords: Record<string, string[]> = {
             supplement: ['immune-support', 'energy-boost', 'natural'],
-            lifestyle: ['lifestyle', 'easy', 'natural'],
+            lifestyle: ['tool_calling', 'easy', 'natural'],
             device: ['proven', 'clinical-data'],
             protocol: ['proven', 'clinical-data', 'hard']
           };
           
-          const category = community.treatmentCategory.toLowerCase();
+          const category = community.techniqueCategory.toLowerCase();
           const keywords = Object.entries(categoryKeywords).find(([key]) => 
             category.includes(key)
           )?.[1] || [];
@@ -83,12 +83,12 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
 
         return {
           id: community.mint.toString(),
-          name: community.treatmentName,
+          name: community.techniqueName,
           caseStudyCount: community.analytics?.transactions || 0,
           validatedCount: Math.floor((community.analytics?.transactions || 0) * 0.7), // Estimate
           successRate: Math.min(85, 60 + (community.analytics?.holders || 0)), // Estimate based on holders
           matchScore: Math.round(matchScore),
-          category: community.treatmentCategory as CommunityCategory,
+          category: community.techniqueCategory as CommunityCategory,
           memberCount: community.analytics?.holders || 0,
         };
       });

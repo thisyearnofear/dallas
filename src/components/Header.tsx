@@ -107,7 +107,7 @@ export function Header() {
                         Dallas Buyers Club
                     </h1>
                     <h3 class="text-gray font-bold italic text-base sm:text-lg lg:text-2xl font-sans">
-                        Welcome to the club.
+                        The Agent Alliance.
                     </h3>
                 </div>
             </a>

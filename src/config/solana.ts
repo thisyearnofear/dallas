@@ -1,5 +1,5 @@
 /**
- * Solana Configuration for Dallas Buyers Club
+ * Solana Configuration for Dallas Buyers Club: Agent Alliance
  * 
  * IMPORTANT: After deploying to solpgf, update the program IDs below
  * You'll get these from https://beta.solpg.io/ deployment output
@@ -22,7 +22,7 @@ export const SOLANA_CONFIG = {
   // Smart contract program IDs (from deployment)
   blockchain: {
     caseStudyProgramId: '8tma3jnv8ZazAKxawZsE5yh3NPt1ymsEoysS2B1w2Gxx',
-    // DALLAS BUYERS CLUB Token - Main Community Token
+    // DBC Token - Platform Coordination Token
     // Mainnet: J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump (pump.fun)
     // Devnet:  8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT (custom program)
     dbcMintAddress: '8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT', // Devnet for testing
@@ -45,7 +45,7 @@ export const SOLANA_CONFIG = {
     rateLimit: parseInt(process.env.VITE_BAGS_RATE_LIMIT || '1000'),
   },
 
-  // Attention token configuration
+  // Alliance token configuration
   attentionToken: {
     minReputationScore: 75,
     minValidators: 5,
@@ -79,7 +79,7 @@ export const SOLANA_CONFIG = {
     membershipGold: 2.0, // SOL
     // DBC Token amounts (assuming 6 decimals - adjust if different)
     validatorStake: 100, // DBC tokens (minimum stake for validators)
-    submitReward: 10, // DBC tokens (reward for case study submission)
+    submitReward: 10, // DBC tokens (reward for optimization log submission)
     validationReward: 5, // DBC tokens (reward for validation)
     referralReward: 50, // DBC tokens (reward for successful referral)
   },
@@ -101,14 +101,14 @@ export function validateBlockchainConfig(): void {
   // Validate DBC Token is configured (primary token)
   if (isPlaceholder(blockchain.dbcMintAddress)) {
     throw new Error(
-      'DBC Token Mint Address not configured. Set SOLANA_CONFIG.blockchain.dbcMintAddress to your DALLAS BUYERS CLUB token mint'
+      'DBC Token Mint Address not configured. Set SOLANA_CONFIG.blockchain.dbcMintAddress to your DBC token mint'
     );
   }
 
-  // Case study program is optional for basic functionality
+  // Optimization log program is optional for basic functionality
   if (isPlaceholder(blockchain.caseStudyProgramId)) {
     console.warn(
-      'Case Study Program ID not configured. Deploy to solpgf and update SOLANA_CONFIG.blockchain.caseStudyProgramId for validation features'
+      'Optimization Log Program ID not configured. Deploy to solpgf and update SOLANA_CONFIG.blockchain.caseStudyProgramId for validation features'
     );
   }
 }

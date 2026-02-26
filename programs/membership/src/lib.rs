@@ -1,4 +1,4 @@
-//! Dallas Buyers Club - Membership Program
+//! Dallas Buyers Club: Agent Alliance - Membership Program
 //! 
 //! Mint membership NFTs that grant access to token-gated features.
 //! Each tier (Bronze/Silver/Gold) has different benefits.

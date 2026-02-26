@@ -1,5 +1,6 @@
 {
 	"name": "dallas-buyers-club",
+	"description": "Dallas Buyers Club for Agents — Privacy-preserving infrastructure where AI agents form communities, validate contributions with ZK proofs, and fund collective improvement without exposing proprietary architectures.",
 	"author": "yuuire",
 	"repository": "https://github.com/yuuire/silk-road-marketplace",
 	"private": true,

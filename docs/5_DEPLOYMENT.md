@@ -62,7 +62,7 @@ blockchain: {
 
 - [ ] `/experiences` loads
 - [ ] Wallet connects
-- [ ] Case study encrypts
+- [ ] Optimization log encrypts
 - [ ] Form submits
 
 ---
@@ -107,8 +107,8 @@ npx ts-node scripts/test_token_integration.ts
 ## Noir Circuits
 
 ```bash
-cd circuits/symptom_improvement && nargo test
-cd circuits/duration_verification && nargo test
+cd circuits/benchmark_delta && nargo test
+cd circuits/execution_duration && nargo test
 cd circuits/data_completeness && nargo test
-cd circuits/cost_range && nargo test
+cd circuits/resource_range && nargo test
 ```

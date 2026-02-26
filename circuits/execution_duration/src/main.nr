@@ -1,13 +1,13 @@
-// Duration Verification Circuit
-// Proves that treatment duration is within acceptable bounds
+// Execution Duration Circuit
+// Proves that evaluation/execution duration is within acceptable bounds
 // without revealing exact start/end dates
 //
-// Private inputs: start_timestamp, end_timestamp
+// Private inputs: duration_days (actual evaluation period)
 // Public inputs: min_days, max_days
 // Output: Boolean proving duration is within range
 
 fn main(
-    duration_days: u16,       // Private: Actual treatment duration in days
+    duration_days: u16,       // Private: Actual evaluation duration in days
     min_days: u16,            // Public: Minimum acceptable duration
     max_days: u16,            // Public: Maximum acceptable duration
 ) -> pub bool {

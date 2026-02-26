@@ -1,0 +1,8 @@
+[package]
+name = "benchmark_delta"
+type = "bin"
+authors = ["Dallas Buyers Club"]
+compiler_version = ">=0.36.0"
+description = "Proves benchmark score improved by at least a threshold percentage without revealing actual scores"
+
+[dependencies]

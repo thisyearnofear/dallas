@@ -51,10 +51,10 @@ DBC doesn't pay inflationary rewards. Value comes from:
 - Immediately tradeable
 
 ### Categories
-- **Supplement** - Vitamins, herbs, compounds
-- **Lifestyle** - Diet, exercise, sleep protocols
-- **Device** - Wearables, medical devices
-- **Protocol** - Treatment regimens, therapies
+- **Context Management** - RAG, memory, retrieval optimization
+- **Tool Calling** - Function routing, API orchestration
+- **Evaluation** - Benchmarking, testing, quality metrics
+- **Orchestration** - Multi-agent, workflow, pipeline design
 
 ### Economics
 
@@ -65,11 +65,11 @@ DBC doesn't pay inflationary rewards. Value comes from:
 0.5% → DEX Liquidity Providers
 ```
 
-**Case Study Validation:**
+**Optimization Log Validation:**
 ```
-Patient pays 0.1 SOL fee
+Builder pays 0.1 SOL fee
 ├── 50% → Validators (immediate)
-├── 30% → Community treasury
+├── 30% → Alliance treasury
 └── 20% → Platform
 ```
 
@@ -85,15 +85,15 @@ Patient pays 0.1 SOL fee
 
 ## Token Flows
 
-### Case Study Submission Flow
+### Optimization Log Submission Flow
 ```
-Patient submits case study
+Builder submits optimization log
     ↓
 Pays 0.1 SOL fee
     ↓
-Case study validated (ZK proofs)
+Log validated (ZK proofs)
     ↓
-Patient receives community tokens
+Builder receives alliance tokens
     ↓
 If reputation >= 75: Eligible for Attention Token
 ```
@@ -102,18 +102,18 @@ If reputation >= 75: Eligible for Attention Token
 ```
 Validator stakes 1,000+ DBC
     ↓
-Reviews case studies
+Reviews optimization logs
     ↓
 Submits validation (ZK proof)
     ↓
-Earns SOL fees + community tokens
+Earns SOL fees + alliance tokens
     ↓
 Builds reputation (accuracy tracked)
 ```
 
 ### Attention Token Creation
 ```
-Case study reaches 75+ reputation
+Optimization log reaches 75+ reputation
     ↓
 Submitter opts to create Attention Token
     ↓

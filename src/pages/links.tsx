@@ -11,12 +11,12 @@ export function Links() {
                 
                 <div class="space-y-3 text-sm">
                     {[
-                        { icon: '🤝', label: 'New Member joined the club', loc: 'Austin, TX', time: '5 min ago' },
-                        { icon: '⭐', label: 'Patient #6969 shared success story', time: '8 min ago' },
-                        { icon: '💊', label: 'Patient #1337 ordered Peptide T', loc: 'Houston, TX', time: '12 min ago' },
-                        { icon: '🎉', label: 'Community reached 420 members!', time: '15 min ago' },
-                        { icon: '💊', label: 'Patient #8080 ordered DDC', loc: 'Fort Worth, TX', time: '18 min ago' },
-                        { icon: '🤝', label: 'Patient #1985 joined the fight', loc: 'San Antonio, TX', time: '22 min ago' }
+                        { icon: '🤝', label: 'New builder joined the alliance', time: '5 min ago' },
+                        { icon: '⭐', label: 'Agent #6969 shared optimization log', time: '8 min ago' },
+                        { icon: '🔐', label: 'Agent #1337 submitted ZK proof', time: '12 min ago' },
+                        { icon: '🎉', label: '$CONTEXT alliance reached 420 members!', time: '15 min ago' },
+                        { icon: '📊', label: 'Agent #8080 validated benchmark delta', time: '18 min ago' },
+                        { icon: '🤝', label: 'Builder #1985 joined the alliance', time: '22 min ago' }
                     ].map((item, i) => (
                         <div key={i} class="flex items-center justify-between p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm hover:border-brand/30 transition-colors">
                             <div class="flex items-center gap-4">
@@ -36,11 +36,11 @@ export function Links() {
                 <div class="mt-8 grid grid-cols-3 gap-4">
                     <div class="text-center p-4 bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 rounded-xl">
                         <div class="text-3xl font-black text-green-700 dark:text-green-400">23</div>
-                        <div class="text-[10px] font-black uppercase tracking-widest text-green-600 dark:text-green-500 mt-1">Orders Today</div>
+                        <div class="text-[10px] font-black uppercase tracking-widest text-green-600 dark:text-green-500 mt-1">Logs Today</div>
                     </div>
                     <div class="text-center p-4 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl">
                         <div class="text-3xl font-black text-blue-700 dark:text-blue-400">12</div>
-                        <div class="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-500 mt-1">New Members</div>
+                        <div class="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-500 mt-1">New Builders</div>
                     </div>
                     <div class="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 rounded-xl">
                         <div class="text-3xl font-black text-yellow-700 dark:text-yellow-400">420</div>
@@ -57,7 +57,7 @@ export function Links() {
                         <div class="bg-white dark:bg-slate-900 border-2 border-blue-200 dark:border-blue-800 p-6 rounded-xl shadow-inner">
                             <h3 class="font-black text-blue-600 dark:text-blue-500 mb-2 uppercase tracking-widest text-sm">Connect With Others</h3>
                             <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-6 leading-relaxed">
-                                Join our community forums and connect with others on similar wellness journeys. Share experiences and find support.
+                                Join our alliance forums and connect with other builders tackling similar agent challenges. Share techniques and find collaborators.
                             </p>
                             <a 
                                 href="/experiences"
@@ -75,7 +75,7 @@ export function Links() {
                         <h2 class="text-2xl font-black mb-4 text-orange-700 dark:text-orange-400 uppercase tracking-tighter">💯 SPREAD THE WORD</h2>
                         <div class="bg-white dark:bg-slate-900 border-2 border-orange-200 dark:border-orange-800 p-6 rounded-xl shadow-inner">
                             <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-6 leading-relaxed">
-                                Help others find hope. Share our mission with those who need it most. Every referral earns you DBC rewards.
+                                Help others build better agents. Share our mission with builders who need it most. Every referral earns you DBC rewards.
                             </p>
                             <div class="grid grid-cols-2 gap-4">
                                 <a 
@@ -85,10 +85,10 @@ export function Links() {
                                     📱 Share & Earn
                                 </a>
                                 <a 
-                                    href="/testimonials"
+                                    href="/experiences"
                                     class="bg-green-600 hover:bg-green-700 text-white font-black py-3 px-4 rounded-lg transition-all transform hover:scale-105 shadow-md uppercase tracking-tighter text-[10px] text-center"
                                 >
-                                    📖 Read Stories
+                                    🌐 Explore Alliances
                                 </a>
                             </div>
                             <div class="mt-4 text-[10px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-widest text-center">
@@ -116,13 +116,13 @@ export function Links() {
                 <section>
                     <h1 class="text-3xl font-black mb-6 text-slate-900 dark:text-white uppercase tracking-tighter flex items-center gap-3">
                         <span class="bg-brand text-white p-2 rounded-lg text-xl">📚</span>
-                        <span>TREATMENT RESOURCES</span>
+                        <span>AGENT RESOURCES</span>
                     </h1>
                     <div class="grid gap-4">
                         {[
-                            { label: '🇲🇽 Mexican Pharmacy Network', desc: 'Direct access to Dr. Vass laboratory' },
-                            { label: '💊 Alternative Treatment Database', desc: 'Comprehensive guide to unapproved therapies' },
-                            { label: '🧪 Underground Testing Reports', desc: 'Latest purity and effectiveness data' }
+                            { label: '🤖 Agent Framework Benchmarks', desc: 'Comparative analysis across LangChain, CrewAI, AutoGen' },
+                            { label: '🔐 ZK Proof Templates', desc: 'Pre-built circuits for common optimization validations' },
+                            { label: '📊 Optimization Log Standards', desc: 'Best practices for logging and sharing agent improvements' }
                         ].map((link, i) => (
                             <div key={i} class="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 p-5 rounded-xl hover:border-brand/50 transition-all group shadow-sm">
                                 <a class="text-brand hover:underline font-black text-xl uppercase tracking-tighter block mb-1" href="#">
@@ -137,13 +137,13 @@ export function Links() {
                 <section id="press">
                     <h1 class="text-3xl font-black mb-6 text-slate-900 dark:text-white uppercase tracking-tighter flex items-center gap-3">
                         <span class="bg-brand text-white p-2 rounded-lg text-xl">📰</span>
-                        <span>PRESS COVERAGE</span>
+                        <span>ALLIANCE UPDATES</span>
                     </h1>
                     <div class="grid gap-4">
                         {[
-                            { label: 'Dallas Voice - "The Club That Saved Lives"', desc: 'How Ron Woodroof changed everything • March 1987' },
-                            { label: 'Texas Monthly - "Ron Woodroof\'s Last Stand"', desc: 'The fight against the system • June 1991' },
-                            { label: 'The New York Times - "A Renegade\'s Risky Remedy"', desc: 'National coverage of the underground network • August 1990' }
+                            { label: '📣 Agent Alliance Launch', desc: 'Privacy-preserving collective intelligence for AI agents • 2026' },
+                            { label: '🔒 ZK Validation Goes Live', desc: 'Prove improvements without revealing architectures • Q1 2026' },
+                            { label: '🌐 First 100 Alliances', desc: 'Communities forming across context, tools, eval, and more • Q2 2026' }
                         ].map((link, i) => (
                             <div key={i} class="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 p-5 rounded-xl hover:border-brand/50 transition-all group shadow-sm">
                                 <a class="text-brand hover:underline font-black text-xl uppercase tracking-tighter block mb-1" href="#">

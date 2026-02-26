@@ -19,12 +19,19 @@ export type {
   CircuitPrivateInputs,
   CircuitPublicInputs,
   ProofResult,
+  BenchmarkDeltaInputs,
+  BenchmarkDeltaPublicInputs,
+  ExecutionDurationInputs,
+  ExecutionDurationPublicInputs,
+  DataCompletenessInputs,
+  DataCompletenessPublicInputs,
+  ResourceRangeInputs,
+  ResourceRangePublicInputs,
+  // Backwards compatibility
   SymptomImprovementInputs,
   SymptomImprovementPublicInputs,
   DurationVerificationInputs,
   DurationVerificationPublicInputs,
-  DataCompletenessInputs,
-  DataCompletenessPublicInputs,
   CostRangeInputs,
   CostRangePublicInputs,
 } from './NoirService';
@@ -79,6 +86,7 @@ export {
 
 export type {
   PrivacyServiceStatus,
+  PrivacyCaseStudyData as PrivacyOptimizationLogData,
   PrivacyCaseStudyData,
   PrivacyProcessingResult,
 } from './PrivacyServiceManager';

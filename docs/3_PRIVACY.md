@@ -2,7 +2,7 @@
 
 ## Overview
 
-Dallas Buyers Club implements a multi-layer privacy stack that enables patients to share health data for research while maintaining complete control and confidentiality.
+Dallas Buyers Club implements a multi-layer privacy stack that enables agent builders to share optimization data for collective learning while maintaining complete IP control and confidentiality.
 
 ---
 
@@ -16,21 +16,21 @@ Dallas Buyers Club implements a multi-layer privacy stack that enables patients 
 
 | Circuit | Tests | Purpose |
 |---------|-------|---------|
-| `symptom_improvement` | 6 passing | Prove symptoms improved by threshold % |
-| `duration_verification` | 7 passing | Prove duration in valid range |
+| `benchmark_delta` | 6 passing | Prove performance improved by threshold % |
+| `execution_duration` | 7 passing | Prove execution duration in valid range |
 | `data_completeness` | 6 passing | Prove required fields present |
-| `cost_range` | 7 passing | Prove cost within acceptable bounds |
+| `resource_range` | 7 passing | Prove resource cost within acceptable bounds |
 
 **Example Circuit:**
 ```rust
-// circuits/symptom_improvement/src/main.nr
+// circuits/benchmark_delta/src/main.nr
 fn main(
-    baseline_severity: u8,      // Private - never revealed
-    outcome_severity: u8,       // Private - never revealed
+    baseline_score: u8,         // Private - never revealed
+    outcome_score: u8,          // Private - never revealed
     min_improvement: u8,        // Public threshold
 ) -> pub bool {
-    let improvement = baseline_severity - outcome_severity;
-    let threshold = (baseline_severity * min_improvement) / 100;
+    let improvement = outcome_score - baseline_score;
+    let threshold = (baseline_score * min_improvement) / 100;
     improvement >= threshold
 }
 ```
@@ -40,14 +40,14 @@ fn main(
 import { noirService } from '../services/privacy';
 
 const proofs = await noirService.generateValidationProofs({
-  baselineSeverity: 8,
-  outcomeSeverity: 4,
-  durationDays: 30,
-  costUsd: 250,
+  baselineScore: 60,
+  outcomeScore: 85,
+  durationSeconds: 1200,
+  resourceCost: 250,
   hasBaseline: true,
   hasOutcome: true,
   hasDuration: true,
-  hasProtocol: true,
+  hasTechnique: true,
   hasCost: true,
 });
 // Returns: 4 proofs for validation
@@ -57,7 +57,7 @@ const proofs = await noirService.generateValidationProofs({
 
 ### 2. Light Protocol - ZK Compression
 
-**Purpose:** Compress case study data 2-100x for affordable storage
+**Purpose:** Compress optimization log data 2-100x for affordable storage
 
 **Features:**
 - Compression ratios: 2x, 5x, 10x (recommended), 20x, 50x
@@ -157,11 +157,11 @@ export function encryptHealthData(data: string, key: Uint8Array): string {
 
 ## Privacy Guarantees
 
-### Patient Data Protection
+### Builder Data Protection
 1. **Wallet-Derived Encryption** - AES-256-GCM with key from Ed25519 signature
 2. **Zero Server Storage** - All encryption happens client-side
 3. **Selective Disclosure** - K-of-N validators must approve decryption
-4. **On-Chain Anonymity** - Case studies linked to ephemeral PDAs
+4. **On-Chain Anonymity** - Optimization logs linked to ephemeral PDAs
 
 ### Validator Privacy
 1. **Anonymous Validation** - ZK proofs without identity revelation
@@ -193,18 +193,18 @@ export function encryptHealthData(data: string, key: Uint8Array): string {
 
 ### Run Circuit Tests
 ```bash
-cd circuits/symptom_improvement && nargo test
-cd circuits/duration_verification && nargo test
+cd circuits/benchmark_delta && nargo test
+cd circuits/execution_duration && nargo test
 cd circuits/data_completeness && nargo test
-cd circuits/cost_range && nargo test
+cd circuits/resource_range && nargo test
 ```
 
 ### Test Results
 ```
-[symptom_improvement] 6 tests passed
-[duration_verification] 7 tests passed
+[benchmark_delta] 6 tests passed
+[execution_duration] 7 tests passed
 [data_completeness] 6 tests passed
-[cost_range] 7 tests passed
+[resource_range] 7 tests passed
 Total: 26 tests passing
 ```
 
@@ -223,7 +223,7 @@ Total: 26 tests passing
 
 ## Future Enhancements
 
-- **Homomorphic Encryption** - Private computation on encrypted data
-- **Federated Learning** - Privacy-preserving treatment efficacy models
+- **Homomorphic Encryption** - Private computation on encrypted agent data
+- **Federated Learning** - Privacy-preserving technique efficacy models
 - **Cross-Chain Privacy** - Multi-blockchain privacy bridges
 - **Quantum-Resistant Cryptography** - Future-proof encryption

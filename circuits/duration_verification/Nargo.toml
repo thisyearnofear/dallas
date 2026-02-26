@@ -1,8 +1,0 @@
-[package]
-name = "duration_verification"
-type = "bin"
-authors = ["Dallas Buyers Club"]
-compiler_version = ">=0.36.0"
-description = "Proves treatment duration is within a valid range"
-
-[dependencies]

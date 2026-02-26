@@ -504,7 +504,7 @@ export class PrivacyService {
       // Step 2: Verify case study privacy requirements
       const requiredProofs: string[] = [];
       if (caseStudyPrivacy.proofCount < 2) {
-        requiredProofs.push('symptom_improvement');
+        requiredProofs.push('benchmark_delta');
         requiredProofs.push('data_completeness');
       }
 

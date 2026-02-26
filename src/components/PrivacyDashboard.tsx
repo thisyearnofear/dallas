@@ -24,7 +24,6 @@ import {
   PRIVACY_SCORE_WEIGHTS,
   type PrivacyLevel,
 } from '../services/privacy';
-import { WearableIntegration } from './WearableIntegration';
 import { useIsMobile } from './MobileEnhancements';
 import { useWallet } from '../context/WalletContext';
 import { SOLANA_CONFIG } from '../config/solana';

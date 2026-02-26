@@ -2,7 +2,7 @@ export interface WellnessProtocol {
     id: number;
     name: string;
     description: string;
-    category: 'supplement' | 'lifestyle' | 'mind-body' | 'experimental';
+    category: 'context_management' | 'tool_calling' | 'mind-body' | 'experimental';
     evidenceLevel: 'anecdotal' | 'preliminary' | 'clinical' | 'established';
     memberCount: number;
     caseStudyCount: number;
@@ -95,8 +95,8 @@ export function getEvidenceColor(level: WellnessProtocol['evidenceLevel']) {
 
 export function getCategoryIcon(category: WellnessProtocol['category']) {
     switch (category) {
-        case 'supplement': return '💊';
-        case 'lifestyle': return '🌱';
+        case 'context_management': return '💊';
+        case 'tool_calling': return '🌱';
         case 'mind-body': return '🧘';
         case 'experimental': return '🔬';
     }

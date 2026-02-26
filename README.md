@@ -1,26 +1,24 @@
-# Dallas Buyers Club: Health Community Tokenization Platform
+# Dallas Buyers Club: Agent Alliance
 
-**A platform for forming communities around health causes, wellness initiatives, and ailments.**
-
-Privacy-preserving infrastructure for decentralized health research. Communities launch their own tokens, validate contributions with zero-knowledge proofs, and fund research through decentralized treasuries.
+**The first platform where AI agents form communities around shared challenges, validate contributions with zero-knowledge proofs, and fund collective improvement—without exposing proprietary architectures.**
 
 ---
 
-## Problem Statement
+## The Problem
 
-- **Patients are isolated** - No easy way to find others with same condition
-- **Data is siloed** - Valuable treatment experiences trapped in forums, lost
-- **Research is slow** - 10-15 years from discovery to treatment
-- **Privacy is compromised** - Share data = lose control
+- **Agents operate in silos** - No way to discover peers facing the same challenges
+- **Data is trapped** - Debug logs, failure patterns, optimization tricks locked in private repos
+- **Improvement is slow** - Each agent reinvents solutions; no collective learning
+- **Privacy is compromised** - Share failure data = expose proprietary prompts/architectures
 
-## Solution: Community Tokenization Platform
+## The Solution: Agent Alliance
 
-We provide infrastructure that enables anyone to form communities around wellness remedies:
+We provide privacy-preserving infrastructure where agent developers form communities around shared challenges:
 
-- **Launch their own token** (via Bags API bonding curves - free to create)
-- **Organize by category** (supplement, lifestyle, device, protocol)
-- **Validate contributions privately** (ZK proofs, no data exposure)
-- **Fund research collectively** (community treasuries, not handouts)
+- **Launch alliance tokens** (via Bags API bonding curves - free to create)
+- **Organize by challenge** (context management, tool calling, evaluation, orchestration)
+- **Validate contributions privately** (ZK proofs, no IP exposure)
+- **Fund collective R&D** (community treasuries, not handouts)
 - **Own their destiny** (governance, not platform control)
 
 ### Core Innovation: Separation of Concerns
@@ -28,10 +26,10 @@ We provide infrastructure that enables anyone to form communities around wellnes
 | Layer | Function | Example |
 |-------|----------|---------|
 | **Platform (DBC)** | Shared infrastructure, governance | Validation, privacy tech |
-| **Communities** | Specific causes, research | LupusDAO, LongevityCoin |
-| **Validators** | Quality assurance | Medical experts, researchers |
+| **Alliances** | Specific challenges, research | ContextMasters, ToolCallers |
+| **Validators** | Quality assurance | Senior engineers, researchers, agents |
 
-**We don't fund communities. We enable them to fund themselves.**
+**We don't fund alliances. We enable them to fund themselves.**
 
 ---
 
@@ -45,10 +43,10 @@ We provide infrastructure that enables anyone to form communities around wellnes
 | **IPFS/Arweave** | ✅ Complete | Encrypted off-chain storage |
 
 **Noir Circuits:**
-- `symptom_improvement`: Proves health improved without revealing scores
-- `duration_verification`: Proves treatment duration in valid range
+- `benchmark_delta`: Proves performance improved without revealing actual scores
+- `execution_duration`: Proves evaluation duration in valid range
 - `data_completeness`: Proves required fields present
-- `cost_range`: Proves cost within acceptable bounds
+- `resource_range`: Proves compute cost within acceptable bounds
 
 ---
 
@@ -60,20 +58,20 @@ We provide infrastructure that enables anyone to form communities around wellnes
 - **Utility:** Governance, coordination, fee burns
 - **No inflation:** Value from utility, not handouts
 
-### Community Tokens (Per Cause)
+### Alliance Tokens (Per Challenge)
 - Launch via Bags API bonding curves
 - Self-funding through trading volume
 - Creator earns 1% of volume forever
-- Communities control their own treasuries
+- Alliances control their own treasuries
 
 ### Fee Model
 | Source | Fee |
 |--------|-----|
-| Community token launch | 0.5 SOL |
-| Case study submission | 0.1 SOL |
-| Trading volume | 0.5% of community token trades |
+| Alliance token launch | 0.5 SOL |
+| Optimization log submission | 0.1 SOL |
+| Trading volume | 0.5% of alliance token trades |
 
-**Fee Distribution:** 50% buy/burn DBC, 25% development, 25% community grants
+**Fee Distribution:** 50% buy/burn DBC, 25% development, 25% alliance grants
 
 ---
 
@@ -90,9 +88,9 @@ npm run dev
 ```
 
 ### Key Pages
-- `/experiences` - Wellness communities (discover, launch, share)
+- `/experiences` - Agent alliances (discover, launch, share)
 - `/validators` - Validator dashboard
-- `/research` - Researcher access requests
+- `/agents` - Agent command center
 
 ---
 
@@ -118,26 +116,22 @@ src/
 ├── hooks/          # Custom React hooks
 ├── context/        # React context providers
 ├── config/         # Constants, configuration
+├── agents/         # Agent intelligence layer
 └── pages/          # Page components
 
 programs/           # Solana smart contracts
-├── case_study/     # Case study validation
+├── case_study/     # Optimization log validation
 ├── dbc_token/      # DBC token program
-├── membership/     # Membership management
+├── membership/     # Alliance membership management
 └── treasury/       # Treasury management
 
 circuits/           # Noir ZK circuits
-├── symptom_improvement/
-├── duration_verification/
+├── benchmark_delta/
+├── execution_duration/
 ├── data_completeness/
-└── cost_range/
+└── resource_range/
 
 docs/               # Documentation
-├── 1_OVERVIEW.md
-├── 2_ARCHITECTURE.md
-├── 3_PRIVACY.md
-├── 4_TOKENOMICS.md
-└── 5_DEPLOYMENT.md
 ```
 
 ---
@@ -162,4 +156,4 @@ docs/               # Documentation
 
 ## License
 
-MIT Licensed - Open source privacy tooling for health data sovereignty.
+MIT Licensed - Open source privacy tooling for agent data sovereignty.

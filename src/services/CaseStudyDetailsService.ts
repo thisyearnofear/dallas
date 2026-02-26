@@ -24,7 +24,7 @@ const IPFS_GATEWAYS = [
 export interface DecryptedCaseStudyDetails {
   // Treatment information
   treatmentProtocol: string;
-  treatmentCategory: string;
+  techniqueCategory: string;
   durationDays: number;
   costUSD?: number;
   
@@ -165,7 +165,7 @@ function normalizeCaseStudyData(data: any): DecryptedCaseStudyDetails | null {
 
   return {
     treatmentProtocol: data.treatmentProtocol || data.protocol || data.treatment || 'Unknown',
-    treatmentCategory: data.treatmentCategory || data.category || 'Other',
+    techniqueCategory: data.techniqueCategory || data.category || 'Other',
     durationDays: data.durationDays || data.duration || 0,
     costUSD: data.costUSD || data.cost,
     symptoms: Array.isArray(data.symptoms) ? data.symptoms : [],

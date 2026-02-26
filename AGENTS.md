@@ -1,5 +1,18 @@
 # Dallas Buyers Club: Agent Context
 
+## CORE ENGINEERING PRINCIPLES
+*   **ENHANCEMENT FIRST**: Always prioritize enhancing existing components over creating new ones.
+*   **AGGRESSIVE CONSOLIDATION**: Delete unnecessary code rather than deprecating.
+*   **PREVENT BLOAT**: Systematically audit and consolidate before adding new features.
+*   **DRY / CLEAN / MODULAR**: Single source of truth for all shared logic; clear separation of concerns.
+*   **PERFORMANT / ORGANIZED**: Adaptive loading, caching, and resource optimization; Predictable file structure with domain-driven design.
+
+## ZERO-SECRET POLICY
+*   **NEVER COMMIT SECRETS**: Files matching `.env*`, `*.key`, `*.pem`, `*.secret`, `credentials.json`, or plaintext API keys.
+*   **VERCEL TOKEN PROTECTION**: Never commit or push a **Vercel Token** (pattern: `ARV_...`). Use it only for local CLI tasks.
+*   **NO BUILD ARTIFACTS**: Never commit `node_modules`, `dist`, `build`, `.next`, `out`, `target`, `venv`, or `.env`.
+*   **GIT HYGIENE**: Always check `.gitignore` before `git add`.
+
 ## Project Overview
 
 **Dallas Buyers Club is a platform for health community tokenization.**
