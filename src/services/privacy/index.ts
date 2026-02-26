@@ -7,7 +7,6 @@
 
 // Noir ZK-SNARK Service
 export {
-  NoirService,
   noirService,
   CIRCUIT_METADATA,
   DEFAULT_PUBLIC_INPUTS,
@@ -27,18 +26,10 @@ export type {
   DataCompletenessPublicInputs,
   ResourceRangeInputs,
   ResourceRangePublicInputs,
-  // Backwards compatibility
-  SymptomImprovementInputs,
-  SymptomImprovementPublicInputs,
-  DurationVerificationInputs,
-  DurationVerificationPublicInputs,
-  CostRangeInputs,
-  CostRangePublicInputs,
 } from './NoirService';
 
 // Light Protocol ZK Compression Service
 export {
-  LightProtocolService,
   lightProtocolService,
 } from './LightProtocolService';
 
@@ -48,7 +39,6 @@ export type {
 
 // Arcium MPC Threshold Decryption Service
 export {
-  ArciumMPCService,
   arciumMPCService,
   DEFAULT_MPC_CONFIG,
   ENCRYPTION_SCHEME_OPTIONS,
@@ -58,7 +48,6 @@ export type {
   MPCSessionStatus,
   CommitteeMember,
   MPCAccessRequest,
-  EncryptionScheme,
   DecryptionResult,
   AccessRequestInput,
 } from './ArciumMPCService';
