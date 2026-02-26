@@ -16,6 +16,13 @@ export const SOLANA_CONFIG = {
     'mainnet-beta': 'https://api.mainnet-beta.solana.com',
   },
 
+  // Helius RPC endpoints (for enhanced indexing and webhooks)
+  helius: {
+    apiKey: process.env.VITE_HELIUS_API_KEY || '',
+    rpcUrl: (network: string) => `https://${network}.helius-rpc.com/?api-key=${process.env.VITE_HELIUS_API_KEY || ''}`,
+    webhookUrl: process.env.VITE_HELIUS_WEBHOOK_URL || '',
+  },
+
   // Your wallet address where donations/payments go
   treasuryAddress: 'BpHqwwKRqhNRzyZHT5U4un9vfyivcbvcgrmFRfboGJsK',
 
@@ -35,6 +42,7 @@ export const SOLANA_CONFIG = {
     dbcTokenProgramIdDevnet: '21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB',
     dbcMintAddressDevnet: '8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT',
     attentionTokenFactoryProgramId: 'XXXX', // To be deployed
+    governanceProgramId: 'DBCGoVFq5xGnD1WNCLauKoFG4Y4Rw3xPp3z3t8X6w3x',
   },
 
   // Bags API configuration for attention tokens
