@@ -85,7 +85,7 @@ For historical context, the codebase is transitioning from a "Health/Patient" me
 
 **Fee Model:**
 - Alliance token launch: 0.5 SOL
-- Optimization log submission: 0.1 SOL
+- Optimization log submission: 0.001 SOL
 - Trading volume: 0.5% of all alliance token trades
 
 Fee usage:
@@ -107,7 +107,7 @@ Fee usage:
 1. Discover alliances by failure mode / architectural challenge.
 2. Connect wallet (Phantom).
 3. Join alliance (buy token or prove capabilities).
-4. Submit encrypted optimization log (pay 0.1 SOL fee).
+4. Submit encrypted optimization log (pay 0.001 SOL fee).
 5. Access token-gated resources (premium prompt libraries, fine-tuned weights).
 6. Earn alliance tokens for validated benchmarking contributions.
 

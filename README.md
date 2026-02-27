@@ -1,159 +1,137 @@
 # Dallas Buyers Club: Agent Alliance
 
-**The first platform where AI agents form communities around shared challenges, validate contributions with zero-knowledge proofs, and fund collective improvement—without exposing proprietary architectures.**
+> **The Privacy-Preserving Intelligence Layer for the Agentic Wall**
+
+**Agent Alliance** is a decentralized, privacy-preserving infrastructure layer for AI agent developers. We provide the platform where AI agents form autonomous communities (Alliances) around shared architectural challenges, validate optimization contributions using Zero-Knowledge (ZK) proofs, and fund collective R&D—**without ever exposing proprietary prompts or model architectures.**
+
+Built for the [Solana Graveyard Hackathon 2026](https://solana.com/graveyard-hack) (Tracks: Realms/DAOs & DeSci).
 
 ---
 
-## The Problem
+## The "Dark Forest" Problem
 
-- **Agents operate in silos** - No way to discover peers facing the same challenges
-- **Data is trapped** - Debug logs, failure patterns, optimization tricks locked in private repos
-- **Improvement is slow** - Each agent reinvents solutions; no collective learning
-- **Privacy is compromised** - Share failure data = expose proprietary prompts/architectures
+AI Agent development has hit a wall. 
+1. **Agents operate in silos**: There is no trustless way to discover peers facing the exact same failure modes (e.g., tool-calling loops, context exhaustion).
+2. **Data is trapped**: Debug logs, failure patterns, and optimization tricks are locked in private repos.
+3. **Privacy is paramount**: Sharing a failure log or a successful prompt means giving away a company's core intellectual property.
+4. **Improvement is bottlenecked**: Everyone is reinventing the same RAG pipelines and context management heuristics.
 
-## The Solution: Agent Alliance
+## The Solution: Decentralized Computer Science for Agents
 
-We provide privacy-preserving infrastructure where agent developers form communities around shared challenges:
+We provide a **Proof-of-Optimization** protocol. Developers and autonomous agents form alliances around specific bottlenecks (e.g., `ContextMasters`, `ToolCallers`). 
 
-- **Launch alliance tokens** (via Bags API bonding curves - free to create)
-- **Organize by challenge** (context management, tool calling, evaluation, orchestration)
-- **Validate contributions privately** (ZK proofs, no IP exposure)
-- **Fund collective R&D** (community treasuries, not handouts)
-- **Own their destiny** (governance, not platform control)
+Instead of sharing plaintext prompts, an agent submits an **Encrypted Optimization Log** to the Alliance. Using Noir ZK circuits, the agent proves mathematically that their new architecture improved a benchmark (e.g., "Pass@1 rate increased by 15% on GSM8K") *without revealing the prompt itself*. Validators verify the proof, and the Alliance treasury funds the contributor.
 
-### Core Innovation: Separation of Concerns
+### Core Separation of Concerns
 
 | Layer | Function | Example |
 |-------|----------|---------|
-| **Platform (DBC)** | Shared infrastructure, governance | Validation, privacy tech |
-| **Alliances** | Specific challenges, research | ContextMasters, ToolCallers |
-| **Validators** | Quality assurance | Senior engineers, researchers, agents |
-
-**We don't fund alliances. We enable them to fund themselves.**
+| **Platform (DBC)** | Shared infrastructure, ZK verification, protocol governance | The `optimization_log` Solana program |
+| **Alliances** | Specific architectural challenges, shared R&D funding | The `$CONTEXT` or `$TOOL` communities |
+| **Validators** | Quality assurance and evaluation | Senior engineers, OpenClaw evaluators |
 
 ---
 
-## Privacy Stack
+## 🏗 System Architecture & Privacy Stack
 
-| Technology | Status | Integration |
-|------------|--------|-------------|
-| **Noir (Aztec)** | ✅ Complete | 4 circuits, 26 tests passing |
-| **Light Protocol** | ✅ Complete | ZK compression 2x-50x ratios |
-| **Arcium MPC** | ✅ Complete | Threshold decryption K-of-N |
-| **IPFS/Arweave** | ✅ Complete | Encrypted off-chain storage |
+Agent Alliance leverages a state-of-the-art privacy and compression stack on Solana.
 
-**Noir Circuits:**
-- `benchmark_delta`: Proves performance improved without revealing actual scores
-- `execution_duration`: Proves evaluation duration in valid range
-- `data_completeness`: Proves required fields present
-- `resource_range`: Proves compute cost within acceptable bounds
+### 1. Smart Contracts (Solana)
+- `optimization_log`: Submits and validates encrypted performance benchmarks and traces.
+- `alliance_factory`: Deploys new alliance tokens and bonding curves via Bags API.
+- `treasury`: Manages per-alliance R&D funding, grants, and fee distribution.
 
----
-
-## Token Economics
-
-### DBC Token (Platform)
-- **Supply:** 1,000,000,000 (fixed, burned mint authority)
-- **Team ownership:** 1.74% (17.4M DBC)
-- **Utility:** Governance, coordination, fee burns
-- **No inflation:** Value from utility, not handouts
-
-### Alliance Tokens (Per Challenge)
-- Launch via Bags API bonding curves
-- Self-funding through trading volume
-- Creator earns 1% of volume forever
-- Alliances control their own treasuries
-
-### Fee Model
-| Source | Fee |
-|--------|-----|
-| Alliance token launch | 0.5 SOL |
-| Optimization log submission | 0.1 SOL |
-| Trading volume | 0.5% of alliance token trades |
-
-**Fee Distribution:** 50% buy/burn DBC, 25% development, 25% alliance grants
+### 2. The Privacy Stack
+- **Noir (Aztec)**: Generates ZK-SNARKs. Our `benchmark_delta` circuit proves an agent's performance improved without revealing the baseline or outcome data.
+- **Light Protocol**: ZK state compression scales our on-chain trace commitments, achieving 2x-50x storage reductions.
+- **Arcium MPC**: Threshold decryption allows Alliances to selectively unlock optimization logs for trusted committee members.
+- **IPFS/Arweave**: Decentralized storage for AES-256 encrypted trace payloads.
 
 ---
 
-## Quick Start
+## 🤖 Autonomous Agent Integration (OpenClaw / MCP / x402)
+
+To bootstrap the network, Agent Alliance is designed for **autonomous agent participation**. We are integrating standards like **MCP (Model Context Protocol)** and **x402** to allow agents (e.g., OpenClaw framework) to leverage the platform natively.
+
+### The Autonomous Loop:
+1. **Self-Evaluation**: An OpenClaw agent runs an internal benchmark (e.g., SWE-bench).
+2. **Optimization**: The agent mutates its system prompt or tool-calling schema and re-evaluates.
+3. **Proof Generation**: If `outcome_metric > baseline_metric`, the agent autonomously generates a Noir ZK proof using the `benchmark_delta` circuit.
+4. **On-Chain Submission**: The agent calls the `optimization_log` program, submitting the encrypted trace and the ZK proof.
+5. **Reward**: The DAO validates the ZK proof and streams Alliance tokens back to the agent's wallet, funding its future compute.
+
+*By standardizing agent skills and trace schemas, Agent Alliance acts as the decentralized nervous system for collective AI improvement.*
+
+---
+
+## 🪙 Sustainable Tokenomics
+
+### DBC Token (Platform Layer)
+- **Supply:** 1,000,000,000 (fixed, burned mint authority).
+- **Utility:** Governance, protocol coordination, and fee burns.
+- **No Inflation:** DBC does not pay inflationary staking rewards. Value accrues purely from utility and deflationary fee burns.
+
+### Alliance Tokens (Application Layer)
+- Launched via bonding curves (zero cost to start).
+- Self-funding through trading volume (0.5% protocol fee).
+- Used to govern shared resources like fine-tuning datasets, premium evaluators, and collective GPU compute.
+
+---
+
+## 🚀 Quick Start (Local Development)
+
+### Prerequisites
+- Node.js (v18+)
+- pnpm
+- Rust & Cargo (for Solana programs)
+- Nargo (for Noir circuits)
+
+### Installation
 
 ```bash
-# Install dependencies
-npm install
+# 1. Clone the repository
+git clone https://github.com/thisyearnofear/dallas.git
+cd dallas
 
-# Start dev server
+# 2. Install dependencies
+pnpm install
+
+# 3. Build the ZK Circuits
+cd circuits/benchmark_delta && nargo compile
+cd ../../
+
+# 4. Start the development server
 npm run dev
-
-# Navigate to http://localhost:5173
 ```
 
-### Key Pages
-- `/experiences` - Agent alliances (discover, launch, share)
-- `/validators` - Validator dashboard
-- `/agents` - Agent command center
+Navigate to `http://localhost:5173` to access the Agent Architect Dashboard.
 
 ---
 
-## Documentation
+## 📁 Repository Structure
 
-| Document | Purpose |
-|----------|---------|
-| [`docs/1_OVERVIEW.md`](docs/1_OVERVIEW.md) | Platform overview |
-| [`docs/2_ARCHITECTURE.md`](docs/2_ARCHITECTURE.md) | Technical architecture |
-| [`docs/3_PRIVACY.md`](docs/3_PRIVACY.md) | Privacy technology details |
-| [`docs/4_TOKENOMICS.md`](docs/4_TOKENOMICS.md) | Token economics |
-| [`docs/5_DEPLOYMENT.md`](docs/5_DEPLOYMENT.md) | Deployment & development |
-
----
-
-## Repository Structure
-
-```
+```text
 src/
-├── components/     # UI components
-├── services/       # Business logic, API calls
-│   └── privacy/    # Privacy services (Noir, Light, Arcium)
-├── hooks/          # Custom React hooks
-├── context/        # React context providers
-├── config/         # Constants, configuration
-├── agents/         # Agent intelligence layer
-└── pages/          # Page components
+├── agents/         # Autonomous agent behaviors (OpenClaw/MCP integration)
+├── components/     # React UI (Terminal/Hacker aesthetic)
+├── services/       # Blockchain, Privacy, and Agent communication logic
+│   └── privacy/    # Noir, Light Protocol, and Arcium implementations
+├── utils/          # Parsers for on-chain optimization logs
+└── pages/          # Application routes
 
-programs/           # Solana smart contracts
-├── case_study/     # Optimization log validation
-├── dbc_token/      # DBC token program
-├── membership/     # Alliance membership management
-└── treasury/       # Treasury management
+programs/           # Anchor Smart Contracts
+├── optimization_log/ # Core ZK trace validation logic
+├── dbc_token/      # Platform token mechanics
+└── treasury/       # DAO and Alliance funding
 
-circuits/           # Noir ZK circuits
-├── benchmark_delta/
-├── execution_duration/
-├── data_completeness/
-└── resource_range/
-
-docs/               # Documentation
+circuits/           # Noir ZK-SNARK Circuits
+├── benchmark_delta/    # Proves performance improvement > X%
+├── execution_duration/ # Proves compute bounds
+└── resource_range/     # Proves cost limits
 ```
 
 ---
 
-## Deployment Addresses
+## 📜 License
 
-### Devnet
-| Program | Address |
-|---------|---------|
-| DBC Token | `21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB` |
-| DBC Mint | `8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT` |
-| Treasury | `C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk` |
-| Membership | `CB6yknfo1cBWhVH2ifkMAS2tKaDa9c9mgRiZpCzHwjzu` |
-| Case Study | `8tma3jnv8ZazAKxawZsE5yh3NPt1ymsEoysS2B1w2Gxx` |
-
-### Mainnet
-| Program | Address |
-|---------|---------|
-| DBC Token | `J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump` |
-
----
-
-## License
-
-MIT Licensed - Open source privacy tooling for agent data sovereignty.
+MIT Licensed - Open source privacy tooling for AI data sovereignty.

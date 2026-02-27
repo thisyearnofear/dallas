@@ -88,7 +88,7 @@ All optimization logs shared by developers represent their individual experiment
             content: `You agree to:
 • Ensure no PII or sensitive customer data is included in your submissions
 • Share only genuine evaluation metrics and optimization logs
-• Not share plaintext API keys, credentials, or `.env` files
+• Not share plaintext API keys, credentials, or '.env' files
 • Not distribute malicious system prompt jailbreaks
 • Take full responsibility for your own deployment decisions
 • Conduct thorough testing before integrating shared techniques`,
