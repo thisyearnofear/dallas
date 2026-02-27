@@ -39,7 +39,7 @@ npm run build      # Production build
 
 1. Go to https://beta.solpg.io/
 2. Create new project (Anchor template)
-3. Paste `programs/case_study/src/lib.rs`
+3. Paste `programs/optimization_log/src/lib.rs`
 4. Build & Deploy
 5. Copy Program ID
 
@@ -50,7 +50,7 @@ Repeat for `programs/dbc_token/src/lib.rs`
 ```typescript
 // src/config/solana.ts
 blockchain: {
-  caseStudyProgramId: 'YOUR_PROGRAM_ID',
+  optimizationLogProgramId: 'YOUR_PROGRAM_ID',
   dbcTokenProgramId: 'YOUR_PROGRAM_ID',
   dbcMintAddress: 'YOUR_MINT_ADDRESS',
 }
@@ -75,7 +75,7 @@ blockchain: {
 | DBC Mint | `8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT` |
 | Treasury | `C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk` |
 | Membership | `CB6yknfo1cBWhVH2ifkMAS2tKaDa9c9mgRiZpCzHwjzu` |
-| Case Study | `8tma3jnv8ZazAKxawZsE5yh3NPt1ymsEoysS2B1w2Gxx` |
+| Optimization Log | `B68o3Pnre8XgwGBKN4aQeP8gPmPARUVfb7EufFgnVUyj` |
 
 ## Mainnet
 
