@@ -354,7 +354,7 @@ export function LiveActivityNotifications() {
     if (!settings.liveNotificationsEnabled) return null;
     
     const activities = [
-        "🚨 Developer #420 just ordered AZT from Mexico!",
+        "🚨 Developer #420 just ordered GPT-4o from Mexico!",
         "📍 New member joined from Austin, TX - 5 min ago",
         "⭐ Success story shared: 'Ron saved my life!'", 
         "💊 High demand: 23 orders today!",

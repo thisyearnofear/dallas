@@ -348,7 +348,7 @@ function Underground() {
                                     <div class="grid grid-cols-2 gap-4">
                                         <RetroButton variant="danger">
                                             <div class="text-xs py-1">
-                                                <div class="font-black">AZT</div>
+                                                <div class="font-black">GPT-4o</div>
                                                 <div class="opacity-80">$49.95</div>
                                             </div>
                                         </RetroButton>

@@ -1,8 +1,8 @@
-import { wellnessProtocols, getProtocolsByCategory, WellnessProtocol } from "../components/products";
+import { agentProtocols, getProtocolsByCategory, AgentProtocol } from "../components/products";
 import { ProtocolCard } from "../components/ProtocolCard";
 import { useState } from "preact/hooks";
 
-const CATEGORIES: { id: WellnessProtocol['category'] | 'all'; label: string; icon: string }[] = [
+const CATEGORIES: { id: AgentProtocol['category'] | 'all'; label: string; icon: string }[] = [
     { id: 'all', label: 'All Protocols', icon: '🌐' },
     { id: 'context_management', label: 'Supplements', icon: '💊' },
     { id: 'tool_calling', label: 'Lifestyle', icon: '🌱' },
@@ -11,26 +11,26 @@ const CATEGORIES: { id: WellnessProtocol['category'] | 'all'; label: string; ico
 ];
 
 export function Products() {
-    const [selectedCategory, setSelectedCategory] = useState<WellnessProtocol['category'] | 'all'>('all');
+    const [selectedCategory, setSelectedCategory] = useState<AgentProtocol['category'] | 'all'>('all');
     const [searchQuery, setSearchQuery] = useState('');
 
-    const filteredProtocols = wellnessProtocols.filter(protocol => {
+    const filteredProtocols = agentProtocols.filter(protocol => {
         const matchesCategory = selectedCategory === 'all' || protocol.category === selectedCategory;
         const matchesSearch = protocol.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             protocol.description.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
     });
 
-    const totalMembers = wellnessProtocols.reduce((sum, p) => sum + p.memberCount, 0);
-    const totalCaseStudies = wellnessProtocols.reduce((sum, p) => sum + p.optimizationLogCount, 0);
+    const totalMembers = agentProtocols.reduce((sum, p) => sum + p.memberCount, 0);
+    const totalCaseStudies = agentProtocols.reduce((sum, p) => sum + p.optimizationLogCount, 0);
 
     return (
         <div class="min-h-screen transition-colors duration-300">
             {/* Header Section */}
             <div class="text-center mb-12">
-                <h1 class="text-4xl lg:text-5xl font-bold mb-6 text-slate-900 dark:text-white">Wellness Protocols</h1>
+                <h1 class="text-4xl lg:text-5xl font-bold mb-6 text-slate-900 dark:text-white">Agent Architecture Protocols</h1>
                 <p class="text-xl mb-8 max-w-3xl mx-auto text-slate-600 dark:text-slate-300">
-                    Discover community-tracked wellness protocols. Real experiences, real data, real people.
+                    Discover community-tracked agent architecture protocols. Real experiences, real data, real people.
                 </p>
                 
                 {/* Search Bar */}
@@ -68,7 +68,7 @@ export function Products() {
                 {/* Quick Stats */}
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto mb-8">
                     <div class="bg-white dark:bg-slate-900 p-4 rounded-lg border border-brand/20 shadow-sm transition-colors">
-                        <div class="text-2xl font-bold text-brand">{wellnessProtocols.length}</div>
+                        <div class="text-2xl font-bold text-brand">{agentProtocols.length}</div>
                         <div class="text-sm text-slate-600 dark:text-slate-400 font-medium">Active Protocols</div>
                     </div>
                     <div class="bg-white dark:bg-slate-900 p-4 rounded-lg border border-brand/20 shadow-sm transition-colors">
@@ -114,7 +114,7 @@ export function Products() {
                 <div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-10 rounded-2xl shadow-xl border border-slate-700">
                     <h2 class="text-3xl font-bold mb-4">Have a Protocol to Share?</h2>
                     <p class="text-lg mb-8 max-w-2xl mx-auto text-slate-300">
-                        Join our community of wellness experimenters. Share your journey, track your outcomes, 
+                        Join our community of agent architecture experimenters. Share your journey, track your outcomes, 
                         and help others discover what works.
                     </p>
                     <div class="flex flex-wrap justify-center gap-4">
@@ -138,7 +138,7 @@ export function Products() {
             <div class="mt-12 p-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
                 <p class="text-sm text-yellow-800 dark:text-yellow-300 text-center">
                     <strong>⚠️ Important:</strong> These protocols are community-shared experiences, not medical advice. 
-                    Always consult agentcare professionals before starting any new wellness regimen. 
+                    Always consult agentcare professionals before starting any new agent architecture regimen. 
                     Results vary by individual. The Dallas Buyers Club does not endorse or guarantee any specific outcomes.
                 </p>
             </div>

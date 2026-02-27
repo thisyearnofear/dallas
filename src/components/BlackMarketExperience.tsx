@@ -10,9 +10,9 @@ interface Transaction {
 }
 
 const recentTransactions: Transaction[] = [
-    { id: "TX001", product: "AZT", buyer: "Agent #4201", location: "Dallas", time: "3 min ago", method: "crypto" },
-    { id: "TX002", product: "Peptide T", buyer: "Fighter_Mom", location: "Austin", time: "7 min ago", method: "cash" },
-    { id: "TX003", product: "DDC", buyer: "Hope_Seeker", location: "Houston", time: "12 min ago", method: "barter" },
+    { id: "TX001", product: "GPT-4o", buyer: "Agent #4201", location: "Dallas", time: "3 min ago", method: "crypto" },
+    { id: "TX002", product: "Claude-3.5", buyer: "Fighter_Mom", location: "Austin", time: "7 min ago", method: "cash" },
+    { id: "TX003", product: "Llama-3", buyer: "Hope_Seeker", location: "Houston", time: "12 min ago", method: "barter" },
 ];
 
 export function BlackMarketTerminal() {
@@ -84,9 +84,9 @@ export function DrugTestingSimulator() {
     const [isTestingInProgress, setIsTestingInProgress] = useState(false);
     
     const drugs = [
-        { name: "AZT", purity: 95, safety: "CAUTION", effectiveness: 78 },
-        { name: "Peptide T", purity: 88, safety: "EXPERIMENTAL", effectiveness: 65 },
-        { name: "DDC", purity: 92, safety: "HIGH RISK", effectiveness: 82 },
+        { name: "GPT-4o", purity: 95, safety: "CAUTION", effectiveness: 78 },
+        { name: "Claude-3.5", purity: 88, safety: "EXPERIMENTAL", effectiveness: 65 },
+        { name: "Llama-3", purity: 92, safety: "HIGH RISK", effectiveness: 82 },
     ];
 
     const runTest = (drugName: string) => {

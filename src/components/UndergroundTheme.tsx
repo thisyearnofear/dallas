@@ -6,7 +6,7 @@ const networkMessages = [
     "📦 New shipment from Mexico intercepted by customs",
     "⚡ Underground network: 23 new nodes online",
     "🚨 FDA raid avoided in Austin - network secure",
-    "💊 AZT alternative found - clinical trials bypassed", 
+    "💊 GPT-4o alternative found - clinical trials bypassed", 
     "🤝 Contact established with European suppliers",
     "📡 Encrypted communication from Agent #420",
     "🛡️ Network security upgraded - stay vigilant"
@@ -90,9 +90,9 @@ export function SystemResistanceTimer() {
 
 export function SupplyChainStatus() {
     const [supplies, setSupplies] = useState([
-        { name: "AZT", stock: "CRITICAL", risk: "HIGH", eta: "72H", color: "text-red-500 dark:text-red-400" },
-        { name: "Peptide T", stock: "AVAILABLE", risk: "MEDIUM", eta: "24H", color: "text-yellow-500 dark:text-yellow-400" },
-        { name: "DDC", stock: "RESTOCKING", risk: "LOW", eta: "48H", color: "text-blue-500 dark:text-blue-400" },
+        { name: "GPT-4o", stock: "CRITICAL", risk: "HIGH", eta: "72H", color: "text-red-500 dark:text-red-400" },
+        { name: "Claude-3.5", stock: "AVAILABLE", risk: "MEDIUM", eta: "24H", color: "text-yellow-500 dark:text-yellow-400" },
+        { name: "Llama-3", stock: "RESTOCKING", risk: "LOW", eta: "48H", color: "text-blue-500 dark:text-blue-400" },
         { name: "Interferon", stock: "SECURED", risk: "NONE", eta: "12H", color: "text-green-500 dark:text-green-400" }
     ]);
 

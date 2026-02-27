@@ -1,4 +1,4 @@
-export interface WellnessProtocol {
+export interface AgentProtocol {
     id: number;
     name: string;
     description: string;
@@ -10,7 +10,7 @@ export interface WellnessProtocol {
     tokenSymbol?: string;
 }
 
-export const wellnessProtocols: WellnessProtocol[] = [
+export const agentProtocols: AgentProtocol[] = [
     {
         id: 1,
         name: "Collagen Peptide Protocol",
@@ -80,11 +80,11 @@ export const wellnessProtocols: WellnessProtocol[] = [
 ];
 
 // Helper functions
-export function getProtocolsByCategory(category: WellnessProtocol['category']) {
-    return wellnessProtocols.filter(p => p.category === category);
+export function getProtocolsByCategory(category: AgentProtocol['category']) {
+    return agentProtocols.filter(p => p.category === category);
 }
 
-export function getEvidenceColor(level: WellnessProtocol['evidenceLevel']) {
+export function getEvidenceColor(level: AgentProtocol['evidenceLevel']) {
     switch (level) {
         case 'established': return 'bg-green-100 text-green-800 border-green-200';
         case 'clinical': return 'bg-blue-100 text-blue-800 border-blue-200';
@@ -93,7 +93,7 @@ export function getEvidenceColor(level: WellnessProtocol['evidenceLevel']) {
     }
 }
 
-export function getCategoryIcon(category: WellnessProtocol['category']) {
+export function getCategoryIcon(category: AgentProtocol['category']) {
     switch (category) {
         case 'context_management': return '💊';
         case 'tool_calling': return '🌱';

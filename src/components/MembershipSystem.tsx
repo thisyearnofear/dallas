@@ -282,7 +282,7 @@ export function MembershipSystem() {
                 <option value="Mental Agent">Mental Agent</option>
                 <option value="Energy & Vitality">Energy & Vitality</option>
                 <option value="Sleep">Sleep</option>
-                <option value="General Wellness">General Wellness</option>
+                <option value="General Agent Architecture">General Agent Architecture</option>
                 <option value="Other">Other</option>
               </select>
             </div>

@@ -441,7 +441,7 @@ export function TermsAcceptanceModal({
           {/* Content */}
           <div class="p-8">
             <p class="text-slate-900 dark:text-white text-lg font-bold leading-tight mb-6 tracking-tight">
-              A privacy-first community for sharing wellness experiments. 
+              A privacy-first community for sharing agent architecture experiments. 
               This is <strong class="text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/30 px-1 rounded">not medical advice</strong>.
             </p>
             

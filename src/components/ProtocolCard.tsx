@@ -1,8 +1,8 @@
-import type { WellnessProtocol } from "./products";
+import type { AgentProtocol } from "./products";
 import { getEvidenceColor, getCategoryIcon } from "./products";
 
 interface ProtocolCardProps {
-    protocol: WellnessProtocol;
+    protocol: AgentProtocol;
     featured?: boolean;
 }
 

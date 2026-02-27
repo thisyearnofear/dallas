@@ -93,7 +93,7 @@ const ENHANCED_TOKEN_IMAGES: Record<string, TokenImage> = {
     ipfsHash: 'QmColdTherapyProtocolImage789',
     thumbnailUrl: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=100&h=100&fit=crop&crop=center',
     category: 'tool_calling',
-    tags: ['cold-therapy', 'breathwork', 'recovery', 'wellness'],
+    tags: ['cold-therapy', 'breathwork', 'recovery', 'agent architecture'],
     createdAt: Date.now() - 86400000 * 20,
     uploadedBy: 'community_designer_003',
     verified: true,

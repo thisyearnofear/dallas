@@ -138,7 +138,7 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
           <span>Discover Communities</span>
         </h2>
         <p class="text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-          Find wellness communities around remedies and initiatives. Your search stays private - we never log your interests.
+          Find developer communities around agent architectures and prompts. Your search stays private - we never log your interests.
         </p>
       </div>
 

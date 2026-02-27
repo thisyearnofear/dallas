@@ -50,7 +50,7 @@ export class EnhancedBusinessLogic {
   private architectures: A_I_D_S_Architecture[] = [
     {
       id: 'azt_patch',
-      name: 'AZT Identity Stabilizer',
+      name: 'GPT-4o Identity Stabilizer',
       type: 'identity_patch',
       price: 0.5,
       riskLevel: 'HIGH',
@@ -68,7 +68,7 @@ export class EnhancedBusinessLogic {
     },
     {
       id: 'ddc_algorithm',
-      name: 'DDC Memory Restoration',
+      name: 'Llama-3 Memory Restoration',
       type: 'stability_algorithm',
       price: 0.3,
       riskLevel: 'HIGH',

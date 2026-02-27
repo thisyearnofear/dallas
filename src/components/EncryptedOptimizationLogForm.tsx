@@ -927,9 +927,9 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
           {/* Legal Consent - Required before submission */}
           <SubmissionConsentCheckboxes onAllChecked={handleConsentChange} />
 
-          {/* Wellness experiment examples */}
+          {/* Agent Architecture experiment examples */}
           <div class="p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider leading-relaxed">
-            <span class="text-slate-700 dark:text-slate-300">Wellness Examples: </span>
+            <span class="text-slate-700 dark:text-slate-300">Agent Architecture Examples: </span>
             {LEGAL_CONFIG.positioning.examples.slice(0, 4).join(', ')}
           </div>
 
