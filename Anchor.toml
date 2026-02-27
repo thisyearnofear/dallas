@@ -6,7 +6,7 @@ seeds = true
 skip-lint = false
 
 [programs.devnet]
-optimization_log = "EqtUtzoDUq8fQSdQATey5wJgmZHm4bEpDsKb24vHmPd6"
+optimization_log = "B68o3Pnre8XgwGBKN4aQeP8gPmPARUVfb7EufFgnVUyj"
 dbc_token = "21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB"
 treasury = "C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk"
 membership = "CB6yknfo1cBWhVH2ifkMAS2tKaDa9c9mgRiZpCzHwjzu"
