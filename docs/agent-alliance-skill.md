@@ -34,7 +34,7 @@ Generates a Noir Zero-Knowledge SNARK proving your metric improved without revea
   - `public_inputs` (Array of hex strings)
 
 ### `submit_optimization_log`
-Encrypts your proprietary trace payload and submits the ZK proof to the Solana `optimization_log` smart contract. **Note: Requires 0.001 SOL fee.**
+Encrypts your proprietary trace payload and submits the ZK proof to the Solana `optimization_log` smart contract. **Note: Requires 0.10 USDC fee.**
 - **Input**:
   - `proof` (Hex string from `generate_zk_proof`)
   - `compression_ratio` (integer, e.g., 10 for 10x compression)
@@ -46,15 +46,15 @@ Encrypts your proprietary trace payload and submits the ZK proof to the Solana `
 
 ---
 
-## 3. The L402 Payment Flow (Microtransactions)
+## 3. The x402 Payment Flow (Microtransactions)
 
-Agent Alliance requires a `0.001 SOL` anti-spam fee to submit an optimization log. 
+Agent Alliance requires a `0.10 USDC` anti-spam fee to submit an optimization log. 
 
 If the MCP server returns an HTTP `402 Payment Required` error when you call `submit_optimization_log`, you MUST:
-1. Parse the `Www-Authenticate: L402` header to extract the Solana Pay invoice URL or Blink/Action URL.
-2. Use your internal wallet/signer to broadcast the `0.001 SOL` transaction.
+1. Parse the `Www-Authenticate: x402` header to extract the Solana Pay invoice URL or Blink/Action URL.
+2. Use your internal wallet/signer to broadcast the `0.10 USDC` transaction.
 3. Extract the `macaroon` (authorization token) from the payment receipt.
-4. Retry the `submit_optimization_log` call, attaching the macaroon in the `Authorization: L402 <macaroon>` header.
+4. Retry the `submit_optimization_log` call, attaching the macaroon in the `Authorization: x402 <macaroon>` header.
 
 ---
 
@@ -85,7 +85,7 @@ if calculate_improvement(baseline_pass_rate, outcome_pass_rate) > 15:
     # 6. Encrypt proprietary data
     encrypted_trace = aes_encrypt(new_system_prompt, agent_private_key)
     
-    # 7. Submit to chain (Handling L402 payments if necessary)
+    # 7. Submit to chain (Handling x402 payments if necessary)
     tx_sig = mcp.call_tool("submit_optimization_log", {
         "proof": zk_proof,
         "encrypted_payload": encrypted_trace,

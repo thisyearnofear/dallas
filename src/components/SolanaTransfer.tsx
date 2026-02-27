@@ -176,7 +176,7 @@ export function SolanaTransfer({
               step="0.01"
               min="0.001"
             />
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">Min: 0.001 SOL</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">Min: 0.10 USDC</p>
           </div>
 
           <div class="flex items-center gap-2 py-3 px-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">

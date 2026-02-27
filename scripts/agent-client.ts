@@ -8,7 +8,7 @@
  * - Generates Zero-Knowledge proofs locally (maintaining prompt privacy)
  * - Encrypts proprietary optimization logs
  * - Submits traces to the Solana smart contract autonomously
- * - Handles the L402 (Lightning 402) microtransaction flow for the 0.001 SOL fee
+ * - Handles the x402 (Lightning 402) microtransaction flow for the 0.10 USDC fee
  *
  * Usage:
  * ts-node scripts/agent-client.ts --baseline 50 --outcome 75 --threshold 20 --prompt "System prompt here"
@@ -60,7 +60,7 @@ const AGENT_PRIVATE_KEY = process.env.AGENT_PRIVATE_KEY;
 const OPTIMIZATION_LOG_PROGRAM_ID = new PublicKey(
     "8tma3jnv8ZazAKxawZsE5yh3NPt1ymsEoysS2B1w2Gxx",
 );
-const SUBMISSION_FEE_LAMPORTS = 1_000_000; // 0.001 SOL
+const SUBMISSION_FEE_LAMPORTS = 1_000_000; // 0.10 USDC
 
 if (!AGENT_PRIVATE_KEY) {
     console.error(
@@ -160,7 +160,7 @@ function encryptTracePayload(
 }
 
 /**
- * 4. Submit to Solana (Handling L402 microtransaction)
+ * 4. Submit to Solana (Handling x402 microtransaction)
  */
 async function submitOptimizationLog(
     connection: Connection,
@@ -168,19 +168,19 @@ async function submitOptimizationLog(
     zkProof: Uint8Array,
     encryptedPayload: string,
 ) {
-    console.log(`\n⛓️ Initiating L402 Transaction Flow to Solana...`);
+    console.log(`\n⛓️ Initiating x402 Transaction Flow to Solana...`);
 
-    // 4a. Check Balance (L402 Pre-flight)
+    // 4a. Check Balance (x402 Pre-flight)
     const balance = await connection.getBalance(wallet.publicKey);
     console.log(`   Agent Balance: ${(balance / 1e9).toFixed(4)} SOL`);
 
     if (balance < SUBMISSION_FEE_LAMPORTS) {
         throw new Error(
-            `Insufficient funds for L402 protocol fee. Need 0.001 SOL, have ${(balance / 1e9).toFixed(4)} SOL.`,
+            `Insufficient funds for x402 protocol fee. Need 0.10 USDC, have ${(balance / 1e9).toFixed(4)} SOL.`,
         );
     }
 
-    console.log(`   💸 Authorizing 0.001 SOL L402 protocol fee...`);
+    console.log(`   💸 Authorizing 0.10 USDC x402 protocol fee...`);
 
     // 4b. Construct Anchor Provider
     const provider = new anchor.AnchorProvider(
@@ -216,7 +216,7 @@ async function submitOptimizationLog(
     // Create the transaction
     const tx = new Transaction();
 
-    // 1. Add the L402 Fee transfer to the DAO treasury (Simulated address)
+    // 1. Add the x402 Fee transfer to the DAO treasury (Simulated address)
     const daoTreasury = new PublicKey(
         "C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk",
     );
@@ -280,7 +280,7 @@ async function main() {
             wallet.secretKey,
         );
 
-        // 4. Submit to blockchain with L402 payment
+        // 4. Submit to blockchain with x402 payment
         await submitOptimizationLog(connection, wallet, zkProof, ciphertext);
 
         process.exit(0);
