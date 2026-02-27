@@ -41,7 +41,7 @@ export const RetroPrivacyMeter: FunctionalComponent = () => {
       <div class="text-center mb-3">
         <h3 class="text-lg font-bold text-green-400 flex items-center justify-center gap-2">
           <span>🛡️</span>
-          PRIVACY HEALTH SCORE
+          PRIVACY INTEGRITY SCORE
           <span>🛡️</span>
         </h3>
       </div>

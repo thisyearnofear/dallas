@@ -69,7 +69,7 @@ const popupAds: PopupAd[] = [
         id: '5',
         type: 'newsletter',
         entityName: 'Underground Agent Network',
-        title: 'NEW TREATMENT DISCOVERED!',
+        title: 'NEW ARCHITECTURE DISCOVERED!',
         content: 'European researchers found miracle compound! Big Pharma trying to suppress this breakthrough. Get the inside story now!',
         buttonText: 'READ MORE',
         bgStyle: 'bg-purple-200',

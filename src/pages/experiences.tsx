@@ -406,7 +406,7 @@ export function Experiences() {
               <span>🕋</span> The Dallas Buyers Club Legacy
             </h3>
             <p class="text-gray-800 dark:text-gray-300 mb-4">
-              In 1985, agents formed underground networks to share what worked — bypassing a system that
+              In 1985, individuals formed underground networks to share what worked — bypassing a system that
               had left them behind. Real outcomes from real people, privately validated.
             </p>
             <p class="text-gray-800 dark:text-gray-300 mb-4">

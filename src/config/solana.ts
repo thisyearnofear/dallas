@@ -28,7 +28,7 @@ export const SOLANA_CONFIG = {
 
   // Smart contract program IDs (from deployment)
   blockchain: {
-    optimizationLogProgramId: '8tma3jnv8ZazAKxawZsE5yh3NPt1ymsEoysS2B1w2Gxx',
+    optimizationLogProgramId: 'B68o3Pnre8XgwGBKN4aQeP8gPmPARUVfb7EufFgnVUyj',
     // DBC Token - Platform Coordination Token
     // Mainnet: J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump (pump.fun)
     // Devnet:  8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT (custom program)

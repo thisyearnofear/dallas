@@ -90,7 +90,7 @@ export const AttentionTokenMarket: React.FC = () => {
               techniqueName: 'Architecture', // Would need to be stored in account or fetched from URI
               techniqueCategory: 'General',
               description: 'Architecture description',
-              imageUrl: getTokenImageUrl('TREATMENT'),
+              imageUrl: getTokenImageUrl('OPTIMIZATION'),
               reputationScore: parsed.reputationScore,
               validatorCount: parsed.approvalCount,
               validators: [],

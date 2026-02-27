@@ -8,7 +8,7 @@
  * - Privacy sponsor integrations (Light Protocol, Arcium, etc.)
  * 
  * Privacy-first design:
- * - All health data encrypted before blockchain submission
+ * - All agent data encrypted before blockchain submission
  * - Platform cannot decrypt without user permission
  * - On-chain access control (agent-granted)
  */
