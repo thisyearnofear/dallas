@@ -1,20 +1,20 @@
 import { FunctionalComponent } from 'preact';
 import { useState, useContext, useCallback, useEffect } from 'preact/hooks';
 import { WalletContext } from '../context/WalletContext';
-import { deriveEncryptionKey, encryptHealthData } from '../utils/encryption';
-import { submitCaseStudyToBlockchain } from '../services/BlockchainIntegration';
+import { deriveEncryptionKey, encryptAgentData } from '../utils/encryption';
+import { submitOptimizationLogToBlockchain } from '../services/BlockchainIntegration';
 import { validateBlockchainConfig } from '../config/solana';
 import { SubmissionConsentCheckboxes } from './SharedUIComponents';
 import { LEGAL_CONFIG } from '../config/legal';
 import {
   lightProtocolService,
   COMPRESSION_RATIO_OPTIONS,
-  CompressedCaseStudy,
+  CompressedOptimizationLog,
 } from '../services/privacy';
 import { PrivacyTooltip, PrivacyLabel } from './PrivacyTooltip';
 import { PrivacyScorePreview } from './PrivacyScorePreview';
 
-interface HealthMetrics {
+interface AgentMetrics {
   symptomSeverity: number; // 1-10
   energyLevel: number; // 1-10
   biomarkers?: Record<string, string | number>;
@@ -28,17 +28,17 @@ interface SideEffect {
   resolved: boolean;
 }
 
-interface CaseStudyFormData {
-  treatmentProtocol: string;
+interface OptimizationLogFormData {
+  architectureProtocol: string;
   durationDays: number;
   costUSD: number;
-  baselineMetrics: HealthMetrics;
-  outcomeMetrics: HealthMetrics;
+  baselineMetrics: AgentMetrics;
+  outcomeMetrics: AgentMetrics;
   sideEffects: SideEffect[];
   context?: string;
 }
 
-export const EncryptedCaseStudyForm: FunctionalComponent = () => {
+export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
   const walletContext = useContext(WalletContext);
   const { publicKey, signMessage } = walletContext;
   const [encryptionKey, setEncryptionKey] = useState<Uint8Array | null>(null);
@@ -54,7 +54,7 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
   // Light Protocol compression state
   const [compressionStats, setCompressionStats] = useState<{
     isCompressing: boolean;
-    compressedData: CompressedCaseStudy | null;
+    compressedData: CompressedOptimizationLog | null;
     originalSize: number;
     savingsPercent: number;
   }>({
@@ -101,8 +101,8 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
     autoDeriveKey();
   }, [publicKey, signMessage, encryptionKey, keyDeriving]);
 
-  const [formData, setFormData] = useState<CaseStudyFormData>({
-    treatmentProtocol: '',
+  const [formData, setFormData] = useState<OptimizationLogFormData>({
+    architectureProtocol: '',
     durationDays: 8,
     costUSD: 0,
     baselineMetrics: { symptomSeverity: 5, energyLevel: 5 },
@@ -113,7 +113,7 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
 
   // Form validation state
   const [formValidation, setFormValidation] = useState({
-    treatmentProtocol: { isValid: false, message: '' },
+    architectureProtocol: { isValid: false, message: '' },
     durationDays: { isValid: true, message: '' },
     costUSD: { isValid: true, message: '' },
     baselineMetrics: { isValid: true, message: '' },
@@ -123,9 +123,9 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
   // Real-time form validation
   const validateForm = () => {
     const validation = {
-      treatmentProtocol: {
-        isValid: formData.treatmentProtocol.trim().length >= 10,
-        message: formData.treatmentProtocol.trim().length < 10 ? 'Protocol name must be at least 10 characters' : '',
+      architectureProtocol: {
+        isValid: formData.architectureProtocol.trim().length >= 10,
+        message: formData.architectureProtocol.trim().length < 10 ? 'Protocol name must be at least 10 characters' : '',
       },
       durationDays: {
         isValid: formData.durationDays >= 1 && formData.durationDays <= 365,
@@ -164,7 +164,7 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
   // Success state for full-screen overlay
   const [successData, setSuccessData] = useState<{
     signature: string;
-    caseStudyId: string;
+    optimizationLogId: string;
     explorerUrl: string;
   } | null>(null);
 
@@ -204,7 +204,7 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
       setSubmitStatus({
         type: 'success',
         message:
-          '✅ Encryption key derived from your wallet. Your health data will be encrypted before leaving your device.',
+          '✅ Encryption key derived from your wallet. Your agent data will be encrypted before leaving your device.',
       });
     } catch (error) {
       setSubmitStatus({
@@ -216,8 +216,8 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
     }
   };
 
-  // Compress case study data using Light Protocol
-  const compressCaseStudy = async () => {
+  // Compress optimization log data using Light Protocol
+  const compressOptimizationLog = async () => {
     if (!encryptionKey) return;
 
     setCompressionStats((s) => ({ ...s, isCompressing: true }));
@@ -228,11 +228,11 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
 
     try {
       // Prepare data for compression
-      const encryptedBaseline = await encryptHealthData(
+      const encryptedBaseline = await encryptAgentData(
         JSON.stringify(formData.baselineMetrics),
         encryptionKey
       );
-      const encryptedOutcome = await encryptHealthData(
+      const encryptedOutcome = await encryptAgentData(
         JSON.stringify(formData.outcomeMetrics),
         encryptionKey
       );
@@ -241,15 +241,15 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
       const originalSize = 
         encryptedBaseline.length +
         encryptedOutcome.length +
-        formData.treatmentProtocol.length +
+        formData.architectureProtocol.length +
         4 + 4; // duration and cost
 
       // Compress using Light Protocol
-      const compressed = await lightProtocolService.compressCaseStudy(
+      const compressed = await lightProtocolService.compressOptimizationLog(
         {
           encryptedBaseline: new TextEncoder().encode(encryptedBaseline),
           encryptedOutcome: new TextEncoder().encode(encryptedOutcome),
-          treatmentProtocol: formData.treatmentProtocol,
+          architectureProtocol: formData.architectureProtocol,
           durationDays: formData.durationDays,
           costUSD: formData.costUSD,
           metadataHash: crypto.getRandomValues(new Uint8Array(32)),
@@ -287,7 +287,7 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
     }
   };
 
-  // Step 2: Encrypt and submit case study to blockchain
+  // Step 2: Encrypt and submit optimization log to blockchain
   // Enhanced submission with real-time progress tracking
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
@@ -308,10 +308,10 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
       return;
     }
 
-    if (!formData.treatmentProtocol.trim()) {
+    if (!formData.architectureProtocol.trim()) {
       setSubmitStatus({
         type: 'error',
-        message: 'Please enter a treatment protocol',
+        message: 'Please enter a architecture protocol',
       });
       return;
     }
@@ -330,12 +330,12 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
       // Step 1: Compress data if needed
       setSubmitStatus({
         type: 'info',
-        message: '🔄 Step 1/4: Compressing case study data...',
+        message: '🔄 Step 1/4: Compressing optimization log data...',
       });
 
       let compressedData = compressionStats.compressedData;
       if (!compressedData) {
-        compressedData = await compressCaseStudy();
+        compressedData = await compressOptimizationLog();
         if (!compressedData) {
           setIsSubmitting(false);
           return;
@@ -355,7 +355,7 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
       });
 
       // Submit to blockchain with real program calls
-      const result = await submitCaseStudyToBlockchain(
+      const result = await submitOptimizationLogToBlockchain(
         publicKey,
         walletContext.signTransaction,
         formData,
@@ -380,17 +380,17 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
 
         // Extract data for success overlay
         const signature = result.transactionSignature || '';
-        const caseStudyId = result.caseStudyPubkey?.toString() || '';
+        const optimizationLogId = result.optimizationLogPubkey?.toString() || '';
         
         setSuccessData({
           signature,
-          caseStudyId,
+          optimizationLogId,
           explorerUrl: `https://explorer.solana.com/tx/${signature}?cluster=devnet`,
         });
 
         // Reset form on success
         setFormData({
-          treatmentProtocol: '',
+          architectureProtocol: '',
           durationDays: 8,
           costUSD: 0,
           baselineMetrics: { symptomSeverity: 5, energyLevel: 5 },
@@ -432,10 +432,10 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
           </div>
           
           <h2 class="text-3xl font-black mb-3 uppercase tracking-tighter text-green-600 dark:text-green-400">
-            🎉 Case Study Submitted!
+            🎉 Optimization Log Submitted!
           </h2>
           <p class="text-slate-600 dark:text-slate-300 font-medium mb-8">
-            Your encrypted case study is now on Solana blockchain and ready for validation
+            Your encrypted optimization log is now on Solana blockchain and ready for validation
           </p>
 
           {/* Next Steps Guide */}
@@ -448,7 +448,7 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
                 <span class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
                 <div>
                   <div class="font-bold text-blue-700 dark:text-blue-300">Validator Review</div>
-                  <div class="text-blue-600 dark:text-blue-400">Validators will review your case study using ZK proofs (no data exposure)</div>
+                  <div class="text-blue-600 dark:text-blue-400">Validators will review your optimization log using ZK proofs (no data exposure)</div>
                 </div>
               </div>
               <div class="flex items-start gap-3">
@@ -484,9 +484,9 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
               <div class="flex items-start gap-3">
                 <span class="text-2xl">🏥</span>
                 <div class="flex-1 min-w-0">
-                  <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Case Study ID</div>
+                  <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Optimization Log ID</div>
                   <div class="font-mono text-sm text-slate-700 dark:text-slate-300 break-all">
-                    {successData.caseStudyId.slice(0, 32)}...
+                    {successData.optimizationLogId.slice(0, 32)}...
                   </div>
                 </div>
               </div>
@@ -540,7 +540,7 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
           {/* Privacy reminder */}
           <div class="mt-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-200 dark:border-purple-700">
             <p class="text-xs font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider">
-              🛡️ Your health data is encrypted on-chain. Only you can decrypt it with your wallet.
+              🛡️ Your agent data is encrypted on-chain. Only you can decrypt it with your wallet.
             </p>
           </div>
         </div>
@@ -552,9 +552,9 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
     <div class="w-full max-w-2xl mx-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-8 rounded-2xl border-2 border-green-500 shadow-xl transition-all duration-300">
       {/* Header */}
       <div class="mb-10">
-        <h2 class="text-3xl font-black mb-2 uppercase tracking-tighter">📋 Share Your Health Journey</h2>
+        <h2 class="text-3xl font-black mb-2 uppercase tracking-tighter">📋 Share Your Agent Journey</h2>
         <p class="text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-          Document your experimental treatment and share your experience with the community.
+          Document your experimental architecture and share your experience with the community.
           Your data stays encrypted.
         </p>
       </div>
@@ -584,7 +584,7 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
           <>
             <p class="text-slate-600 dark:text-slate-300 mb-6 font-medium">
               First, we'll derive an encryption key from your wallet. This key stays on your
-              device and controls who can see your health data.
+              device and controls who can see your agent data.
             </p>
             <button
               onClick={handleDeriveKey}
@@ -600,50 +600,50 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
             <div>
               <div class="font-black text-green-800 dark:text-green-300 uppercase tracking-widest text-xs">Encryption key ready</div>
               <div class="text-sm text-green-700 dark:text-slate-400 font-medium">
-                Your health metrics will be encrypted before submission.
+                Your agent metrics will be encrypted before submission.
               </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Step 2: Case Study Form */}
+      {/* Step 2: Optimization Log Form */}
       {encryptionKey && (
         <form onSubmit={handleSubmit} class="space-y-8 animate-fadeIn">
           <div class="p-8 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-inner">
             <h3 class="text-xl font-black mb-6 flex items-center gap-3 uppercase tracking-wider text-slate-800 dark:text-white">
               <span class="text-2xl bg-white dark:bg-slate-700 p-2 rounded-lg shadow-sm">💊</span>
-              Step 2: Your Treatment
+              Step 2: Your Architecture
             </h3>
 
-            {/* Treatment Protocol */}
+            {/* Architecture Protocol */}
             <div class="mb-6">
               <label class="block text-xs font-black mb-2 uppercase tracking-widest text-slate-500 dark:text-slate-400">
-                What treatment did you try? *
+                What architecture did you try? *
               </label>
               <div class="relative">
                 <input
                   type="text"
                   placeholder="e.g., Peptide-T + Vitamin D + NAC supplements"
-                  value={formData.treatmentProtocol}
+                  value={formData.architectureProtocol}
                   onInput={(e) =>
                     setFormData({
                       ...formData,
-                      treatmentProtocol: (e.target as HTMLInputElement).value,
+                      architectureProtocol: (e.target as HTMLInputElement).value,
                     })
                   }
                   class={`w-full px-4 py-3 bg-white dark:bg-slate-700 border rounded-xl text-slate-900 dark:text-white placeholder-slate-400 outline-none transition-all shadow-sm ${
-                    formData.treatmentProtocol.length > 0
-                      ? formValidation.treatmentProtocol.isValid
+                    formData.architectureProtocol.length > 0
+                      ? formValidation.architectureProtocol.isValid
                         ? 'border-green-500 focus:border-green-600'
                         : 'border-red-500 focus:border-red-600'
                       : 'border-slate-200 dark:border-slate-600 focus:border-brand'
                   }`}
                   required
                 />
-                {formData.treatmentProtocol.length > 0 && (
+                {formData.architectureProtocol.length > 0 && (
                   <div class="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    {formValidation.treatmentProtocol.isValid ? (
+                    {formValidation.architectureProtocol.isValid ? (
                       <span class="text-green-500 text-lg">✓</span>
                     ) : (
                       <span class="text-red-500 text-lg">✗</span>
@@ -651,13 +651,13 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
                   </div>
                 )}
               </div>
-              {formValidation.treatmentProtocol.message && (
+              {formValidation.architectureProtocol.message && (
                 <p class="text-xs text-red-500 mt-2 font-medium">
-                  {formValidation.treatmentProtocol.message}
+                  {formValidation.architectureProtocol.message}
                 </p>
               )}
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                {formData.treatmentProtocol.length}/10 characters minimum
+                {formData.architectureProtocol.length}/10 characters minimum
               </p>
             </div>
 
@@ -700,7 +700,7 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
           <div class="p-8 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-inner">
             <h3 class="text-lg font-black mb-6 uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-2">
               <span class="w-2 h-6 bg-blue-500 rounded-full"></span>
-              Before Treatment (Baseline)
+              Before Architecture (Baseline)
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
@@ -764,7 +764,7 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
           <div class="p-8 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-inner">
             <h3 class="text-lg font-black mb-6 uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-2">
               <span class="w-2 h-6 bg-green-500 rounded-full"></span>
-              After Treatment (Outcome)
+              After Architecture (Outcome)
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
@@ -912,7 +912,7 @@ export const EncryptedCaseStudyForm: FunctionalComponent = () => {
               Additional Context
             </h3>
             <textarea
-              placeholder="Any other details? (Diet changes, concurrent treatments, dosages, etc.)"
+              placeholder="Any other details? (Diet changes, concurrent architectures, dosages, etc.)"
               value={formData.context || ''}
               onInput={(e) =>
                 setFormData({

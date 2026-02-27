@@ -1,18 +1,18 @@
 /**
- * Enhanced Blockchain Integration for Case Study Submission
+ * Enhanced Blockchain Integration for Optimization Log Submission
  * Handles end-to-end flow: encryption → blockchain submission → verification
  * Includes privacy sponsor integrations and transaction confirmation UI
  */
 
 import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
-import { BlockchainService, CaseStudyData, ValidationData, TransactionResult } from './BlockchainService';
-import { encryptHealthData } from '../utils/encryption';
+import { BlockchainService, OptimizationLogData, ValidationData, TransactionResult } from './BlockchainService';
+import { encryptAgentData } from '../utils/encryption';
 import { cacheService } from './CacheService';
 
 export interface BlockchainSubmissionResult {
   success: boolean;
-  caseStudyPubkey?: PublicKey;
+  optimizationLogPubkey?: PublicKey;
   transactionSignature?: string;
   rewardSignature?: string;
   rewardAmount?: number;
@@ -24,7 +24,7 @@ export interface BlockchainSubmissionResult {
 }
 
 export interface ValidationRequest {
-  caseStudyPubkey: PublicKey;
+  optimizationLogPubkey: PublicKey;
   validatorAddress: PublicKey;
   validationType: 'quality' | 'accuracy' | 'safety';
 }
@@ -43,13 +43,13 @@ function getBlockchainService(): BlockchainService {
 }
 
 /**
- * Submit encrypted case study to blockchain with privacy sponsor integrations
+ * Submit encrypted optimization log to blockchain with privacy sponsor integrations
  */
-export async function submitCaseStudyToBlockchain(
+export async function submitOptimizationLogToBlockchain(
   walletAddress: PublicKey,
   signTransaction: (tx: any) => Promise<any>,
   formData: {
-    treatmentProtocol: string;
+    architectureProtocol: string;
     durationDays: number;
     costUSD: number;
     baselineMetrics: Record<string, any>;
@@ -69,19 +69,19 @@ export async function submitCaseStudyToBlockchain(
 
     // Encrypt sensitive data locally
     const encryptedBaseline = Buffer.from(
-      encryptHealthData(JSON.stringify(formData.baselineMetrics), encryptionKey),
+      encryptAgentData(JSON.stringify(formData.baselineMetrics), encryptionKey),
       'base64'
     );
     const encryptedOutcome = Buffer.from(
-      encryptHealthData(JSON.stringify(formData.outcomeMetrics), encryptionKey),
+      encryptAgentData(JSON.stringify(formData.outcomeMetrics), encryptionKey),
       'base64'
     );
 
-    // Prepare case study data with privacy sponsor integrations
-    const caseStudyData: CaseStudyData = {
+    // Prepare optimization log data with privacy sponsor integrations
+    const optimizationLogData: OptimizationLogData = {
       encryptedBaseline: new Uint8Array(encryptedBaseline),
       encryptedOutcome: new Uint8Array(encryptedOutcome),
-      treatmentProtocol: formData.treatmentProtocol,
+      architectureProtocol: formData.architectureProtocol,
       durationDays: formData.durationDays,
       costUSD: formData.costUSD,
       // Privacy sponsor integration flags
@@ -93,10 +93,10 @@ export async function submitCaseStudyToBlockchain(
     };
 
     // Submit to blockchain
-    const result: TransactionResult = await service.submitCaseStudy(
+    const result: TransactionResult = await service.submitOptimizationLog(
       walletAddress,
       signTransaction,
-      caseStudyData
+      optimizationLogData
     );
 
     if (result.success) {
@@ -106,12 +106,12 @@ export async function submitCaseStudyToBlockchain(
 
       return {
         success: true,
-        caseStudyPubkey: result.accountPubkey,
+        optimizationLogPubkey: result.accountPubkey,
         transactionSignature: result.signature,
         message: `✅ Case study submitted to blockchain! 
 
 🔗 Transaction: ${result.signature.slice(0, 20)}...
-🏥 Case Study ID: ${result.accountPubkey?.toString().slice(0, 20)}...
+🏥 Optimization Log ID: ${result.accountPubkey?.toString().slice(0, 20)}...
 🎯 Quality Score: ${qualityScore}/100 (pending validation)
 🔐 Privacy: Encrypted with your wallet key
 📊 Compression: ${privacyOptions?.compressionRatio || 2}x via Light Protocol
@@ -120,7 +120,7 @@ ${privacyOptions?.useShadowWire ? '🌐 ShadowWire: Private payments enabled' : 
 
 🔍 View Submission: https://explorer.solana.com/tx/${result.signature}?cluster=devnet
 
-Your health data is now on-chain but encrypted. Only you can decrypt it. DBC rewards will be distributed after validator approval.`,
+Your agent data is now on-chain but encrypted. Only you can decrypt it. DBC rewards will be distributed after validator approval.`,
       };
     } else {
       return {
@@ -146,7 +146,7 @@ Your health data is now on-chain but encrypted. Only you can decrypt it. DBC rew
 export async function submitValidatorApproval(
   validator: PublicKey,
   signTransaction: (tx: any) => Promise<any>,
-  caseStudyPubkey: PublicKey,
+  optimizationLogPubkey: PublicKey,
   validationType: 'quality' | 'accuracy' | 'safety',
   approved: boolean,
   stakeAmount: number = 10
@@ -155,7 +155,7 @@ export async function submitValidatorApproval(
     const service = getBlockchainService();
 
     const validationData: ValidationData = {
-      caseStudyPubkey,
+      optimizationLogPubkey,
       validationType,
       approved,
       stakeAmount,
@@ -206,21 +206,21 @@ Your validation has been recorded. DBC rewards will be distributed by the treasu
 }
 
 /**
- * Request validator to review case study (grant access permission)
+ * Request validator to review optimization log (grant access permission)
  */
 export async function requestValidatorReview(
-  caseStudyOwner: PublicKey,
+  optimizationLogOwner: PublicKey,
   signTransaction: (tx: any) => Promise<any>,
-  caseStudyPubkey: PublicKey,
+  optimizationLogPubkey: PublicKey,
   validatorAddress: PublicKey
 ): Promise<BlockchainSubmissionResult> {
   try {
     const service = getBlockchainService();
 
     const result = await service.grantAccessPermission(
-      caseStudyOwner,
+      optimizationLogOwner,
       signTransaction,
-      caseStudyPubkey,
+      optimizationLogPubkey,
       validatorAddress,
       0 // Permission type: read-only
     );
@@ -245,7 +245,7 @@ export async function requestValidatorReview(
 }
 
 /**
- * Fetch all pending case studies for validators
+ * Fetch all pending optimization logs for validators
  */
 export async function fetchPendingCaseStudies(): Promise<{
   success: boolean;
@@ -270,7 +270,7 @@ export async function fetchPendingCaseStudies(): Promise<{
       caseStudies,
     };
   } catch (error) {
-    console.error('Error fetching pending case studies:', error);
+    console.error('Error fetching pending optimization logs:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -279,11 +279,11 @@ export async function fetchPendingCaseStudies(): Promise<{
 }
 
 /**
- * Fetch case study from blockchain and decrypt locally
+ * Fetch optimization log from blockchain and decrypt locally
  * Uses caching to reduce RPC calls (5 minute TTL)
  */
-export async function fetchAndDecryptCaseStudy(
-  caseStudyPubkey: PublicKey,
+export async function fetchAndDecryptOptimizationLog(
+  optimizationLogPubkey: PublicKey,
   encryptionKey: Uint8Array,
   decryptFunction: (encrypted: string, key: Uint8Array) => string
 ): Promise<{
@@ -291,7 +291,7 @@ export async function fetchAndDecryptCaseStudy(
   data?: Record<string, any>;
   error?: string;
 }> {
-  const cacheKey = `caseStudy_${caseStudyPubkey.toString()}`;
+  const cacheKey = `optimizationLog_${optimizationLogPubkey.toString()}`;
   const TTL = 5 * 60 * 1000; // 5 minutes
 
   try {
@@ -303,16 +303,16 @@ export async function fetchAndDecryptCaseStudy(
     }>(cacheKey);
 
     if (cached !== null) {
-      console.log(`[CacheService] Cache hit for case study: ${caseStudyPubkey.toString().slice(0, 8)}...`);
+      console.log(`[CacheService] Cache hit for optimization log: ${optimizationLogPubkey.toString().slice(0, 8)}...`);
       return cached;
     }
 
-    console.log(`[CacheService] Cache miss for case study: ${caseStudyPubkey.toString().slice(0, 8)}...`);
+    console.log(`[CacheService] Cache miss for optimization log: ${optimizationLogPubkey.toString().slice(0, 8)}...`);
 
     const service = getBlockchainService();
-    const caseStudy = await service.fetchCaseStudy(caseStudyPubkey);
+    const optimizationLog = await service.fetchOptimizationLog(optimizationLogPubkey);
 
-    if (!caseStudy) {
+    if (!optimizationLog) {
       const result = {
         success: false,
         error: 'Case study not found on blockchain',
@@ -322,8 +322,8 @@ export async function fetchAndDecryptCaseStudy(
     }
 
     // Convert encrypted data back to base64 for decryption
-    const encryptedBaselineB64 = Buffer.from(caseStudy.encryptedBaseline).toString('base64');
-    const encryptedOutcomeB64 = Buffer.from(caseStudy.encryptedOutcome).toString('base64');
+    const encryptedBaselineB64 = Buffer.from(optimizationLog.encryptedBaseline).toString('base64');
+    const encryptedOutcomeB64 = Buffer.from(optimizationLog.encryptedOutcome).toString('base64');
 
     // Decrypt locally
     const decryptedBaseline = decryptFunction(encryptedBaselineB64, encryptionKey);
@@ -332,14 +332,14 @@ export async function fetchAndDecryptCaseStudy(
     const result = {
       success: true,
       data: {
-        patientId: caseStudy.patientId.toString(),
-        treatmentProtocol: caseStudy.treatmentProtocol,
-        durationDays: caseStudy.durationDays,
-        costUsd: caseStudy.costUsd,
-        createdAt: new Date(caseStudy.createdAt * 1000),
-        isApproved: caseStudy.isApproved,
-        approvalCount: caseStudy.approvalCount,
-        validationScore: caseStudy.validationScore,
+        agentId: optimizationLog.agentId.toString(),
+        architectureProtocol: optimizationLog.architectureProtocol,
+        durationDays: optimizationLog.durationDays,
+        costUsd: optimizationLog.costUsd,
+        createdAt: new Date(optimizationLog.createdAt * 1000),
+        isApproved: optimizationLog.isApproved,
+        approvalCount: optimizationLog.approvalCount,
+        validationScore: optimizationLog.validationScore,
         baselineMetrics: JSON.parse(decryptedBaseline),
         outcomeMetrics: JSON.parse(decryptedOutcome),
       },
@@ -359,7 +359,7 @@ export async function fetchAndDecryptCaseStudy(
 }
 
 /**
- * Get all case studies for display in UI
+ * Get all optimization logs for display in UI
  * Uses caching to reduce RPC calls (5 minute TTL)
  */
 export async function fetchUserCaseStudies(
@@ -393,16 +393,16 @@ export async function fetchUserCaseStudies(
     }>(cacheKey);
 
     if (cached !== null) {
-      console.log(`[CacheService] Cache hit for user case studies: ${userAddress.toString().slice(0, 8)}...`);
+      console.log(`[CacheService] Cache hit for user optimization logs: ${userAddress.toString().slice(0, 8)}...`);
       return cached;
     }
 
-    console.log(`[CacheService] Cache miss for user case studies: ${userAddress.toString().slice(0, 8)}...`);
+    console.log(`[CacheService] Cache miss for user optimization logs: ${userAddress.toString().slice(0, 8)}...`);
 
     const service = getBlockchainService();
-    const caseStudyPubkeys = await service.getCaseStudiesForPatient(userAddress);
+    const optimizationLogPubkeys = await service.getCaseStudiesForAgent(userAddress);
 
-    if (caseStudyPubkeys.length === 0) {
+    if (optimizationLogPubkeys.length === 0) {
       const result = {
         success: true,
         caseStudies: [],
@@ -411,17 +411,17 @@ export async function fetchUserCaseStudies(
       return result;
     }
 
-    // Fetch details for each case study (in real usage, batch this)
+    // Fetch details for each optimization log (in real usage, batch this)
     const caseStudies = [];
-    for (const pubkey of caseStudyPubkeys) {
-      const caseStudy = await service.fetchCaseStudy(pubkey);
-      if (caseStudy) {
+    for (const pubkey of optimizationLogPubkeys) {
+      const optimizationLog = await service.fetchOptimizationLog(pubkey);
+      if (optimizationLog) {
         caseStudies.push({
           pubkey,
-          protocol: caseStudy.treatmentProtocol,
-          createdAt: new Date(caseStudy.createdAt * 1000),
-          isApproved: caseStudy.isApproved,
-          approvalCount: caseStudy.approvalCount,
+          protocol: optimizationLog.architectureProtocol,
+          createdAt: new Date(optimizationLog.createdAt * 1000),
+          isApproved: optimizationLog.isApproved,
+          approvalCount: optimizationLog.approvalCount,
         });
       }
     }
@@ -438,7 +438,7 @@ export async function fetchUserCaseStudies(
 
     return result;
   } catch (error) {
-    console.error('Fetch case studies error:', error);
+    console.error('Fetch optimization logs error:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -447,23 +447,23 @@ export async function fetchUserCaseStudies(
 }
 
 /**
- * Invalidate case study cache for a specific case study
- * Call this after submitting a new case study or when data changes
+ * Invalidate optimization log cache for a specific optimization log
+ * Call this after submitting a new optimization log or when data changes
  */
-export function invalidateCaseStudyCache(caseStudyPubkey: PublicKey): void {
-  const cacheKey = `caseStudy_${caseStudyPubkey.toString()}`;
+export function invalidateOptimizationLogCache(optimizationLogPubkey: PublicKey): void {
+  const cacheKey = `optimizationLog_${optimizationLogPubkey.toString()}`;
   cacheService.delete(cacheKey);
-  console.log(`[CacheService] Invalidated case study cache: ${caseStudyPubkey.toString().slice(0, 8)}...`);
+  console.log(`[CacheService] Invalidated optimization log cache: ${optimizationLogPubkey.toString().slice(0, 8)}...`);
 }
 
 /**
- * Invalidate user case studies cache
- * Call this after submitting a new case study
+ * Invalidate user optimization logs cache
+ * Call this after submitting a new optimization log
  */
 export function invalidateUserCaseStudiesCache(userAddress: PublicKey): void {
   const cacheKey = `userCaseStudies_${userAddress.toString()}`;
   cacheService.delete(cacheKey);
-  console.log(`[CacheService] Invalidated user case studies cache: ${userAddress.toString().slice(0, 8)}...`);
+  console.log(`[CacheService] Invalidated user optimization logs cache: ${userAddress.toString().slice(0, 8)}...`);
 }
 
 /**
@@ -471,7 +471,7 @@ export function invalidateUserCaseStudiesCache(userAddress: PublicKey): void {
  */
 export async function getNetworkStatus(): Promise<{
   blockHeight: number;
-  health: 'ok' | 'behind' | 'unknown';
+  agent: 'ok' | 'behind' | 'unknown';
   tps: number;
 }> {
   try {
@@ -481,7 +481,7 @@ export async function getNetworkStatus(): Promise<{
     console.error('Network status error:', error);
     return {
       blockHeight: 0,
-      health: 'unknown',
+      agent: 'unknown',
       tps: 0,
     };
   }

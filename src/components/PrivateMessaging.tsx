@@ -29,7 +29,7 @@ import {
 const TYPE_COLORS: Record<string, string> = {
   general: 'bg-slate-500',
   support: 'bg-red-500',
-  treatment: 'bg-green-500',
+  architecture: 'bg-green-500',
   validator: 'bg-blue-500',
   research: 'bg-purple-500',
 };

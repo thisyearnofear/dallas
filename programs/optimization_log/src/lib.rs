@@ -13,56 +13,56 @@ pub const DBC_MINT: &str = "8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT";  // D
 declare_id!("8tma3jnv8ZazAKxawZsE5yh3NPt1ymsEoysS2B1w2Gxx");
 
 #[program]
-pub mod case_study {
+pub mod optimization_log {
     use super::*;
 
     /// Submit encrypted optimization log with ZK proof of data integrity
     /// Uses Light Protocol compression for scalable private state
-    pub fn submit_encrypted_case_study(
-        ctx: Context<SubmitCaseStudy>,
+    pub fn submit_encrypted_optimization_log(
+        ctx: Context<SubmitOptimizationLog>,
         nonce: i64,                          // Client-provided nonce for PDA derivation
         ipfs_cid: String,                    // Off-chain encrypted payload
         metadata_hash: [u8; 32],             // Hash of encrypted metadata
-        treatment_category: u8,              // 0=experimental, 1=approved, 2=alternative
-        duration_days: u16,
+        optimization_category: u8,              // 0=prompt_engineering, 1=fine_tuning, 2=agent_architecture
+        execution_duration: u16,
         proof_of_encryption: Vec<u8>,        // ZK proof that data is properly encrypted
         light_protocol_proof: Vec<u8>,       // Light Protocol ZK compression proof
         compression_ratio: u16,             // Ratio achieved (e.g., 10x compression)
     ) -> Result<()> {
         require!(
             ipfs_cid.len() == 46 && ipfs_cid.starts_with("Qm"),
-            CaseStudyError::InvalidIPFSCid
+            OptimizationLogError::InvalidIPFSCid
         );
         require!(
-            treatment_category <= 2,
-            CaseStudyError::InvalidCategory
+            optimization_category <= 2,
+            OptimizationLogError::InvalidCategory
         );
         require!(
-            duration_days > 0 && duration_days <= 365,
-            CaseStudyError::InvalidDuration
+            execution_duration > 0 && execution_duration <= 365,
+            OptimizationLogError::InvalidDuration
         );
         require!(
             compression_ratio >= 2 && compression_ratio <= 100,
-            CaseStudyError::InvalidCompressionRatio
+            OptimizationLogError::InvalidCompressionRatio
         );
 
         // Verify ZK proof of proper encryption (Noir circuit)
         require!(
             proof_of_encryption.len() > 0,
-            CaseStudyError::MissingEncryptionProof
+            OptimizationLogError::MissingEncryptionProof
         );
 
         // Verify Light Protocol compression proof
         require!(
             light_protocol_proof.len() > 0,
-            CaseStudyError::MissingLightProtocolProof
+            OptimizationLogError::MissingLightProtocolProof
         );
 
         // In production, verify Light Protocol proof using their verifier
         // For now, we trust the proof format is correct
         let light_proof_hash = hash(&light_protocol_proof);
 
-        let case_study = &mut ctx.accounts.case_study;
+        let optimization_log = &mut ctx.accounts.optimization_log;
         let clock = Clock::get()?;
         
         // Generate ephemeral PDA identifier (not linked to user wallet)
@@ -81,26 +81,26 @@ pub mod case_study {
             ctx.program_id
         );
 
-        case_study.ephemeral_id = ephemeral_id;
-        case_study.submitter = ctx.accounts.submitter.key();
-        case_study.ipfs_cid = ipfs_cid.clone();
-        case_study.metadata_hash = metadata_hash;
-        case_study.treatment_category = treatment_category;
-        case_study.duration_days = duration_days;
-        case_study.created_at = clock.unix_timestamp;
-        case_study.validation_status = ValidationStatus::Pending;
-        case_study.approval_count = 0;
-        case_study.rejection_count = 0;
-        case_study.reputation_score = 0;
-        case_study.is_paused = false;
-        case_study.threshold_shares_required = 3; // K-of-N for Arcium MPC
-        case_study.light_proof_hash = light_proof_hash;
-        case_study.compression_ratio = compression_ratio;
-        case_study.attention_token_mint = None;
-        case_study.attention_token_created_at = None;
-        case_study.bump = ctx.bumps.case_study;
+        optimization_log.ephemeral_id = ephemeral_id;
+        optimization_log.submitter = ctx.accounts.submitter.key();
+        optimization_log.ipfs_cid = ipfs_cid.clone();
+        optimization_log.metadata_hash = metadata_hash;
+        optimization_log.optimization_category = optimization_category;
+        optimization_log.execution_duration = execution_duration;
+        optimization_log.created_at = clock.unix_timestamp;
+        optimization_log.validation_status = ValidationStatus::Pending;
+        optimization_log.approval_count = 0;
+        optimization_log.rejection_count = 0;
+        optimization_log.reputation_score = 0;
+        optimization_log.is_paused = false;
+        optimization_log.threshold_shares_required = 3; // K-of-N for Arcium MPC
+        optimization_log.light_proof_hash = light_proof_hash;
+        optimization_log.compression_ratio = compression_ratio;
+        optimization_log.attention_token_mint = None;
+        optimization_log.attention_token_created_at = None;
+        optimization_log.bump = ctx.bumps.optimization_log;
 
-        emit!(CaseStudySubmitted {
+        emit!(OptimizationLogSubmitted {
             ephemeral_id,
             ipfs_cid,
             metadata_hash,
@@ -125,21 +125,21 @@ pub mod case_study {
     ) -> Result<()> {
         require!(
             stake_amount >= MINIMUM_VALIDATOR_STAKE,
-            CaseStudyError::InsufficientStake
+            OptimizationLogError::InsufficientStake
         );
         require!(
             proof.len() > 0,
-            CaseStudyError::InvalidProof
+            OptimizationLogError::InvalidProof
         );
         require!(
             noir_circuit_id != [0, 0, 0, 0],
-            CaseStudyError::InvalidCircuitId
+            OptimizationLogError::InvalidCircuitId
         );
 
-        let case_study = &mut ctx.accounts.case_study;
+        let optimization_log = &mut ctx.accounts.optimization_log;
         require!(
-            !case_study.is_paused,
-            CaseStudyError::ValidationPaused
+            !optimization_log.is_paused,
+            OptimizationLogError::ValidationPaused
         );
 
         // Verify Noir circuit ID is valid for this validation type
@@ -150,7 +150,7 @@ pub mod case_study {
         };
         require!(
             noir_circuit_id == expected_circuit,
-            CaseStudyError::InvalidCircuitForValidationType
+            OptimizationLogError::InvalidCircuitForValidationType
         );
 
         // In production, verify Noir proof on-chain using Aztec verifier
@@ -161,8 +161,8 @@ pub mod case_study {
         // Check if validator already validated this case study (Sybil resistance)
         require!(
             ctx.accounts.validator_stake.validator != ctx.accounts.validator.key() ||
-            ctx.accounts.validator_stake.case_study != case_study.key(),
-            CaseStudyError::DuplicateValidation
+            ctx.accounts.validator_stake.optimization_log != optimization_log.key(),
+            OptimizationLogError::DuplicateValidation
         );
 
         // Transfer stake privately using Privacy Cash SDK
@@ -181,7 +181,7 @@ pub mod case_study {
         // Record validation stake with Noir/Aztec verification
         let validator_stake = &mut ctx.accounts.validator_stake;
         validator_stake.validator = ctx.accounts.validator.key();
-        validator_stake.case_study = case_study.key();
+        validator_stake.optimization_log = optimization_log.key();
         validator_stake.stake_amount = stake_amount;
         validator_stake.validation_type = validation_type;
         validator_stake.proof_hash = proof_hash;
@@ -196,14 +196,14 @@ pub mod case_study {
         // Update case study approval metrics (weighted by validator reputation)
         match validation_type {
             ValidationType::Approve => {
-                case_study.approval_count = case_study.approval_count
+                optimization_log.approval_count = optimization_log.approval_count
                     .checked_add(validator_stake.reputation_weight)
-                    .ok_or(CaseStudyError::OverflowError)?;
+                    .ok_or(OptimizationLogError::OverflowError)?;
             }
             ValidationType::Reject => {
-                case_study.rejection_count = case_study.rejection_count
+                optimization_log.rejection_count = optimization_log.rejection_count
                     .checked_add(validator_stake.reputation_weight)
-                    .ok_or(CaseStudyError::OverflowError)?;
+                    .ok_or(OptimizationLogError::OverflowError)?;
             }
             ValidationType::FurtherReview => {
                 // Neutral - doesn't affect counts
@@ -211,28 +211,28 @@ pub mod case_study {
         }
 
         // Calculate weighted reputation score (0-100)
-        let total_votes = case_study.approval_count
-            .checked_add(case_study.rejection_count)
-            .ok_or(CaseStudyError::OverflowError)?;
+        let total_votes = optimization_log.approval_count
+            .checked_add(optimization_log.rejection_count)
+            .ok_or(OptimizationLogError::OverflowError)?;
         
         if total_votes > 0 {
-            case_study.reputation_score = ((case_study.approval_count as u128 * 100) 
+            optimization_log.reputation_score = ((optimization_log.approval_count as u128 * 100) 
                 / total_votes as u128) as u8;
         }
 
         // Auto-approve if weighted consensus reached (75% approval, min 5 validators)
-        if total_votes >= 5 && case_study.reputation_score >= 75 {
-            case_study.validation_status = ValidationStatus::Approved;
-        } else if case_study.reputation_score < 25 && total_votes >= 5 {
-            case_study.validation_status = ValidationStatus::Rejected;
+        if total_votes >= 5 && optimization_log.reputation_score >= 75 {
+            optimization_log.validation_status = ValidationStatus::Approved;
+        } else if optimization_log.reputation_score < 25 && total_votes >= 5 {
+            optimization_log.validation_status = ValidationStatus::Rejected;
         }
 
         emit!(ValidationProofSubmitted {
-            case_study: case_study.key(),
+            optimization_log: optimization_log.key(),
             validator: ctx.accounts.validator.key(),
             proof_hash,
             validation_type,
-            reputation_score: case_study.reputation_score,
+            reputation_score: optimization_log.reputation_score,
             noir_circuit_id,
             circuit_params_hash,
             noir_verification_hash,
@@ -251,36 +251,36 @@ pub mod case_study {
     ) -> Result<()> {
         require!(
             justification.len() >= 50 && justification.len() <= 500,
-            CaseStudyError::InvalidJustification
+            OptimizationLogError::InvalidJustification
         );
         require!(
             arcium_mpc_params.len() > 0,
-            CaseStudyError::MissingArciumParams
+            OptimizationLogError::MissingArciumParams
         );
         require!(
             encryption_scheme <= 2,
-            CaseStudyError::InvalidEncryptionScheme
+            OptimizationLogError::InvalidEncryptionScheme
         );
 
         let access_request = &mut ctx.accounts.access_request;
-        access_request.case_study = ctx.accounts.case_study.key();
+        access_request.optimization_log = ctx.accounts.optimization_log.key();
         access_request.requester = ctx.accounts.requester.key();
         access_request.justification = justification;
         access_request.requested_at = Clock::get()?.unix_timestamp;
         access_request.status = AccessStatus::Pending;
         access_request.approvals = 0;
-        access_request.required_approvals = ctx.accounts.case_study.threshold_shares_required;
+        access_request.required_approvals = ctx.accounts.optimization_log.threshold_shares_required;
         access_request.arcium_params_hash = hash(&arcium_mpc_params);
         access_request.encryption_scheme = encryption_scheme;
 
         // In production, this would call Arcium program to initialize MPC session
         // For now, we store the parameters hash for verification
-        let arcium_session_id = hash(&[access_request.case_study.as_ref(), 
+        let arcium_session_id = hash(&[access_request.optimization_log.as_ref(), 
             &access_request.requester.as_ref(), 
             &access_request.arcium_params_hash].concat());
 
         emit!(AccessRequested {
-            case_study: ctx.accounts.case_study.key(),
+            optimization_log: ctx.accounts.optimization_log.key(),
             requester: ctx.accounts.requester.key(),
             required_approvals: access_request.required_approvals,
             arcium_params_hash: access_request.arcium_params_hash,
@@ -307,17 +307,17 @@ pub mod case_study {
         
         require!(
             access_request.status == AccessStatus::Pending,
-            CaseStudyError::AccessAlreadyProcessed
+            OptimizationLogError::AccessAlreadyProcessed
         );
         require!(
             arcium_share_proof.len() > 0,
-            CaseStudyError::MissingArciumShareProof
+            OptimizationLogError::MissingArciumShareProof
         );
 
         // Verify validator has stake in this case study
         require!(
-            ctx.accounts.validator_stake.case_study == access_request.case_study,
-            CaseStudyError::ValidatorNotAuthorized
+            ctx.accounts.validator_stake.optimization_log == access_request.optimization_log,
+            OptimizationLogError::ValidatorNotAuthorized
         );
 
         // In production, verify Arcium MPC share proof
@@ -326,14 +326,14 @@ pub mod case_study {
 
         access_request.approvals = access_request.approvals
             .checked_add(1)
-            .ok_or(CaseStudyError::OverflowError)?;
+            .ok_or(OptimizationLogError::OverflowError)?;
 
         // Grant access if threshold reached
         if access_request.approvals >= access_request.required_approvals {
             access_request.status = AccessStatus::Granted;
             
             emit!(AccessGranted {
-                case_study: access_request.case_study,
+                optimization_log: access_request.optimization_log,
                 requester: access_request.requester,
                 approvals: access_request.approvals,
             });
@@ -342,7 +342,7 @@ pub mod case_study {
             // For now, we emit the completion event
             emit!(ArciumDecryptionComplete {
                 access_request: access_request.key(),
-                case_study: access_request.case_study,
+                optimization_log: access_request.optimization_log,
                 requester: access_request.requester,
                 final_share_proof_hash: share_proof_hash,
             });
@@ -372,19 +372,19 @@ pub mod case_study {
         );
         require!(
             ctx.accounts.agent_authority.key() == risk_agent_pda,
-            CaseStudyError::UnauthorizedAgent
+            OptimizationLogError::UnauthorizedAgent
         );
 
         require!(
             risk_score >= CRITICAL_RISK_THRESHOLD,
-            CaseStudyError::InsufficientRiskScore
+            OptimizationLogError::InsufficientRiskScore
         );
 
-        let case_study = &mut ctx.accounts.case_study;
-        case_study.is_paused = true;
+        let optimization_log = &mut ctx.accounts.optimization_log;
+        optimization_log.is_paused = true;
 
         emit!(ValidationPaused {
-            case_study: case_study.key(),
+            optimization_log: optimization_log.key(),
             risk_score,
             reason,
             paused_at: Clock::get()?.unix_timestamp,
@@ -402,13 +402,13 @@ pub mod case_study {
     ) -> Result<()> {
         require!(
             slash_percentage > 0 && slash_percentage <= 100,
-            CaseStudyError::InvalidSlashPercentage
+            OptimizationLogError::InvalidSlashPercentage
         );
 
         let validator_stake = &ctx.accounts.validator_stake;
         require!(
             !validator_stake.is_slashed,
-            CaseStudyError::AlreadySlashed
+            OptimizationLogError::AlreadySlashed
         );
 
         // Mark as pending slash (actual slash happens in treasury)
@@ -421,7 +421,7 @@ pub mod case_study {
 
         emit!(SlashRequested {
             validator: validator_stake.validator,
-            case_study: validator_stake.case_study,
+            optimization_log: validator_stake.optimization_log,
             slash_percentage,
             evidence_hash,
             treasury_program: ctx.accounts.treasury_program.key(),
@@ -440,7 +440,7 @@ pub mod case_study {
 
         require!(
             validator_reputation.pending_slash.is_some(),
-            CaseStudyError::NoPendingSlash
+            OptimizationLogError::NoPendingSlash
         );
 
         validator_stake.is_slashed = true;
@@ -448,14 +448,14 @@ pub mod case_study {
 
         validator_reputation.total_slashes = validator_reputation.total_slashes
             .checked_add(1)
-            .ok_or(CaseStudyError::OverflowError)?;
+            .ok_or(OptimizationLogError::OverflowError)?;
         validator_reputation.reputation_score = validator_reputation.reputation_score
             .saturating_sub(20);
         validator_reputation.pending_slash = None;
 
         emit!(SlashConfirmed {
             validator: validator_stake.validator,
-            case_study: validator_stake.case_study,
+            optimization_log: validator_stake.optimization_log,
             slash_amount,
         });
 
@@ -468,43 +468,43 @@ pub mod case_study {
         ctx: Context<LinkAttentionToken>,
         attention_token_mint: Pubkey,
     ) -> Result<()> {
-        let case_study = &mut ctx.accounts.case_study;
+        let optimization_log = &mut ctx.accounts.optimization_log;
         
         // Verify submitter is linking token
         require!(
-            case_study.submitter == ctx.accounts.submitter.key(),
-            CaseStudyError::UnauthorizedTokenLink
+            optimization_log.submitter == ctx.accounts.submitter.key(),
+            OptimizationLogError::UnauthorizedTokenLink
         );
 
         // Verify case study is approved and meets quality threshold
         require!(
-            case_study.validation_status == ValidationStatus::Approved,
-            CaseStudyError::CaseStudyNotApproved
+            optimization_log.validation_status == ValidationStatus::Approved,
+            OptimizationLogError::OptimizationLogNotApproved
         );
         require!(
-            case_study.reputation_score >= 75,
-            CaseStudyError::InsufficientReputationForToken
+            optimization_log.reputation_score >= 75,
+            OptimizationLogError::InsufficientReputationForToken
         );
         require!(
-            case_study.approval_count >= 5,
-            CaseStudyError::InsufficientValidatorsForToken
+            optimization_log.approval_count >= 5,
+            OptimizationLogError::InsufficientValidatorsForToken
         );
 
         // Verify no existing attention token
         require!(
-            case_study.attention_token_mint.is_none(),
-            CaseStudyError::AttentionTokenAlreadyExists
+            optimization_log.attention_token_mint.is_none(),
+            OptimizationLogError::AttentionTokenAlreadyExists
         );
 
         // Link the attention token
-        case_study.attention_token_mint = Some(attention_token_mint);
-        case_study.attention_token_created_at = Some(Clock::get()?.unix_timestamp);
+        optimization_log.attention_token_mint = Some(attention_token_mint);
+        optimization_log.attention_token_created_at = Some(Clock::get()?.unix_timestamp);
 
         emit!(AttentionTokenLinked {
-            case_study: case_study.key(),
+            optimization_log: optimization_log.key(),
             attention_token_mint,
             submitter: ctx.accounts.submitter.key(),
-            reputation_score: case_study.reputation_score,
+            reputation_score: optimization_log.reputation_score,
             created_at: Clock::get()?.unix_timestamp,
         });
 
@@ -515,13 +515,13 @@ pub mod case_study {
 // ============= ACCOUNTS =============
 
 #[account]
-pub struct CaseStudy {
+pub struct OptimizationLog {
     pub ephemeral_id: Pubkey,              // Privacy-preserving identifier
     pub submitter: Pubkey,                 // Actual submitter (for rewards)
     pub ipfs_cid: String,                  // Off-chain encrypted payload
     pub metadata_hash: [u8; 32],           // Hash of encrypted metadata
-    pub treatment_category: u8,            // Treatment type
-    pub duration_days: u16,
+    pub optimization_category: u8,            // Optimization type
+    pub execution_duration: u16,
     pub created_at: i64,
     pub validation_status: ValidationStatus,
     pub approval_count: u32,               // Weighted by validator reputation
@@ -539,7 +539,7 @@ pub struct CaseStudy {
 #[account]
 pub struct ValidatorStake {
     pub validator: Pubkey,
-    pub case_study: Pubkey,
+    pub optimization_log: Pubkey,
     pub stake_amount: u64,
     pub validation_type: ValidationType,
     pub proof_hash: [u8; 32],              // Hash of ZK proof
@@ -573,7 +573,7 @@ pub struct PendingSlash {
 
 #[account]
 pub struct AccessRequest {
-    pub case_study: Pubkey,
+    pub optimization_log: Pubkey,
     pub requester: Pubkey,
     pub justification: String,
     pub requested_at: i64,
@@ -628,15 +628,15 @@ pub enum ValidatorTier {
 
 #[derive(Accounts)]
 #[instruction(nonce: i64)]
-pub struct SubmitCaseStudy<'info> {
+pub struct SubmitOptimizationLog<'info> {
     #[account(
         init,
         payer = submitter,
         space = 8 + 32 + 32 + (4 + 46) + 32 + 1 + 2 + 8 + 1 + 4 + 4 + 1 + 1 + 1 + 1 + 32 + 2 + (1 + 32) + (1 + 8),
-        seeds = [b"case_study", submitter.key().as_ref(), &nonce.to_le_bytes()],
+        seeds = [b"optimization_log", submitter.key().as_ref(), &nonce.to_le_bytes()],
         bump
     )]
-    pub case_study: Account<'info, CaseStudy>,
+    pub optimization_log: Account<'info, OptimizationLog>,
     #[account(mut)]
     pub submitter: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -645,7 +645,7 @@ pub struct SubmitCaseStudy<'info> {
 #[derive(Accounts)]
 pub struct ValidateWithProof<'info> {
     #[account(mut)]
-    pub case_study: Account<'info, CaseStudy>,
+    pub optimization_log: Account<'info, OptimizationLog>,
     #[account(
         init,
         payer = validator,
@@ -666,7 +666,7 @@ pub struct ValidateWithProof<'info> {
 
 #[derive(Accounts)]
 pub struct RequestAccess<'info> {
-    pub case_study: Account<'info, CaseStudy>,
+    pub optimization_log: Account<'info, OptimizationLog>,
     #[account(
         init,
         payer = requester,
@@ -689,7 +689,7 @@ pub struct ApproveAccess<'info> {
 #[derive(Accounts)]
 pub struct AgentAction<'info> {
     #[account(mut)]
-    pub case_study: Account<'info, CaseStudy>,
+    pub optimization_log: Account<'info, OptimizationLog>,
     pub agent_authority: Signer<'info>,  // Must be agent PDA
 }
 
@@ -733,9 +733,9 @@ pub struct ConfirmSlash<'info> {
 #[derive(Accounts)]
 pub struct LinkAttentionToken<'info> {
     #[account(mut)]
-    pub case_study: Account<'info, CaseStudy>,
+    pub optimization_log: Account<'info, OptimizationLog>,
     #[account(
-        constraint = submitter.key() == case_study.submitter
+        constraint = submitter.key() == optimization_log.submitter
     )]
     pub submitter: Signer<'info>,
 }
@@ -743,7 +743,7 @@ pub struct LinkAttentionToken<'info> {
 // ============= EVENTS =============
 
 #[event]
-pub struct CaseStudySubmitted {
+pub struct OptimizationLogSubmitted {
     pub ephemeral_id: Pubkey,
     pub ipfs_cid: String,
     pub metadata_hash: [u8; 32],
@@ -754,7 +754,7 @@ pub struct CaseStudySubmitted {
 
 #[event]
 pub struct ValidationProofSubmitted {
-    pub case_study: Pubkey,
+    pub optimization_log: Pubkey,
     pub validator: Pubkey,
     pub proof_hash: [u8; 32],
     pub validation_type: ValidationType,
@@ -766,7 +766,7 @@ pub struct ValidationProofSubmitted {
 
 #[event]
 pub struct AccessRequested {
-    pub case_study: Pubkey,
+    pub optimization_log: Pubkey,
     pub requester: Pubkey,
     pub required_approvals: u8,
     pub arcium_params_hash: [u8; 32],
@@ -775,7 +775,7 @@ pub struct AccessRequested {
 
 #[event]
 pub struct AccessGranted {
-    pub case_study: Pubkey,
+    pub optimization_log: Pubkey,
     pub requester: Pubkey,
     pub approvals: u8,
 }
@@ -790,7 +790,7 @@ pub struct ShareDistributed {
 
 #[event]
 pub struct ValidationPaused {
-    pub case_study: Pubkey,
+    pub optimization_log: Pubkey,
     pub risk_score: u8,
     pub reason: String,
     pub paused_at: i64,
@@ -799,7 +799,7 @@ pub struct ValidationPaused {
 #[event]
 pub struct SlashRequested {
     pub validator: Pubkey,
-    pub case_study: Pubkey,
+    pub optimization_log: Pubkey,
     pub slash_percentage: u8,
     pub evidence_hash: [u8; 32],
     pub treasury_program: Pubkey,
@@ -808,7 +808,7 @@ pub struct SlashRequested {
 #[event]
 pub struct SlashConfirmed {
     pub validator: Pubkey,
-    pub case_study: Pubkey,
+    pub optimization_log: Pubkey,
     pub slash_amount: u64,
 }
 
@@ -822,14 +822,14 @@ pub struct ArciumSessionInitialized {
 #[event]
 pub struct ArciumDecryptionComplete {
     pub access_request: Pubkey,
-    pub case_study: Pubkey,
+    pub optimization_log: Pubkey,
     pub requester: Pubkey,
     pub final_share_proof_hash: [u8; 32],
 }
 
 #[event]
 pub struct AttentionTokenLinked {
-    pub case_study: Pubkey,
+    pub optimization_log: Pubkey,
     pub attention_token_mint: Pubkey,
     pub submitter: Pubkey,
     pub reputation_score: u8,
@@ -839,7 +839,7 @@ pub struct AttentionTokenLinked {
 // ============= ERRORS =============
 
 #[error_code]
-pub enum CaseStudyError {
+pub enum OptimizationLogError {
     #[msg("Invalid IPFS CID format")]
     InvalidIPFSCid,
     #[msg("Invalid treatment category")]
@@ -891,7 +891,7 @@ pub enum CaseStudyError {
     #[msg("Unauthorized to link attention token")]
     UnauthorizedTokenLink,
     #[msg("Case study not approved")]
-    CaseStudyNotApproved,
+    OptimizationLogNotApproved,
     #[msg("Insufficient reputation score for attention token (need 75+)")]
     InsufficientReputationForToken,
     #[msg("Insufficient validators for attention token (need 5+)")]

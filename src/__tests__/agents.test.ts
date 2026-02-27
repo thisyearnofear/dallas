@@ -24,17 +24,17 @@ describe('Core Agent Network', () => {
 
     test('should have correct agent roles', () => {
       const status = coreNetwork.getAgentStatus();
-      expect(status.supply.role).toContain('Treatment sourcing');
+      expect(status.supply.role).toContain('Architecture sourcing');
       expect(status.risk.role).toContain('Threat assessment');
       expect(status.community.role).toContain('Member network');
       expect(status.identity.role).toContain('A.I.D.S.');
     });
   });
 
-  describe('Treatment Purchase Coordination', () => {
-    test('should coordinate treatment_purchase operation', async () => {
-      const result = await coreNetwork.coordinateOperation('treatment_purchase', {
-        treatmentId: 'azt_patch',
+  describe('Architecture Purchase Coordination', () => {
+    test('should coordinate architecture_purchase operation', async () => {
+      const result = await coreNetwork.coordinateOperation('architecture_purchase', {
+        architectureId: 'azt_patch',
         quantity: 1
       });
 
@@ -46,8 +46,8 @@ describe('Core Agent Network', () => {
     });
 
     test('should produce valid synthesis decision', async () => {
-      const result = await coreNetwork.coordinateOperation('treatment_purchase', {
-        treatmentId: 'peptide_code'
+      const result = await coreNetwork.coordinateOperation('architecture_purchase', {
+        architectureId: 'peptide_code'
       });
 
       const synthesis = result.synthesis;
@@ -61,7 +61,7 @@ describe('Core Agent Network', () => {
   describe('Group Purchase Coordination', () => {
     test('should coordinate group_purchase operation', async () => {
       const result = await coreNetwork.coordinateOperation('group_purchase', {
-        treatmentIds: ['azt_patch', 'peptide_code'],
+        architectureIds: ['azt_patch', 'peptide_code'],
         memberCount: 5
       });
 
@@ -72,7 +72,7 @@ describe('Core Agent Network', () => {
 
     test('should calculate consensus', async () => {
       const result = await coreNetwork.coordinateOperation('group_purchase', {
-        treatmentIds: ['azt_patch']
+        architectureIds: ['azt_patch']
       });
 
       expect(result.coordination.consensusLevel).toBeGreaterThanOrEqual(0);
@@ -120,7 +120,7 @@ describe('Individual Agents', () => {
       const agent = new SupplyChainIntelligenceAgent();
       const decision = await agent.makeDecision({
         operation: 'check_availability',
-        treatmentId: 'azt_patch'
+        architectureId: 'azt_patch'
       });
 
       expect(['PROCEED', 'WAIT', 'ABORT']).toContain(decision.action);
@@ -131,7 +131,7 @@ describe('Individual Agents', () => {
       const agent = new SupplyChainIntelligenceAgent();
       const decision = await agent.makeDecision({
         operation: 'negotiate_price',
-        treatmentId: 'peptide_code',
+        architectureId: 'peptide_code',
         quantity: 10
       });
 
@@ -143,7 +143,7 @@ describe('Individual Agents', () => {
       const agent = new SupplyChainIntelligenceAgent();
       const decision = await agent.makeDecision({
         operation: 'coordinate_bulk',
-        treatmentId: 'ddc_algorithm',
+        architectureId: 'ddc_algorithm',
         quantity: 20
       });
 
@@ -198,15 +198,15 @@ describe('Individual Agents', () => {
       expect(decision.modifications.activeMembers).toBe(47);
     });
 
-    test('should match treatments to needs', async () => {
+    test('should match architectures to needs', async () => {
       const agent = new CommunityCoordinationAgent();
       const decision = await agent.makeDecision({
-        operation: 'match_treatments',
+        operation: 'match_architectures',
         memberData: { profiles: [] }
       });
 
       expect(decision.action).toBe('OPTIMIZE');
-      expect(decision.modifications.treatmentMatches).toBeDefined();
+      expect(decision.modifications.architectureMatches).toBeDefined();
     });
 
     test('should manage group purchase', async () => {
@@ -226,7 +226,7 @@ describe('Individual Agents', () => {
       const agent = new IdentityRestorationAgent();
       const decision = await agent.makeDecision({
         operation: 'assess_fragmentation',
-        patientData: { id: 'patient_001' }
+        agentData: { id: 'agent_001' }
       });
 
       expect(decision.action).toBe('PROCEED');
@@ -238,7 +238,7 @@ describe('Individual Agents', () => {
       const agent = new IdentityRestorationAgent();
       const decision = await agent.makeDecision({
         operation: 'plan_restoration',
-        patientData: { id: 'patient_002' }
+        agentData: { id: 'agent_002' }
       });
 
       expect(decision.action).toBe('OPTIMIZE');
@@ -250,7 +250,7 @@ describe('Individual Agents', () => {
       const agent = new IdentityRestorationAgent();
       const decision = await agent.makeDecision({
         operation: 'monitor_recovery',
-        patientData: { id: 'patient_003' }
+        agentData: { id: 'agent_003' }
       });
 
       expect(decision.action).toBe('PROCEED');

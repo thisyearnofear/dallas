@@ -189,9 +189,9 @@ export const VALIDATION_STEPS: Step[] = [
 ];
 
 export const SUBMISSION_STEPS: Step[] = [
-  { id: 'encrypt', label: 'Encrypt Data', description: 'Securing your case study with ZK encryption' },
+  { id: 'encrypt', label: 'Encrypt Data', description: 'Securing your optimization log with ZK encryption' },
   { id: 'upload', label: 'Upload to IPFS', description: 'Storing encrypted data on decentralized storage' },
-  { id: 'submit', label: 'Submit On-Chain', description: 'Creating case study record on Solana' },
+  { id: 'submit', label: 'Submit On-Chain', description: 'Creating optimization log record on Solana' },
   { id: 'validate', label: 'Await Validation', description: 'Waiting for community validators' },
 ];
 

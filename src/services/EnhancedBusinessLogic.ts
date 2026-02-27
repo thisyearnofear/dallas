@@ -23,7 +23,7 @@ const EDENLAYER_CONFIG: EdenlayerConfig = {
 // CONSOLIDATE: All scattered transaction/payment logic into one enhanced service
 // ENHANCE: Existing business logic with autonomous agent capabilities
 
-export interface A_I_D_S_Treatment {
+export interface A_I_D_S_Architecture {
   id: string;
   name: string;
   type: 'identity_patch' | 'stability_algorithm' | 'reconstruction_code';
@@ -37,7 +37,7 @@ export interface IdentityFragmentation {
   severity: number; // 0-100%
   affectedSystems: string[];
   estimatedRestoration: string;
-  requiredTreatments: string[];
+  requiredArchitectures: string[];
 }
 
 // ENHANCEMENT: Existing business logic with agent coordination + Edenlayer
@@ -46,8 +46,8 @@ export class EnhancedBusinessLogic {
   private edenlayerInitialized = false;
   private taskComposer: EdenlayerTaskComposer;
 
-  // ENHANCE: Existing product catalog with A.I.D.S. treatments
-  private treatments: A_I_D_S_Treatment[] = [
+  // ENHANCE: Existing product catalog with A.I.D.S. architectures
+  private architectures: A_I_D_S_Architecture[] = [
     {
       id: 'azt_patch',
       name: 'AZT Identity Stabilizer',
@@ -87,18 +87,18 @@ export class EnhancedBusinessLogic {
   ];
 
   // ENHANCE: Existing danger assessment with agent intelligence
-  async assessTreatmentRisk(treatmentId: string, patientContext: any): Promise<{
+  async assessArchitectureRisk(architectureId: string, agentContext: any): Promise<{
     recommendedAction: 'PROCEED' | 'WAIT' | 'FIND_ALTERNATIVE';
     agentAnalysis: any;
     riskFactors: string[];
   }> {
-    const treatment = this.treatments.find(t => t.id === treatmentId);
-    if (!treatment) throw new Error('Treatment not found');
+    const architecture = this.architectures.find(t => t.id === architectureId);
+    if (!architecture) throw new Error('Architecture not found');
 
     // ENHANCE: Use agent network for intelligent risk assessment
-    const agentDecisions = await agentNetwork.coordinateDecision('assess_treatment', {
-      treatment,
-      patient: patientContext
+    const agentDecisions = await agentNetwork.coordinateDecision('assess_architecture', {
+      architecture,
+      agent: agentContext
     });
 
     return {
@@ -110,8 +110,8 @@ export class EnhancedBusinessLogic {
 
   // ENHANCED: Real Edenlayer task composition following documentation patterns
   async processIdentityRestoration(params: {
-    treatmentId: string;
-    patientId: string;
+    architectureId: string;
+    agentId: string;
     paymentMethod: 'SOL' | 'BTC' | 'CASH';
     walletAddress?: string;
     sendTransaction?: (destination: PublicKey, amount: number) => Promise<string>;
@@ -126,16 +126,16 @@ export class EnhancedBusinessLogic {
     await this.ensureEdenlayerInitialized();
 
     // ENHANCED: Real Edenlayer task composition with complex dependencies
-    const urgency = this.determineUrgency(params.treatmentId);
-    const workflowResult = await this.taskComposer.composeTreatmentPurchaseWorkflow({
-      treatmentId: params.treatmentId,
-      patientId: params.patientId,
+    const urgency = this.determineUrgency(params.architectureId);
+    const workflowResult = await this.taskComposer.composeArchitecturePurchaseWorkflow({
+      architectureId: params.architectureId,
+      agentId: params.agentId,
       walletAddress: params.walletAddress || 'default_wallet',
       urgency
     });
 
     // ENHANCED: Coordinate with local agents + Edenlayer task composition results
-    const localCoordination = await agentNetwork.coordinateDecision('process_treatment', params);
+    const localCoordination = await agentNetwork.coordinateDecision('process_architecture', params);
 
     // REUSE: Existing transaction infrastructure if workflow approves
     let transaction = { success: false, id: null };
@@ -153,12 +153,12 @@ export class EnhancedBusinessLogic {
       to: SOLANA_CONFIG.treasuryAddress,
       signature: transaction.id || `pending_${Date.now()}`,
       type: 'other',
-      amount: this.getTreatmentPrice(params.treatmentId),
+      amount: this.getArchitecturePrice(params.architectureId),
       status: transaction.success ? 'completed' : workflowResult.status === 'failed' ? 'failed' : 'pending',
       agentData: {
         local: localCoordination,
         edenlayer: workflowResult,
-        workflowType: 'treatment_purchase_composition',
+        workflowType: 'architecture_purchase_composition',
         agentCount: 5, // Risk, Supply, Identity, Identity, Community
         taskComposition: workflowResult.taskIds
       }
@@ -173,7 +173,7 @@ export class EnhancedBusinessLogic {
         edenlayer: workflowResult,
         workflowTasks: workflowResult.taskIds.length
       },
-      estimatedRecovery: this.calculateRecoveryTime(params.treatmentId),
+      estimatedRecovery: this.calculateRecoveryTime(params.architectureId),
       workflowDetails: {
         totalTasks: workflowResult.taskIds.length,
         mainTaskId: workflowResult.mainTaskId,
@@ -186,7 +186,7 @@ export class EnhancedBusinessLogic {
 
   // ENHANCED: Real Edenlayer group purchase composition
   async coordinateGroupPurchase(params: {
-    treatmentIds: string[];
+    architectureIds: string[];
     memberIds: string[];
     bulkDiscount: number;
     coordinatorWallet?: string;
@@ -200,7 +200,7 @@ export class EnhancedBusinessLogic {
 
     // ENHANCED: Complex group purchase workflow via Edenlayer
     const workflowResult = await this.taskComposer.composeGroupPurchaseWorkflow({
-      treatmentIds: params.treatmentIds,
+      architectureIds: params.architectureIds,
       memberCount: params.memberIds.length,
       coordinatorWallet: params.coordinatorWallet || 'default_coordinator',
       timeframe: '48h'
@@ -257,10 +257,10 @@ export class EnhancedBusinessLogic {
     // Convert mock execution to real Solana transaction
     if (params.paymentMethod === 'SOL' && params.sendTransaction) {
       try {
-        const amount = this.getTreatmentPrice(params.treatmentId);
+        const amount = this.getArchitecturePrice(params.architectureId);
         // Ensure amount is valid
         if (amount <= 0) {
-          console.warn('Free treatment or invalid price, skipping transaction');
+          console.warn('Free architecture or invalid price, skipping transaction');
           return {
             success: true,
             id: `free_tx_${Date.now()}`,
@@ -294,26 +294,26 @@ export class EnhancedBusinessLogic {
     };
   }
 
-  private getTreatmentPrice(treatmentId: string): number {
-    const treatment = this.treatments.find(t => t.id === treatmentId);
-    return treatment?.price || 0;
+  private getArchitecturePrice(architectureId: string): number {
+    const architecture = this.architectures.find(t => t.id === architectureId);
+    return architecture?.price || 0;
   }
 
-  private calculateRecoveryTime(treatmentId: string): string {
-    const treatment = this.treatments.find(t => t.id === treatmentId);
+  private calculateRecoveryTime(architectureId: string): string {
+    const architecture = this.architectures.find(t => t.id === architectureId);
     const baseTime = { 'LOW': 24, 'MEDIUM': 72, 'HIGH': 168, 'EXTREME': 336 };
-    const hours = baseTime[treatment?.riskLevel || 'MEDIUM'];
+    const hours = baseTime[architecture?.riskLevel || 'MEDIUM'];
     return `${hours} hours`;
   }
 
   private calculateBulkSavings(params: any, strategy: any): number {
-    return params.treatmentIds.length * 0.1; // 10% bulk savings per item
+    return params.architectureIds.length * 0.1; // 10% bulk savings per item
   }
 
   private generateEmergencyActions(scenario: string, agentResponse: any): string[] {
     const actionMap = {
       'corporate_raid': ['Evacuate sensitive data', 'Switch to backup location', 'Alert network members'],
-      'supply_disruption': ['Find alternative suppliers', 'Ration existing treatments', 'Coordinate group purchases'],
+      'supply_disruption': ['Find alternative suppliers', 'Ration existing architectures', 'Coordinate group purchases'],
       'identity_crisis': ['Deploy emergency patches', 'Coordinate specialist support', 'Monitor recovery progress']
     };
     return actionMap[scenario as keyof typeof actionMap] || [];
@@ -354,11 +354,11 @@ export class EnhancedBusinessLogic {
     }
   }
 
-  private determineUrgency(treatmentId: string): 'low' | 'medium' | 'high' | 'critical' {
-    const treatment = this.treatments.find(t => t.id === treatmentId);
-    if (!treatment) return 'medium';
+  private determineUrgency(architectureId: string): 'low' | 'medium' | 'high' | 'critical' {
+    const architecture = this.architectures.find(t => t.id === architectureId);
+    if (!architecture) return 'medium';
 
-    switch (treatment.riskLevel) {
+    switch (architecture.riskLevel) {
       case 'EXTREME': return 'critical';
       case 'HIGH': return 'high';
       case 'MEDIUM': return 'medium';
@@ -367,8 +367,8 @@ export class EnhancedBusinessLogic {
   }
 
   // PUBLIC API for components (CLEAN interface)
-  getTreatments(): A_I_D_S_Treatment[] {
-    return [...this.treatments]; // Defensive copy
+  getArchitectures(): A_I_D_S_Architecture[] {
+    return [...this.architectures]; // Defensive copy
   }
 
   async getDangerLevel(): Promise<number> {

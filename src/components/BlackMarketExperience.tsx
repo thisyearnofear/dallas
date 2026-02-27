@@ -10,7 +10,7 @@ interface Transaction {
 }
 
 const recentTransactions: Transaction[] = [
-    { id: "TX001", product: "AZT", buyer: "Patient #4201", location: "Dallas", time: "3 min ago", method: "crypto" },
+    { id: "TX001", product: "AZT", buyer: "Agent #4201", location: "Dallas", time: "3 min ago", method: "crypto" },
     { id: "TX002", product: "Peptide T", buyer: "Fighter_Mom", location: "Austin", time: "7 min ago", method: "cash" },
     { id: "TX003", product: "DDC", buyer: "Hope_Seeker", location: "Houston", time: "12 min ago", method: "barter" },
 ];

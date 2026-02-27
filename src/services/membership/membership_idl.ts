@@ -33,7 +33,7 @@ export type Membership = {
       args: [
         { name: 'tier'; type: 'u8' },
         { name: 'nickname'; type: 'string' },
-        { name: 'healthFocus'; type: { option: 'string' } },
+        { name: 'agentFocus'; type: { option: 'string' } },
       ];
     },
     {
@@ -55,7 +55,7 @@ export type Membership = {
       ];
       args: [
         { name: 'nickname'; type: { option: 'string' } },
-        { name: 'healthFocus'; type: { option: 'string' } },
+        { name: 'agentFocus'; type: { option: 'string' } },
       ];
     },
   ];
@@ -83,7 +83,7 @@ export type Membership = {
           { name: 'member'; type: 'publicKey' },
           { name: 'tier'; type: 'u8' },
           { name: 'nickname'; type: 'string' },
-          { name: 'healthFocus'; type: 'string' },
+          { name: 'agentFocus'; type: 'string' },
           { name: 'purchasedAt'; type: 'i64' },
           { name: 'expiresAt'; type: 'i64' },
           { name: 'isActive'; type: 'bool' },
@@ -109,7 +109,7 @@ export type Membership = {
         { name: 'member'; type: 'publicKey'; index: false },
         { name: 'tier'; type: 'u8'; index: false },
         { name: 'nickname'; type: 'string'; index: false },
-        { name: 'healthFocus'; type: { option: 'string' }; index: false },
+        { name: 'agentFocus'; type: { option: 'string' }; index: false },
         { name: 'price'; type: 'u64'; index: false },
       ];
     },
@@ -126,7 +126,7 @@ export type Membership = {
       fields: [
         { name: 'member'; type: 'publicKey'; index: false },
         { name: 'nickname'; type: 'string'; index: false },
-        { name: 'healthFocus'; type: 'string'; index: false },
+        { name: 'agentFocus'; type: 'string'; index: false },
       ];
     },
   ];
@@ -173,7 +173,7 @@ export const IDL: Membership = {
       args: [
         { name: 'tier', type: 'u8' },
         { name: 'nickname', type: 'string' },
-        { name: 'healthFocus', type: { option: 'string' } },
+        { name: 'agentFocus', type: { option: 'string' } },
       ],
     },
     {
@@ -195,7 +195,7 @@ export const IDL: Membership = {
       ],
       args: [
         { name: 'nickname', type: { option: 'string' } },
-        { name: 'healthFocus', type: { option: 'string' } },
+        { name: 'agentFocus', type: { option: 'string' } },
       ],
     },
   ],
@@ -223,7 +223,7 @@ export const IDL: Membership = {
           { name: 'member', type: 'publicKey' },
           { name: 'tier', type: 'u8' },
           { name: 'nickname', type: 'string' },
-          { name: 'healthFocus', type: 'string' },
+          { name: 'agentFocus', type: 'string' },
           { name: 'purchasedAt', type: 'i64' },
           { name: 'expiresAt', type: 'i64' },
           { name: 'isActive', type: 'bool' },
@@ -249,7 +249,7 @@ export const IDL: Membership = {
         { name: 'member', type: 'publicKey', index: false },
         { name: 'tier', type: 'u8', index: false },
         { name: 'nickname', type: 'string', index: false },
-        { name: 'healthFocus', type: { option: 'string' }, index: false },
+        { name: 'agentFocus', type: { option: 'string' }, index: false },
         { name: 'price', type: 'u64', index: false },
       ],
     },
@@ -266,7 +266,7 @@ export const IDL: Membership = {
       fields: [
         { name: 'member', type: 'publicKey', index: false },
         { name: 'nickname', type: 'string', index: false },
-        { name: 'healthFocus', type: 'string', index: false },
+        { name: 'agentFocus', type: 'string', index: false },
       ],
     },
   ],

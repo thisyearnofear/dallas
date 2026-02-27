@@ -22,7 +22,7 @@ export function Products() {
     });
 
     const totalMembers = wellnessProtocols.reduce((sum, p) => sum + p.memberCount, 0);
-    const totalCaseStudies = wellnessProtocols.reduce((sum, p) => sum + p.caseStudyCount, 0);
+    const totalCaseStudies = wellnessProtocols.reduce((sum, p) => sum + p.optimizationLogCount, 0);
 
     return (
         <div class="min-h-screen transition-colors duration-300">
@@ -77,7 +77,7 @@ export function Products() {
                     </div>
                     <div class="bg-white dark:bg-slate-900 p-4 rounded-lg border border-brand/20 shadow-sm transition-colors">
                         <div class="text-2xl font-bold text-brand">{totalCaseStudies.toLocaleString()}</div>
-                        <div class="text-sm text-slate-600 dark:text-slate-400 font-medium">Case Studies</div>
+                        <div class="text-sm text-slate-600 dark:text-slate-400 font-medium">Optimization Logs</div>
                     </div>
                     <div class="bg-white dark:bg-slate-900 p-4 rounded-lg border border-brand/20 shadow-sm transition-colors">
                         <div class="text-2xl font-bold text-brand">6</div>
@@ -138,7 +138,7 @@ export function Products() {
             <div class="mt-12 p-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
                 <p class="text-sm text-yellow-800 dark:text-yellow-300 text-center">
                     <strong>⚠️ Important:</strong> These protocols are community-shared experiences, not medical advice. 
-                    Always consult healthcare professionals before starting any new wellness regimen. 
+                    Always consult agentcare professionals before starting any new wellness regimen. 
                     Results vary by individual. The Dallas Buyers Club does not endorse or guarantee any specific outcomes.
                 </p>
             </div>

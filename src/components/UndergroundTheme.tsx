@@ -8,7 +8,7 @@ const networkMessages = [
     "🚨 FDA raid avoided in Austin - network secure",
     "💊 AZT alternative found - clinical trials bypassed", 
     "🤝 Contact established with European suppliers",
-    "📡 Encrypted communication from Patient #420",
+    "📡 Encrypted communication from Agent #420",
     "🛡️ Network security upgraded - stay vigilant"
 ];
 
@@ -178,14 +178,14 @@ export function RebellionMeter() {
     );
 }
 
-export function PatientCodeGenerator() {
-    const [patientCode, setPatientCode] = useState("PATIENT_#" + Math.floor(Math.random() * 9999));
+export function AgentCodeGenerator() {
+    const [agentCode, setAgentCode] = useState("AGENT_#" + Math.floor(Math.random() * 9999));
     const [isGenerating, setIsGenerating] = useState(false);
     
     const generateNewCode = () => {
         setIsGenerating(true);
         setTimeout(() => {
-            setPatientCode("PATIENT_#" + Math.floor(Math.random() * 9999));
+            setAgentCode("AGENT_#" + Math.floor(Math.random() * 9999));
             setIsGenerating(false);
         }, 1500);
     };
@@ -203,7 +203,7 @@ export function PatientCodeGenerator() {
                     {isGenerating ? (
                         <span class="animate-pulse opacity-50">SCRAMBLING...</span>
                     ) : (
-                        patientCode
+                        agentCode
                     )}
                 </div>
             </div>

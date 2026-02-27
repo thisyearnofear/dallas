@@ -3,7 +3,7 @@
  * 
  * Enables the creation of shareable blockchain links (Blinks) for 
  * key DBC actions, facilitating effortless participation in the 
- * health sovereignty movement.
+ * agent sovereignty movement.
  * 
  * Core Principles:
  * - ACCESSIBILITY: Blockchain interactions from any link.
@@ -42,19 +42,19 @@ class BlinkService {
     }
 
     /**
-     * Get Action Metadata for 'Validate Case Study'
+     * Get Action Metadata for 'Validate Optimization Log'
      */
-    getValidationAction(caseStudyId: string): ActionMetadata {
+    getValidationAction(optimizationLogId: string): ActionMetadata {
         return {
-            title: "Confirm Truth: Validate Case Study",
+            title: "Confirm Truth: Validate Optimization Log",
             icon: "https://dallas.network/icons/validate.png",
             label: "Validate",
-            description: `Participate as a validator for Case Study #${caseStudyId.slice(0, 8)}. Verify the ZK-proofs and earn DBC rewards.`,
+            description: `Participate as a validator for Optimization Log #${optimizationLogId.slice(0, 8)}. Verify the ZK-proofs and earn DBC rewards.`,
             links: {
                 actions: [
                     {
                         label: "Verify Proofs",
-                        href: `${this.baseUrl}/api/actions/validate?id=${caseStudyId}`,
+                        href: `${this.baseUrl}/api/actions/validate?id=${optimizationLogId}`,
                     }
                 ]
             }

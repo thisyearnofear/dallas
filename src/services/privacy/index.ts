@@ -34,7 +34,7 @@ export {
 } from './LightProtocolService';
 
 export type {
-  CompressedCaseStudy,
+  CompressedOptimizationLog,
 } from './LightProtocolService';
 
 // Arcium MPC Threshold Decryption Service
@@ -62,7 +62,7 @@ export {
 export type {
   PrivacyOperationResult,
   PrivacyOperation,
-  PrivacyEnhancedCaseStudy,
+  PrivacyEnhancedOptimizationLog,
   PrivacyEnhancedValidation,
   PrivacyEnhancedAccessRequest,
 } from './PrivacyService';
@@ -75,8 +75,8 @@ export {
 
 export type {
   PrivacyServiceStatus,
-  PrivacyCaseStudyData as PrivacyOptimizationLogData,
-  PrivacyCaseStudyData,
+  PrivacyOptimizationLogData as PrivacyOptimizationLogData,
+  PrivacyOptimizationLogData,
   PrivacyProcessingResult,
 } from './PrivacyServiceManager';
 

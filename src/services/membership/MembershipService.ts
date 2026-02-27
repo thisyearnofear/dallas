@@ -9,7 +9,7 @@ export interface MembershipData {
   member: PublicKey;
   tier: MembershipTier;
   nickname: string;
-  healthFocus: string;
+  agentFocus: string;
   purchasedAt: Date;
   expiresAt: Date;
   isActive: boolean;
@@ -84,7 +84,7 @@ export class MembershipService {
         member: membership.member,
         tier: TIER_MAP[membership.tier],
         nickname: membership.nickname,
-        healthFocus: membership.healthFocus,
+        agentFocus: membership.agentFocus,
         purchasedAt: new Date(membership.purchasedAt.toNumber() * 1000),
         expiresAt: new Date(membership.expiresAt.toNumber() * 1000),
         isActive: membership.isActive,
@@ -99,7 +99,7 @@ export class MembershipService {
     member: PublicKey,
     tier: MembershipTier,
     nickname: string,
-    healthFocus?: string
+    agentFocus?: string
   ): Promise<string> {
     const [membershipPDA, membershipBump] = this.getMembershipPDA(member);
     const [configPDA] = this.getConfigPDA();
@@ -119,7 +119,7 @@ export class MembershipService {
       .purchaseMembership(
         tierNumber,
         nickname,
-        healthFocus || null
+        agentFocus || null
       )
       .accounts({
         config: configPDA,
@@ -161,14 +161,14 @@ export class MembershipService {
   async updateProfile(
     member: PublicKey,
     nickname?: string,
-    healthFocus?: string
+    agentFocus?: string
   ): Promise<string> {
     const [membershipPDA] = this.getMembershipPDA(member);
 
     const tx = await this.program.methods
       .updateProfile(
         nickname || null,
-        healthFocus || null
+        agentFocus || null
       )
       .accounts({
         membership: membershipPDA,

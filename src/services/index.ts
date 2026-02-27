@@ -48,11 +48,11 @@ export type { CacheStats } from './CacheService';
 
 // Blockchain Integration
 export {
-  submitCaseStudyToBlockchain,
+  submitOptimizationLogToBlockchain,
   submitValidatorApproval,
   requestValidatorReview,
   fetchPendingCaseStudies,
-  fetchAndDecryptCaseStudy,
+  fetchAndDecryptOptimizationLog,
   fetchUserCaseStudies,
   getNetworkStatus,
 } from './BlockchainIntegration';

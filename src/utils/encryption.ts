@@ -12,7 +12,7 @@ export async function deriveEncryptionKey(
 ): Promise<Uint8Array> {
   // Message to sign - includes wallet address to prevent reuse across wallets
   const message = new TextEncoder().encode(
-    `Dallas Health Sovereignty - Encryption Key\nWallet: ${walletPublicKey.toString()}`
+    `Dallas Agent Sovereignty - Encryption Key\nWallet: ${walletPublicKey.toString()}`
   );
 
   // Get signature (user controls this via their wallet)
@@ -24,10 +24,10 @@ export async function deriveEncryptionKey(
 }
 
 /**
- * Encrypt health data with user's derived key
+ * Encrypt agent data with user's derived key
  * Returns base64 string: nonce (24 bytes) + ciphertext
  */
-export function encryptHealthData(
+export function encryptAgentData(
   data: string,
   encryptionKey: Uint8Array
 ): string {
@@ -52,9 +52,9 @@ export function encryptHealthData(
 }
 
 /**
- * Decrypt health data with user's derived key
+ * Decrypt agent data with user's derived key
  */
-export function decryptHealthData(
+export function decryptAgentData(
   encrypted: string,
   encryptionKey: Uint8Array
 ): string {

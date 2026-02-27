@@ -44,9 +44,9 @@ describe('EdenlayerBridge', () => {
 });
 
 describe('Agent Capabilities', () => {
-  test('supply agent should have treatment tools', () => {
+  test('supply agent should have architecture tools', () => {
     const supplyTools = [
-      'check_treatment_availability',
+      'check_architecture_availability',
       'negotiate_bulk_pricing',
       'coordinate_distribution'
     ];

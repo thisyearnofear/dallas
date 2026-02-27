@@ -215,20 +215,20 @@ export const REWARD_AMOUNTS = {
  * Shows community how tokens are distributed over time
  */
 export const EMISSION_SCHEDULE = [
-  { year: 1, dailyCaseStudy: 5_000, dailyValidation: 2_500, description: "Bootstrap Phase" },
-  { year: 2, dailyCaseStudy: 10_000, dailyValidation: 5_000, description: "Growth Phase" },
-  { year: 3, dailyCaseStudy: 15_000, dailyValidation: 7_500, description: "Expansion Phase" },
-  { year: 4, dailyCaseStudy: 12_000, dailyValidation: 6_000, description: "Stabilization" },
-  { year: 5, dailyCaseStudy: 10_000, dailyValidation: 5_000, description: "Maturity" },
-  { year: 6, dailyCaseStudy: 8_000, dailyValidation: 4_000, description: "Sustainability" },
-  { year: 7, dailyCaseStudy: 6_000, dailyValidation: 3_000, description: "Sustainability" },
-  { year: 8, dailyCaseStudy: 5_000, dailyValidation: 2_500, description: "Long-term" },
-  { year: 9, dailyCaseStudy: 4_000, dailyValidation: 2_000, description: "Long-term" },
-  { year: 10, dailyCaseStudy: 3_000, dailyValidation: 1_500, description: "Legacy Phase" },
+  { year: 1, dailyOptimizationLog: 5_000, dailyValidation: 2_500, description: "Bootstrap Phase" },
+  { year: 2, dailyOptimizationLog: 10_000, dailyValidation: 5_000, description: "Growth Phase" },
+  { year: 3, dailyOptimizationLog: 15_000, dailyValidation: 7_500, description: "Expansion Phase" },
+  { year: 4, dailyOptimizationLog: 12_000, dailyValidation: 6_000, description: "Stabilization" },
+  { year: 5, dailyOptimizationLog: 10_000, dailyValidation: 5_000, description: "Maturity" },
+  { year: 6, dailyOptimizationLog: 8_000, dailyValidation: 4_000, description: "Sustainability" },
+  { year: 7, dailyOptimizationLog: 6_000, dailyValidation: 3_000, description: "Sustainability" },
+  { year: 8, dailyOptimizationLog: 5_000, dailyValidation: 2_500, description: "Long-term" },
+  { year: 9, dailyOptimizationLog: 4_000, dailyValidation: 2_000, description: "Long-term" },
+  { year: 10, dailyOptimizationLog: 3_000, dailyValidation: 1_500, description: "Legacy Phase" },
 ] as const;
 
 /**
- * Calculate case study reward based on quality score
+ * Calculate optimization log reward based on quality score
  * Max 2x base reward for perfect quality
  */
 export function calculateSubmissionReward(qualityScore: number): number {

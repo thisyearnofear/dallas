@@ -1,18 +1,18 @@
 /**
- * Case Study Account Parser
+ * Optimization Log Account Parser
  * 
- * Parses Anchor program account data for the CaseStudy struct.
+ * Parses Anchor program account data for the OptimizationLog struct.
  * The struct stores metadata on-chain, with encrypted data on IPFS.
  * 
- * Rust struct layout (from programs/case_study/src/lib.rs):
+ * Rust struct layout (from programs/optimization_log/src/lib.rs):
  * ```rust
- * pub struct CaseStudy {
+ * pub struct OptimizationLog {
  *     pub ephemeral_id: Pubkey,              // 32 bytes
  *     pub submitter: Pubkey,                 // 32 bytes
  *     pub ipfs_cid: String,                  // 4 + len bytes
  *     pub metadata_hash: [u8; 32],           // 32 bytes
- *     pub treatment_category: u8,            // 1 byte
- *     pub duration_days: u16,                // 2 bytes
+ *     pub optimization_category: u8,            // 1 byte
+ *     pub execution_duration: u16,                // 2 bytes
  *     pub created_at: i64,                   // 8 bytes
  *     pub validation_status: ValidationStatus, // 1 byte (enum)
  *     pub approval_count: u32,               // 4 bytes
@@ -42,16 +42,16 @@ export enum ValidationStatus {
   UnderReview = 3,
 }
 
-// Treatment category mapping (from Rust)
-export enum TreatmentCategory {
-  Pharmaceutical = 0,
-  Lifestyle = 1,
-  Alternative = 2,
-  Surgical = 3,
+// Architecture category mapping (from Rust)
+export enum OptimizationCategory {
+  PromptEngineering = 0,
+  FineTuning = 1,
+  AgentArchitecture = 2,
+  ToolCalling = 3,
   Other = 4,
 }
 
-export interface ParsedCaseStudy {
+export interface ParsedOptimizationLog {
   // Core identifiers
   ephemeralId: PublicKey;
   submitter: PublicKey;
@@ -61,9 +61,9 @@ export interface ParsedCaseStudy {
   
   // Metadata
   metadataHash: Uint8Array;
-  techniqueCategory: TreatmentCategory;
-  techniqueCategoryName: string;
-  durationDays: number;
+  optimizationCategory: OptimizationCategory;
+  optimizationCategoryName: string;
+  executionDuration: number;
   createdAt: Date;
   
   // Validation state
@@ -90,13 +90,13 @@ export interface ParsedCaseStudy {
   bump: number;
 }
 
-// Treatment category names for display
-const TREATMENT_CATEGORY_NAMES: Record<TreatmentCategory, string> = {
-  [TreatmentCategory.Pharmaceutical]: 'Pharmaceutical',
-  [TreatmentCategory.Lifestyle]: 'Lifestyle',
-  [TreatmentCategory.Alternative]: 'Alternative',
-  [TreatmentCategory.Surgical]: 'Surgical',
-  [TreatmentCategory.Other]: 'Other',
+// Architecture category names for display
+const OPTIMIZATION_CATEGORY_NAMES: Record<OptimizationCategory, string> = {
+  [OptimizationCategory.PromptEngineering]: 'PromptEngineering',
+  [OptimizationCategory.FineTuning]: 'FineTuning',
+  [OptimizationCategory.AgentArchitecture]: 'AgentArchitecture',
+  [OptimizationCategory.ToolCalling]: 'ToolCalling',
+  [OptimizationCategory.Other]: 'Other',
 };
 
 // Validation status names for display
@@ -108,16 +108,16 @@ const VALIDATION_STATUS_NAMES: Record<ValidationStatus, string> = {
 };
 
 /**
- * Parse a CaseStudy account from buffer data
+ * Parse a OptimizationLog account from buffer data
  * 
  * @param data - Raw account data from Solana (includes 8-byte Anchor discriminator)
  * @param pubkey - The account's public key
- * @returns Parsed case study or null if parsing fails
+ * @returns Parsed optimization log or null if parsing fails
  */
-export function parseCaseStudyAccount(
+export function parseOptimizationLogAccount(
   data: Buffer,
   pubkey: PublicKey
-): ParsedCaseStudy | null {
+): ParsedOptimizationLog | null {
   try {
     // Minimum size check (discriminator + fixed-size fields)
     // Fixed fields: 32+32+4+32+1+2+8+1+4+4+1+1+1+32+2+1+1 = 158 bytes minimum
@@ -161,12 +161,12 @@ export function parseCaseStudyAccount(
     const metadataHash = new Uint8Array(accountData.slice(offset, offset + 32));
     offset += 32;
 
-    // treatment_category: u8
-    const techniqueCategory = accountData.readUInt8(offset) as TreatmentCategory;
+    // optimization_category: u8
+    const optimizationCategory = accountData.readUInt8(offset) as OptimizationCategory;
     offset += 1;
 
-    // duration_days: u16 (2 bytes, little-endian)
-    const durationDays = accountData.readUInt16LE(offset);
+    // execution_duration: u16 (2 bytes, little-endian)
+    const executionDuration = accountData.readUInt16LE(offset);
     offset += 2;
 
     // created_at: i64 (8 bytes, little-endian)
@@ -234,9 +234,9 @@ export function parseCaseStudyAccount(
       submitter,
       ipfsCid,
       metadataHash,
-      techniqueCategory,
-      techniqueCategoryName: TREATMENT_CATEGORY_NAMES[techniqueCategory] || 'Unknown',
-      durationDays,
+      optimizationCategory,
+      optimizationCategoryName: OPTIMIZATION_CATEGORY_NAMES[optimizationCategory] || 'Unknown',
+      executionDuration,
       createdAt: new Date(createdAtTimestamp * 1000),
       validationStatus,
       validationStatusName: VALIDATION_STATUS_NAMES[validationStatus] || 'Unknown',
@@ -253,26 +253,26 @@ export function parseCaseStudyAccount(
       bump,
     };
   } catch (error) {
-    console.error('Failed to parse case study account:', error);
+    console.error('Failed to parse optimization log account:', error);
     return null;
   }
 }
 
 /**
- * Parse multiple case study accounts
+ * Parse multiple optimization log accounts
  * 
  * @param accounts - Array of { pubkey, account } from getProgramAccounts
- * @returns Array of successfully parsed case studies
+ * @returns Array of successfully parsed optimization logs
  */
-export function parseCaseStudyAccounts(
+export function parseOptimizationLogAccounts(
   accounts: Array<{ pubkey: PublicKey; account: { data: Buffer } }>
-): ParsedCaseStudy[] {
-  const parsed: ParsedCaseStudy[] = [];
+): ParsedOptimizationLog[] {
+  const parsed: ParsedOptimizationLog[] = [];
 
   for (const { pubkey, account } of accounts) {
-    const caseStudy = parseCaseStudyAccount(account.data, pubkey);
-    if (caseStudy) {
-      parsed.push(caseStudy);
+    const optimizationLog = parseOptimizationLogAccount(account.data, pubkey);
+    if (optimizationLog) {
+      parsed.push(optimizationLog);
     }
   }
 
@@ -280,10 +280,10 @@ export function parseCaseStudyAccounts(
 }
 
 /**
- * Get the minimum account size for a CaseStudy
+ * Get the minimum account size for a OptimizationLog
  * Used for filtering accounts in getProgramAccounts
  */
-export function getCaseStudyMinAccountSize(): number {
+export function getOptimizationLogMinAccountSize(): number {
   // Minimum size with empty strings and None options
   // discriminator + fixed fields + empty string (4 bytes) + None options (2 bytes) + bump
   return ANCHOR_DISCRIMINATOR_SIZE + 158;

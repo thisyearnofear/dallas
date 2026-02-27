@@ -16,7 +16,7 @@ import {
 import { CommunityCategory, CATEGORY_INFO, generateSymbol, validateCommunityName } from '../types/community';
 
 interface AttentionTokenCreationProps {
-  caseStudyPda?: PublicKey;          // Optional - standalone community creation doesn't need case study
+  optimizationLogPda?: PublicKey;          // Optional - standalone community creation doesn't need optimization log
   techniqueName: string;
   techniqueCategory: string;
   description: string;
@@ -32,7 +32,7 @@ interface AttentionTokenCreationProps {
 }
 
 export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
-  caseStudyPda,
+  optimizationLogPda,
   techniqueName,
   techniqueCategory,
   description,
@@ -58,27 +58,27 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
   const [socialEnabled, setSocialEnabled] = useState<boolean>(enableSocial);
 
   useEffect(() => {
-    // Only check eligibility if we have a case study (attention token mode)
-    if (caseStudyPda && !communityMode) {
+    // Only check eligibility if we have a optimization log (attention token mode)
+    if (optimizationLogPda && !communityMode) {
       checkEligibility();
     } else if (communityMode) {
-      // In community mode, anyone can create (no case study required)
+      // In community mode, anyone can create (no optimization log required)
       setEligibility({
         isEligible: true,
-        hasSubmittedCaseStudy: true,
+        hasSubmittedOptimizationLog: true,
         hasMinimumValidations: true,
         hasMinimumReputation: true,
         reason: 'Community creation is free for all users'
       });
     }
-  }, [caseStudyPda, communityMode]);
+  }, [optimizationLogPda, communityMode]);
 
   const checkEligibility = async () => {
-    if (!publicKey || !caseStudyPda) return;
+    if (!publicKey || !optimizationLogPda) return;
 
     try {
       setStatus(AttentionTokenCreationStatus.CHECKING_ELIGIBILITY);
-      const eligible = await attentionTokenService.checkEligibility(caseStudyPda, connection!);
+      const eligible = await attentionTokenService.checkEligibility(optimizationLogPda, connection!);
       setEligibility(eligible);
       setStatus(AttentionTokenCreationStatus.IDLE);
     } catch (err) {
@@ -95,9 +95,9 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
     setError(null);
 
     try {
-      // ENHANCED: Support both community and case study token creation
+      // ENHANCED: Support both community and optimization log token creation
       const params: CreateAttentionTokenParams = {
-        caseStudyPda: communityMode ? undefined : caseStudyPda,
+        optimizationLogPda: communityMode ? undefined : optimizationLogPda,
         techniqueName,
         techniqueCategory,
         description,
@@ -136,9 +136,9 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
 
       setStatus(AttentionTokenCreationStatus.LINKING_ON_CHAIN);
 
-      // Step 3: Link to case study on-chain
+      // Step 3: Link to optimization log on-chain
       // TODO: Call link_attention_token instruction
-      await linkAttentionTokenOnChain(caseStudyPda, mint);
+      await linkAttentionTokenOnChain(optimizationLogPda, mint);
 
       setStatus(AttentionTokenCreationStatus.SUCCESS);
       toast.success('🎉 Attention Token created successfully!');
@@ -155,7 +155,7 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
   };
 
   const linkAttentionTokenOnChain = async (
-    caseStudyPda: PublicKey,
+    optimizationLogPda: PublicKey,
     tokenMint: PublicKey
   ): Promise<void> => {
     if (!publicKey || !signTransaction) {
@@ -166,7 +166,7 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
       const { SOLANA_CONFIG } = await import('../config/solana');
       const { Transaction, SystemProgram } = await import('@solana/web3.js');
       
-      const programId = new PublicKey(SOLANA_CONFIG.blockchain.caseStudyProgramId);
+      const programId = new PublicKey(SOLANA_CONFIG.blockchain.optimizationLogProgramId);
       
       // Create instruction to link attention token
       // This would use the actual program instruction
@@ -178,7 +178,7 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
       // const instruction = await program.methods
       //   .linkAttentionToken(tokenMint)
       //   .accounts({
-      //     caseStudy: caseStudyPda,
+      //     optimizationLog: optimizationLogPda,
       //     authority: wallet.publicKey,
       //   })
       //   .instruction();
@@ -186,7 +186,7 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
       
       // For now, we'll just log it since we need the actual IDL
       console.log('Would link attention token on-chain:', {
-        caseStudy: caseStudyPda.toString(),
+        optimizationLog: optimizationLogPda.toString(),
         tokenMint: tokenMint.toString(),
         programId: programId.toString(),
       });
@@ -266,7 +266,7 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
     return (
       <div className="bg-gradient-to-r from-green-900 to-emerald-900 p-6 rounded-lg border border-green-500">
         <h3 className="text-2xl font-bold mb-2">✅ Attention Token Created!</h3>
-        <p className="text-gray-200 mb-4">Your treatment is now discoverable on the market</p>
+        <p className="text-gray-200 mb-4">Your architecture is now discoverable on the market</p>
 
         <div className="bg-black/30 p-4 rounded mb-4 space-y-2">
           <div className="flex justify-between text-sm">
@@ -274,7 +274,7 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
             <span className="font-mono text-green-400">{tokenMint.toString().slice(0, 8)}...</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-400">Treatment:</span>
+            <span className="text-gray-400">Architecture:</span>
             <span className="font-bold">{techniqueName}</span>
           </div>
         </div>
@@ -358,7 +358,7 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
     <div className="bg-gradient-to-r from-purple-900 to-pink-900 p-6 rounded-lg border border-purple-500">
       <h3 className="text-2xl font-bold mb-2">🚀 Create Attention Token</h3>
       <p className="text-gray-200 mb-4">
-        Your case study qualifies for market-driven discovery!
+        Your optimization log qualifies for market-driven discovery!
       </p>
 
       <div className="bg-black/30 p-4 rounded mb-4">
@@ -387,7 +387,7 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
         <h4 className="font-bold mb-2">Token Details:</h4>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-400">Treatment:</span>
+            <span className="text-gray-400">Architecture:</span>
             <span className="font-bold">{techniqueName}</span>
           </div>
           <div className="flex justify-between">

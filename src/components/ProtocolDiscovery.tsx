@@ -8,7 +8,7 @@ import { PrivacyTooltip } from './PrivacyTooltip';
 interface ProtocolMatch {
   id: string;
   name: string;
-  caseStudyCount: number;
+  optimizationLogCount: number;
   validatedCount: number;
   successRate: number;
   matchScore: number;
@@ -20,7 +20,7 @@ const INTEREST_TAGS = [
   'immune-support',
   'energy-boost',
   'pain-relief',
-  'mental-health',
+  'mental-agent',
   'sleep',
   'natural',
   'clinical-data',
@@ -60,7 +60,7 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
         // Calculate match score based on selected interests
         let matchScore = 50; // Base score
         
-        // Boost score if interests align with treatment category
+        // Boost score if interests align with architecture category
         if (selectedInterests.length > 0) {
           const categoryKeywords: Record<string, string[]> = {
             supplement: ['immune-support', 'energy-boost', 'natural'],
@@ -84,7 +84,7 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
         return {
           id: community.mint.toString(),
           name: community.techniqueName,
-          caseStudyCount: community.analytics?.transactions || 0,
+          optimizationLogCount: community.analytics?.transactions || 0,
           validatedCount: Math.floor((community.analytics?.transactions || 0) * 0.7), // Estimate
           successRate: Math.min(85, 60 + (community.analytics?.holders || 0)), // Estimate based on holders
           matchScore: Math.round(matchScore),
@@ -125,7 +125,7 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
 
   const handleRequestAccess = (protocol: ProtocolMatch) => {
     alert(
-      `Request sent to protocol creator.\n\nYou'll be notified when ${protocol.name} owner grants access to see the full case studies.`
+      `Request sent to protocol creator.\n\nYou'll be notified when ${protocol.name} owner grants access to see the full optimization logs.`
     );
   };
 
@@ -231,7 +231,7 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
 
         <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase tracking-widest flex items-center gap-3">
           <span class="text-xl">🔒</span>
-          <span>Your search parameters are processed locally. We never track your health interests.</span>
+          <span>Your search parameters are processed locally. We never track your agent interests.</span>
         </div>
       </div>
 
@@ -290,7 +290,7 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
                       <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-inner">
                         <div class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Data Points</div>
                         <div class="text-2xl font-black text-slate-900 dark:text-white tracking-tighter">
-                          {protocol.caseStudyCount}
+                          {protocol.optimizationLogCount}
                         </div>
                       </div>
                       <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-inner">
@@ -298,7 +298,7 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
                         <div class="text-2xl font-black text-green-600 dark:text-green-400 tracking-tighter">
                           {protocol.validatedCount}
                           <span class="text-xs font-bold text-slate-400 dark:text-slate-500 ml-1">
-                            ({((protocol.validatedCount / protocol.caseStudyCount) * 100).toFixed(0)}%)
+                            ({((protocol.validatedCount / protocol.optimizationLogCount) * 100).toFixed(0)}%)
                           </span>
                         </div>
                       </div>
@@ -309,7 +309,7 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
                       onClick={(e) => { e.stopPropagation(); handleRequestAccess(protocol); }}
                       class="w-full bg-slate-900 dark:bg-slate-800 text-white font-black py-3 rounded-xl text-xs uppercase tracking-widest transition-all hover:bg-blue-600 dark:hover:bg-blue-700 shadow-md active:scale-95"
                     >
-                      Request Case Studies
+                      Request Optimization Logs
                     </button>
                   </div>
                 ))}
@@ -342,8 +342,8 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
             {/* Protocol Stats */}
             <div class="grid grid-cols-2 gap-6 mb-8">
               <div class="bg-slate-50 dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-inner">
-                <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Total Case Studies</div>
-                <div class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{selectedProtocol.caseStudyCount}</div>
+                <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Total Optimization Logs</div>
+                <div class="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">{selectedProtocol.optimizationLogCount}</div>
               </div>
               <div class="bg-slate-50 dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-inner">
                 <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Community Verified</div>
@@ -358,7 +358,7 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
               <div class="bg-slate-50 dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-inner">
                 <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Data Quality</div>
                 <div class="text-4xl font-black text-yellow-600 dark:text-yellow-400 tracking-tighter">
-                  {((selectedProtocol.validatedCount / selectedProtocol.caseStudyCount) * 100).toFixed(0)}%
+                  {((selectedProtocol.validatedCount / selectedProtocol.optimizationLogCount) * 100).toFixed(0)}%
                 </div>
               </div>
             </div>
@@ -369,7 +369,7 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
               <ul class="text-xs font-bold text-slate-600 dark:text-slate-300 space-y-3">
                 <li class="flex items-start gap-3">
                   <span class="text-green-500 font-black">✓</span>
-                  <span>{selectedProtocol.caseStudyCount} verified patient histories provided by the community</span>
+                  <span>{selectedProtocol.optimizationLogCount} verified developer histories provided by the community</span>
                 </li>
                 <li class="flex items-start gap-3">
                   <span class="text-green-500 font-black">✓</span>
@@ -421,7 +421,7 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
                 onClick={() => handleRequestAccess(selectedProtocol)}
                 class="flex-1 bg-green-600 hover:bg-green-700 text-white font-black py-4 px-6 rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 shadow-xl uppercase tracking-widest text-xs"
               >
-                Request Case Study Access
+                Request Optimization Log Access
               </button>
               <button
                 onClick={() => setSelectedProtocol(null)}

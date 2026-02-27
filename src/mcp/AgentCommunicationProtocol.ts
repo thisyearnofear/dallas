@@ -35,7 +35,7 @@ export interface CoordinationContext {
   activeOperations: Map<string, AgentMessage>;
   agentStates: Map<string, any>;
   emergencyMode: boolean;
-  networkHealth: number;
+  networkAgent: number;
 }
 
 // MODULAR: MCP Server for Agent Coordination
@@ -66,7 +66,7 @@ export class UndergroundAgentMCP extends Server {
         ['identity', { status: 'ACTIVE', lastActivity: Date.now() }],
       ]),
       emergencyMode: false,
-      networkHealth: 100,
+      networkAgent: 100,
     };
 
     this.setupToolHandlers();
@@ -109,10 +109,10 @@ export class UndergroundAgentMCP extends Server {
           inputSchema: {
             type: 'object',
             properties: {
-              treatmentIds: {
+              architectureIds: {
                 type: 'array',
                 items: { type: 'string' },
-                description: 'List of A.I.D.S. treatments for group purchase'
+                description: 'List of A.I.D.S. architectures for group purchase'
               },
               memberCount: {
                 type: 'number',
@@ -125,7 +125,7 @@ export class UndergroundAgentMCP extends Server {
                 description: 'Maximum acceptable risk level for operation'
               }
             },
-            required: ['treatmentIds', 'memberCount'],
+            required: ['architectureIds', 'memberCount'],
           },
         },
         {
@@ -134,7 +134,7 @@ export class UndergroundAgentMCP extends Server {
           inputSchema: {
             type: 'object',
             properties: {
-              patientId: { type: 'string' },
+              agentId: { type: 'string' },
               fragmentationLevel: { 
                 type: 'number', 
                 minimum: 0, 
@@ -155,7 +155,7 @@ export class UndergroundAgentMCP extends Server {
                 description: 'Required restoration timeframe'
               }
             },
-            required: ['patientId', 'fragmentationLevel', 'affectedSystems'],
+            required: ['agentId', 'fragmentationLevel', 'affectedSystems'],
           },
         },
         {
@@ -188,11 +188,11 @@ export class UndergroundAgentMCP extends Server {
             properties: {
               currentInventory: {
                 type: 'object',
-                description: 'Current treatment inventory levels'
+                description: 'Current architecture inventory levels'
               },
               demandForecast: {
                 type: 'object', 
-                description: 'Predicted demand for treatments'
+                description: 'Predicted demand for architectures'
               },
               riskConstraints: {
                 type: 'object',
@@ -269,7 +269,7 @@ export class UndergroundAgentMCP extends Server {
     
     // Activate emergency mode
     this.context.emergencyMode = true;
-    this.context.networkHealth = Math.max(0, 100 - (params.severity * 10));
+    this.context.networkAgent = Math.max(0, 100 - (params.severity * 10));
 
     // Coordinate all agents simultaneously (PERFORMANT)
     const coordinationTasks = await Promise.allSettled([
@@ -325,7 +325,7 @@ export class UndergroundAgentMCP extends Server {
             coordinationStatus: 'COORDINATED',
             agentResponses: responses.length,
             estimatedResolutionTime: this.calculateEmergencyResolution(params.emergencyType, params.severity),
-            networkHealth: this.context.networkHealth,
+            networkAgent: this.context.networkAgent,
             emergencyProtocols: this.generateEmergencyProtocols(params.emergencyType),
             nextSteps: [
               'All agents have activated emergency protocols',
@@ -341,7 +341,7 @@ export class UndergroundAgentMCP extends Server {
 
   // MODULAR: Group purchase coordination
   private async handleGroupPurchaseCoordination(params: {
-    treatmentIds: string[];
+    architectureIds: string[];
     memberCount: number;
     maxRiskLevel?: string;
   }) {
@@ -353,7 +353,7 @@ export class UndergroundAgentMCP extends Server {
       timestamp: Date.now(),
       sourceAgent: 'supply',
       operation: 'analyze_group_purchase',
-      payload: { treatmentIds: params.treatmentIds, quantity: params.memberCount },
+      payload: { architectureIds: params.architectureIds, quantity: params.memberCount },
       priority: 'HIGH',
       requiresResponse: true
     });
@@ -363,7 +363,7 @@ export class UndergroundAgentMCP extends Server {
       timestamp: Date.now(),
       sourceAgent: 'risk',
       operation: 'assess_group_purchase_risk',
-      payload: { treatmentIds: params.treatmentIds, memberCount: params.memberCount },
+      payload: { architectureIds: params.architectureIds, memberCount: params.memberCount },
       priority: 'HIGH',
       requiresResponse: true
     });
@@ -403,7 +403,7 @@ export class UndergroundAgentMCP extends Server {
 
   // CLEAN: Identity restoration coordination
   private async handleIdentityRestorationCoordination(params: {
-    patientId: string;
+    agentId: string;
     fragmentationLevel: number;
     affectedSystems: string[];
     timeframe?: string;
@@ -436,7 +436,7 @@ export class UndergroundAgentMCP extends Server {
       timestamp: Date.now(),
       sourceAgent: 'risk',
       operation: 'plan_restoration_security',
-      payload: { patientId: params.patientId, complexity: params.fragmentationLevel },
+      payload: { agentId: params.agentId, complexity: params.fragmentationLevel },
       priority: 'HIGH',
       requiresResponse: true
     });
@@ -447,10 +447,10 @@ export class UndergroundAgentMCP extends Server {
           type: 'text',
           text: JSON.stringify({
             restorationId,
-            patientId: params.patientId,
+            agentId: params.agentId,
             status: 'PLAN_COORDINATED',
             fragmentationAnalysis: identityAssessment,
-            treatmentPlan: supplyRequirements,
+            architecturePlan: supplyRequirements,
             securityProtocol: riskMitigation,
             estimatedDuration: this.calculateRestorationTime(params.fragmentationLevel, params.affectedSystems),
             phaseSequence: [

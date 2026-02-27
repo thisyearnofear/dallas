@@ -46,12 +46,12 @@ export const AttentionTokenLeaderboard: React.FC = () => {
     setLoading(true);
     try {
       const { SOLANA_CONFIG } = await import('../config/solana');
-      const { parseCaseStudyAccount } = await import('../utils/solanaUtils');
+      const { parseOptimizationLogAccount } = await import('../utils/solanaUtils');
       
       if (activeTab === 'tokens') {
-        const programId = new PublicKey(SOLANA_CONFIG.blockchain.caseStudyProgramId);
+        const programId = new PublicKey(SOLANA_CONFIG.blockchain.optimizationLogProgramId);
         
-        // Fetch all case study accounts with attention tokens
+        // Fetch all optimization log accounts with attention tokens
         const accounts = await connection.getProgramAccounts(programId, {
           filters: [
             {
@@ -67,7 +67,7 @@ export const AttentionTokenLeaderboard: React.FC = () => {
         const tokensWithAnalytics = await Promise.all(
           accounts.map(async ({ pubkey, account }, index) => {
             try {
-              const parsed = parseCaseStudyAccount(account.data);
+              const parsed = parseOptimizationLogAccount(account.data);
               if (!parsed.attentionTokenMint) return null;
 
               const analytics = await attentionTokenService.getTokenAnalytics(

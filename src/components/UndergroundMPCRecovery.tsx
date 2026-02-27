@@ -193,7 +193,7 @@ export const UndergroundMPCRecovery: FunctionalComponent = () => {
             </p>
             <ol class="text-xs text-gray-400 space-y-1 ml-4">
               <li>1. Return to your research dashboard</li>
-              <li>2. Access the decrypted case study</li>
+              <li>2. Access the decrypted optimization log</li>
               <li>3. Continue your analysis</li>
               <li>4. Remember: privacy is power</li>
             </ol>

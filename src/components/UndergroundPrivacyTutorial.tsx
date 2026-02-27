@@ -43,7 +43,7 @@ export const UndergroundPrivacyTutorial: FunctionalComponent = () => {
                 </div>
                 <div class="flex gap-3">
                   <span class="text-yellow-600 dark:text-yellow-400 font-black shrink-0">RON:</span>
-                  <div class="font-bold">We ain't like those corporate vultures. Your health data stays YOURS.</div>
+                  <div class="font-bold">We ain't like those corporate vultures. Your agent data stays YOURS.</div>
                 </div>
                 <div class="bg-slate-100 dark:bg-slate-900 p-5 rounded-xl border-2 border-blue-500/20 shadow-inner">
                   <div class="text-blue-600 dark:text-blue-400 font-black text-xs uppercase tracking-widest mb-2 flex items-center gap-2">
@@ -68,7 +68,7 @@ export const UndergroundPrivacyTutorial: FunctionalComponent = () => {
                 </div>
                 <div class="bg-green-50 dark:bg-green-900/20 border-2 border-green-500/20 dark:border-green-700 p-5 rounded-xl shadow-sm">
                   <span class="text-green-700 dark:text-green-400 font-black uppercase tracking-widest text-xs block mb-2">Light Protocol</span>
-                  <span class="text-slate-700 dark:text-white font-bold leading-relaxed">Compresses your case study 10x so it fits in a matchbox. Even the NSA can't read compressed gibberish.</span>
+                  <span class="text-slate-700 dark:text-white font-bold leading-relaxed">Compresses your optimization log 10x so it fits in a matchbox. Even the NSA can't read compressed gibberish.</span>
                 </div>
                 <div class="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500/20 dark:border-blue-700 p-5 rounded-xl shadow-sm">
                   <span class="text-blue-700 dark:text-blue-400 font-black uppercase tracking-widest text-xs block mb-2">Noir / Aztec</span>
@@ -89,7 +89,7 @@ export const UndergroundPrivacyTutorial: FunctionalComponent = () => {
                 </div>
                 <div class="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-500/20 dark:border-yellow-700 p-5 rounded-xl shadow-sm">
                   <span class="text-yellow-700 dark:text-yellow-400 font-black uppercase tracking-widest text-xs block mb-2">Arcium MPC</span>
-                  <span class="text-slate-700 dark:text-white font-bold leading-relaxed">We split the decryption key into pieces. Need 3 outta 5 validators to approve. Like a bank vault, but for your health secrets.</span>
+                  <span class="text-slate-700 dark:text-white font-bold leading-relaxed">We split the decryption key into pieces. Need 3 outta 5 validators to approve. Like a bank vault, but for your agent secrets.</span>
                 </div>
                 <div class="flex gap-3">
                   <span class="text-yellow-600 dark:text-yellow-400 font-black shrink-0">RON:</span>
@@ -125,7 +125,7 @@ export const UndergroundPrivacyTutorial: FunctionalComponent = () => {
                     </div>
                     <div class="flex items-start gap-3">
                       <span class="text-green-600 dark:text-green-400">✓</span>
-                      <span>Encrypt medical metrics (client-side processing)</span>
+                      <span>Encrypt production metrics (client-side processing)</span>
                     </div>
                     <div class="flex items-start gap-3">
                       <span class="text-green-600 dark:text-green-400">✓</span>

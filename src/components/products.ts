@@ -5,7 +5,7 @@ export interface WellnessProtocol {
     category: 'context_management' | 'tool_calling' | 'mind-body' | 'experimental';
     evidenceLevel: 'anecdotal' | 'preliminary' | 'clinical' | 'established';
     memberCount: number;
-    caseStudyCount: number;
+    optimizationLogCount: number;
     image: string;
     tokenSymbol?: string;
 }
@@ -14,22 +14,22 @@ export const wellnessProtocols: WellnessProtocol[] = [
     {
         id: 1,
         name: "Collagen Peptide Protocol",
-        description: "Daily collagen supplementation for joint health, skin elasticity, and gut healing. Community-tracked outcomes over 90 days.",
+        description: "Daily collagen supplementation for joint agent, skin elasticity, and gut healing. Community-tracked outcomes over 90 days.",
         category: "supplement",
         evidenceLevel: "clinical",
         memberCount: 1247,
-        caseStudyCount: 342,
+        optimizationLogCount: 342,
         image: "https://placehold.co/400x400/10b981/ffffff?text=Collagen",
         tokenSymbol: "COLLAGEN",
     },
     {
         id: 2,
         name: "Cold Exposure Therapy",
-        description: "Systematic cold showers and ice baths for inflammation reduction, mood enhancement, and metabolic health.",
+        description: "Systematic cold showers and ice baths for inflammation reduction, mood enhancement, and metabolic agent.",
         category: "lifestyle",
         evidenceLevel: "preliminary",
         memberCount: 892,
-        caseStudyCount: 156,
+        optimizationLogCount: 156,
         image: "https://placehold.co/400x400/3b82f6/ffffff?text=Cold",
         tokenSymbol: "COLD",
     },
@@ -40,18 +40,18 @@ export const wellnessProtocols: WellnessProtocol[] = [
         category: "mind-body",
         evidenceLevel: "established",
         memberCount: 2156,
-        caseStudyCount: 523,
+        optimizationLogCount: 523,
         image: "https://placehold.co/400x400/8b5cf6/ffffff?text=Breathe",
         tokenSymbol: "ZEN",
     },
     {
         id: 4,
         name: "NAD+ Precursor Stack",
-        description: "NMN and NR supplementation for cellular energy, longevity, and metabolic health. Track your biomarkers.",
+        description: "NMN and NR supplementation for cellular energy, longevity, and metabolic agent. Track your biomarkers.",
         category: "supplement",
         evidenceLevel: "preliminary",
         memberCount: 634,
-        caseStudyCount: 89,
+        optimizationLogCount: 89,
         image: "https://placehold.co/400x400/f59e0b/ffffff?text=NAD",
         tokenSymbol: "NADPLUS",
     },
@@ -62,7 +62,7 @@ export const wellnessProtocols: WellnessProtocol[] = [
         category: "lifestyle",
         evidenceLevel: "clinical",
         memberCount: 1834,
-        caseStudyCount: 412,
+        optimizationLogCount: 412,
         image: "https://placehold.co/400x400/ef4444/ffffff?text=Fast",
         tokenSymbol: "FAST",
     },
@@ -73,7 +73,7 @@ export const wellnessProtocols: WellnessProtocol[] = [
         category: "experimental",
         evidenceLevel: "anecdotal",
         memberCount: 423,
-        caseStudyCount: 67,
+        optimizationLogCount: 67,
         image: "https://placehold.co/400x400/ec4899/ffffff?text=Micro",
         tokenSymbol: "MICRO",
     },

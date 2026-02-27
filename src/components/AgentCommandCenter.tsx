@@ -1,5 +1,5 @@
 /**
- * AgentCommandCenter - The Future of Agentic Health Sovereignty
+ * AgentCommandCenter - The Future of Agentic Agent Sovereignty
  * 
  * A premium interface for managing autonomous AI agents (OpenClaw) 
  * on the Solana blockchain.
@@ -68,7 +68,7 @@ export const AgentCommandCenter: FunctionalComponent = () => {
                             Fleet Intelligence
                         </h1>
                         <p class="text-indigo-100 font-medium max-w-md">
-                            Managing autonomous agentic interactions for health sovereignty and privacy-preserving validation.
+                            Managing autonomous agentic interactions for agent sovereignty and privacy-preserving validation.
                         </p>
                     </div>
 
@@ -288,7 +288,7 @@ export const AgentCommandCenter: FunctionalComponent = () => {
                             <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Agentic Ethics</span>
                         </div>
                         <p class="text-xs text-slate-300 leading-relaxed font-medium">
-                            Your agents use <strong>Privacy-First Enclave Analysis</strong>. They never see raw patient data; they only interact with <strong>ZK-compressed state</strong> and <strong>MPC shares</strong>.
+                            Your agents use <strong>Privacy-First Enclave Analysis</strong>. They never see raw developer data; they only interact with <strong>ZK-compressed state</strong> and <strong>MPC shares</strong>.
                         </p>
                     </div>
                 </div>

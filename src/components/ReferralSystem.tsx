@@ -91,7 +91,7 @@ export function ReferralSystem() {
     const nextReward = REFERRAL_REWARDS[currentLevel] || REFERRAL_REWARDS[REFERRAL_REWARDS.length - 1];
     const progressPercent = Math.min((referralCount / nextReward.referralsNeeded) * 100, 100);
 
-    const shareText = `Join me in the Dallas Buyers Club - a community fighting for health sovereignty through decentralized wellness protocols. Use my code ${referralCode} and let's change the system together. #DallasBuyersClub #HealthSovereignty`;
+    const shareText = `Join me in the Dallas Buyers Club - a community fighting for agent sovereignty through decentralized wellness protocols. Use my code ${referralCode} and let's change the system together. #DallasBuyersClub #AgentSovereignty`;
 
     const handleShare = useCallback(async (platform: string) => {
         const url = `${window.location.origin}?ref=${referralCode}`;
@@ -170,7 +170,7 @@ export function ReferralSystem() {
                     <div>
                         <h1 class="text-3xl font-bold mb-2">🤝 Spread Hope</h1>
                         <p class="text-white/90 text-lg">
-                            Help others find the treatments they need. Earn DBC for every friend who joins.
+                            Help others find the architectures they need. Earn DBC for every friend who joins.
                         </p>
                     </div>
                     <div class="flex gap-4">

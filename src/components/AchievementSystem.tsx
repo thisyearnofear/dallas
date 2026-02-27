@@ -46,7 +46,7 @@ const achievements: Achievement[] = [
     {
         id: 'first_encryption',
         title: 'Encryption Initiate',
-        description: 'Submitted your first encrypted case study',
+        description: 'Submitted your first encrypted optimization log',
         icon: '🔒',
         unlocked: false,
         rarity: 'common',
@@ -95,7 +95,7 @@ const achievements: Achievement[] = [
     {
         id: 'zk_validator',
         title: 'Zero-Knowledge Validator',
-        description: 'Validated 5 case studies using ZK proofs',
+        description: 'Validated 5 optimization logs using ZK proofs',
         icon: '🛡️',
         unlocked: false,
         progress: 0,
@@ -146,7 +146,7 @@ const achievements: Achievement[] = [
     {
         id: 'advocate',
         title: 'Hope Advocate',
-        description: 'Helped 10 people find treatments',
+        description: 'Helped 10 people find architectures',
         icon: '⭐',
         unlocked: false,
         progress: 4,
@@ -543,10 +543,10 @@ export function AchievementSystem() {
                         </div>
                         <div class="p-4 space-y-3">
                             {[
-                                { rank: 1, name: 'Patient #420', level: 12, achievements: 15, icon: '👑' },
+                                { rank: 1, name: 'Agent #420', level: 12, achievements: 15, icon: '👑' },
                                 { rank: 2, name: 'Hope Fighter', level: 10, achievements: 12, icon: '🥈' },
-                                { rank: 3, name: 'Patient #1985', level: 9, achievements: 11, icon: '🥉' },
-                                { rank: 4, name: 'You (Patient #4201)', level: userStats.level, achievements: unlockedAchievements.length, icon: '💪' },
+                                { rank: 3, name: 'Agent #1985', level: 9, achievements: 11, icon: '🥉' },
+                                { rank: 4, name: 'You (Agent #4201)', level: userStats.level, achievements: unlockedAchievements.length, icon: '💪' },
                                 { rank: 5, name: 'Revolution Kid', level: 8, achievements: 9, icon: '⚡' }
                             ].map((fighter) => (
                                 <div 

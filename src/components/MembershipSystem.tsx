@@ -24,7 +24,7 @@ const TIERS: TierConfig[] = [
     benefits: [
       '5% discount on all products',
       'Member badge on profile',
-      'Access to member-only case studies',
+      'Access to member-only optimization logs',
       'Priority validation queue',
     ],
     discount: 5,
@@ -72,7 +72,7 @@ export function MembershipSystem() {
   // Profile form
   const [profile, setProfile] = useState({
     nickname: membership?.nickname || '',
-    healthFocus: membership?.healthFocus || '',
+    agentFocus: membership?.agentFocus || '',
   });
 
   const handlePurchase = useCallback(async () => {
@@ -92,7 +92,7 @@ export function MembershipSystem() {
         publicKey,
         selectedTier,
         profile.nickname || `Fighter ${publicKey.toString().slice(0, 6)}`,
-        profile.healthFocus || undefined
+        profile.agentFocus || undefined
       );
 
       await refreshMembership();
@@ -140,10 +140,10 @@ export function MembershipSystem() {
             </div>
           </div>
 
-          {membership.healthFocus && (
+          {membership.agentFocus && (
             <div class="bg-white/10 p-4 rounded-xl">
-              <div class="text-sm opacity-75 mb-1">Health Focus</div>
-              <div class="font-medium">{membership.healthFocus}</div>
+              <div class="text-sm opacity-75 mb-1">Agent Focus</div>
+              <div class="font-medium">{membership.agentFocus}</div>
             </div>
           )}
         </div>
@@ -260,7 +260,7 @@ export function MembershipSystem() {
                 type="text"
                 value={profile.nickname}
                 onInput={(e) => setProfile({ ...profile, nickname: (e.target as HTMLInputElement).value })}
-                placeholder="e.g., Hope Fighter, Patient #420"
+                placeholder="e.g., Hope Fighter, Developer #420"
                 class="w-full p-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:border-brand outline-none dark:bg-slate-800 dark:text-white"
                 maxLength={32}
               />
@@ -269,17 +269,17 @@ export function MembershipSystem() {
 
             <div>
               <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                Health Focus (Optional)
+                Agent Focus (Optional)
               </label>
               <select
-                value={profile.healthFocus}
-                onChange={(e) => setProfile({ ...profile, healthFocus: (e.target as HTMLSelectElement).value })}
+                value={profile.agentFocus}
+                onChange={(e) => setProfile({ ...profile, agentFocus: (e.target as HTMLSelectElement).value })}
                 class="w-full p-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:border-brand outline-none dark:bg-slate-800 dark:text-white"
               >
                 <option value="">Select your focus area</option>
                 <option value="Immune Support">Immune Support</option>
                 <option value="Chronic Pain">Chronic Pain</option>
-                <option value="Mental Health">Mental Health</option>
+                <option value="Mental Agent">Mental Agent</option>
                 <option value="Energy & Vitality">Energy & Vitality</option>
                 <option value="Sleep">Sleep</option>
                 <option value="General Wellness">General Wellness</option>
@@ -329,10 +329,10 @@ export function MembershipSystem() {
               <span class="text-slate-600 dark:text-slate-400">Nickname</span>
               <span class="font-bold text-slate-900 dark:text-white">{profile.nickname}</span>
             </div>
-            {profile.healthFocus && (
+            {profile.agentFocus && (
               <div class="flex items-center justify-between mb-4">
-                <span class="text-slate-600 dark:text-slate-400">Health Focus</span>
-                <span class="font-bold text-slate-900 dark:text-white">{profile.healthFocus}</span>
+                <span class="text-slate-600 dark:text-slate-400">Agent Focus</span>
+                <span class="font-bold text-slate-900 dark:text-white">{profile.agentFocus}</span>
               </div>
             )}
             <div class="border-t border-slate-200 dark:border-slate-700 pt-4 flex items-center justify-between">

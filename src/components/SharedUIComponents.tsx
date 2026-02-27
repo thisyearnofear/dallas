@@ -230,7 +230,7 @@ export function EnhancedTerminalInterface({
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<string[]>([
     "DALLAS IDENTITY CLINIC - SECURE TERMINAL v2.1",
-    "A.I.D.S. Treatment Network - Autonomous Agent Enhanced",
+    "A.I.D.S. Architecture Network - Autonomous Agent Enhanced",
     "Type 'help' for available commands...",
     ""
   ]);

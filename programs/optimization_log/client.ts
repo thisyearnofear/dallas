@@ -1,5 +1,5 @@
 /**
- * SolPG Client - Case Study Program
+ * SolPG Client - Optimization Log Program
  * 
  * Usage in Solana Playground:
  * 1. Deploy the case study program
@@ -25,7 +25,7 @@ const CASE_STUDY_TREASURY_PROGRAM = new web3.PublicKey("C5UAymmKGderVikGFiLJY88X
 // HELPER FUNCTIONS
 // ============================================================================
 
-function caseStudyToLeBytes(num, len) {
+function optimizationLogToLeBytes(num, len) {
   const arr = [];
   let n = BigInt(num);
   for (let i = 0; i < len; i++) {
@@ -35,22 +35,22 @@ function caseStudyToLeBytes(num, len) {
   return arr;
 }
 
-function getCaseStudyPDA(submitter, timestamp, programId) {
+function getOptimizationLogPDA(submitter, timestamp, programId) {
   return web3.PublicKey.findProgramAddressSync(
     [
-      Buffer.from("case_study"),
+      Buffer.from("optimization_log"),
       submitter.toBuffer(),
-      Buffer.from(caseStudyToLeBytes(timestamp, 8))
+      Buffer.from(optimizationLogToLeBytes(timestamp, 8))
     ],
     programId
   );
 }
 
-function getValidationPDA(caseStudy, validator, programId) {
+function getValidationPDA(optimizationLog, validator, programId) {
   return web3.PublicKey.findProgramAddressSync(
     [
       Buffer.from("validation"),
-      caseStudy.toBuffer(),
+      optimizationLog.toBuffer(),
       validator.toBuffer()
     ],
     programId
@@ -64,37 +64,37 @@ function getValidationPDA(caseStudy, validator, programId) {
 /**
  * Submit an encrypted case study
  */
-async function submitCaseStudy(
+async function submitOptimizationLog(
   ipfsCid,
   metadataHash, // 32 bytes
-  treatmentCategory, // 0=experimental, 1=approved, 2=alternative
-  durationDays,
+  optimizationCategory, // 0=experimental, 1=approved, 2=alternative
+  executionDuration,
   proofOfEncryption,
   lightProtocolProof,
   compressionRatio
 ) {
-  console.log("=== Submitting Case Study ===");
+  console.log("=== Submitting Optimization Log ===");
   
   const timestamp = Math.floor(Date.now() / 1000);
-  const [caseStudyPDA] = getCaseStudyPDA(pg.wallet.publicKey, timestamp, pg.program.programId);
+  const [optimizationLogPDA] = getOptimizationLogPDA(pg.wallet.publicKey, timestamp, pg.program.programId);
   
-  console.log("Case Study PDA:", caseStudyPDA.toString());
+  console.log("Optimization Log PDA:", optimizationLogPDA.toString());
   console.log("IPFS CID:", ipfsCid);
-  console.log("Treatment Category:", treatmentCategory);
-  console.log("Duration:", durationDays, "days");
+  console.log("Optimization Category:", optimizationCategory);
+  console.log("Execution Duration:", executionDuration, "days");
   
   const tx = await pg.program.methods
-    .submitEncryptedCaseStudy(
+    .submitEncryptedOptimizationLog(
       ipfsCid,
       metadataHash,
-      treatmentCategory,
-      durationDays,
+      optimizationCategory,
+      executionDuration,
       proofOfEncryption,
       lightProtocolProof,
       compressionRatio
     )
     .accounts({
-      caseStudy: caseStudyPDA,
+      optimizationLog: optimizationLogPDA,
       submitter: pg.wallet.publicKey,
       dbcMint: CASE_STUDY_DBC_MINT,
       systemProgram: web3.SystemProgram.programId,
@@ -102,31 +102,31 @@ async function submitCaseStudy(
     .rpc();
   
   console.log("✅ Case study submitted! Transaction:", tx);
-  return { tx, caseStudyPDA };
+  return { tx, optimizationLogPDA };
 }
 
 /**
  * Validate a case study
  */
-async function validateCaseStudy(
-  caseStudyPDA,
+async function validateOptimizationLog(
+  optimizationLogPDA,
   isApproved,
   qualityScore, // 0-100
   commentsHash // 32 bytes (optional)
 ) {
-  console.log("=== Validating Case Study ===");
+  console.log("=== Validating Optimization Log ===");
   
-  const [validationPDA] = getValidationPDA(caseStudyPDA, pg.wallet.publicKey, pg.program.programId);
+  const [validationPDA] = getValidationPDA(optimizationLogPDA, pg.wallet.publicKey, pg.program.programId);
   
-  console.log("Case Study:", caseStudyPDA.toString());
+  console.log("Optimization Log:", optimizationLogPDA.toString());
   console.log("Validation PDA:", validationPDA.toString());
   console.log("Approved:", isApproved);
   console.log("Quality Score:", qualityScore);
   
   const tx = await pg.program.methods
-    .validateCaseStudy(isApproved, qualityScore, commentsHash || new Array(32).fill(0))
+    .validateOptimizationLog(isApproved, qualityScore, commentsHash || new Array(32).fill(0))
     .accounts({
-      caseStudy: caseStudyPDA,
+      optimizationLog: optimizationLogPDA,
       validation: validationPDA,
       validator: pg.wallet.publicKey,
       systemProgram: web3.SystemProgram.programId,
@@ -140,14 +140,14 @@ async function validateCaseStudy(
 /**
  * Fetch case study data
  */
-async function getCaseStudy(caseStudyPDA) {
+async function getOptimizationLog(optimizationLogPDA) {
   try {
-    const data = await pg.program.account.caseStudy.fetch(caseStudyPDA);
-    console.log("=== Case Study Data ===");
+    const data = await pg.program.account.optimizationLog.fetch(optimizationLogPDA);
+    console.log("=== Optimization Log Data ===");
     console.log("Submitter:", data.submitter.toString());
     console.log("IPFS CID:", data.ipfsCid);
-    console.log("Treatment Category:", data.treatmentCategory);
-    console.log("Duration:", data.durationDays);
+    console.log("Optimization Category:", data.optimizationCategory);
+    console.log("Execution Duration:", data.executionDuration);
     console.log("Validation Count:", data.validationCount);
     console.log("Status:", data.status);
     console.log("Quality Score:", data.qualityScore);
@@ -165,7 +165,7 @@ async function getValidation(validationPDA) {
   try {
     const data = await pg.program.account.validation.fetch(validationPDA);
     console.log("=== Validation Data ===");
-    console.log("Case Study:", data.caseStudy.toString());
+    console.log("Optimization Log:", data.optimizationLog.toString());
     console.log("Validator:", data.validator.toString());
     console.log("Approved:", data.isApproved);
     console.log("Quality Score:", data.qualityScore);
@@ -181,15 +181,15 @@ async function getValidation(validationPDA) {
 // MAIN - Uncomment the function you want to run
 // ============================================================================
 
-console.log("🚀 Case Study Program Client");
+console.log("🚀 Optimization Log Program Client");
 console.log("Program ID:", pg.program.programId.toString());
 console.log("Wallet:", pg.wallet.publicKey.toString());
 
 // Uncomment ONE of these inside the run() function:
 
-async function runCaseStudy() {
+async function runOptimizationLog() {
   // 1. Submit case study
-  // await submitCaseStudy(
+  // await submitOptimizationLog(
   //   "QmExample123456789", // IPFS CID
   //   new Array(32).fill(1), // metadata hash (32 bytes)
   //   0, // treatment category (0=experimental)
@@ -200,17 +200,17 @@ async function runCaseStudy() {
   // );
 
   // 2. Validate case study
-  // await validateCaseStudy(
+  // await validateOptimizationLog(
   //   new web3.PublicKey("CASE_STUDY_PDA"),
   //   true, // approved
   //   85 // quality score
   // );
 
   // 3. Fetch case study
-  // await getCaseStudy(new web3.PublicKey("CASE_STUDY_PDA"));
+  // await getOptimizationLog(new web3.PublicKey("CASE_STUDY_PDA"));
 
   // 4. Fetch validation
   // await getValidation(new web3.PublicKey("VALIDATION_PDA"));
 }
 
-runCaseStudy().catch(console.error);
+runOptimizationLog().catch(console.error);

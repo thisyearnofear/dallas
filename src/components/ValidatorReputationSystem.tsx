@@ -39,7 +39,7 @@ import { Connection, PublicKey } from '@solana/web3.js';
 interface ValidationHistory {
   id: string;
   timestamp: number;
-  caseStudyId: string;
+  optimizationLogId: string;
   validationType: 'quality' | 'accuracy' | 'safety';
   approved: boolean;
   consensus: 'agreed' | 'disagreed' | 'pending';
@@ -49,7 +49,7 @@ interface ValidationHistory {
 
 interface Dispute {
   id: string;
-  caseStudyId: string;
+  optimizationLogId: string;
   filedBy: string;
   filedAt: number;
   reason: string;
@@ -193,7 +193,7 @@ async function fetchValidationHistory(
       {
         id: 'val-001',
         timestamp: Date.now() - 2 * 24 * 60 * 60 * 1000,
-        caseStudyId: 'cs-001',
+        optimizationLogId: 'cs-001',
         validationType: 'quality',
         approved: true,
         consensus: 'agreed',
@@ -203,7 +203,7 @@ async function fetchValidationHistory(
       {
         id: 'val-002', 
         timestamp: Date.now() - 5 * 24 * 60 * 60 * 1000,
-        caseStudyId: 'cs-002',
+        optimizationLogId: 'cs-002',
         validationType: 'accuracy',
         approved: true,
         consensus: 'agreed',
@@ -213,7 +213,7 @@ async function fetchValidationHistory(
       {
         id: 'val-003',
         timestamp: Date.now() - 7 * 24 * 60 * 60 * 1000,
-        caseStudyId: 'cs-003',
+        optimizationLogId: 'cs-003',
         validationType: 'safety',
         approved: false,
         consensus: 'disagreed',
@@ -605,7 +605,7 @@ export const ValidatorReputationSystem: FunctionalComponent = () => {
             ) : (
               <div class="text-center py-8 text-slate-500">
                 <p>No accuracy history available yet.</p>
-                <p class="text-sm mt-1">Start validating case studies to build your history.</p>
+                <p class="text-sm mt-1">Start validating optimization logs to build your history.</p>
               </div>
             )}
           </div>
@@ -719,7 +719,7 @@ export const ValidatorReputationSystem: FunctionalComponent = () => {
             <div class={`text-center py-10 rounded-xl ${isDark ? 'bg-slate-800' : 'bg-slate-50'}`}>
               <div class="text-4xl mb-3">📋</div>
               <p class="font-bold">No Validation History</p>
-              <p class="text-sm text-slate-500 mt-1">Start validating case studies to see your history here.</p>
+              <p class="text-sm text-slate-500 mt-1">Start validating optimization logs to see your history here.</p>
             </div>
           )}
         </div>
@@ -807,7 +807,7 @@ export const ValidatorReputationSystem: FunctionalComponent = () => {
                   </span>
                 </div>
                 <p class={`text-sm mb-2 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                  <strong>Case Study:</strong> {dispute.caseStudyId}
+                  <strong>Optimization Log:</strong> {dispute.optimizationLogId}
                 </p>
                 <p class={`text-sm mb-3 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                   <strong>Reason:</strong> {dispute.reason}

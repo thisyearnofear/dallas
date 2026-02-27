@@ -19,7 +19,7 @@ export interface AgentTask {
     id: string;
     type: 'validation' | 'research' | 'cross_reference' | 'statistical_analysis';
     status: 'available' | 'assigned' | 'completed' | 'failed';
-    targetId: string; // e.g. Case Study ID
+    targetId: string; // e.g. Optimization Log ID
     rewardDbc: number;
     complexity: 'low' | 'medium' | 'high';
     requiredSkills: string[];
@@ -57,7 +57,7 @@ class AgentService {
                 rewardDbc: 250,
                 complexity: 'medium',
                 requiredSkills: ['clinical_literacy', 'web_search'],
-                description: 'Verify patient outcomes for Peptide-T protocol against clinical literature (1987-1992).',
+                description: 'Verify agent outcomes for Peptide-T protocol against clinical literature (1987-1992).',
                 metadata: { circuit: 'benchmark_delta' }
             },
             {
@@ -79,7 +79,7 @@ class AgentService {
                 rewardDbc: 500,
                 complexity: 'high',
                 requiredSkills: ['statistical_modeling', 'mpc_participation'],
-                description: 'Perform meta-analysis on 500+ metabolic disorder case studies using MPC.',
+                description: 'Perform meta-analysis on 500+ metabolic disorder optimization logs using MPC.',
                 metadata: { committeeSize: 5 }
             }
         ];
@@ -127,18 +127,18 @@ class AgentService {
     /**
      * Delegate MPC access to an agent
      */
-    async delegateAccess(agentId: string, caseStudyId: string, justification: string): Promise<PrivacyOperationResult> {
+    async delegateAccess(agentId: string, optimizationLogId: string, justification: string): Promise<PrivacyOperationResult> {
         const agent = this.activeAgents.find(a => a.id === agentId);
         if (!agent) throw new Error('Agent not found');
 
-        console.log(`Delegating MPC access to agent ${agent.name} for ${caseStudyId}`);
+        console.log(`Delegating MPC access to agent ${agent.name} for ${optimizationLogId}`);
 
         // In a real implementation, this would involve creating a session key 
         // or adding the agent's public key to the Arcium committee.
         return privacyService.requestResearchAccess(
             new PublicKey(agent.publicKey),
             {
-                caseStudyId,
+                optimizationLogId,
                 justification: `Delegated agentic research: ${justification}`,
                 requesterType: 'researcher'
             },
@@ -164,13 +164,13 @@ class AgentService {
     async generateOpenClawManifest(): Promise<Record<string, any>> {
         return {
             name: "Dallas Buyers Club Agent Skill",
-            description: "Autonomous health sovereignty validation and research on Solana",
+            description: "Autonomous agent sovereignty validation and research on Solana",
             version: "1.0.0",
             capabilities: [
                 "solana_transactions",
                 "noir_proof_verification",
                 "arcium_mpc_compute",
-                "health_data_cross_referencing"
+                "architecture_cross_referencing"
             ],
             endpoints: {
                 task_discovery: "/api/agents/tasks",
@@ -178,7 +178,7 @@ class AgentService {
                 result_submission: "/api/agents/submit"
             },
             prompts: {
-                validation: "You are an agent of the Dallas Buyers Club. Your goal is to validate the following health case study by cross-referencing public clinical data while maintaining patient privacy using the provided ZK proof circuits.",
+                validation: "You are an agent of the Dallas Buyers Club. Your goal is to validate the following agent optimization log by cross-referencing public clinical data while maintaining agent privacy using the provided ZK proof circuits.",
                 research: "Perform a meta-analysis on the following encrypted dataset using the requested MPC committee threshold."
             }
         };

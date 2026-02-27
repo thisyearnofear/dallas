@@ -12,7 +12,7 @@ export interface AgentNetworkState {
     supply: { status: string; role: string };
     risk: { status: string; role: string };
     community: { status: string; role: string };
-    identity: { status: string; role: string };
+    context: { status: string; role: string };
   };
   currentDangerLevel: number;
   agentSuggestions: string[];
@@ -25,10 +25,10 @@ export function useAgentNetwork() {
   const wallet = useWallet();
   const [state, setState] = useState<AgentNetworkState>({
     agents: {
-      supply: { status: 'INITIALIZING', role: 'Treatment sourcing & optimization' },
+      supply: { status: 'INITIALIZING', role: 'Architecture sourcing & optimization' },
       risk: { status: 'INITIALIZING', role: 'Threat assessment & security' },
       community: { status: 'INITIALIZING', role: 'Member network management' },
-      identity: { status: 'INITIALIZING', role: 'A.I.D.S. treatment & recovery' }
+      context: { status: 'INITIALIZING', role: 'Agent Failure architecture & recovery' }
     },
     currentDangerLevel: 50,
     agentSuggestions: [],
@@ -52,13 +52,13 @@ export function useAgentNetwork() {
           currentDangerLevel: dangerLevel,
           agentSuggestions: [
             "assess current threat level",
-            "check treatment availability",
+            "check architecture availability",
             "coordinate group purchase",
-            "initiate identity restoration"
+            "initiate context restoration"
           ],
           networkActivity: [
             "🤖 Agent network initialized successfully",
-            "🔍 Supply chain agent monitoring treatment availability",
+            "🔍 Supply chain agent monitoring architecture availability",
             "🛡️ Risk assessment agent scanning for threats",
             "👥 Community agent coordinating member network"
           ]
@@ -122,14 +122,14 @@ export function useAgentNetwork() {
   };
 
   // ENHANCED: MCP-orchestrated group purchase
-  const coordinateGroupPurchase = async (treatmentIds: string[]) => {
+  const coordinateGroupPurchase = async (architectureIds: string[]) => {
     const memberCount = 5; // Default group size
-    const result = await agentMCPBridge.groupPurchaseOrchestration(treatmentIds, memberCount);
+    const result = await agentMCPBridge.groupPurchaseOrchestration(architectureIds, memberCount);
 
     setState(prev => ({
       ...prev,
       networkActivity: [
-        `🤖 MCP group purchase orchestrated: ${treatmentIds.length} treatments`,
+        `🤖 MCP group purchase orchestrated: ${architectureIds.length} architectures`,
         `💰 Estimated savings: ${result.estimatedSavings}`,
         `👥 ${memberCount} members coordinated`,
         ...prev.networkActivity
@@ -139,15 +139,15 @@ export function useAgentNetwork() {
     return result;
   };
 
-  // ENHANCED: Real Edenlayer + MCP identity restoration with blockchain
-  const processIdentityRestoration = async (patientId: string, treatmentId: string) => {
+  // ENHANCED: Real Edenlayer + MCP context restoration with blockchain
+  const processContextRestoration = async (agentId: string, architectureId: string) => {
     setState(prev => ({ ...prev, isCoordinating: true }));
 
     try {
       // ENHANCED: Real Edenlayer task execution with wallet integration
-      const result = await enhancedBusinessLogic.processIdentityRestoration({
-        treatmentId,
-        patientId,
+      const result = await enhancedBusinessLogic.processContextRestoration({
+        architectureId,
+        agentId,
         paymentMethod: 'SOL',
         walletAddress: wallet.publicKey?.toString(),
         sendTransaction: wallet.sendTransaction
@@ -157,7 +157,7 @@ export function useAgentNetwork() {
         ...prev,
         isCoordinating: false,
         networkActivity: [
-          `🧠 EDENLAYER: Identity restoration executed for ${patientId}`,
+          `🧠 EDENLAYER: Context restoration executed for ${agentId}`,
           `💰 Transaction: ${result.transactionId || 'Pending'}`,
           `🔗 Edenlayer Task: ${result.edenlayerTaskId}`,
           `⏱️ Estimated recovery: ${result.estimatedRecovery}`,
@@ -172,7 +172,7 @@ export function useAgentNetwork() {
         ...prev,
         isCoordinating: false,
         networkActivity: [
-          `❌ Identity restoration failed: ${error.message}`,
+          `❌ Context restoration failed: ${error.message}`,
           ...prev.networkActivity
         ].slice(0, 10)
       }));
@@ -253,7 +253,7 @@ export function useAgentNetwork() {
     coordinateAgents,
     assessThreatLevel,
     coordinateGroupPurchase,
-    processIdentityRestoration,
+    processContextRestoration,
     handleEmergencyResponse,
 
     // Utilities
@@ -270,8 +270,8 @@ export function useSupplyChainAgent() {
 
   return {
     status: agents.supply,
-    checkAvailability: (treatmentId: string) =>
-      coordinateAgents('check_availability', { treatmentId }),
+    checkAvailability: (architectureId: string) =>
+      coordinateAgents('check_availability', { architectureId }),
     optimizePricing: (params: any) =>
       coordinateAgents('optimize_pricing', params)
   };
@@ -300,13 +300,13 @@ export function useCommunityAgent() {
   };
 }
 
-export function useIdentityAgent() {
-  const { agents, processIdentityRestoration, coordinateAgents } = useAgentNetwork();
+export function useContextAgent() {
+  const { agents, processContextRestoration, coordinateAgents } = useAgentNetwork();
 
   return {
-    status: agents.identity,
-    assessFragmentation: (patientId: string) =>
-      coordinateAgents('assess_fragmentation', { patientId }),
-    restoreIdentity: processIdentityRestoration
+    status: agents.context,
+    assessFragmentation: (agentId: string) =>
+      coordinateAgents('assess_fragmentation', { agentId }),
+    restoreContext: processContextRestoration
   };
 }

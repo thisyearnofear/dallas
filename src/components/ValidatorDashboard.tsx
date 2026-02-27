@@ -8,7 +8,7 @@ import { submitValidatorApproval, fetchPendingCaseStudies } from '../services/Bl
 import { PublicKey } from '@solana/web3.js';
 import { PrivacyTooltip } from './PrivacyTooltip';
 
-interface CaseStudyForValidation {
+interface OptimizationLogForValidation {
     pubkey: PublicKey;
     protocol: string;
     createdAt: Date;
@@ -36,7 +36,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
     // Calculate tier based on DBC staking/validation history
     const calculatedTier = calculateTier(validationCount, accuracyRate);
     const [refreshing, setRefreshing] = useState(false);
-    const [caseStudies, setCaseStudies] = useState<CaseStudyForValidation[]>([]);
+    const [caseStudies, setCaseStudies] = useState<OptimizationLogForValidation[]>([]);
     const [loading, setLoading] = useState(false);
     const [validating, setValidating] = useState<string | null>(null);
     const [submitStatus, setSubmitStatus] = useState<{
@@ -44,7 +44,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
         message: string;
     }>({ type: null, message: '' });
 
-    // Load case studies that need validation
+    // Load optimization logs that need validation
     useEffect(() => {
         if (publicKey) {
             loadCaseStudies();
@@ -56,12 +56,12 @@ export const ValidatorDashboard: FunctionalComponent = () => {
 
         setLoading(true);
         try {
-            // Fetch ALL pending case studies from blockchain (not just user's own)
+            // Fetch ALL pending optimization logs from blockchain (not just user's own)
             const result = await fetchPendingCaseStudies();
 
             if (result.success && result.caseStudies) {
-                // Convert to validation format - exclude user's own case studies
-                const validationCaseStudies: CaseStudyForValidation[] = result.caseStudies
+                // Convert to validation format - exclude user's own optimization logs
+                const validationCaseStudies: OptimizationLogForValidation[] = result.caseStudies
                     .filter(cs => !cs.submitter.equals(publicKey)) // Can't validate own studies
                     .filter(cs => cs.approvalCount < 5) // Need 5 weighted approvals
                     .map(cs => ({
@@ -78,10 +78,10 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                 setCaseStudies([]);
             }
         } catch (error) {
-            console.error('Error loading case studies:', error);
+            console.error('Error loading optimization logs:', error);
             setSubmitStatus({
                 type: 'error',
-                message: `Failed to load case studies: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                message: `Failed to load optimization logs: ${error instanceof Error ? error.message : 'Unknown error'}`,
             });
             setCaseStudies([]);
         } finally {
@@ -90,7 +90,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
     };
 
     const handleValidation = async (
-        caseStudyPubkey: PublicKey,
+        optimizationLogPubkey: PublicKey,
         validationType: 'quality' | 'accuracy' | 'safety',
         approved: boolean
     ) => {
@@ -102,7 +102,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
             return;
         }
 
-        setValidating(caseStudyPubkey.toString());
+        setValidating(optimizationLogPubkey.toString());
         setSubmitStatus({
             type: 'info',
             message: '🔄 Submitting validation... Please approve the transaction in your wallet.',
@@ -118,7 +118,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                     }
                     return await provider.signTransaction(tx);
                 },
-                caseStudyPubkey,
+                optimizationLogPubkey,
                 validationType,
                 approved,
                 10 // Stake 10 EXPERIENCE tokens
@@ -130,10 +130,10 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                     message: result.message,
                 });
 
-                // Update the case study in the list
+                // Update the optimization log in the list
                 setCaseStudies(prev =>
                     prev.map(cs =>
-                        cs.pubkey.equals(caseStudyPubkey)
+                        cs.pubkey.equals(optimizationLogPubkey)
                             ? { ...cs, approvalCount: cs.approvalCount + 1, needsValidation: false }
                             : cs
                     )
@@ -192,7 +192,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                     )}
                 </div>
                 <p class={isDark ? 'text-slate-300' : 'text-slate-600'}>
-                    Review encrypted case studies and earn DBC tokens. Stake {DbcTokenService.STAKING_CONFIG.MINIMUM_STAKE} DBC to participate — 
+                    Review encrypted optimization logs and earn DBC tokens. Stake {DbcTokenService.STAKING_CONFIG.MINIMUM_STAKE} DBC to participate — 
                     accurate validators earn rewards, inaccurate ones lose their stake.
                 </p>
             </div>
@@ -257,10 +257,10 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                 </div>
             </div>
 
-            {/* Case Studies Pending Validation */}
+            {/* Optimization Logs Pending Validation */}
             <div class="mb-8">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>📋 Case Studies Pending Validation</h3>
+                    <h3 class={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>📋 Optimization Logs Pending Validation</h3>
                     <button
                         onClick={loadCaseStudies}
                         disabled={loading}
@@ -271,14 +271,14 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                 </div>
 
                 {loading ? (
-                    <div class={`text-center py-8 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Loading case studies...</div>
+                    <div class={`text-center py-8 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Loading optimization logs...</div>
                 ) : caseStudies.length === 0 ? (
-                    <div class={`text-center py-8 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>No case studies pending validation.</div>
+                    <div class={`text-center py-8 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>No optimization logs pending validation.</div>
                 ) : (
                     <div class="space-y-4">
-                        {caseStudies.map((caseStudy) => (
+                        {caseStudies.map((optimizationLog) => (
                             <div
-                                key={caseStudy.pubkey.toString()}
+                                key={optimizationLog.pubkey.toString()}
                                 class={`border rounded-lg p-6 transition-colors shadow-sm ${
                                     isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'
                                 }`}
@@ -286,12 +286,12 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                                 <div class="flex items-start justify-between mb-4">
                                     <div class="flex-1">
                                         <h4 class={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                                            {caseStudy.protocol}
+                                            {optimizationLog.protocol}
                                         </h4>
                                         <div class={`text-sm space-y-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                                            <div>📅 Submitted: {caseStudy.createdAt.toLocaleDateString()}</div>
-                                            <div>👥 Approvals: {caseStudy.approvalCount}/3 required</div>
-                                            <div>🔑 ID: {caseStudy.pubkey.toString().slice(0, 20)}...</div>
+                                            <div>📅 Submitted: {optimizationLog.createdAt.toLocaleDateString()}</div>
+                                            <div>👥 Approvals: {optimizationLog.approvalCount}/3 required</div>
+                                            <div>🔑 ID: {optimizationLog.pubkey.toString().slice(0, 20)}...</div>
                                         </div>
                                     </div>
                                     <div class="text-right">
@@ -306,7 +306,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                                 </div>
 
                                 {/* Validation Actions */}
-                                {caseStudy.needsValidation && (
+                                {optimizationLog.needsValidation && (
                                     <div class={`border-t pt-4 ${isDark ? 'border-slate-700' : 'border-slate-200'}`}>
                                         <div class={`text-sm font-bold mb-3 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                                             Choose validation type and decision:
@@ -320,15 +320,15 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                                 </div>
                                                 <div class="flex gap-2">
                                                     <button
-                                                        onClick={() => handleValidation(caseStudy.pubkey, 'quality', true)}
-                                                        disabled={validating === caseStudy.pubkey.toString()}
+                                                        onClick={() => handleValidation(optimizationLog.pubkey, 'quality', true)}
+                                                        disabled={validating === optimizationLog.pubkey.toString()}
                                                         class="flex-1 bg-green-600 hover:bg-green-700 text-white disabled:bg-slate-400 px-3 py-2 rounded text-sm font-bold transition shadow-sm"
                                                     >
                                                         ✅ Approve
                                                     </button>
                                                     <button
-                                                        onClick={() => handleValidation(caseStudy.pubkey, 'quality', false)}
-                                                        disabled={validating === caseStudy.pubkey.toString()}
+                                                        onClick={() => handleValidation(optimizationLog.pubkey, 'quality', false)}
+                                                        disabled={validating === optimizationLog.pubkey.toString()}
                                                         class="flex-1 bg-red-600 hover:bg-red-700 text-white disabled:bg-slate-400 px-3 py-2 rounded text-sm font-bold transition shadow-sm"
                                                     >
                                                         ❌ Reject
@@ -344,15 +344,15 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                                 </div>
                                                 <div class="flex gap-2">
                                                     <button
-                                                        onClick={() => handleValidation(caseStudy.pubkey, 'accuracy', true)}
-                                                        disabled={validating === caseStudy.pubkey.toString()}
+                                                        onClick={() => handleValidation(optimizationLog.pubkey, 'accuracy', true)}
+                                                        disabled={validating === optimizationLog.pubkey.toString()}
                                                         class="flex-1 bg-green-600 hover:bg-green-700 text-white disabled:bg-slate-400 px-3 py-2 rounded text-sm font-bold transition shadow-sm"
                                                     >
                                                         ✅ Approve
                                                     </button>
                                                     <button
-                                                        onClick={() => handleValidation(caseStudy.pubkey, 'accuracy', false)}
-                                                        disabled={validating === caseStudy.pubkey.toString()}
+                                                        onClick={() => handleValidation(optimizationLog.pubkey, 'accuracy', false)}
+                                                        disabled={validating === optimizationLog.pubkey.toString()}
                                                         class="flex-1 bg-red-600 hover:bg-red-700 text-white disabled:bg-slate-400 px-3 py-2 rounded text-sm font-bold transition shadow-sm"
                                                     >
                                                         ❌ Reject
@@ -368,15 +368,15 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                                 </div>
                                                 <div class="flex gap-2">
                                                     <button
-                                                        onClick={() => handleValidation(caseStudy.pubkey, 'safety', true)}
-                                                        disabled={validating === caseStudy.pubkey.toString()}
+                                                        onClick={() => handleValidation(optimizationLog.pubkey, 'safety', true)}
+                                                        disabled={validating === optimizationLog.pubkey.toString()}
                                                         class="flex-1 bg-green-600 hover:bg-green-700 text-white disabled:bg-slate-400 px-3 py-2 rounded text-sm font-bold transition shadow-sm"
                                                     >
                                                         ✅ Safe
                                                     </button>
                                                     <button
-                                                        onClick={() => handleValidation(caseStudy.pubkey, 'safety', false)}
-                                                        disabled={validating === caseStudy.pubkey.toString()}
+                                                        onClick={() => handleValidation(optimizationLog.pubkey, 'safety', false)}
+                                                        disabled={validating === optimizationLog.pubkey.toString()}
                                                         class="flex-1 bg-red-600 hover:bg-red-700 text-white disabled:bg-slate-400 px-3 py-2 rounded text-sm font-bold transition shadow-sm"
                                                     >
                                                         ⚠️ Unsafe
@@ -385,7 +385,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                                             </div>
                                         </div>
 
-                                        {validating === caseStudy.pubkey.toString() && (
+                                        {validating === optimizationLog.pubkey.toString() && (
                                             <div class="mt-4 text-center text-yellow-600 dark:text-yellow-400 font-bold animate-pulse">
                                                 ⏳ Submitting validation to blockchain...
                                             </div>
@@ -393,9 +393,9 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                                     </div>
                                 )}
 
-                                {!caseStudy.needsValidation && (
+                                {!optimizationLog.needsValidation && (
                                     <div class={`border-t pt-4 text-center font-bold ${isDark ? 'border-slate-700 text-green-400' : 'border-slate-200 text-green-600'}`}>
-                                        ✅ You have already validated this case study
+                                        ✅ You have already validated this optimization log
                                     </div>
                                 )}
                             </div>
@@ -416,7 +416,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                 <div class={`text-sm space-y-3 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
                     <div class="flex items-start gap-2">
                         <span class="text-green-500 font-bold">✓</span>
-                        <span><strong>Privacy Protected:</strong> You verify data quality without seeing sensitive health details</span>
+                        <span><strong>Privacy Protected:</strong> You verify data quality without seeing sensitive agent details</span>
                     </div>
                     <div class="flex items-start gap-2">
                         <span class="text-green-500 font-bold">✓</span>

@@ -25,10 +25,10 @@ export class EdenlayerTaskComposer {
     this.registeredAgents = agentRegistry;
   }
 
-  // ENHANCED: Treatment purchase workflow following Edenlayer composition patterns
-  async composeTreatmentPurchaseWorkflow(params: {
-    treatmentId: string;
-    patientId: string;
+  // ENHANCED: Architecture purchase workflow following Edenlayer composition patterns
+  async composeArchitecturePurchaseWorkflow(params: {
+    architectureId: string;
+    agentId: string;
     walletAddress: string;
     urgency: 'low' | 'medium' | 'high' | 'critical';
   }): Promise<TaskCompositionResult> {
@@ -41,19 +41,19 @@ export class EdenlayerTaskComposer {
         operation: 'tools/assess_transaction_risk',
         params: {
           transactionType: 'purchase',
-          amount: this.calculateTreatmentPrice(params.treatmentId),
+          amount: this.calculateArchitecturePrice(params.architectureId),
           participantCount: 1,
           timeOfDay: new Date().getHours().toString(),
           location: 'dallas'
         }
       },
 
-      // Task 1: Check Treatment Availability (independent, parallel with risk)
+      // Task 1: Check Architecture Availability (independent, parallel with risk)
       {
         agentId: this.registeredAgents.get('supply') || 'supply-agent-fallback',
-        operation: 'tools/check_treatment_availability',
+        operation: 'tools/check_architecture_availability',
         params: {
-          treatmentIds: [params.treatmentId],
+          architectureIds: [params.architectureId],
           quantity: 1,
           urgency: params.urgency
         }
@@ -64,7 +64,7 @@ export class EdenlayerTaskComposer {
         agentId: this.registeredAgents.get('identity') || 'identity-agent-fallback',
         operation: 'tools/assess_identity_fragmentation',
         params: {
-          patientId: params.patientId,
+          agentId: params.agentId,
           symptoms: this.getTypicalSymptoms(),
           fragmentationIndicators: {
             memoryLoss: Math.floor(Math.random() * 50) + 25,
@@ -90,8 +90,8 @@ export class EdenlayerTaskComposer {
           },
           affectedSystems: ['memory_core', 'digital_signature', 'personality_matrix'],
           timeframe: params.urgency === 'critical' ? 'emergency' : 'standard',
-          patientResources: {
-            budget: this.calculateTreatmentPrice(params.treatmentId),
+          agentResources: {
+            budget: this.calculateArchitecturePrice(params.architectureId),
             timeAvailable: this.getTimeframeForUrgency(params.urgency),
             supportSystem: true
           }
@@ -112,7 +112,7 @@ export class EdenlayerTaskComposer {
             },
             type: 'string'
           },
-          treatmentTypes: [params.treatmentId]
+          architectureTypes: [params.architectureId]
         }
       },
 
@@ -129,7 +129,7 @@ export class EdenlayerTaskComposer {
             },
             type: 'number'
           },
-          treatmentAvailability: {
+          architectureAvailability: {
             source: {
               field: 'availability',
               taskId: '1'
@@ -150,7 +150,7 @@ export class EdenlayerTaskComposer {
             },
             type: 'object'
           },
-          patientId: params.patientId,
+          agentId: params.agentId,
           walletAddress: params.walletAddress
         }
       }
@@ -161,7 +161,7 @@ export class EdenlayerTaskComposer {
 
   // ENHANCED: Group purchase coordination with complex dependencies
   async composeGroupPurchaseWorkflow(params: {
-    treatmentIds: string[];
+    architectureIds: string[];
     memberCount: number;
     coordinatorWallet: string;
     timeframe: '24h' | '48h' | '1w';
@@ -174,7 +174,7 @@ export class EdenlayerTaskComposer {
         operation: 'tools/assess_transaction_risk',
         params: {
           transactionType: 'group_buy',
-          amount: params.treatmentIds.reduce((sum, id) => sum + this.calculateTreatmentPrice(id), 0),
+          amount: params.architectureIds.reduce((sum, id) => sum + this.calculateArchitecturePrice(id), 0),
           participantCount: params.memberCount,
           timeOfDay: new Date().getHours().toString(),
           location: 'dallas'
@@ -184,9 +184,9 @@ export class EdenlayerTaskComposer {
       // Task 1: Check Bulk Availability (parallel with risk)
       {
         agentId: this.registeredAgents.get('supply') || 'supply-agent-fallback',
-        operation: 'tools/check_treatment_availability',
+        operation: 'tools/check_architecture_availability',
         params: {
-          treatmentIds: params.treatmentIds,
+          architectureIds: params.architectureIds,
           quantity: params.memberCount,
           urgency: 'medium'
         }
@@ -198,7 +198,7 @@ export class EdenlayerTaskComposer {
         operation: 'tools/organize_group_purchase',
         parents: ['0'],
         params: {
-          treatmentIds: params.treatmentIds,
+          architectureIds: params.architectureIds,
           maxParticipants: params.memberCount,
           timeframe: params.timeframe,
           riskLevel: {
@@ -217,7 +217,7 @@ export class EdenlayerTaskComposer {
         operation: 'tools/negotiate_bulk_pricing',
         parents: ['1', '2'],
         params: {
-          treatmentId: params.treatmentIds[0], // Primary treatment
+          architectureId: params.architectureIds[0], // Primary architecture
           quantity: params.memberCount,
           memberCount: {
             source: {
@@ -250,7 +250,7 @@ export class EdenlayerTaskComposer {
             },
             type: 'string'
           },
-          treatmentTypes: params.treatmentIds,
+          architectureTypes: params.architectureIds,
           bulkDiscount: {
             source: {
               field: 'discountPercentage',
@@ -370,14 +370,14 @@ export class EdenlayerTaskComposer {
   }
 
   // Helper methods
-  private calculateTreatmentPrice(treatmentId: string): number {
+  private calculateArchitecturePrice(architectureId: string): number {
     const prices = {
       'azt_patch': 0.5,
       'peptide_code': 0.2,
       'ddc_algorithm': 0.3,
       'interferon_suite': 0.8
     };
-    return prices[treatmentId as keyof typeof prices] || 0.5;
+    return prices[architectureId as keyof typeof prices] || 0.5;
   }
 
   private getTypicalSymptoms(): string[] {

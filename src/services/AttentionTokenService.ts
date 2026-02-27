@@ -1,6 +1,6 @@
 /**
  * Attention Token Service
- * Handles all interactions with Bags API for treatment-specific token creation
+ * Handles all interactions with Bags API for architecture-specific token creation
  * 
  * NETWORK COMPATIBILITY:
  * - Bags API only works on mainnet (creates real tokens with real value)
@@ -22,7 +22,7 @@ import {
   BagsFeeShareConfig,
   BagsTokenLaunchRequest,
   BagsTokenLaunchResponse,
-  CaseStudyWithAttentionToken,
+  OptimizationLogWithAttentionToken,
   CreateAttentionTokenParams,
   SymbolGenerationOptions,
   ValidatorInfo,
@@ -62,29 +62,29 @@ export class AttentionTokenService {
   }
 
   /**
-   * Check if case study is eligible for attention token creation
+   * Check if optimization log is eligible for attention token creation
    */
   async checkEligibility(
-    caseStudyPda: PublicKey,
+    optimizationLogPda: PublicKey,
     connection: Connection
   ): Promise<AttentionTokenEligibility> {
     try {
-      const caseStudy = await this.fetchCaseStudy(caseStudyPda, connection);
+      const optimizationLog = await this.fetchOptimizationLog(optimizationLogPda, connection);
 
-      const reputationMet = caseStudy.reputationScore >= SOLANA_CONFIG.attentionToken.minReputationScore;
-      const validatorsMet = caseStudy.validatorCount >= SOLANA_CONFIG.attentionToken.minValidators;
-      const hasExistingToken = !!caseStudy.attentionTokenMint;
+      const reputationMet = optimizationLog.reputationScore >= SOLANA_CONFIG.attentionToken.minReputationScore;
+      const validatorsMet = optimizationLog.validatorCount >= SOLANA_CONFIG.attentionToken.minValidators;
+      const hasExistingToken = !!optimizationLog.attentionTokenMint;
 
       return {
         isEligible: reputationMet && validatorsMet && !hasExistingToken,
         reasons: {
           reputationScore: {
-            current: caseStudy.reputationScore,
+            current: optimizationLog.reputationScore,
             required: SOLANA_CONFIG.attentionToken.minReputationScore,
             met: reputationMet,
           },
           validatorCount: {
-            current: caseStudy.validatorCount,
+            current: optimizationLog.validatorCount,
             required: SOLANA_CONFIG.attentionToken.minValidators,
             met: validatorsMet,
           },
@@ -99,7 +99,7 @@ export class AttentionTokenService {
 
   /**
    * Create attention token via Bags API (mainnet) or mock (devnet)
-   * ENHANCED: Support for both case study tokens and standalone community tokens
+   * ENHANCED: Support for both optimization log tokens and standalone community tokens
    */
   async createAttentionToken(
     params: CreateAttentionTokenParams
@@ -125,7 +125,7 @@ export class AttentionTokenService {
     const symbol = this.generateSymbol(params.techniqueName);
     
     // Determine token name based on mode
-    const isCommunity = params.isCommunityToken || !params.caseStudyPda;
+    const isCommunity = params.isCommunityToken || !params.optimizationLogPda;
     const tokenName = isCommunity 
       ? params.techniqueName  // Communities use name directly (e.g., "Collagen Community")
       : `${params.techniqueName} Attention`; // Case studies append "Attention"
@@ -137,7 +137,7 @@ export class AttentionTokenService {
       imageUrl: params.imageUrl,
       partnerConfig: this.bagsPartnerConfig || undefined,
       metadata: {
-        caseStudyPda: params.caseStudyPda?.toString(),
+        optimizationLogPda: params.optimizationLogPda?.toString(),
         submitter: params.submitter.toString(),
         validators: params.validators?.map((v) => v.publicKey.toString()) || [],
         reputationScore: params.reputationScore || 0,
@@ -191,7 +191,7 @@ export class AttentionTokenService {
     const mockToken: AttentionToken = {
       mint: tokenMint,
       bondingCurve: bondingCurve,
-      caseStudyPda: params.caseStudyPda || new PublicKey('11111111111111111111111111111111'),
+      optimizationLogPda: params.optimizationLogPda || new PublicKey('11111111111111111111111111111111'),
       name: params.isCommunityToken ? params.techniqueName : `${params.techniqueName} Attention`,
       symbol: this.generateSymbol(params.techniqueName),
       description: params.description,
@@ -396,27 +396,27 @@ export class AttentionTokenService {
   }
 
   /**
-   * Fetch case study from blockchain
+   * Fetch optimization log from blockchain
    */
-  private async fetchCaseStudy(
-    caseStudyPda: PublicKey,
+  private async fetchOptimizationLog(
+    optimizationLogPda: PublicKey,
     connection: Connection
-  ): Promise<CaseStudyWithAttentionToken> {
+  ): Promise<OptimizationLogWithAttentionToken> {
     try {
-      const accountInfo = await connection.getAccountInfo(caseStudyPda);
+      const accountInfo = await connection.getAccountInfo(optimizationLogPda);
       if (!accountInfo) {
         throw new Error('Case study not found');
       }
 
-      // Parse case study account data
+      // Parse optimization log account data
       // This is a simplified parser - in production, use proper deserialization
       const data = accountInfo.data;
       
       // Mock parsing for now - in production, use Anchor IDL
       return {
-        publicKey: caseStudyPda,
+        publicKey: optimizationLogPda,
         submitter: new PublicKey(data.slice(8, 40)),
-        techniqueName: 'Sample Treatment',
+        techniqueName: 'Sample Architecture',
         techniqueCategory: 'context_management',
         description: 'Sample description',
         imageUrl: 'https://example.com/image.png',
@@ -427,13 +427,13 @@ export class AttentionTokenService {
         createdAt: Date.now(),
       };
     } catch (error) {
-      console.error('Error fetching case study:', error);
+      console.error('Error fetching optimization log:', error);
       throw error;
     }
   }
 
   /**
-   * Generate symbol from treatment name
+   * Generate symbol from architecture name
    */
   generateSymbol(name: string, options: SymbolGenerationOptions = {}): string {
     const { maxLength = 6, prefix = '', suffix = '' } = options;

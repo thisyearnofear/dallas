@@ -25,7 +25,7 @@ import nacl from 'tweetnacl';
 export type MessageType =
     | 'general'      // General inquiry
     | 'support'      // Support request
-    | 'treatment'    // Treatment-related
+    | 'architecture'    // Architecture-related
     | 'validator'    // Validator coordination
     | 'research';    // Research collaboration
 
@@ -90,7 +90,7 @@ export const MESSAGING_CONFIG = {
 export const MESSAGE_TYPE_OPTIONS = [
     { value: 'general', label: 'General Inquiry', icon: '💬', description: 'General questions or feedback' },
     { value: 'support', label: 'Support Request', icon: '🆘', description: 'Need help with the platform' },
-    { value: 'treatment', label: 'Treatment Discussion', icon: '💊', description: 'Discuss treatments or protocols' },
+    { value: 'architecture', label: 'Architecture Discussion', icon: '💊', description: 'Discuss architectures or protocols' },
     { value: 'validator', label: 'Validator Coordination', icon: '✅', description: 'For validators only' },
     { value: 'research', label: 'Research Collaboration', icon: '🔬', description: 'Research-related discussions' },
 ];

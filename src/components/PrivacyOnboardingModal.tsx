@@ -11,16 +11,16 @@ const ONBOARDING_STEPS = [
   {
     id: 'welcome',
     title: 'Welcome to the Club',
-    subtitle: 'Your health data belongs to you',
+    subtitle: 'Your agent data belongs to you',
     icon: '🤝',
     content: [
       {
         title: 'What makes us different?',
-        text: 'Unlike Facebook groups or Reddit, your health data is encrypted with your wallet. We literally cannot access it.',
+        text: 'Unlike Facebook groups or Reddit, your agent data is encrypted with your wallet. We literally cannot access it.',
       },
       {
         title: 'Why this matters',
-        text: 'Health data is valuable. Big tech sells it. We protect it. Your experiments, your control.',
+        text: 'Agent data is valuable. Big tech sells it. We protect it. Your experiments, your control.',
       },
     ],
     color: 'blue',
@@ -37,7 +37,7 @@ const ONBOARDING_STEPS = [
       },
       {
         title: 'What this means',
-        text: 'Even if our servers are compromised, your health data remains secure. Only your wallet can decrypt it.',
+        text: 'Even if our servers are compromised, your agent data remains secure. Only your wallet can decrypt it.',
       },
     ],
     color: 'green',
@@ -50,7 +50,7 @@ const ONBOARDING_STEPS = [
     content: [
       {
         title: 'The problem',
-        text: 'How do validators check data quality without seeing sensitive health details?',
+        text: 'How do validators check data quality without seeing sensitive agent details?',
       },
       {
         title: 'Our solution',
@@ -79,7 +79,7 @@ const ONBOARDING_STEPS = [
   {
     id: 'ready',
     title: 'You\'re Ready',
-    subtitle: 'Start your health sovereignty journey',
+    subtitle: 'Start your agent sovereignty journey',
     icon: '🚀',
     content: [
       {

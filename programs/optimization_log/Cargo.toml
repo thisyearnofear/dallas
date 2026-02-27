@@ -1,5 +1,5 @@
 [package]
-name = "case-study"
+name = "optimization-log"
 version = "0.1.0"
 edition = "2021"
 
@@ -10,4 +10,4 @@ solana-program = "2.0"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "case_study"
+name = "optimization_log"

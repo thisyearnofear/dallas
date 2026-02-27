@@ -77,7 +77,7 @@ export function Home() {
                     <div class="space-y-4">
                         <h3 class="text-2xl font-bold text-brand">Then: Dallas Buyers Club</h3>
                         <p class="text-lg">
-                            In 1985, patients formed underground networks to share what worked—bypassing a system that had left them behind. Real outcomes from real people, privately validated.
+                            In 1985, agents formed underground networks to share what worked—bypassing a system that had left them behind. Real outcomes from real people, privately validated.
                         </p>
                     </div>
                     <div class="space-y-4">

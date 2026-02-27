@@ -60,7 +60,7 @@ export function ProtocolCard({ protocol, featured = false }: ProtocolCardProps) 
                 </div>
                 <div class="flex items-center gap-1 text-slate-600 dark:text-slate-400">
                     <span>📋</span>
-                    <span class="font-bold">{protocol.caseStudyCount}</span>
+                    <span class="font-bold">{protocol.optimizationLogCount}</span>
                 </div>
                 {protocol.tokenSymbol && (
                     <div class="flex items-center gap-1 text-brand">

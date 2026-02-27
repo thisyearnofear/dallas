@@ -1,7 +1,7 @@
 /**
- * ResearcherDashboard - MPC Access Request Interface
+ * AgentArchitectDashboard - MPC Access Request Interface
  * 
- * Enables researchers to request access to encrypted case study data
+ * Enables architects to request access to encrypted optimization log data
  * through threshold decryption (Arcium MPC). Shows committee approval
  * progress and manages decryption workflow.
  * 
@@ -26,7 +26,7 @@ import type {
 } from '../services/privacy';
 import { PrivacyTooltip } from './PrivacyTooltip';
 
-interface ResearcherState {
+interface ArchitectState {
   activeRequests: MPCAccessRequest[];
   selectedRequest: MPCAccessRequest | null;
   justification: string;
@@ -36,10 +36,10 @@ interface ResearcherState {
   isDecrypting: boolean;
 }
 
-export const ResearcherDashboard: FunctionalComponent = () => {
+export const AgentArchitectDashboard: FunctionalComponent = () => {
   const { publicKey, connected } = useContext(WalletContext);
 
-  const [state, setState] = useState<ResearcherState>({
+  const [state, setState] = useState<ArchitectState>({
     activeRequests: [],
     selectedRequest: null,
     justification: '',
@@ -69,9 +69,9 @@ export const ResearcherDashboard: FunctionalComponent = () => {
           // Add a sample request if none exist (for demo)
           const demoRequest: MPCAccessRequest = {
             id: 'mpc_demo_ NeuroProtocol_2024',
-            caseStudyId: 'cs-demo-001',
+            optimizationLogId: 'cs-demo-001',
             requester: publicKey,
-            requesterType: 'researcher',
+            requesterType: 'architect',
             justification: 'Researching efficacy of neuro-regeneration protocols for chronic cognitive fatigue. Aggregate analysis needed for Phase II validation.',
             status: 'active',
             committee: [
@@ -94,8 +94,8 @@ export const ResearcherDashboard: FunctionalComponent = () => {
     loadRequests().catch(console.error);
   }, [publicKey]);
 
-  // Request access to case study
-  const handleRequestAccess = async (caseStudyId: string) => {
+  // Request access to optimization log
+  const handleRequestAccess = async (optimizationLogId: string) => {
     if (!publicKey || !connected) {
       setSubmitStatus({
         type: 'error',
@@ -120,9 +120,9 @@ export const ResearcherDashboard: FunctionalComponent = () => {
 
     try {
       const request = await arciumMPCService.requestAccess(publicKey, {
-        caseStudyId,
+        optimizationLogId,
         justification: state.justification,
-        requesterType: 'researcher',
+        requesterType: 'architect',
         encryptionScheme: state.encryptionScheme,
         preferredThreshold: state.preferredThreshold,
       });
@@ -201,10 +201,10 @@ export const ResearcherDashboard: FunctionalComponent = () => {
       <div class="mb-10">
         <h2 class="text-3xl font-black mb-2 uppercase tracking-tighter flex items-center gap-3">
           <span class="bg-yellow-100 dark:bg-yellow-900/50 p-2 rounded-lg text-2xl">🔬</span>
-          <span>Researcher Dashboard</span>
+          <span>Architect Dashboard</span>
         </h2>
         <p class="text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-          Request access to encrypted case studies for research. Access requires approval from a committee of validators via threshold decryption.
+          Request access to encrypted optimization logs for research. Access requires approval from a committee of validators via threshold decryption.
         </p>
       </div>
 
@@ -233,10 +233,10 @@ export const ResearcherDashboard: FunctionalComponent = () => {
           </PrivacyTooltip>
 
           <div class="mt-6 space-y-6">
-            {/* Case Study ID */}
+            {/* Optimization Log ID */}
             <div>
               <label class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-2 ml-1">
-                Case Study ID
+                Optimization Log ID
               </label>
               <input
                 type="text"
@@ -337,7 +337,7 @@ export const ResearcherDashboard: FunctionalComponent = () => {
                     <div class="flex justify-between items-start mb-3">
                       <div>
                         <h4 class="font-black text-slate-900 dark:text-white uppercase tracking-tight">
-                          Case Study {request.caseStudyId}
+                          Optimization Log {request.optimizationLogId}
                         </h4>
                         <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">
                           ID: {request.id.slice(0, 20)}...
@@ -412,7 +412,7 @@ export const ResearcherDashboard: FunctionalComponent = () => {
           <p class="text-xs font-medium text-yellow-700 dark:text-slate-400 leading-relaxed">
             Your request goes to a committee of independent validators. The data can only be
             decrypted when enough validators agree—no single person, not even platform admins,
-            can access patient data alone. This protects patients while enabling important research.
+            can access agent data alone. This protects agents while enabling important research.
           </p>
         </div>
       </div>
@@ -420,4 +420,4 @@ export const ResearcherDashboard: FunctionalComponent = () => {
   );
 };
 
-export default ResearcherDashboard;
+export default AgentArchitectDashboard;

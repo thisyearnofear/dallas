@@ -13,7 +13,7 @@ import { getRpcEndpoint } from '../config/solana';
 import {
   AttentionToken,
   AttentionTokenFilters,
-  CaseStudyWithAttentionToken,
+  OptimizationLogWithAttentionToken,
 } from '../types/attentionToken';
 import { AttentionTokenAnalyticsDashboard } from './AttentionTokenAnalyticsDashboard';
 import { TokenImage, getTokenImageUrl } from './TokenImageManager';
@@ -25,7 +25,7 @@ const MAX_PROMOTIONS_PER_TOKEN = 10;
 export const AttentionTokenMarket: React.FC = () => {
   const { publicKey, connection } = useWallet();
   const { addTokenPromotion, getTokenPromotionCount } = useSettings();
-  const [tokens, setTokens] = useState<CaseStudyWithAttentionToken[]>([]);
+  const [tokens, setTokens] = useState<OptimizationLogWithAttentionToken[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedToken, setSelectedToken] = useState<AttentionToken | null>(null);
   const [filters, setFilters] = useState<AttentionTokenFilters>({
@@ -52,11 +52,11 @@ export const AttentionTokenMarket: React.FC = () => {
     setLoading(true);
     try {
       const { SOLANA_CONFIG } = await import('../config/solana');
-      const { parseCaseStudyAccount } = await import('../utils/solanaUtils');
+      const { parseOptimizationLogAccount } = await import('../utils/solanaUtils');
       
-      const programId = new PublicKey(SOLANA_CONFIG.blockchain.caseStudyProgramId);
+      const programId = new PublicKey(SOLANA_CONFIG.blockchain.optimizationLogProgramId);
       
-      // Fetch all case study accounts from the program
+      // Fetch all optimization log accounts from the program
       const accounts = await connection.getProgramAccounts(programId, {
         filters: [
           {
@@ -73,7 +73,7 @@ export const AttentionTokenMarket: React.FC = () => {
       const tokensWithAnalytics = await Promise.all(
         accounts.map(async ({ pubkey, account }) => {
           try {
-            const parsed = parseCaseStudyAccount(account.data);
+            const parsed = parseOptimizationLogAccount(account.data);
             
             if (!parsed.attentionTokenMint) {
               return null;
@@ -87,9 +87,9 @@ export const AttentionTokenMarket: React.FC = () => {
             return {
               publicKey: pubkey,
               submitter: parsed.submitter,
-              techniqueName: 'Treatment', // Would need to be stored in account or fetched from URI
+              techniqueName: 'Architecture', // Would need to be stored in account or fetched from URI
               techniqueCategory: 'General',
-              description: 'Treatment description',
+              description: 'Architecture description',
               imageUrl: getTokenImageUrl('TREATMENT'),
               reputationScore: parsed.reputationScore,
               validatorCount: parsed.approvalCount,
@@ -99,29 +99,29 @@ export const AttentionTokenMarket: React.FC = () => {
               attentionToken: {
                 mint: parsed.attentionTokenMint,
                 bondingCurve: new PublicKey('11111111111111111111111111111111'), // Would be fetched from Bags
-                caseStudyPda: pubkey,
+                optimizationLogPda: pubkey,
                 name: `Attention Token`,
                 symbol: 'ATT',
-                description: 'Treatment attention token',
+                description: 'Architecture attention token',
                 imageUrl: getTokenImageUrl('ATT'),
                 submitter: parsed.submitter,
                 validators: [],
-                techniqueName: 'Treatment',
+                techniqueName: 'Architecture',
                 techniqueCategory: 'General',
                 reputationScore: parsed.reputationScore,
                 createdAt: Date.now(),
                 analytics,
               },
-            } as CaseStudyWithAttentionToken;
+            } as OptimizationLogWithAttentionToken;
           } catch (error) {
-            console.error('Failed to parse case study:', error);
+            console.error('Failed to parse optimization log:', error);
             return null;
           }
         })
       );
 
       // Filter out nulls
-      const validTokens = tokensWithAnalytics.filter((t): t is CaseStudyWithAttentionToken => t !== null);
+      const validTokens = tokensWithAnalytics.filter((t): t is OptimizationLogWithAttentionToken => t !== null);
       setTokens(validTokens);
     } catch (error) {
       console.error('Error loading attention tokens:', error);
@@ -244,7 +244,7 @@ export const AttentionTokenMarket: React.FC = () => {
           💎 Attention Token Market
         </h1>
         <p className="text-slate-600 dark:text-slate-400 font-medium text-lg leading-relaxed max-w-2xl">
-          Discover and trade treatment-specific initiatives. Support breakthrough protocols with your
+          Discover and trade architecture-specific initiatives. Support breakthrough protocols with your
           capital and intelligence.
         </p>
       </div>
@@ -354,7 +354,7 @@ export const AttentionTokenMarket: React.FC = () => {
           {filteredTokens.map((token) => (
             <AttentionTokenCard 
               key={token.publicKey.toString()} 
-              caseStudy={token} 
+              optimizationLog={token} 
               onEnterWarRoom={() => token.attentionToken && setSelectedToken(token.attentionToken)}
               onPromote={() => handlePromoteToken(token.attentionTokenMint || '', token.techniqueName)}
               canPromote={canPromoteToken(token.attentionTokenMint || '')}
@@ -371,7 +371,7 @@ export const AttentionTokenMarket: React.FC = () => {
 
 // Individual Token Card Component
 const AttentionTokenCard: React.FC<{
-  caseStudy: CaseStudyWithAttentionToken,
+  optimizationLog: OptimizationLogWithAttentionToken,
   onEnterWarRoom: () => void
   onPromote: () => void
   canPromote: boolean
@@ -379,7 +379,7 @@ const AttentionTokenCard: React.FC<{
   promotionCount: number
   isPromoting: boolean
 }> = ({
-  caseStudy,
+  optimizationLog,
   onEnterWarRoom,
   onPromote,
   canPromote,
@@ -387,7 +387,7 @@ const AttentionTokenCard: React.FC<{
   promotionCount,
   isPromoting,
 }) => {
-  const analytics = caseStudy.attentionToken?.analytics;
+  const analytics = optimizationLog.attentionToken?.analytics;
 
   if (!analytics) return null;
 
@@ -399,28 +399,28 @@ const AttentionTokenCard: React.FC<{
       {/* Token Image */}
       <div className="relative mb-6 overflow-hidden rounded-2xl shadow-inner bg-slate-50 dark:bg-black/20">
         <img
-          src={caseStudy.imageUrl}
-          alt={caseStudy.techniqueName}
+          src={optimizationLog.imageUrl}
+          alt={optimizationLog.techniqueName}
           className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
         />
         <div className="absolute top-3 right-3 bg-purple-600 text-white px-3 py-1 rounded-full text-[10px] font-black shadow-lg border border-purple-400/30 uppercase tracking-widest">
-          {caseStudy.attentionToken?.symbol}
+          {optimizationLog.attentionToken?.symbol}
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
       </div>
 
       {/* Token Info */}
-      <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter group-hover:text-purple-600 transition-colors mb-1">{caseStudy.techniqueName}</h3>
-      <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-6">{caseStudy.techniqueCategory}</p>
+      <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter group-hover:text-purple-600 transition-colors mb-1">{optimizationLog.techniqueName}</h3>
+      <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-6">{optimizationLog.techniqueCategory}</p>
 
       {/* Reputation Badges */}
       <div className="flex flex-wrap gap-2 mb-8">
         <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/50 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-sm">
-          <span className="text-green-600 dark:text-green-400 font-black text-sm tracking-tighter">{caseStudy.reputationScore}</span>
+          <span className="text-green-600 dark:text-green-400 font-black text-sm tracking-tighter">{optimizationLog.reputationScore}</span>
           <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Trust</span>
         </div>
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 px-3 py-1.5 rounded-xl flex items-center gap-2 shadow-sm">
-          <span className="text-blue-600 dark:text-blue-400 font-black text-sm tracking-tighter">{caseStudy.validatorCount}</span>
+          <span className="text-blue-600 dark:text-blue-400 font-black text-sm tracking-tighter">{optimizationLog.validatorCount}</span>
           <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Nodes</span>
         </div>
       </div>
@@ -503,7 +503,7 @@ const AttentionTokenCard: React.FC<{
               ? 'bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white shadow-lg shadow-purple-500/20'
               : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
           }`}
-          title={promotionStatus.reason || `Promote ${caseStudy.techniqueName}`}
+          title={promotionStatus.reason || `Promote ${optimizationLog.techniqueName}`}
         >
           {isPromoting ? (
             'Promoting...'

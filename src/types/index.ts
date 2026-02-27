@@ -30,10 +30,10 @@ export interface OptimizationLogData {
 }
 
 /** @deprecated Use OptimizationLogData instead */
-export type CaseStudyData = OptimizationLogData;
+export type OptimizationLogData = OptimizationLogData;
 
 export interface ValidationData {
-  caseStudyPubkey: PublicKey;
+  optimizationLogPubkey: PublicKey;
   validationType: 'quality' | 'accuracy' | 'safety';
   approved: boolean;
   stakeAmount: number;
@@ -60,7 +60,7 @@ export interface CompressionResult {
 
 export interface MPCAccessRequest {
   id: string;
-  caseStudyId: string;
+  optimizationLogId: string;
   requester: PublicKey;
   requesterType: 'architect' | 'validator' | 'operator';
   justification: string;
@@ -146,7 +146,7 @@ export interface Community {
   creator: string;
   createdAt: number;
   memberCount: number;
-  caseStudyCount: number;
+  optimizationLogCount: number;
   validatedCount: number;
   treasuryBalance: number;
   imageUrl?: string;
@@ -302,11 +302,11 @@ export interface AgentInsight {
 }
 
 /** @deprecated Use AgentMetricType instead */
-export type HealthMetricType = AgentMetricType;
+export type AgentMetricType = AgentMetricType;
 /** @deprecated Use AgentMetric instead */
-export type HealthMetric = AgentMetric;
+export type AgentMetric = AgentMetric;
 /** @deprecated Use AgentInsight instead */
-export type HealthInsight = AgentInsight;
+export type AgentInsight = AgentInsight;
 
 export interface CompressedAccount {
   address: PublicKey;

@@ -14,7 +14,7 @@ export default function MCPDemoPage() {
             🤖 MCP AGENT COORDINATION
           </h1>
           <h2 class="text-xl text-green-600 dark:text-green-400 mb-4">
-            Dallas Underground A.I.D.S. Treatment Network
+            Dallas Underground A.I.D.S. Architecture Network
           </h2>
           <p class="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
             Real-time demonstration of Model Context Protocol integration with autonomous agents.

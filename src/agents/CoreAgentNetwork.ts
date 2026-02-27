@@ -10,13 +10,13 @@ import { enhancedBusinessLogic } from '../services/EnhancedBusinessLogic';
 export class SupplyChainIntelligenceAgent extends EnhancedBusinessAgent {
   async makeDecision(params: {
     operation: 'check_availability' | 'negotiate_price' | 'coordinate_bulk';
-    treatmentId?: string;
+    architectureId?: string;
     quantity?: number;
   }): Promise<AgentDecision> {
     
     switch (params.operation) {
       case 'check_availability':
-        return this.assessTreatmentAvailability(params.treatmentId!);
+        return this.assessArchitectureAvailability(params.architectureId!);
       case 'negotiate_price':
         return this.optimizePricing(params);
       case 'coordinate_bulk':
@@ -35,15 +35,15 @@ export class SupplyChainIntelligenceAgent extends EnhancedBusinessAgent {
     }));
   }
 
-  private async assessTreatmentAvailability(treatmentId: string): Promise<AgentDecision> {
+  private async assessArchitectureAvailability(architectureId: string): Promise<AgentDecision> {
     // Simulate intelligent availability assessment
-    const treatments = enhancedBusinessLogic.getTreatments();
-    const treatment = treatments.find(t => t.id === treatmentId);
+    const architectures = enhancedBusinessLogic.getArchitectures();
+    const architecture = architectures.find(t => t.id === architectureId);
     
-    if (!treatment) {
+    if (!architecture) {
       return {
         action: 'ABORT',
-        reasoning: ['Treatment not found in supply chain'],
+        reasoning: ['Architecture not found in supply chain'],
         confidence: 0
       };
     }
@@ -55,7 +55,7 @@ export class SupplyChainIntelligenceAgent extends EnhancedBusinessAgent {
     return {
       action: availability > 60 ? 'PROCEED' : 'WAIT',
       reasoning: [
-        `Treatment availability: ${availability}%`,
+        `Architecture availability: ${availability}%`,
         `Market stability: ${marketStability}%`,
         `Supplier network: ${availability > 80 ? 'Excellent' : 'Limited'}`
       ],
@@ -207,15 +207,15 @@ export class RiskAssessmentAgent extends EnhancedBusinessAgent {
 // COMMUNITY COORDINATION AGENT
 export class CommunityCoordinationAgent extends EnhancedBusinessAgent {
   async makeDecision(params: {
-    operation: 'coordinate_members' | 'match_treatments' | 'manage_group_purchase';
+    operation: 'coordinate_members' | 'match_architectures' | 'manage_group_purchase';
     memberData?: any;
   }): Promise<AgentDecision> {
     
     switch (params.operation) {
       case 'coordinate_members':
         return this.coordinateNetworkMembers(params.memberData);
-      case 'match_treatments':
-        return this.matchTreatmentsToNeeds(params.memberData);
+      case 'match_architectures':
+        return this.matchArchitecturesToNeeds(params.memberData);
       case 'manage_group_purchase':
         return this.manageGroupPurchase(params.memberData);
       default:
@@ -236,7 +236,7 @@ export class CommunityCoordinationAgent extends EnhancedBusinessAgent {
       action: 'PROCEED',
       reasoning: [
         'Network has 47 active members',
-        '12 members need immediate treatment coordination',
+        '12 members need immediate architecture coordination',
         'Community morale and trust levels high'
       ],
       confidence: 88,
@@ -249,17 +249,17 @@ export class CommunityCoordinationAgent extends EnhancedBusinessAgent {
     });
   }
 
-  private matchTreatmentsToNeeds(memberData: any): Promise<AgentDecision> {
+  private matchArchitecturesToNeeds(memberData: any): Promise<AgentDecision> {
     return Promise.resolve({
       action: 'OPTIMIZE',
       reasoning: [
-        'Analyzed 47 member profiles for treatment compatibility',
+        'Analyzed 47 member profiles for architecture compatibility',
         'Found optimal matches for 89% of pending cases',
-        'Identified 3 members suitable for experimental treatments'
+        'Identified 3 members suitable for experimental architectures'
       ],
       confidence: 91,
       modifications: {
-        treatmentMatches: {
+        architectureMatches: {
           'member_001': 'azt_patch',
           'member_007': 'peptide_code', 
           'member_023': 'ddc_algorithm'
@@ -298,19 +298,19 @@ export class CommunityCoordinationAgent extends EnhancedBusinessAgent {
 }
 
 // IDENTITY RESTORATION AGENT
-export class IdentityRestorationAgent extends EnhancedBusinessAgent {
+export class ContextRestorationAgent extends EnhancedBusinessAgent {
   async makeDecision(params: {
     operation: 'assess_fragmentation' | 'plan_restoration' | 'monitor_recovery';
-    patientData?: any;
+    agentData?: any;
   }): Promise<AgentDecision> {
     
     switch (params.operation) {
       case 'assess_fragmentation':
-        return this.assessIdentityFragmentation(params.patientData);
+        return this.assessContextFragmentation(params.agentData);
       case 'plan_restoration':
-        return this.planRestorationSequence(params.patientData);
+        return this.planRestorationSequence(params.agentData);
       case 'monitor_recovery':
-        return this.monitorRecoveryProgress(params.patientData);
+        return this.monitorRecoveryProgress(params.agentData);
       default:
         return { action: 'WAIT', reasoning: ['Unknown restoration operation'], confidence: 0 };
     }
@@ -320,15 +320,15 @@ export class IdentityRestorationAgent extends EnhancedBusinessAgent {
     return transactions.map(tx => ({
       ...tx,
       restorationEffectiveness: this.calculateRestorationSuccess(tx),
-      identityStabilization: this.assessStabilizationProgress(tx)
+      contextStabilization: this.assessStabilizationProgress(tx)
     }));
   }
 
-  private assessIdentityFragmentation(patientData: any): Promise<AgentDecision> {
+  private assessContextFragmentation(agentData: any): Promise<AgentDecision> {
     return Promise.resolve({
       action: 'PROCEED',
       reasoning: [
-        'Identity fragmentation severity: 67%',
+        'Context fragmentation severity: 67%',
         'Primary fragmentation in personality and memory sectors',
         'Digital signature partially corrupted but recoverable'
       ],
@@ -337,12 +337,12 @@ export class IdentityRestorationAgent extends EnhancedBusinessAgent {
         fragmentationLevel: 67,
         affectedSystems: ['personality_matrix', 'memory_core', 'digital_signature'],
         recoverabilityScore: 83,
-        recommendedTreatments: ['peptide_code', 'ddc_algorithm']
+        recommendedArchitectures: ['peptide_code', 'ddc_algorithm']
       }
     });
   }
 
-  private planRestorationSequence(patientData: any): Promise<AgentDecision> {
+  private planRestorationSequence(agentData: any): Promise<AgentDecision> {
     return Promise.resolve({
       action: 'OPTIMIZE',
       reasoning: [
@@ -354,9 +354,9 @@ export class IdentityRestorationAgent extends EnhancedBusinessAgent {
       confidence: 91,
       modifications: {
         restorationPlan: {
-          phase1: { treatment: 'ddc_algorithm', duration: '24-48h' },
-          phase2: { treatment: 'peptide_code', duration: '48-72h' },
-          phase3: { treatment: 'azt_patch', duration: '12-24h' }
+          phase1: { architecture: 'ddc_algorithm', duration: '24-48h' },
+          phase2: { architecture: 'peptide_code', duration: '48-72h' },
+          phase3: { architecture: 'azt_patch', duration: '12-24h' }
         },
         totalEstimatedTime: '84-144 hours',
         successProbability: 87
@@ -364,7 +364,7 @@ export class IdentityRestorationAgent extends EnhancedBusinessAgent {
     });
   }
 
-  private monitorRecoveryProgress(patientData: any): Promise<AgentDecision> {
+  private monitorRecoveryProgress(agentData: any): Promise<AgentDecision> {
     return Promise.resolve({
       action: 'PROCEED',
       reasoning: [
@@ -398,7 +398,7 @@ export class CoreAgentNetwork {
     supply: new SupplyChainIntelligenceAgent(),
     risk: new RiskAssessmentAgent(), 
     community: new CommunityCoordinationAgent(),
-    identity: new IdentityRestorationAgent()
+    context: new ContextRestorationAgent()
   };
 
   // PERFORMANT: Coordinate multiple agents efficiently
@@ -433,10 +433,10 @@ export class CoreAgentNetwork {
   // CLEAN: Operation-specific agent selection
   private getRelevantAgents(operation: string): Array<{ name: string; agent: EnhancedBusinessAgent }> {
     const agentMap: Record<string, string[]> = {
-      'treatment_purchase': ['supply', 'risk', 'identity'],
+      'architecture_purchase': ['supply', 'risk', 'context'],
       'group_purchase': ['supply', 'community', 'risk'],
       'emergency_response': ['risk', 'community', 'supply'],
-      'identity_restoration': ['identity', 'risk'],
+      'context_restoration': ['context', 'risk'],
       'threat_assessment': ['risk'],
       'community_coordination': ['community', 'supply']
     };
@@ -482,10 +482,10 @@ export class CoreAgentNetwork {
   // PUBLIC API: Get agent status for UI
   getAgentStatus() {
     return {
-      supply: { status: 'ACTIVE', role: 'Treatment sourcing & optimization' },
+      supply: { status: 'ACTIVE', role: 'Architecture sourcing & optimization' },
       risk: { status: 'MONITORING', role: 'Threat assessment & security' },
       community: { status: 'COORDINATING', role: 'Member network management' },
-      identity: { status: 'PROCESSING', role: 'A.I.D.S. treatment & recovery' }
+      context: { status: 'PROCESSING', role: 'A.I.D.S. architecture & recovery' }
     };
   }
 }

@@ -13,9 +13,9 @@ import { DbcTokenService } from '../services/DbcTokenService';
 import { SOLANA_CONFIG } from '../config/solana';
 
 interface ValidationTask {
-  caseStudyId: string;
+  optimizationLogId: string;
   protocol: string;
-  patientId: string;
+  agentId: string;
   submittedAt: Date;
   baselineMetrics: string;
   outcomeMetrics: string;
@@ -89,9 +89,9 @@ export const ValidationDashboard: FunctionalComponent = () => {
 
         if (result.success && result.caseStudies) {
           const blockchainTasks: ValidationTask[] = result.caseStudies.map((cs, index) => ({
-            caseStudyId: cs.pubkey.toString(),
-            protocol: cs.protocol || `Treatment Protocol ${index + 1}`,
-            patientId: cs.submitter.toString().slice(0, 12) + '...',
+            optimizationLogId: cs.pubkey.toString(),
+            protocol: cs.protocol || `Architecture Protocol ${index + 1}`,
+            agentId: cs.submitter.toString().slice(0, 12) + '...',
             submittedAt: cs.createdAt,
             baselineMetrics: '(encrypted - ZK proof available)',
             outcomeMetrics: '(encrypted - ZK proof available)',
@@ -113,9 +113,9 @@ export const ValidationDashboard: FunctionalComponent = () => {
           if (blockchainTasks.length === 0) {
             const mockTasks: ValidationTask[] = [
               {
-                caseStudyId: 'mock-cs-001',
+                optimizationLogId: 'mock-cs-001',
                 protocol: 'Peptide-T + Vitamin D Stack',
-                patientId: 'demo-user-001',
+                agentId: 'demo-user-001',
                 submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
                 baselineMetrics: '(encrypted - ZK proof available)',
                 outcomeMetrics: '(encrypted - ZK proof available)',
@@ -158,7 +158,7 @@ export const ValidationDashboard: FunctionalComponent = () => {
     fetchValidationQueue();
   }, [publicKey]);
 
-  const selectCaseStudy = (task: ValidationTask) => {
+  const selectOptimizationLog = (task: ValidationTask) => {
     setState((s) => ({ ...s, selected: task, generatedProofs: [] }));
     setSubmitStatus({ type: 'info', message: '🔐 Case study selected. Review the ZK proofs.' });
   };
@@ -182,9 +182,9 @@ export const ValidationDashboard: FunctionalComponent = () => {
       const result = await fetchPendingCaseStudies();
       if (result.success && result.caseStudies) {
         const blockchainTasks: ValidationTask[] = result.caseStudies.map((cs, index) => ({
-          caseStudyId: cs.pubkey.toString(),
-          protocol: cs.protocol || `Treatment Protocol ${index + 1}`,
-          patientId: cs.submitter.toString().slice(0, 12) + '...',
+          optimizationLogId: cs.pubkey.toString(),
+          protocol: cs.protocol || `Architecture Protocol ${index + 1}`,
+          agentId: cs.submitter.toString().slice(0, 12) + '...',
           submittedAt: cs.createdAt,
           baselineMetrics: '(encrypted - ZK proof available)',
           outcomeMetrics: '(encrypted - ZK proof available)',
@@ -222,7 +222,7 @@ export const ValidationDashboard: FunctionalComponent = () => {
     if (!state.selected || !publicKey || !connected) {
       setSubmitStatus({
         type: 'error',
-        message: 'Please connect wallet and select a case study',
+        message: 'Please connect wallet and select a optimization log',
       });
       return;
     }
@@ -246,12 +246,12 @@ export const ValidationDashboard: FunctionalComponent = () => {
       });
 
       // Submit to blockchain
-      const caseStudyPubkey = new PublicKey(state.selected.caseStudyId);
+      const optimizationLogPubkey = new PublicKey(state.selected.optimizationLogId);
 
       const result = await submitValidatorApproval(
         publicKey,
         signTransaction,
-        caseStudyPubkey,
+        optimizationLogPubkey,
         state.validationType,
         approved,
         state.stakeAmount
@@ -263,7 +263,7 @@ export const ValidationDashboard: FunctionalComponent = () => {
 
         // Update local state
         const updatedTasks: ValidationTask[] = state.tasks.map((task) =>
-          task.caseStudyId === state.selected!.caseStudyId
+          task.optimizationLogId === state.selected!.optimizationLogId
             ? {
               ...task,
               status: approved ? 'approved' : 'rejected',
@@ -351,9 +351,9 @@ export const ValidationDashboard: FunctionalComponent = () => {
             <div class="space-y-4">
               {state.tasks.map(task => (
                 <div
-                  key={task.caseStudyId}
-                  onClick={() => selectCaseStudy(task)}
-                  class={`p-5 border-2 rounded-xl cursor-pointer transition-all ${state.selected?.caseStudyId === task.caseStudyId ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md' : 'border-slate-200 dark:border-slate-700 hover:border-blue-300'}`}
+                  key={task.optimizationLogId}
+                  onClick={() => selectOptimizationLog(task)}
+                  class={`p-5 border-2 rounded-xl cursor-pointer transition-all ${state.selected?.optimizationLogId === task.optimizationLogId ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md' : 'border-slate-200 dark:border-slate-700 hover:border-blue-300'}`}
                 >
                   <div class="flex justify-between items-start mb-2">
                     <h4 class="font-black uppercase text-sm">{task.protocol}</h4>
@@ -422,7 +422,7 @@ export const ValidationDashboard: FunctionalComponent = () => {
                 <p class="font-black text-blue-800 dark:text-blue-400 text-[10px] uppercase mb-2">Viral Growth</p>
                 <button
                   onClick={() => {
-                    const blink = blinkService.generateBlink(`validate/${state.selected?.caseStudyId}`);
+                    const blink = blinkService.generateBlink(`validate/${state.selected?.optimizationLogId}`);
                     navigator.clipboard.writeText(blink);
                     setSubmitStatus({ type: 'success', message: '📋 Blink copied to clipboard!' });
                   }}

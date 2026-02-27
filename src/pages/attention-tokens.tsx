@@ -1,6 +1,6 @@
 /**
  * Attention Tokens Page
- * Market discovery for treatment-specific tokens
+ * Market discovery for architecture-specific tokens
  */
 
 import { AttentionTokenMarket } from '../components/AttentionTokenMarket';

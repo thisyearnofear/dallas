@@ -2,7 +2,7 @@
  * CacheService - Performance Optimization Layer
  * 
  * Features:
- * - In-memory caching for case study data
+ * - In-memory caching for optimization log data
  * - Persistent cache with localStorage
  * - Cache invalidation strategies
  * - Request deduplication
@@ -36,7 +36,7 @@ type CacheStrategy = 'memory' | 'persistent' | 'hybrid';
 // ============= Configuration =============
 
 const DEFAULT_TTL = {
-  caseStudy: 5 * 60 * 1000,      // 5 minutes
+  optimizationLog: 5 * 60 * 1000,      // 5 minutes
   validator: 30 * 1000,          // 30 seconds
   balance: 10 * 1000,            // 10 seconds
   protocol: 60 * 60 * 1000,      // 1 hour
@@ -87,7 +87,7 @@ class CacheService {
   /**
    * Set item in cache
    */
-  set<T>(key: string, data: T, ttl: number = DEFAULT_TTL.caseStudy): void {
+  set<T>(key: string, data: T, ttl: number = DEFAULT_TTL.optimizationLog): void {
     const entry: CacheEntry<T> = {
       data,
       timestamp: Date.now(),
@@ -171,14 +171,14 @@ class CacheService {
   // ============= Typed Cache Methods =============
 
   /**
-   * Cache case study data
+   * Cache optimization log data
    */
-  getCaseStudy(pubkey: PublicKey): unknown | null {
-    return this.get(`caseStudy_${pubkey.toString()}`);
+  getOptimizationLog(pubkey: PublicKey): unknown | null {
+    return this.get(`optimizationLog_${pubkey.toString()}`);
   }
 
-  setCaseStudy(pubkey: PublicKey, data: unknown): void {
-    this.set(`caseStudy_${pubkey.toString()}`, data, DEFAULT_TTL.caseStudy);
+  setOptimizationLog(pubkey: PublicKey, data: unknown): void {
+    this.set(`optimizationLog_${pubkey.toString()}`, data, DEFAULT_TTL.optimizationLog);
   }
 
   /**

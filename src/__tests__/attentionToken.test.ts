@@ -27,13 +27,13 @@ describe('AttentionTokenService', () => {
   });
 
   describe('Symbol Generation', () => {
-    it('should generate valid symbol from treatment name', () => {
+    it('should generate valid symbol from architecture name', () => {
       const symbol = service.generateSymbol('Peptide XYZ Protocol');
       expect(symbol).toBe('PEPTID');
       expect(symbol.length).toBeLessThanOrEqual(6);
     });
 
-    it('should handle short treatment names', () => {
+    it('should handle short architecture names', () => {
       const symbol = service.generateSymbol('AB');
       expect(symbol).toBe('AB'); // Short names use the cleaned name as-is
       expect(symbol.length).toBeGreaterThanOrEqual(2);
@@ -46,7 +46,7 @@ describe('AttentionTokenService', () => {
     });
 
     it('should respect max length option', () => {
-      const symbol = service.generateSymbol('Very Long Treatment Name', { maxLength: 4 });
+      const symbol = service.generateSymbol('Very Long Architecture Name', { maxLength: 4 });
       expect(symbol.length).toBeLessThanOrEqual(4);
     });
 
@@ -58,15 +58,15 @@ describe('AttentionTokenService', () => {
   });
 
   describe('Eligibility Checking', () => {
-    it('should return eligible for valid case study', async () => {
-      const mockCaseStudy = {
+    it('should return eligible for valid optimization log', async () => {
+      const mockOptimizationLog = {
         reputationScore: 80,
         validatorCount: 6,
         attentionTokenMint: undefined,
       };
 
       // Mock the fetch call
-      jest.spyOn(service as any, 'fetchCaseStudy').mockResolvedValue(mockCaseStudy);
+      jest.spyOn(service as any, 'fetchOptimizationLog').mockResolvedValue(mockOptimizationLog);
 
       const eligibility = await service.checkEligibility(
         new PublicKey('11111111111111111111111111111111'),
@@ -79,13 +79,13 @@ describe('AttentionTokenService', () => {
     });
 
     it('should return ineligible for low reputation', async () => {
-      const mockCaseStudy = {
+      const mockOptimizationLog = {
         reputationScore: 50,
         validatorCount: 6,
         attentionTokenMint: undefined,
       };
 
-      jest.spyOn(service as any, 'fetchCaseStudy').mockResolvedValue(mockCaseStudy);
+      jest.spyOn(service as any, 'fetchOptimizationLog').mockResolvedValue(mockOptimizationLog);
 
       const eligibility = await service.checkEligibility(
         new PublicKey('11111111111111111111111111111111'),
@@ -97,13 +97,13 @@ describe('AttentionTokenService', () => {
     });
 
     it('should return ineligible for insufficient validators', async () => {
-      const mockCaseStudy = {
+      const mockOptimizationLog = {
         reputationScore: 80,
         validatorCount: 3,
         attentionTokenMint: undefined,
       };
 
-      jest.spyOn(service as any, 'fetchCaseStudy').mockResolvedValue(mockCaseStudy);
+      jest.spyOn(service as any, 'fetchOptimizationLog').mockResolvedValue(mockOptimizationLog);
 
       const eligibility = await service.checkEligibility(
         new PublicKey('11111111111111111111111111111111'),
@@ -116,13 +116,13 @@ describe('AttentionTokenService', () => {
 
     it('should return ineligible if token already exists', async () => {
       const mockTokenMint = new PublicKey('11111111111111111111111111111112');
-      const mockCaseStudy = {
+      const mockOptimizationLog = {
         reputationScore: 80,
         validatorCount: 6,
         attentionTokenMint: mockTokenMint,
       };
 
-      jest.spyOn(service as any, 'fetchCaseStudy').mockResolvedValue(mockCaseStudy);
+      jest.spyOn(service as any, 'fetchOptimizationLog').mockResolvedValue(mockOptimizationLog);
 
       const eligibility = await service.checkEligibility(
         new PublicKey('11111111111111111111111111111111'),
@@ -231,7 +231,7 @@ describe('Error Handling', () => {
       expect(result.errors).toHaveLength(0);
     });
 
-    it('should reject short treatment name', () => {
+    it('should reject short architecture name', () => {
       const result = validateAttentionTokenParams({
         techniqueName: 'AB',
         description: 'This is a valid description that is long enough',
@@ -240,10 +240,10 @@ describe('Error Handling', () => {
       });
 
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Treatment name must be at least 3 characters');
+      expect(result.errors).toContain('Architecture name must be at least 3 characters');
     });
 
-    it('should reject long treatment name', () => {
+    it('should reject long architecture name', () => {
       const result = validateAttentionTokenParams({
         techniqueName: 'A'.repeat(51),
         description: 'This is a valid description that is long enough',

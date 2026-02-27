@@ -1,6 +1,6 @@
 /**
- * Case Study Gallery Component
- * Displays submitted case studies with their validation status
+ * Optimization Log Gallery Component
+ * Displays submitted optimization logs with their validation status
  * Supports both light and dark modes
  * Includes IPFS fetch + decryption for viewing details
  */
@@ -10,10 +10,10 @@ import { useState, useEffect, useContext } from 'preact/hooks';
 import { PublicKey, Connection } from '@solana/web3.js';
 import { WalletContext } from '../context/WalletContext';
 import { SOLANA_CONFIG, getRpcEndpoint } from '../config/solana';
-import { parseCaseStudyAccount, ValidationStatus } from '../utils/caseStudyParser';
-import { fetchCaseStudyDetails, DecryptedCaseStudyDetails, FetchDetailsResult } from '../services/CaseStudyDetailsService';
+import { parseOptimizationLogAccount, ValidationStatus } from '../utils/optimizationLogParser';
+import { fetchOptimizationLogDetails, DecryptedOptimizationLogDetails, FetchDetailsResult } from '../services/OptimizationLogDetailsService';
 
-interface CaseStudyDisplay {
+interface OptimizationLogDisplay {
   pubkey: string;
   protocol: string;
   category: string;
@@ -29,19 +29,19 @@ interface CaseStudyDisplay {
   ipfsCid: string;
 }
 
-export const CaseStudyGallery: FunctionalComponent = () => {
+export const OptimizationLogGallery: FunctionalComponent = () => {
   const walletContext = useContext(WalletContext);
   const { publicKey } = walletContext;
   
-  const [caseStudies, setCaseStudies] = useState<CaseStudyDisplay[]>([]);
+  const [caseStudies, setCaseStudies] = useState<OptimizationLogDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'mine'>('all');
   const [error, setError] = useState<string | null>(null);
   
   // Details modal state
-  const [selectedStudy, setSelectedStudy] = useState<CaseStudyDisplay | null>(null);
+  const [selectedStudy, setSelectedStudy] = useState<OptimizationLogDisplay | null>(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
-  const [detailsData, setDetailsData] = useState<DecryptedCaseStudyDetails | null>(null);
+  const [detailsData, setDetailsData] = useState<DecryptedOptimizationLogDetails | null>(null);
   const [detailsError, setDetailsError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -54,22 +54,22 @@ export const CaseStudyGallery: FunctionalComponent = () => {
 
     try {
       const connection = new Connection(getRpcEndpoint(), 'confirmed');
-      const programId = new PublicKey(SOLANA_CONFIG.blockchain.caseStudyProgramId);
+      const programId = new PublicKey(SOLANA_CONFIG.blockchain.optimizationLogProgramId);
 
-      // Fetch all case study accounts from the program
+      // Fetch all optimization log accounts from the program
       const accounts = await connection.getProgramAccounts(programId, {
         filters: [
-          { dataSize: 254 }, // Exact size of CaseStudy account with typical IPFS CID
+          { dataSize: 254 }, // Exact size of OptimizationLog account with typical IPFS CID
         ],
       });
 
-      const parsed: CaseStudyDisplay[] = [];
+      const parsed: OptimizationLogDisplay[] = [];
 
       for (const { pubkey, account } of accounts) {
         try {
           // Use the proper parser
-          const caseStudy = parseCaseStudyAccount(account.data, pubkey);
-          if (!caseStudy) continue;
+          const optimizationLog = parseOptimizationLogAccount(account.data, pubkey);
+          if (!optimizationLog) continue;
 
           // Map validation status to filter categories
           const statusMap: Record<ValidationStatus, 'pending' | 'approved' | 'rejected'> = {
@@ -79,8 +79,8 @@ export const CaseStudyGallery: FunctionalComponent = () => {
             [ValidationStatus.UnderReview]: 'pending',
           };
 
-          const status = statusMap[caseStudy.validationStatus] || 'pending';
-          const isOwner = publicKey && caseStudy.submitter.equals(publicKey);
+          const status = statusMap[optimizationLog.validationStatus] || 'pending';
+          const isOwner = publicKey && optimizationLog.submitter.equals(publicKey);
 
           // Apply filters
           if (filter === 'mine' && !isOwner) continue;
@@ -90,22 +90,22 @@ export const CaseStudyGallery: FunctionalComponent = () => {
           // Build display object
           parsed.push({
             pubkey: pubkey.toString(),
-            protocol: caseStudy.techniqueCategoryName,
-            category: caseStudy.techniqueCategoryName,
-            submittedAt: caseStudy.createdAt,
+            protocol: optimizationLog.techniqueCategoryName,
+            category: optimizationLog.techniqueCategoryName,
+            submittedAt: optimizationLog.createdAt,
             validationStatus: status,
-            approvalCount: caseStudy.approvalCount,
-            rejectionCount: caseStudy.rejectionCount,
-            reputationScore: caseStudy.reputationScore,
-            compressionRatio: caseStudy.compressionRatio,
-            hasAttentionToken: caseStudy.hasAttentionToken,
-            isPaused: caseStudy.isPaused,
-            durationDays: caseStudy.durationDays,
-            ipfsCid: caseStudy.ipfsCid,
+            approvalCount: optimizationLog.approvalCount,
+            rejectionCount: optimizationLog.rejectionCount,
+            reputationScore: optimizationLog.reputationScore,
+            compressionRatio: optimizationLog.compressionRatio,
+            hasAttentionToken: optimizationLog.hasAttentionToken,
+            isPaused: optimizationLog.isPaused,
+            durationDays: optimizationLog.durationDays,
+            ipfsCid: optimizationLog.ipfsCid,
           });
         } catch (e) {
           // Skip malformed accounts
-          console.warn('Failed to parse case study:', e);
+          console.warn('Failed to parse optimization log:', e);
         }
       }
 
@@ -113,14 +113,14 @@ export const CaseStudyGallery: FunctionalComponent = () => {
       parsed.sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime());
       setCaseStudies(parsed);
     } catch (err) {
-      console.error('Failed to load case studies:', err);
-      setError('Failed to load case studies. Please try again.');
+      console.error('Failed to load optimization logs:', err);
+      setError('Failed to load optimization logs. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleViewDetails = async (study: CaseStudyDisplay) => {
+  const handleViewDetails = async (study: OptimizationLogDisplay) => {
     setSelectedStudy(study);
     setDetailsLoading(true);
     setDetailsData(null);
@@ -130,7 +130,7 @@ export const CaseStudyGallery: FunctionalComponent = () => {
     const wallet = walletContext as any;
     const signMessage = wallet?.signMessage;
 
-    const result = await fetchCaseStudyDetails(
+    const result = await fetchOptimizationLogDetails(
       study.ipfsCid,
       publicKey || undefined,
       signMessage
@@ -201,13 +201,13 @@ export const CaseStudyGallery: FunctionalComponent = () => {
         ))}
       </div>
 
-      {/* Case Studies Grid */}
+      {/* Optimization Logs Grid */}
       {caseStudies.length === 0 ? (
         <div class="text-center py-12 text-gray-500 dark:text-slate-400">
           <div class="text-4xl mb-4">📋</div>
-          <p>No case studies found</p>
+          <p>No optimization logs found</p>
           {filter === 'mine' && (
-            <p class="text-sm mt-2">Submit your first case study to see it here</p>
+            <p class="text-sm mt-2">Submit your first optimization log to see it here</p>
           )}
         </div>
       ) : (
@@ -298,7 +298,7 @@ export const CaseStudyGallery: FunctionalComponent = () => {
             <div class="sticky top-0 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 p-6 flex items-center justify-between">
               <div>
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white">
-                  Case Study Details
+                  Optimization Log Details
                 </h2>
                 <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">
                   {selectedStudy.protocol} • {selectedStudy.durationDays} days
@@ -332,7 +332,7 @@ export const CaseStudyGallery: FunctionalComponent = () => {
                   {!publicKey && detailsError.includes('wallet') && (
                     <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
                       <p class="text-sm text-blue-700 dark:text-blue-400 mb-2">
-                        💡 Connect your wallet to decrypt your case studies
+                        💡 Connect your wallet to decrypt your optimization logs
                       </p>
                       <p class="text-xs text-blue-600 dark:text-blue-500">
                         Your data is encrypted with a key derived from your wallet signature.
@@ -346,13 +346,13 @@ export const CaseStudyGallery: FunctionalComponent = () => {
                 </div>
               ) : detailsData ? (
                 <div class="space-y-6">
-                  {/* Treatment Protocol */}
+                  {/* Architecture Protocol */}
                   <div class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
                     <h4 class="text-sm font-semibold text-emerald-800 dark:text-emerald-400 mb-1">
-                      🧪 Treatment Protocol
+                      🧪 Architecture Protocol
                     </h4>
                     <p class="text-lg font-medium text-gray-900 dark:text-white">
-                      {detailsData.treatmentProtocol}
+                      {detailsData.architectureProtocol}
                     </p>
                     <p class="text-sm text-gray-600 dark:text-slate-400 mt-1">
                       Category: {detailsData.techniqueCategory}
@@ -402,7 +402,7 @@ export const CaseStudyGallery: FunctionalComponent = () => {
                       </h4>
                       <div class="space-y-3">
                         {detailsData.outcomes.map((outcome, idx) => {
-                          const improvement = outcome.afterTreatment - outcome.baseline;
+                          const improvement = outcome.afterArchitecture - outcome.baseline;
                           const percentChange = outcome.baseline !== 0 
                             ? ((improvement / outcome.baseline) * 100).toFixed(1)
                             : '0';
@@ -432,7 +432,7 @@ export const CaseStudyGallery: FunctionalComponent = () => {
                                 <div class="flex-1">
                                   <span class="text-gray-500 dark:text-slate-500">After:</span>
                                   <span class="ml-2 font-medium text-gray-900 dark:text-white">
-                                    {outcome.afterTreatment} {outcome.unit}
+                                    {outcome.afterArchitecture} {outcome.unit}
                                   </span>
                                 </div>
                               </div>
@@ -478,7 +478,7 @@ export const CaseStudyGallery: FunctionalComponent = () => {
                   {detailsData.costUSD && (
                     <div class="pt-4 border-t border-gray-200 dark:border-slate-700">
                       <div class="flex items-center justify-between">
-                        <span class="text-gray-600 dark:text-slate-400">Treatment Cost</span>
+                        <span class="text-gray-600 dark:text-slate-400">Architecture Cost</span>
                         <span class="text-lg font-semibold text-gray-900 dark:text-white">
                           ${detailsData.costUSD.toLocaleString()}
                         </span>
@@ -495,4 +495,4 @@ export const CaseStudyGallery: FunctionalComponent = () => {
   );
 };
 
-export default CaseStudyGallery;
+export default OptimizationLogGallery;

@@ -28,7 +28,7 @@ export const SOLANA_CONFIG = {
 
   // Smart contract program IDs (from deployment)
   blockchain: {
-    caseStudyProgramId: '8tma3jnv8ZazAKxawZsE5yh3NPt1ymsEoysS2B1w2Gxx',
+    optimizationLogProgramId: '8tma3jnv8ZazAKxawZsE5yh3NPt1ymsEoysS2B1w2Gxx',
     // DBC Token - Platform Coordination Token
     // Mainnet: J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump (pump.fun)
     // Devnet:  8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT (custom program)
@@ -114,9 +114,9 @@ export function validateBlockchainConfig(): void {
   }
 
   // Optimization log program is optional for basic functionality
-  if (isPlaceholder(blockchain.caseStudyProgramId)) {
+  if (isPlaceholder(blockchain.optimizationLogProgramId)) {
     console.warn(
-      'Optimization Log Program ID not configured. Deploy to solpgf and update SOLANA_CONFIG.blockchain.caseStudyProgramId for validation features'
+      'Optimization Log Program ID not configured. Deploy to solpgf and update SOLANA_CONFIG.blockchain.optimizationLogProgramId for validation features'
     );
   }
 }

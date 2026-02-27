@@ -37,7 +37,7 @@ export interface CommitteeMember {
 
 export interface MPCAccessRequest {
   id: string;
-  caseStudyId: string;
+  optimizationLogId: string;
   requester: PublicKey;
   requesterType: 'researcher' | 'validator' | 'builder';
   justification: string;
@@ -60,7 +60,7 @@ export interface DecryptionResult {
 }
 
 export interface AccessRequestInput {
-  caseStudyId: string;
+  optimizationLogId: string;
   justification: string;
   requesterType: 'researcher' | 'validator' | 'builder';
   encryptionScheme?: 'aes-256-gcm' | 'chacha20-poly1305';
@@ -186,14 +186,14 @@ class ArciumMPCServiceClass {
       throw new Error('Justification must be at least 20 characters');
     }
 
-    const sessionId = this.generateSessionId(requester, input.caseStudyId);
+    const sessionId = this.generateSessionId(requester, input.optimizationLogId);
     const threshold = input.preferredThreshold || DEFAULT_MPC_CONFIG.threshold;
     const committee = this.formLocalCommittee(threshold);
 
     const now = Date.now();
     const request: MPCAccessRequest = {
       id: sessionId,
-      caseStudyId: input.caseStudyId,
+      optimizationLogId: input.optimizationLogId,
       requester,
       requesterType: input.requesterType,
       justification: input.justification,
@@ -402,10 +402,10 @@ class ArciumMPCServiceClass {
     }
   }
 
-  private generateSessionId(requester: PublicKey, caseStudyId: string): string {
+  private generateSessionId(requester: PublicKey, optimizationLogId: string): string {
     const timestamp = Date.now().toString(36);
     const random = Math.random().toString(36).substring(2, 8);
-    return `mpc_${requester.toString().slice(0, 8)}_${caseStudyId.slice(0, 8)}_${timestamp}_${random}`;
+    return `mpc_${requester.toString().slice(0, 8)}_${optimizationLogId.slice(0, 8)}_${timestamp}_${random}`;
   }
 
   private formLocalCommittee(threshold: number): CommitteeMember[] {

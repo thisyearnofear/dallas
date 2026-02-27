@@ -12,7 +12,7 @@ fn main(
     has_baseline: bool,              // Private: Has baseline metrics
     has_outcome: bool,               // Private: Has outcome metrics
     has_duration: bool,              // Private: Has duration data
-    has_protocol: bool,              // Private: Has strategy description
+    has_strategy: bool,              // Private: Has strategy description
     has_cost: bool,                  // Private: Has cost information
     minimum_required: u8,            // Public: Minimum fields required (1-5)
 ) -> pub bool {
@@ -24,7 +24,7 @@ fn main(
     let baseline_count = if has_baseline { 1 } else { 0 };
     let outcome_count = if has_outcome { 1 } else { 0 };
     let duration_count = if has_duration { 1 } else { 0 };
-    let protocol_count = if has_protocol { 1 } else { 0 };
+    let protocol_count = if has_strategy { 1 } else { 0 };
     let cost_count = if has_cost { 1 } else { 0 };
     
     let total_present = baseline_count + outcome_count + duration_count + protocol_count + cost_count;

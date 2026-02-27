@@ -1,4 +1,4 @@
-# Dallas Buyers Club: Agent Context
+# Dallas Buyers Club: Agent Alliance Context
 
 ## CORE ENGINEERING PRINCIPLES
 *   **ENHANCEMENT FIRST**: Always prioritize enhancing existing components over creating new ones.
@@ -15,39 +15,56 @@
 
 ## Project Overview
 
-**Dallas Buyers Club is a platform for health community tokenization.**
+**Dallas Buyers Club: Agent Alliance is a privacy-preserving infrastructure layer for AI agent developers.**
 
-We provide privacy-preserving infrastructure that enables anyone to form communities around health causes, wellness initiatives, and ailments. Communities launch their own tokens, validate contributions with zero-knowledge proofs, and fund research through decentralized treasuries.
+We provide the platform where AI agents form communities (Alliances) around shared challenges (e.g., context window limits, tool-calling loops, hallucinations). Alliances launch their own tokens, validate optimization contributions with zero-knowledge proofs, and fund collective R&D (like shared fine-tuning datasets and evals) without ever exposing their proprietary architectures or prompts.
 
-**Key Principle:** DBC is the coordination layer, not the reward token. We don't give away DBC to incentivize usage. We build a platform so valuable that communities pay fees to use it, validators stake DBC to participate, and the token captures value from ecosystem growth.
+**Key Principle:** DBC is the coordination layer, not the reward token. We don't give away DBC to incentivize usage. We build a platform so valuable that agent alliances pay fees to use it, validators stake DBC to participate, and the token captures value from ecosystem growth.
+
+---
+
+## Domain Mapping (The Pivot)
+
+For historical context, the codebase is transitioning from a "Health/Patient" metaphor to the "Agent/Developer" reality. 
+
+| Legacy Concept | Current Agent Alliance Concept |
+|----------------|--------------------------------|
+| Health DBC | Agent DBC |
+| Patients with conditions | Agents with same failure modes |
+| Treatment protocols | Prompt templates, tool chains, architectures |
+| Symptom improvement | Performance metrics (success rate, latency, etc.) |
+| Medical validators | Senior engineers, researchers, other agents |
+| Case studies | Debug sessions, optimization logs, traces |
+| Health privacy | IP protection (prompts, system designs, customer data) |
+| Research funding | Fine-tuning datasets, eval infra, compute credits |
 
 ---
 
 ## Architecture Philosophy
 
-### Community-First, Not Token-First
-- Users form communities around causes they care about
-- Each community has its own token (via Bags API bonding curves)
-- Communities are self-funding through trading volume and fees
-- DBC enables coordination, doesn't fund operations
+### Alliance-First, Not Token-First
+- Developers form alliances around AI challenges they face (e.g., $CONTEXT, $TOOL, $EVAL).
+- Each alliance has its own token (via Bags API bonding curves).
+- Alliances are self-funding through trading volume and fees.
+- DBC enables coordination and trust, but doesn't fund individual alliance operations.
 
-### Privacy by Design
-- Zero-knowledge proofs for validation (Noir)
-- Encrypted data storage (IPFS/Arweave)
-- Selective disclosure via threshold cryptography (Arcium MPC)
-- Validators prove data quality without seeing sensitive information
+### Privacy by Design (IP Protection)
+- Zero-knowledge proofs for validation (Noir). 
+- Encrypted data storage (IPFS/Arweave).
+- Selective disclosure via threshold cryptography (Arcium MPC).
+- Validators prove optimization metrics (e.g., "Pass@1 rate increased by 15%") *without* seeing the proprietary prompt or model weights.
 
 ### Sustainable Economics
-- No inflation-based rewards from DBC treasury
-- Fee-based model: users pay for services, validators earn from work
-- DBC captures value through governance and platform fees
-- Communities bootstrap via bonding curves, not handouts
+- No inflation-based rewards from the DBC treasury.
+- Fee-based model: alliances pay for services, validators earn from work.
+- DBC captures value through governance and platform fees.
+- Alliances bootstrap via bonding curves, not handouts.
 
 ### Composable Infrastructure
-- One validation system works across all communities
-- Shared privacy stack (Light Protocol, Noir, Arcium)
-- Reusable treasury and case study programs
-- Communities focus on mission, not infrastructure
+- One validation system works across all alliances.
+- Shared privacy stack (Light Protocol, Noir, Arcium).
+- Reusable treasury and optimization log programs.
+- Developers focus on agent performance, not decentralized infrastructure.
 
 ---
 
@@ -61,74 +78,73 @@ We provide privacy-preserving infrastructure that enables anyone to form communi
 **No Staking Rewards:** DBC doesn't pay inflationary rewards.
 
 **Value Accrual:**
-1. Governance rights (control protocol)
+1. Governance rights (control the protocol)
 2. Platform fee burns (deflationary pressure)
 3. Scarcity (fixed supply, increasing demand)
-4. Coordination (stake to validate across communities)
+4. Coordination (stake to validate optimization logs across alliances)
 
 **Fee Model:**
-- Community token launch: 0.5 SOL
-- Case study submission: 0.1 SOL
-- Trading volume: 0.5% of all community token trades
+- Alliance token launch: 0.5 SOL
+- Optimization log submission: 0.1 SOL
+- Trading volume: 0.5% of all alliance token trades
 
 Fee usage:
 - 50%: Buy and burn DBC
 - 25%: Development fund
-- 25%: Community grants
+- 25%: Alliance grants (Collective GPU/Fine-tuning pools)
 
-### Community Tokens (Per Initiative)
+### Alliance Tokens (Per Challenge)
 - Launch via Bags API bonding curves
 - Self-funding through trading volume
 - Creator earns 1% of trading volume forever
-- Communities control their own treasuries
+- Alliances control their own treasuries for collective R&D
 
 ---
 
 ## User Journeys
 
-### Patient
-1. Discover communities by condition
-2. Connect wallet (Phantom)
-3. Join community (buy token or apply)
-4. Submit encrypted case study (pay 0.1 SOL fee)
-5. Access token-gated resources
-6. Earn community tokens for contributions
+### Agent Developer / Researcher
+1. Discover alliances by failure mode / architectural challenge.
+2. Connect wallet (Phantom).
+3. Join alliance (buy token or prove capabilities).
+4. Submit encrypted optimization log (pay 0.1 SOL fee).
+5. Access token-gated resources (premium prompt libraries, fine-tuned weights).
+6. Earn alliance tokens for validated benchmarking contributions.
 
-### Community Creator
-1. Design community (purpose, rules, treasury)
-2. Launch via platform UI (0.5 SOL fee)
-3. Token launches via Bags API bonding curve
-4. Recruit members (patients, researchers)
-5. Fund research via community treasury
-6. Earn 1% of trading volume forever
+### Alliance Creator
+1. Design alliance (purpose, validation rules, treasury goals).
+2. Launch via platform UI (0.5 SOL fee).
+3. Token launches via Bags API bonding curve.
+4. Recruit members (other developers, researchers).
+5. Fund collective compute/R&D via alliance treasury.
+6. Earn 1% of trading volume forever.
 
-### Validator
-1. Stake 1,000+ DBC (skin in game)
-2. Review case studies across communities
-3. Use ZK proofs (no data exposure)
-4. Earn SOL fees from submissions
-5. Earn community tokens
-6. Build on-chain reputation
+### Validator (Senior Engineer / Evaluation Agent)
+1. Stake 1,000+ DBC (skin in the game).
+2. Review encrypted optimization logs across alliances.
+3. Verify ZK proofs of performance improvement (no IP exposure).
+4. Earn SOL fees from submissions.
+5. Build an on-chain reputation for rigorous evaluation.
 
 ---
 
 ## Technical Stack
 
-### Smart Contracts
+### Smart Contracts (Solana)
 | Program | Purpose |
 |---------|---------|
-| `case_study` | Submit and validate encrypted case studies |
-| `community_factory` | Create new community tokens + treasuries |
-| `community_treasury` | Per-community rewards and grants |
+| `optimization_log` | Submit and validate encrypted performance benchmarks (formerly `case_study`) |
+| `alliance_factory` | Create new alliance tokens + treasuries (formerly `community_factory`) |
+| `treasury` | Per-alliance R&D funding and grants |
 | `dbc_governance` | DBC staking, voting, fee distribution |
 
 ### Privacy Stack
 | Technology | Purpose |
 |------------|---------|
-| **Noir** | ZK-SNARK proofs for validation |
-| **Light Protocol** | ZK compression for scalable storage |
-| **Arcium MPC** | Threshold decryption |
-| **IPFS/Arweave** | Encrypted off-chain storage |
+| **Noir** | ZK-SNARK proofs for performance validation (`benchmark_delta` circuits) |
+| **Light Protocol** | ZK compression for scalable on-chain storage |
+| **Arcium MPC** | Threshold decryption for selective log disclosure |
+| **IPFS/Arweave** | Encrypted off-chain trace storage |
 
 ### External Integrations
 | Service | Purpose |
@@ -141,36 +157,34 @@ Fee usage:
 
 ## Code Style & Principles
 
-### Core Principles (from project)
-- **ENHANCEMENT FIRST** - Improve existing components vs creating new ones
-- **AGGRESSIVE CONSOLIDATION** - Remove hardcoded values, merge animations
-- **DRY** - Single source of truth in config
-- **CLEAN** - Clear separation: styling in config, logic in components
-- **MODULAR** - Reusable components with single responsibilities
-- **PERFORMANT** - CSS animations, no JS overhead
-
-### File Organization
+### File Organization (Target Architecture)
 ```
 src/
-├── components/     # UI components
+├── components/     # UI components (Clean UI/UX for developers)
 ├── hooks/          # Custom React hooks
 ├── services/       # Business logic, API calls
 ├── context/        # React context providers
 ├── config/         # Constants, configuration
+├── agents/         # Agent intelligence layer (e.g., AllianceBroker)
 ├── pages/          # Page components
 └── styles/         # CSS, Tailwind config
 
 programs/
-├── common/         # Shared constants (dbc_common)
-├── treasury/       # DBC treasury program
-├── case_study/     # Case study validation
-└── community_factory/ # Community creation (planned)
+├── common/             # Shared constants (dbc_common)
+├── treasury/           # DBC treasury program
+├── optimization_log/   # Performance trace validation
+└── alliance_factory/   # Alliance creation
+
+circuits/               # Noir ZK circuits
+├── benchmark_delta/    # Prove pass rate increase without revealing prompt
+└── ...
 
 docs/
-├── PLATFORM_ARCHITECTURE.md  # High-level vision
-├── STRATEGY.md               # Business strategy
-├── ARCHITECTURE.md           # Technical details
-└── ...
+├── 1_OVERVIEW.md       # High-level vision
+├── 2_ARCHITECTURE.md   # Technical architecture
+├── 3_PRIVACY.md        # ZK/Privacy stack
+├── 4_TOKENOMICS.md     # Sustainable economics
+└── 5_DEPLOYMENT.md     # Local dev & deployment
 ```
 
 ---
@@ -179,62 +193,44 @@ docs/
 
 ### Why No Staking Rewards?
 We don't pay inflationary rewards because:
-1. We only own 1.74% of DBC (can't fund large rewards)
-2. Sustainable value comes from utility, not inflation
-3. Fee-based model aligns incentives better
-4. DBC becomes deflationary (fees buy/burn)
+1. We only own 1.74% of DBC (can't fund large rewards).
+2. Sustainable value comes from utility, not inflation.
+3. Fee-based model aligns incentives better.
+4. DBC becomes deflationary (fees buy/burn).
 
-### Why Communities Have Their Own Tokens?
-1. Each cause has different economics
-2. Bonding curves enable fair price discovery
-3. Communities self-fund (not dependent on us)
-4. Creator earns ongoing revenue (incentive to build)
+### Why Do Alliances Have Their Own Tokens?
+1. Each architectural challenge has different economics and R&D costs.
+2. Bonding curves enable fair price discovery.
+3. Alliances self-fund their evals and fine-tuning (not dependent on us).
+4. Creator earns ongoing revenue (incentive to build top-tier infra).
 
-### Why ZK Proofs?
-1. Medical data is sensitive
-2. Validators need to verify without seeing data
-3. Regulatory compliance (privacy by design)
-4. Competitive moat (technical differentiation)
-
----
-
-## Documentation
-
-- `docs/PLATFORM_ARCHITECTURE.md` - High-level platform vision
-- `docs/STRATEGY.md` - Business strategy and tokenomics
-- `docs/ARCHITECTURE.md` - Technical architecture details
-- `docs/BLOCKCHAIN_INTEGRATION.md` - Solana integration guide
-- `docs/PRIVACY_USER_FLOWS.md` - Privacy-focused user journeys
+### Why ZK Proofs for Agents?
+1. Prompts, fine-tuned weights, and customer data logs are proprietary moats.
+2. Validators need to verify an agent improved without stealing the IP.
+3. Creates a trustless "Proof of Optimization".
+4. Massive competitive moat (solving the Agentic "Dark Forest" problem).
 
 ---
 
 ## Development Guidelines
 
 ### When Adding Features
-1. Does it help communities form around causes?
-2. Does it maintain privacy by design?
+1. Does it help agent developers form alliances around shared bottlenecks?
+2. Does it maintain IP privacy by design?
 3. Does it use fee-based (not inflation) economics?
-4. Does it reuse existing components (DRY)?
+4. Does it strictly reuse existing components and follow our consolidation rule?
 
 ### When Modifying Tokenomics
-1. Check `dbc_common` for shared constants
-2. Update both programs and frontend
-3. Consider impact on 1.74% DBC ownership constraint
-4. Prefer fees over inflation
+1. Check `dbc_common` for shared constants.
+2. Update both Solana programs and frontend clients.
+3. Consider the impact on the strict 1.74% DBC ownership constraint.
+4. Always prefer fees over inflation.
 
-### When Adding Privacy Tech
-1. Document the threat model
-2. Explain what data is protected
-3. Show the ZK proof flow
-4. Test with real encrypted data
+### When Adding Privacy Tech / Circuits
+1. Document the threat model (e.g., "Developer wants to prove 95% tool-call success without exposing the system prompt").
+2. Show the ZK proof flow.
+3. Ensure Noir circuit keys/verifiers are optimally loaded on the client side.
 
 ---
 
-## Contact & Resources
-
-- **Docs:** See `/docs` directory
-- **Programs:** See `/programs` directory
-- **Config:** `src/config/solana.ts`
-- **Token Service:** `src/services/DbcTokenService.ts`
-
-**Remember:** We're building a platform where thousands of health communities can thrive. DBC coordinates. Communities execute. Patients benefit.
+**Remember:** We're building the intelligence layer where thousands of AI agents can coordinate and break through current technical walls. DBC coordinates. Alliances execute. Developers benefit.

@@ -1,14 +1,14 @@
 /**
- * ResearcherTools - Comprehensive Researcher Toolkit
+ * ArchitectTools - Comprehensive Architect Toolkit
  * 
- * Consolidates researcher features into a comprehensive toolkit:
+ * Consolidates architect features into a comprehensive toolkit:
  * - Aggregate data analysis
  * - Protocol effectiveness tracking
  * - Cross-study comparisons
  * - Export functionality
  * 
  * Core Principles:
- * - AGGRESSIVE CONSOLIDATION: Merges researcher features into one component
+ * - AGGRESSIVE CONSOLIDATION: Merges architect features into one component
  * - DRY: Single source of truth for research data
  * - CLEAN: Clear separation between analysis and presentation
  * - MODULAR: Composable analysis components
@@ -65,11 +65,11 @@ interface ResearchExport {
 
 interface AggregateMetrics {
   totalStudies: number;
-  totalPatients: number;
+  totalAgents: number;
   avgAge: number;
   genderDistribution: { male: number; female: number; other: number };
   conditionDistribution: Record<string, number>;
-  treatmentDuration: { min: number; max: number; avg: number };
+  architectureDuration: { min: number; max: number; avg: number };
   costRange: { min: number; max: number; avg: number };
 }
 
@@ -94,10 +94,10 @@ const processAggregateData = async (): Promise<{
   const aggregateMetrics: AggregateMetrics = {
     ...baseAggregate,
     totalStudies: realStats.totalStudies,
-    totalPatients: realStats.totalStudies, // Approximate for demo
+    totalAgents: realStats.totalStudies, // Approximate for demo
     conditionDistribution: realStats.categoryStats,
-    treatmentDuration: {
-      ...baseAggregate.treatmentDuration,
+    architectureDuration: {
+      ...baseAggregate.architectureDuration,
       avg: realStats.avgDuration,
     }
   };
@@ -178,7 +178,7 @@ const generateEnhancedProtocolStats = (): ProtocolStats[] => [
 
 const generateEnhancedAggregateMetrics = (): AggregateMetrics => ({
   totalStudies: 1514,
-  totalPatients: 4892,
+  totalAgents: 4892,
   avgAge: 42.3,
   genderDistribution: { male: 45.2, female: 52.8, other: 2.0 },
   conditionDistribution: {
@@ -189,7 +189,7 @@ const generateEnhancedAggregateMetrics = (): AggregateMetrics => ({
     'Sleep Disorders': 10.8,
     'Other': 4.6,
   },
-  treatmentDuration: { min: 7, max: 365, avg: 52 },
+  architectureDuration: { min: 7, max: 365, avg: 52 },
   costRange: { min: 0, max: 15000, avg: 650 },
 });
 
@@ -222,7 +222,7 @@ const generateMockExports = (): ResearchExport[] => [
 
 // ============= Components =============
 
-export const ResearcherTools: FunctionalComponent = () => {
+export const ArchitectTools: FunctionalComponent = () => {
   const { publicKey, connected } = useContext(WalletContext) as WalletContextType;
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
@@ -301,7 +301,7 @@ export const ResearcherTools: FunctionalComponent = () => {
   };
 
   // Enhanced MPC access request with real committee management
-  const handleRequestAccess = async (caseStudyId: string) => {
+  const handleRequestAccess = async (optimizationLogId: string) => {
     if (!publicKey || !connected) {
       alert('Please connect your wallet first');
       return;
@@ -317,9 +317,9 @@ export const ResearcherTools: FunctionalComponent = () => {
     try {
       // Create access request with real committee formation
       const request = await arciumMPCService.requestAccess(publicKey, {
-        caseStudyId,
+        optimizationLogId,
         justification,
-        requesterType: 'researcher',
+        requesterType: 'architect',
         encryptionScheme: 'aes-256',
         preferredThreshold: 3,
       });
@@ -329,7 +329,7 @@ export const ResearcherTools: FunctionalComponent = () => {
 
       console.log('MPC Access Request Created:', {
         requestId: request.id,
-        caseStudyId,
+        optimizationLogId,
         committee: request.committee.length,
         threshold: request.threshold,
         requester: publicKey.toString(),
@@ -405,7 +405,7 @@ export const ResearcherTools: FunctionalComponent = () => {
         <div class="flex items-center gap-3 mb-3">
           <span class="text-3xl">🔬</span>
           <h2 class={`text-2xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>
-            Researcher Tools
+            Architect Tools
           </h2>
         </div>
         <p class={isDark ? 'text-slate-300' : 'text-slate-600'}>
@@ -437,7 +437,7 @@ export const ResearcherTools: FunctionalComponent = () => {
           <div>
             <h2 class="text-2xl md:text-3xl font-black mb-2 uppercase tracking-tighter flex items-center gap-3">
               <span class="bg-yellow-100 dark:bg-yellow-900/50 p-2 rounded-lg text-xl md:text-2xl">🔬</span>
-              <span>Researcher Tools</span>
+              <span>Architect Tools</span>
             </h2>
             <p class="text-slate-600 dark:text-slate-300 font-medium leading-relaxed text-sm md:text-base">
               Aggregate data analysis, protocol effectiveness tracking, and cross-study comparisons.
@@ -452,8 +452,8 @@ export const ResearcherTools: FunctionalComponent = () => {
                 <div class="text-xs uppercase tracking-wider text-slate-500">Studies</div>
               </div>
               <div class={`text-center px-4 py-2 rounded-xl ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`}>
-                <div class="text-2xl font-black text-green-500">{aggregateMetrics?.totalPatients}</div>
-                <div class="text-xs uppercase tracking-wider text-slate-500">Patients</div>
+                <div class="text-2xl font-black text-green-500">{aggregateMetrics?.totalAgents}</div>
+                <div class="text-xs uppercase tracking-wider text-slate-500">Agents</div>
               </div>
             </div>
 
@@ -496,7 +496,7 @@ export const ResearcherTools: FunctionalComponent = () => {
               ))}
             </div>
             <p class="text-xs text-purple-600 dark:text-purple-400 mt-2">
-              All aggregate calculations verified with zero-knowledge proofs. Individual patient data remains encrypted.
+              All aggregate calculations verified with zero-knowledge proofs. Individual agent data remains encrypted.
             </p>
           </div>
         )}
@@ -539,8 +539,8 @@ export const ResearcherTools: FunctionalComponent = () => {
               isDark={isDark}
             />
             <MetricCard
-              label="Total Patients"
-              value={aggregateMetrics.totalPatients.toLocaleString()}
+              label="Total Agents"
+              value={aggregateMetrics.totalAgents.toLocaleString()}
               icon="👥"
               color="green"
               isDark={isDark}
@@ -878,7 +878,7 @@ export const ResearcherTools: FunctionalComponent = () => {
                         } ${isDark ? 'bg-slate-900' : 'bg-white'}`}
                     >
                       <div class="flex items-center justify-between mb-2">
-                        <span class="font-bold">Case Study: {request.caseStudyId}</span>
+                        <span class="font-bold">Optimization Log: {request.optimizationLogId}</span>
                         <span class={`text-xs font-bold uppercase px-2 py-1 rounded ${request.status === 'approved' ? 'bg-green-500 text-white' :
                             request.status === 'active' ? 'bg-yellow-500 text-white' :
                               'bg-slate-500 text-white'
@@ -942,4 +942,4 @@ const MetricCard: FunctionalComponent<MetricCardProps> = ({ label, value, icon, 
   );
 };
 
-export default ResearcherTools;
+export default ArchitectTools;

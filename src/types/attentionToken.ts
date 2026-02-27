@@ -12,7 +12,7 @@ export interface AttentionToken {
   // On-chain identifiers
   mint: PublicKey;
   bondingCurve: PublicKey;
-  caseStudyPda: PublicKey;
+  optimizationLogPda: PublicKey;
   
   // Token information
   name: string;
@@ -79,7 +79,7 @@ export interface AttentionTokenAnalytics {
  * ENHANCED: Made optimization log optional, added community fields
  */
 export interface CreateAttentionTokenParams {
-  caseStudyPda?: PublicKey;           // Optional for standalone communities
+  optimizationLogPda?: PublicKey;           // Optional for standalone communities
   techniqueName: string;
   techniqueCategory: string;
   description: string;
@@ -104,7 +104,7 @@ export interface BagsTokenLaunchRequest {
   imageUrl: string;
   partnerConfig?: string; // Optional partner config for fee sharing
   metadata: {
-    caseStudyPda?: string;              // Optional - not required for standalone communities
+    optimizationLogPda?: string;              // Optional - not required for standalone communities
     submitter: string;
     validators: string[];
     reputationScore: number;
@@ -293,7 +293,7 @@ export interface SymbolGenerationOptions {
 export interface Cell {
   id: string;
   tokenMint: string;
-  caseStudyPda: string;
+  optimizationLogPda: string;
   ownerWallet: string;
   name: string;
   description: string;

@@ -52,7 +52,7 @@ export function MCPAgentDashboard() {
     {
       id: 'group_purchase',
       title: 'Group Purchase Coordination',
-      description: 'Coordinate multi-member purchase of A.I.D.S. treatments with MCP orchestration',
+      description: 'Coordinate multi-member purchase of A.I.D.S. architectures with MCP orchestration',
       icon: '👥',
       action: () => coordinateGroupPurchase(['azt_patch', 'peptide_code', 'ddc_algorithm'])
     },
@@ -61,7 +61,7 @@ export function MCPAgentDashboard() {
       title: 'Identity Restoration Planning',
       description: 'Multi-agent coordination for complex identity fragmentation restoration',
       icon: '🧠',
-      action: () => processIdentityRestoration('patient_007', 'interferon_suite')
+      action: () => processIdentityRestoration('developer_007', 'interferon_suite')
     },
     {
       id: 'threat_assessment',
@@ -185,7 +185,7 @@ export function MCPAgentDashboard() {
               <span class="text-green-600 dark:text-green-400 font-bold">100%</span>
             </div>
             <div class="flex justify-between">
-              <span>Network Health:</span>
+              <span>Network Agent:</span>
               <span class="text-green-600 dark:text-green-400 font-bold">OPTIMAL</span>
             </div>
             <div class="flex justify-between">

@@ -43,11 +43,11 @@ export const AttentionTokenPortfolio: React.FC = () => {
     setLoading(true);
     try {
       const { SOLANA_CONFIG } = await import('../config/solana');
-      const { parseCaseStudyAccount } = await import('../utils/solanaUtils');
+      const { parseOptimizationLogAccount } = await import('../utils/solanaUtils');
       
-      const programId = new PublicKey(SOLANA_CONFIG.blockchain.caseStudyProgramId);
+      const programId = new PublicKey(SOLANA_CONFIG.blockchain.optimizationLogProgramId);
       
-      // Fetch all case study accounts with attention tokens
+      // Fetch all optimization log accounts with attention tokens
       const accounts = await connection!.getProgramAccounts(programId, {
         filters: [
           {
@@ -61,7 +61,7 @@ export const AttentionTokenPortfolio: React.FC = () => {
 
       const holdingsPromises = accounts.map(async ({ account }) => {
         try {
-          const parsed = parseCaseStudyAccount(account.data);
+          const parsed = parseOptimizationLogAccount(account.data);
           if (!parsed.attentionTokenMint) return null;
 
           // Get user's token balance

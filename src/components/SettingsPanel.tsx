@@ -143,7 +143,7 @@ export function SettingsPanel() {
                     {/* Auto-Encrypt Toggle */}
                     <SettingToggle
                       label="Auto-Encrypt Submissions"
-                      description="Automatically encrypt all case studies with your wallet key"
+                      description="Automatically encrypt all optimization logs with your wallet key"
                       enabled={privacySettings.autoEncrypt}
                       onToggle={() => updatePrivacySetting('autoEncrypt', !privacySettings.autoEncrypt)}
                     />

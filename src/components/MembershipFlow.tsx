@@ -15,7 +15,7 @@ const achievements: Achievement[] = [
     { id: 'first_order', title: 'First Purchase', description: 'Made your first order', icon: '💊', unlocked: false },
     { id: 'referral', title: 'Spread the Word', description: 'Referred a new member', icon: '📢', unlocked: false },
     { id: 'survivor', title: 'Survivor', description: 'Active member for 30 days', icon: '🏆', unlocked: false, progress: 0, maxProgress: 30 },
-    { id: 'advocate', title: 'Hope Advocate', description: 'Helped 5 people find treatments', icon: '⭐', unlocked: false, progress: 0, maxProgress: 5 },
+    { id: 'advocate', title: 'Hope Advocate', description: 'Helped 5 people find architectures', icon: '⭐', unlocked: false, progress: 0, maxProgress: 5 },
 ];
 
 export function MembershipFlow() {
@@ -158,7 +158,7 @@ export function MembershipFlow() {
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">Fighter Nickname</label>
                                 <input
                                     type="text"
-                                    placeholder="e.g., Patient #420, Hope Fighter, etc."
+                                    placeholder="e.g., Developer #420, Hope Fighter, etc."
                                     class="w-full p-3 border-2 border-gray-200 rounded focus:border-brand outline-none transition-colors"
                                     value={formData.nickname}
                                     onInput={(e) => setFormData({...formData, nickname: (e.target as HTMLInputElement).value})}
@@ -201,7 +201,7 @@ export function MembershipFlow() {
                                     onChange={(e) => setFormData({...formData, condition: (e.target as HTMLSelectElement).value})}
                                 >
                                     <option value="">Select your situation</option>
-                                    <option value="seeking_treatment">Seeking alternative treatments</option>
+                                    <option value="seeking_architecture">Seeking alternative architectures</option>
                                     <option value="supporting_someone">Supporting someone I care about</option>
                                     <option value="research">Research and information gathering</option>
                                     <option value="community">Looking for community support</option>
@@ -265,7 +265,7 @@ export function MembershipFlow() {
 
                             <div class="bg-red-50 border border-red-200 p-4 rounded-lg">
                                 <p class="text-sm text-red-800">
-                                    ⚠️ <strong>Legal Notice:</strong> This platform provides information about experimental treatments. Always consult healthcare professionals.
+                                    ⚠️ <strong>Legal Notice:</strong> This platform provides information about experimental architectures. Always consult agentcare professionals.
                                 </p>
                             </div>
                         </div>

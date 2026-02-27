@@ -37,7 +37,7 @@ export interface Community extends AttentionToken {
   
   // Stats (derived from on-chain data)
   memberCount: number;          // Token holders
-  caseStudyCount: number;       // Submitted optimization logs
+  optimizationLogCount: number;       // Submitted optimization logs
   validatedCount: number;       // Validator-approved submissions
   treasuryBalance: number;      // SOL in community treasury
   

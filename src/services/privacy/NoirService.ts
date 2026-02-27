@@ -274,7 +274,7 @@ class NoirServiceClass {
   }
 
   async generateValidationProofs(
-    caseStudyData: {
+    optimizationLogData: {
       baselineSeverity: number;
       outcomeSeverity: number;
       durationDays: number;
@@ -290,30 +290,30 @@ class NoirServiceClass {
 
     proofs.push(
       await this.proveBenchmarkDelta({
-        baseline_severity: caseStudyData.baselineSeverity,
-        outcome_severity: caseStudyData.outcomeSeverity,
+        baseline_severity: optimizationLogData.baselineSeverity,
+        outcome_severity: optimizationLogData.outcomeSeverity,
       })
     );
 
     proofs.push(
       await this.proveExecutionDuration({
-        duration_days: caseStudyData.durationDays,
+        duration_days: optimizationLogData.durationDays,
       })
     );
 
     proofs.push(
       await this.proveDataCompleteness({
-        has_baseline: caseStudyData.hasBaseline,
-        has_outcome: caseStudyData.hasOutcome,
-        has_duration: caseStudyData.hasDuration,
-        has_strategy: caseStudyData.hasStrategy,
-        has_cost: caseStudyData.hasCost,
+        has_baseline: optimizationLogData.hasBaseline,
+        has_outcome: optimizationLogData.hasOutcome,
+        has_duration: optimizationLogData.hasDuration,
+        has_strategy: optimizationLogData.hasStrategy,
+        has_cost: optimizationLogData.hasCost,
       })
     );
 
     proofs.push(
       await this.proveResourceRange({
-        cost_usd_cents: Math.round(caseStudyData.costUsd * 100),
+        cost_usd_cents: Math.round(optimizationLogData.costUsd * 100),
       })
     );
 

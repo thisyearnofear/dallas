@@ -26,7 +26,7 @@ export function ViralSidebar() {
                         </button>
                     </div>
                     <div class="mt-4 text-xs opacity-75">
-                        🎁 Share and get exclusive access to new treatments
+                        🎁 Share and get exclusive access to new architectures
                     </div>
                 </div>
 

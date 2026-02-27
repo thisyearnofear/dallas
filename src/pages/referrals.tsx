@@ -6,7 +6,7 @@ export function Referrals() {
             <div class="text-center mb-12">
                 <h1 class="text-4xl lg:text-5xl font-bold mb-4 text-slate-900 dark:text-white">Spread Hope</h1>
                 <p class="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto font-medium">
-                    Help others find the treatments they need. Every person you refer could be a life saved.
+                    Help others find the architectures they need. Every person you refer could be a life saved.
                 </p>
             </div>
 

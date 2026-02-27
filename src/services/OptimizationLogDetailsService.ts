@@ -1,6 +1,6 @@
 /**
- * Case Study Details Service
- * Fetches and decrypts encrypted case study data from IPFS
+ * Optimization Log Details Service
+ * Fetches and decrypts encrypted optimization log data from IPFS
  * 
  * Privacy Architecture:
  * - Data is encrypted client-side before IPFS upload
@@ -11,7 +11,7 @@
  */
 
 import { PublicKey } from '@solana/web3.js';
-import { decryptHealthData, deriveEncryptionKey } from '../utils/encryption';
+import { decryptAgentData, deriveEncryptionKey } from '../utils/encryption';
 
 // IPFS Gateway URLs (fallback order)
 const IPFS_GATEWAYS = [
@@ -21,9 +21,9 @@ const IPFS_GATEWAYS = [
   'https://dweb.link/ipfs',
 ];
 
-export interface DecryptedCaseStudyDetails {
-  // Treatment information
-  treatmentProtocol: string;
+export interface DecryptedOptimizationLogDetails {
+  // Architecture information
+  architectureProtocol: string;
   techniqueCategory: string;
   durationDays: number;
   costUSD?: number;
@@ -39,7 +39,7 @@ export interface DecryptedCaseStudyDetails {
   outcomes: {
     metric: string;
     baseline: number;
-    afterTreatment: number;
+    afterArchitecture: number;
     unit: string;
   }[];
   
@@ -54,7 +54,7 @@ export interface DecryptedCaseStudyDetails {
 
 export interface FetchDetailsResult {
   success: boolean;
-  data?: DecryptedCaseStudyDetails;
+  data?: DecryptedOptimizationLogDetails;
   error?: string;
   requiresWallet?: boolean;
 }
@@ -140,17 +140,17 @@ async function decryptWithWallet(
   encryptedBase64: string,
   walletPublicKey: PublicKey,
   signMessage: (message: Uint8Array) => Promise<Uint8Array>
-): Promise<DecryptedCaseStudyDetails | null> {
+): Promise<DecryptedOptimizationLogDetails | null> {
   try {
     // Derive encryption key from wallet (deterministic - same wallet = same key)
     const encryptionKey = await deriveEncryptionKey(walletPublicKey, signMessage);
     
     // Decrypt the data
-    const decryptedJson = decryptHealthData(encryptedBase64, encryptionKey);
+    const decryptedJson = decryptAgentData(encryptedBase64, encryptionKey);
     
     // Parse the decrypted JSON
     const parsed = JSON.parse(decryptedJson);
-    return normalizeCaseStudyData(parsed);
+    return normalizeOptimizationLogData(parsed);
   } catch (error) {
     console.error('Decryption failed:', error);
     return null;
@@ -158,13 +158,13 @@ async function decryptWithWallet(
 }
 
 /**
- * Normalize various data formats to DecryptedCaseStudyDetails
+ * Normalize various data formats to DecryptedOptimizationLogDetails
  */
-function normalizeCaseStudyData(data: any): DecryptedCaseStudyDetails | null {
+function normalizeOptimizationLogData(data: any): DecryptedOptimizationLogDetails | null {
   if (!data) return null;
 
   return {
-    treatmentProtocol: data.treatmentProtocol || data.protocol || data.treatment || 'Unknown',
+    architectureProtocol: data.architectureProtocol || data.protocol || data.architecture || 'Unknown',
     techniqueCategory: data.techniqueCategory || data.category || 'Other',
     durationDays: data.durationDays || data.duration || 0,
     costUSD: data.costUSD || data.cost,
@@ -173,7 +173,7 @@ function normalizeCaseStudyData(data: any): DecryptedCaseStudyDetails | null {
               Array.isArray(data.metrics) ? data.metrics.map((m: any) => ({
                 metric: m.name || m.metric,
                 baseline: m.baseline || m.before || 0,
-                afterTreatment: m.after || m.afterTreatment || 0,
+                afterArchitecture: m.after || m.afterArchitecture || 0,
                 unit: m.unit || '',
               })) : [],
     sideEffects: Array.isArray(data.sideEffects) ? data.sideEffects : undefined,
@@ -184,7 +184,7 @@ function normalizeCaseStudyData(data: any): DecryptedCaseStudyDetails | null {
 }
 
 /**
- * Fetch and decrypt case study details from IPFS
+ * Fetch and decrypt optimization log details from IPFS
  * 
  * Privacy Model:
  * 1. Fetches encrypted blob from IPFS (public, but encrypted)
@@ -197,7 +197,7 @@ function normalizeCaseStudyData(data: any): DecryptedCaseStudyDetails | null {
  * @param signMessage - Wallet sign function (to derive key)
  * @returns FetchDetailsResult with decrypted data or error
  */
-export async function fetchCaseStudyDetails(
+export async function fetchOptimizationLogDetails(
   cid: string,
   walletPublicKey?: PublicKey,
   signMessage?: (message: Uint8Array) => Promise<Uint8Array>
@@ -221,7 +221,7 @@ export async function fetchCaseStudyDetails(
       // Unencrypted JSON (testing mode)
       const text = new TextDecoder().decode(data);
       const parsed = JSON.parse(text);
-      const normalized = normalizeCaseStudyData(parsed);
+      const normalized = normalizeOptimizationLogData(parsed);
       
       if (normalized) {
         return { success: true, data: normalized };
@@ -239,7 +239,7 @@ export async function fetchCaseStudyDetails(
         return {
           success: false,
           requiresWallet: true,
-          error: 'This case study is encrypted. Please connect your wallet to decrypt and view your data.',
+          error: 'This optimization log is encrypted. Please connect your wallet to decrypt and view your data.',
         };
       }
 
@@ -253,7 +253,7 @@ export async function fetchCaseStudyDetails(
       if (!decrypted) {
         return {
           success: false,
-          error: 'Decryption failed. This may not be your case study, or the data may be corrupted.',
+          error: 'Decryption failed. This may not be your optimization log, or the data may be corrupted.',
         };
       }
 
@@ -262,10 +262,10 @@ export async function fetchCaseStudyDetails(
 
     return {
       success: false,
-      error: 'Unknown data format. The case study data may be corrupted or stored in an unsupported format.',
+      error: 'Unknown data format. The optimization log data may be corrupted or stored in an unsupported format.',
     };
   } catch (error) {
-    console.error('Error fetching case study details:', error);
+    console.error('Error fetching optimization log details:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred',

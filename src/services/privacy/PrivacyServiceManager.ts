@@ -7,7 +7,7 @@
  * - ArciumMPCService (Threshold decryption)
  * 
  * Core Principles:
- * - ENHANCEMENT FIRST: Enhances existing case study flow
+ * - ENHANCEMENT FIRST: Enhances existing optimization log flow
  * - DRY: Single initialization point for all privacy services
  * - CLEAN: Clear separation between service types
  * - MODULAR: Each service can be used independently
@@ -25,14 +25,14 @@ export interface PrivacyServiceStatus {
     allInitialized: boolean;
 }
 
-// Complete case study privacy processing
-export interface PrivacyCaseStudyData {
+// Complete optimization log privacy processing
+export interface PrivacyOptimizationLogData {
     // Original data
     baselineSeverity: number;
     outcomeSeverity: number;
     durationDays: number;
     costUsd: number;
-    treatmentProtocol: string;
+    architectureProtocol: string;
     hasBaseline: boolean;
     hasOutcome: boolean;
     hasDuration: boolean;
@@ -204,11 +204,11 @@ export class PrivacyServiceManager {
     }
 
     /**
-     * Process case study with full privacy stack
+     * Process optimization log with full privacy stack
      * Generates ZK proofs, compresses data, and optionally creates MPC session
      */
-    async processPrivacyCaseStudy(
-        data: PrivacyCaseStudyData,
+    async processPrivacyOptimizationLog(
+        data: PrivacyOptimizationLogData,
         options: {
             generateProofs?: boolean;
             compressData?: boolean;
@@ -264,19 +264,19 @@ export class PrivacyServiceManager {
 
             // Step 2: Compress data
             if (compressData && this.status.lightProtocol.initialized) {
-                console.log('⚡ Compressing case study data...');
+                console.log('⚡ Compressing optimization log data...');
                 try {
                     // Prepare data for compression
                     const compressionData = {
                         encryptedBaseline: data.encryptedBaseline || new TextEncoder().encode(data.baselineSeverity.toString()),
                         encryptedOutcome: data.encryptedOutcome || new TextEncoder().encode(data.outcomeSeverity.toString()),
-                        treatmentProtocol: data.treatmentProtocol,
+                        architectureProtocol: data.architectureProtocol,
                         durationDays: data.durationDays,
                         costUSD: data.costUsd,
                         metadataHash: data.metadataHash || crypto.getRandomValues(new Uint8Array(32)),
                     };
 
-                    const compressed = await lightProtocolService.compressCaseStudy(compressionData);
+                    const compressed = await lightProtocolService.compressOptimizationLog(compressionData);
                     result.compression = {
                         compressedAccount: compressed.compressedAccount.toString(),
                         originalSize: compressed.originalSize,

@@ -4,7 +4,7 @@ import { getNetworkStatus } from '../services/BlockchainIntegration';
 
 interface NetworkStatusData {
     blockHeight: number;
-    health: 'ok' | 'behind' | 'unknown';
+    agent: 'ok' | 'behind' | 'unknown';
     tps: number;
 }
 
@@ -15,7 +15,7 @@ interface NetworkStatusProps {
 export const NetworkStatus: FunctionalComponent<NetworkStatusProps> = ({ compact = false }) => {
     const [status, setStatus] = useState<NetworkStatusData>({
         blockHeight: 0,
-        health: 'unknown',
+        agent: 'unknown',
         tps: 0,
     });
     const [loading, setLoading] = useState(true);
@@ -41,8 +41,8 @@ export const NetworkStatus: FunctionalComponent<NetworkStatusProps> = ({ compact
         }
     };
 
-    const getHealthColor = (health: string) => {
-        switch (health) {
+    const getAgentColor = (agent: string) => {
+        switch (agent) {
             case 'ok':
                 return 'text-green-600 dark:text-green-400';
             case 'behind':
@@ -52,8 +52,8 @@ export const NetworkStatus: FunctionalComponent<NetworkStatusProps> = ({ compact
         }
     };
 
-    const getHealthIcon = (health: string) => {
-        switch (health) {
+    const getAgentIcon = (agent: string) => {
+        switch (agent) {
             case 'ok':
                 return '✅';
             case 'behind':
@@ -77,15 +77,15 @@ export const NetworkStatus: FunctionalComponent<NetworkStatusProps> = ({ compact
             </div>
 
             <div class={`grid ${compact ? 'grid-cols-3 gap-2' : 'grid-cols-1 md:grid-cols-3 gap-4'}`}>
-                {/* Network Health */}
+                {/* Network Agent */}
                 <div class="text-center">
                     <div class={`${compact ? 'text-lg' : 'text-2xl'} mb-1`}>
-                        {getHealthIcon(status.health)}
+                        {getAgentIcon(status.agent)}
                     </div>
-                    <div class={`font-bold ${getHealthColor(status.health)} ${compact ? 'text-xs' : 'text-sm'}`}>
-                        {status.health.toUpperCase()}
+                    <div class={`font-bold ${getAgentColor(status.agent)} ${compact ? 'text-xs' : 'text-sm'}`}>
+                        {status.agent.toUpperCase()}
                     </div>
-                    {!compact && <div class="text-xs text-slate-500 dark:text-slate-400">Health</div>}
+                    {!compact && <div class="text-xs text-slate-500 dark:text-slate-400">Agent</div>}
                 </div>
 
                 {/* Block Height */}

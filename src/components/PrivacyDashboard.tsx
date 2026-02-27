@@ -108,22 +108,22 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
   const [activeTab, setActiveTab] = useState<'overview' | 'proofs' | 'compression' | 'mpc' | 'biometrics' | 'fleet'>('overview');
 
   /**
-   * Fetch case study count from blockchain
+   * Fetch optimization log count from blockchain
    */
-  const fetchCaseStudyCount = useCallback(async () => {
+  const fetchOptimizationLogCount = useCallback(async () => {
     try {
-      const caseStudyProgramId = new PublicKey(SOLANA_CONFIG.blockchain.caseStudyProgramId);
+      const optimizationLogProgramId = new PublicKey(SOLANA_CONFIG.blockchain.optimizationLogProgramId);
 
-      // Get all case study accounts for the program
-      const accounts = await connection.getProgramAccounts(caseStudyProgramId, {
+      // Get all optimization log accounts for the program
+      const accounts = await connection.getProgramAccounts(optimizationLogProgramId, {
         filters: [
-          { dataSize: 254 }, // CaseStudy account size
+          { dataSize: 254 }, // OptimizationLog account size
         ],
       });
 
       return accounts.length;
     } catch (err) {
-      console.error('Error fetching case study count:', err);
+      console.error('Error fetching optimization log count:', err);
       return 0;
     }
   }, [connection]);
@@ -133,12 +133,12 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
    */
   const calculateCompressionStats = useCallback(async () => {
     try {
-      const caseStudyProgramId = new PublicKey(SOLANA_CONFIG.blockchain.caseStudyProgramId);
+      const optimizationLogProgramId = new PublicKey(SOLANA_CONFIG.blockchain.optimizationLogProgramId);
 
-      // Get all case study accounts to calculate compression
-      const accounts = await connection.getProgramAccounts(caseStudyProgramId, {
+      // Get all optimization log accounts to calculate compression
+      const accounts = await connection.getProgramAccounts(optimizationLogProgramId, {
         filters: [
-          { dataSize: 254 }, // CaseStudy account size
+          { dataSize: 254 }, // OptimizationLog account size
         ],
       });
 
@@ -153,20 +153,20 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
 
           // Read compression_ratio from account data (offset varies based on struct)
           const dataAny = data as any;
-          let offset = 8 + 32 + 32; // Skip discriminator, ephemeral_id, patient_id
+          let offset = 8 + 32 + 32; // Skip discriminator, ephemeral_id, developer_id
 
           // Skip ipfs_cid (String)
           const ipfsCidLen = dataAny.readUInt32LE(offset);
           offset += 4 + ipfsCidLen;
 
-          // Skip treatment_protocol (String)
-          const treatmentProtocolLen = dataAny.readUInt32LE(offset);
-          offset += 4 + treatmentProtocolLen;
+          // Skip architecture_protocol (String)
+          const architectureProtocolLen = dataAny.readUInt32LE(offset);
+          offset += 4 + architectureProtocolLen;
 
           // Skip metadata_hash (32 bytes)
           offset += 32;
 
-          // Skip treatment_category (1 byte)
+          // Skip architecture_category (1 byte)
           offset += 1;
 
           // Skip duration_days (2 bytes)
@@ -186,7 +186,7 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
           if (compressionRatio > 0) {
             totalCompressed++;
             // Estimate bytes saved based on compression ratio
-            // Assuming average case study size of ~500 bytes
+            // Assuming average optimization log size of ~500 bytes
             const originalSize = 500;
             const compressedSize = Math.floor(originalSize / compressionRatio);
             const bytesSaved = originalSize - compressedSize;
@@ -289,13 +289,13 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
 
       // Fetch real data in parallel
       const [
-        caseStudyCount,
+        optimizationLogCount,
         compressionStats,
         proofCounts,
         mpcCounts,
         agentStats,
       ] = await Promise.all([
-        fetchCaseStudyCount(),
+        fetchOptimizationLogCount(),
         calculateCompressionStats(),
         Promise.resolve(getProofCounts()),
         Promise.resolve(getMPCSessionCounts()),
@@ -303,7 +303,7 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
       ]);
 
       // Calculate privacy score based on real data
-      const hasEncryption = caseStudyCount > 0;
+      const hasEncryption = optimizationLogCount > 0;
       const hasZkProofs = proofCounts.totalProofsGenerated > 0;
       const hasCompression = compressionStats.totalCompressed > 0;
       const hasMPC = mpcCounts.activeSessions > 0 || mpcCounts.completedSessions > 0;
@@ -344,7 +344,7 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [fetchCaseStudyCount, calculateCompressionStats, getProofCounts, getMPCSessionCounts]);
+  }, [fetchOptimizationLogCount, calculateCompressionStats, getProofCounts, getMPCSessionCounts]);
 
   /**
    * Handle manual refresh
@@ -581,7 +581,7 @@ export const PrivacyDashboard: FunctionalComponent<PrivacyDashboardProps> = ({
           <div class="bg-indigo-600 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
             <div class="relative z-10">
               <h3 class="text-3xl font-black uppercase tracking-tight mb-2">Agentic Intelligence</h3>
-              <p class="text-indigo-100 max-w-md mb-6">Autonomous OpenClaw agents are currently validating health data using ZK-enclaves.</p>
+              <p class="text-indigo-100 max-w-md mb-6">Autonomous OpenClaw agents are currently validating agent data using ZK-enclaves.</p>
               <div class="grid grid-cols-2 gap-4">
                 <div class="bg-white/10 p-4 rounded-2xl">
                   <div class="text-2xl font-black">{stats.activeAgents}</div>

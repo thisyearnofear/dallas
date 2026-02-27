@@ -10,7 +10,7 @@
  * Privacy-first design:
  * - All health data encrypted before blockchain submission
  * - Platform cannot decrypt without user permission
- * - On-chain access control (patient-granted)
+ * - On-chain access control (agent-granted)
  */
 
 import {
@@ -26,13 +26,13 @@ import { Program, AnchorProvider, BN, web3 } from '@coral-xyz/anchor';
 import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } from '@solana/spl-token';
 import { Buffer } from 'buffer';
 import { SOLANA_CONFIG } from '../config/solana';
-import { parseCaseStudyAccount, ValidationStatus } from '../utils/caseStudyParser';
+import { parseOptimizationLogAccount, ValidationStatus } from '../utils/optimizationLogParser';
 import { DbcTokenService } from './DbcTokenService';
 
-export interface CaseStudyData {
+export interface OptimizationLogData {
   encryptedBaseline: Uint8Array;
   encryptedOutcome: Uint8Array;
-  treatmentProtocol: string;
+  architectureProtocol: string;
   durationDays: number;
   costUSD: number;
   // Privacy sponsor integration fields
@@ -45,7 +45,7 @@ export interface CaseStudyData {
 }
 
 export interface ValidationData {
-  caseStudyPubkey: PublicKey;
+  optimizationLogPubkey: PublicKey;
   validationType: 'quality' | 'accuracy' | 'safety';
   approved: boolean;
   stakeAmount: number;
@@ -61,11 +61,11 @@ export interface TransactionResult {
   error?: string;
 }
 
-export interface CaseStudyAccount {
-  patientId: PublicKey;
+export interface OptimizationLogAccount {
+  agentId: PublicKey;
   encryptedBaseline: Uint8Array;
   encryptedOutcome: Uint8Array;
-  treatmentProtocol: string;
+  architectureProtocol: string;
   durationDays: number;
   costUsd: number;
   createdAt: number;
@@ -77,7 +77,7 @@ export interface CaseStudyAccount {
 
 export class BlockchainService {
   private connection: Connection;
-  private caseStudyProgramId: PublicKey;
+  private optimizationLogProgramId: PublicKey;
   private dbcMint: PublicKey;
   private tokenProgramId: PublicKey;
 
@@ -86,23 +86,23 @@ export class BlockchainService {
    */
   constructor() {
     this.connection = new Connection(SOLANA_CONFIG.rpcEndpoint[SOLANA_CONFIG.network], 'confirmed');
-    this.caseStudyProgramId = new PublicKey(SOLANA_CONFIG.blockchain.caseStudyProgramId);
+    this.optimizationLogProgramId = new PublicKey(SOLANA_CONFIG.blockchain.optimizationLogProgramId);
     this.dbcMint = new PublicKey(SOLANA_CONFIG.blockchain.dbcMintAddress);
     this.tokenProgramId = new PublicKey(SOLANA_CONFIG.blockchain.dbcTokenProgramId);
   }
 
   /**
-   * Create transaction instruction for case study submission
+   * Create transaction instruction for optimization log submission
    * Includes privacy sponsor integrations
    */
-  private createSubmitCaseStudyInstruction(
+  private createSubmitOptimizationLogInstruction(
     payer: PublicKey,
-    caseStudyPda: PublicKey,
-    data: CaseStudyData,
+    optimizationLogPda: PublicKey,
+    data: OptimizationLogData,
     nonce: bigint
   ): TransactionInstruction {
-    // Anchor discriminator for "submit_encrypted_case_study"
-    // This is sha256("global:submit_encrypted_case_study")[0..8]
+    // Anchor discriminator for "submit_encrypted_optimization_log"
+    // This is sha256("global:submit_encrypted_optimization_log")[0..8]
     const discriminator = Buffer.from([0x61, 0x8a, 0xe3, 0x5e, 0x03, 0x3d, 0x4d, 0x83]);
 
     // Generate IPFS CID (46 bytes, starts with "Qm")
@@ -115,7 +115,7 @@ export class BlockchainService {
         data.encryptedOutcome[i % data.encryptedOutcome.length];
     }
 
-    // Treatment category (0=experimental, 1=approved, 2=alternative)
+    // Architecture category (0=experimental, 1=approved, 2=alternative)
     const techniqueCategory = 0;
 
     // Duration days (must be 1-365)
@@ -142,7 +142,7 @@ export class BlockchainService {
       8 + // nonce (i64)
       4 + ipfsCidBytes.length + // string length prefix + string
       32 + // metadata_hash
-      1 + // treatment_category
+      1 + // architecture_category
       2 + // duration_days
       4 + proofOfEncryption.length + // vec length prefix + data
       4 + lightProtocolProof.length + // vec length prefix + data
@@ -169,7 +169,7 @@ export class BlockchainService {
     (Buffer.from(metadataHash) as any).copy(instructionData, offset);
     offset += 32;
 
-    // Write treatment_category (1 byte)
+    // Write architecture_category (1 byte)
     (instructionData as any).writeUInt8(techniqueCategory, offset);
     offset += 1;
 
@@ -195,37 +195,37 @@ export class BlockchainService {
 
     return new TransactionInstruction({
       keys: [
-        { pubkey: caseStudyPda, isSigner: false, isWritable: true },
+        { pubkey: optimizationLogPda, isSigner: false, isWritable: true },
         { pubkey: payer, isSigner: true, isWritable: true },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
         { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
       ],
-      programId: this.caseStudyProgramId,
+      programId: this.optimizationLogProgramId,
       data: (instructionData as any).slice(0, offset),
     });
   }
 
   /**
-   * Submit encrypted case study to blockchain with privacy sponsor integrations
+   * Submit encrypted optimization log to blockchain with privacy sponsor integrations
    */
-  async submitCaseStudy(
+  async submitOptimizationLog(
     payer: PublicKey,
     signTransaction: (tx: Transaction) => Promise<Transaction>,
-    caseStudyData: CaseStudyData
+    optimizationLogData: OptimizationLogData
   ): Promise<TransactionResult> {
     try {
-      // Derive PDA for case study account using nonce (timestamp as i64 little-endian)
+      // Derive PDA for optimization log account using nonce (timestamp as i64 little-endian)
       const nonce = BigInt(Math.floor(Date.now() / 1000));
       const nonceBuffer = Buffer.alloc(8);
       (nonceBuffer as any).writeBigInt64LE(nonce);
 
-      const [caseStudyPda, bump] = PublicKey.findProgramAddressSync(
+      const [optimizationLogPda, bump] = PublicKey.findProgramAddressSync(
         [
-          Buffer.from('case_study'),
+          Buffer.from('optimization_log'),
           payer.toBuffer(),
           nonceBuffer,
         ],
-        this.caseStudyProgramId
+        this.optimizationLogProgramId
       );
 
       // Get recent blockhash
@@ -244,11 +244,11 @@ export class BlockchainService {
         })
       );
 
-      // Add case study submission instruction
-      const submitInstruction = this.createSubmitCaseStudyInstruction(
+      // Add optimization log submission instruction
+      const submitInstruction = this.createSubmitOptimizationLogInstruction(
         payer,
-        caseStudyPda,
-        caseStudyData,
+        optimizationLogPda,
+        optimizationLogData,
         nonce
       );
       transaction.add(submitInstruction);
@@ -279,7 +279,7 @@ export class BlockchainService {
 
       return {
         signature,
-        accountPubkey: caseStudyPda,
+        accountPubkey: optimizationLogPda,
         success: true,
       };
     } catch (error) {
@@ -293,25 +293,25 @@ export class BlockchainService {
   }
 
   /**
-   * Fetch case study from blockchain
+   * Fetch optimization log from blockchain
    */
-  async fetchCaseStudy(caseStudyPubkey: PublicKey): Promise<CaseStudyAccount | null> {
+  async fetchOptimizationLog(optimizationLogPubkey: PublicKey): Promise<OptimizationLogAccount | null> {
     try {
-      const accountInfo = await this.connection.getAccountInfo(caseStudyPubkey);
+      const accountInfo = await this.connection.getAccountInfo(optimizationLogPubkey);
       if (!accountInfo) return null;
 
       // Import the parser dynamically to avoid circular dependencies
-      const { parseCaseStudyAccount } = await import('../utils/caseStudyParser');
-      const parsed = parseCaseStudyAccount(Buffer.from(accountInfo.data), caseStudyPubkey);
+      const { parseOptimizationLogAccount } = await import('../utils/optimizationLogParser');
+      const parsed = parseOptimizationLogAccount(Buffer.from(accountInfo.data), optimizationLogPubkey);
 
       if (!parsed) return null;
 
-      // Convert to CaseStudyAccount format
+      // Convert to OptimizationLogAccount format
       return {
-        patientId: parsed.ephemeralId,
+        agentId: parsed.ephemeralId,
         encryptedBaseline: parsed.metadataHash,
         encryptedOutcome: new Uint8Array(), // Data is on IPFS
-        treatmentProtocol: parsed.ipfsCid,
+        architectureProtocol: parsed.ipfsCid,
         durationDays: parsed.durationDays,
         costUsd: 0, // Not stored on-chain
         createdAt: parsed.createdAt.getTime(),
@@ -321,7 +321,7 @@ export class BlockchainService {
         bump: 0,
       };
     } catch (error) {
-      console.error('Error fetching case study:', error);
+      console.error('Error fetching optimization log:', error);
       return null;
     }
   }
@@ -331,7 +331,7 @@ export class BlockchainService {
    */
   private createValidatorStakeInstruction(
     validator: PublicKey,
-    caseStudyPda: PublicKey,
+    optimizationLogPda: PublicKey,
     validatorStakePda: PublicKey,
     data: ValidationData
   ): TransactionInstruction {
@@ -370,13 +370,13 @@ export class BlockchainService {
     return new TransactionInstruction({
       keys: [
         { pubkey: validatorStakePda, isSigner: false, isWritable: true },
-        { pubkey: caseStudyPda, isSigner: false, isWritable: true },
+        { pubkey: optimizationLogPda, isSigner: false, isWritable: true },
         { pubkey: validator, isSigner: true, isWritable: true },
         { pubkey: this.dbcMint, isSigner: false, isWritable: true },
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
-      programId: this.caseStudyProgramId,
+      programId: this.optimizationLogProgramId,
       data: (instructionData as any).slice(0, offset),
     });
   }
@@ -395,9 +395,9 @@ export class BlockchainService {
         [
           Buffer.from('validator_stake'),
           validator.toBuffer(),
-          validationData.caseStudyPubkey.toBuffer(),
+          validationData.optimizationLogPubkey.toBuffer(),
         ],
-        this.caseStudyProgramId
+        this.optimizationLogProgramId
       );
 
       // Get validator's token account
@@ -436,7 +436,7 @@ export class BlockchainService {
       // Add validator stake instruction
       const stakeInstruction = this.createValidatorStakeInstruction(
         validator,
-        validationData.caseStudyPubkey,
+        validationData.optimizationLogPubkey,
         validatorStakePda,
         validationData
       );
@@ -487,7 +487,7 @@ export class BlockchainService {
     signTransaction: (tx: Transaction) => Promise<Transaction>,
     recipient: PublicKey,
     amount: number,
-    reason: 'case_study_submission' | 'validation',
+    reason: 'optimization_log_submission' | 'validation',
     qualityScore?: number,
     usePrivacyCash?: boolean,
     useShadowWire?: boolean
@@ -565,7 +565,7 @@ export class BlockchainService {
     recipient: PublicKey,
     recipientTokenAccount: PublicKey,
     amount: number,
-    reason: 'case_study_submission' | 'validation',
+    reason: 'optimization_log_submission' | 'validation',
     qualityScore?: number,
     usePrivacyCash?: boolean,
     useShadowWire?: boolean
@@ -574,7 +574,7 @@ export class BlockchainService {
     const amountInUnits = Math.floor(amount * 1_000_000); // 1 DBC = 1,000,000 units
 
     // Determine instruction discriminator based on reason
-    const discriminator = reason === 'case_study_submission' ? 0x01 : 0x02;
+    const discriminator = reason === 'optimization_log_submission' ? 0x01 : 0x02;
 
     // Create instruction data
     const instructionData = Buffer.alloc(100);
@@ -588,8 +588,8 @@ export class BlockchainService {
     (instructionData as any).writeBigUInt64LE(BigInt(amountInUnits), offset);
     offset += 8;
 
-    // Quality score (1 byte, for case study submissions)
-    if (reason === 'case_study_submission') {
+    // Quality score (1 byte, for optimization log submissions)
+    if (reason === 'optimization_log_submission') {
       (instructionData as any).writeUInt8(qualityScore || 0, offset);
       offset += 1;
     }
@@ -620,7 +620,7 @@ export class BlockchainService {
     validator: PublicKey,
     signTransaction: (tx: Transaction) => Promise<Transaction>,
     amount: number,
-    caseStudyPubkey: PublicKey,
+    optimizationLogPubkey: PublicKey,
     shieldAmount: boolean = false
   ): Promise<string> {
     try {
@@ -637,7 +637,7 @@ export class BlockchainService {
         [
           Buffer.from('stake_escrow'),
           validator.toBuffer(),
-          caseStudyPubkey.toBuffer(),
+          optimizationLogPubkey.toBuffer(),
         ],
         this.tokenProgramId
       );
@@ -680,7 +680,7 @@ export class BlockchainService {
         validatorTokenAccount,
         stakeEscrow,
         amount,
-        caseStudyPubkey,
+        optimizationLogPubkey,
         shieldAmount
       );
 
@@ -709,7 +709,7 @@ export class BlockchainService {
     validatorTokenAccount: PublicKey,
     stakeEscrow: PublicKey,
     amount: number,
-    caseStudyPubkey: PublicKey,
+    optimizationLogPubkey: PublicKey,
     shieldAmount: boolean
   ): TransactionInstruction {
     const amountInUnits = Math.floor(amount * 1_000_000);
@@ -736,7 +736,7 @@ export class BlockchainService {
         { pubkey: validatorTokenAccount, isSigner: false, isWritable: true },
         { pubkey: stakeEscrow, isSigner: false, isWritable: true },
         { pubkey: validator, isSigner: true, isWritable: false },
-        { pubkey: caseStudyPubkey, isSigner: false, isWritable: true },
+        { pubkey: optimizationLogPubkey, isSigner: false, isWritable: true },
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
       ],
       programId: this.tokenProgramId,
@@ -853,7 +853,7 @@ export class BlockchainService {
   async grantAccessPermission(
     payer: PublicKey,
     signTransaction: (tx: Transaction) => Promise<Transaction>,
-    caseStudyPubkey: PublicKey,
+    optimizationLogPubkey: PublicKey,
     grantee: PublicKey,
     permissionType: number
   ): Promise<{
@@ -864,10 +864,10 @@ export class BlockchainService {
     const [accessPermissionPda] = await PublicKey.findProgramAddress(
       [
         Buffer.from('access_permission'),
-        caseStudyPubkey.toBuffer(),
+        optimizationLogPubkey.toBuffer(),
         grantee.toBuffer(),
       ],
-      this.caseStudyProgramId
+      this.optimizationLogProgramId
     );
 
     const transaction = new Transaction({
@@ -883,7 +883,7 @@ export class BlockchainService {
         8 + 32 + 32 + 1 + 8
       ),
       space: 8 + 32 + 32 + 1 + 8,
-      programId: this.caseStudyProgramId,
+      programId: this.optimizationLogProgramId,
     });
 
     transaction.add(instruction);
@@ -902,21 +902,21 @@ export class BlockchainService {
   }
 
   /**
-   * Get all case studies for a patient with pagination
+   * Get all optimization logs for a agent with pagination
    */
-  async getCaseStudiesForPatient(
-    patientPubkey: PublicKey,
+  async getCaseStudiesForAgent(
+    agentPubkey: PublicKey,
     limit: number = 10
   ): Promise<PublicKey[]> {
     try {
       const accounts = await this.connection.getProgramAccounts(
-        this.caseStudyProgramId,
+        this.optimizationLogProgramId,
         {
           filters: [
             {
               memcmp: {
                 offset: 8, // Skip discriminator
-                bytes: patientPubkey.toBase58(),
+                bytes: agentPubkey.toBase58(),
               },
             },
           ],
@@ -931,13 +931,13 @@ export class BlockchainService {
         .map((account) => account.pubkey)
         .slice(0, limit);
     } catch (error) {
-      console.error('Error getting case studies:', error);
+      console.error('Error getting optimization logs:', error);
       return [];
     }
   }
 
   /**
-   * Get all case studies pending validation (for validators)
+   * Get all optimization logs pending validation (for validators)
    * Uses proper Anchor account parser
    */
   async getPendingCaseStudies(
@@ -954,10 +954,10 @@ export class BlockchainService {
   }>> {
     try {
       const accounts = await this.connection.getProgramAccounts(
-        this.caseStudyProgramId,
+        this.optimizationLogProgramId,
         {
           filters: [
-            { dataSize: 254 }, // CaseStudy account size
+            { dataSize: 254 }, // OptimizationLog account size
           ],
         }
       );
@@ -976,25 +976,25 @@ export class BlockchainService {
       for (const { pubkey, account } of accounts) {
         try {
           // Use the proper Anchor account parser
-          const caseStudy = parseCaseStudyAccount(account.data, pubkey);
-          if (!caseStudy) continue;
+          const optimizationLog = parseOptimizationLogAccount(account.data, pubkey);
+          if (!optimizationLog) continue;
 
-          // Only include pending case studies (Pending or UnderReview)
-          if (caseStudy.validationStatus === ValidationStatus.Pending ||
-            caseStudy.validationStatus === ValidationStatus.UnderReview) {
+          // Only include pending optimization logs (Pending or UnderReview)
+          if (optimizationLog.validationStatus === ValidationStatus.Pending ||
+            optimizationLog.validationStatus === ValidationStatus.UnderReview) {
             pending.push({
               pubkey,
-              submitter: caseStudy.submitter,
-              protocol: caseStudy.techniqueCategoryName,
-              createdAt: caseStudy.createdAt,
-              validationStatus: caseStudy.validationStatus,
-              approvalCount: caseStudy.approvalCount,
-              reputationScore: caseStudy.reputationScore,
-              durationDays: caseStudy.durationDays,
+              submitter: optimizationLog.submitter,
+              protocol: optimizationLog.techniqueCategoryName,
+              createdAt: optimizationLog.createdAt,
+              validationStatus: optimizationLog.validationStatus,
+              approvalCount: optimizationLog.approvalCount,
+              reputationScore: optimizationLog.reputationScore,
+              durationDays: optimizationLog.durationDays,
             });
           }
         } catch (e) {
-          console.warn('Failed to parse case study:', e);
+          console.warn('Failed to parse optimization log:', e);
         }
       }
 
@@ -1002,7 +1002,7 @@ export class BlockchainService {
       pending.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
       return pending.slice(0, limit);
     } catch (error) {
-      console.error('Error getting pending case studies:', error);
+      console.error('Error getting pending optimization logs:', error);
       return [];
     }
   }
@@ -1016,10 +1016,10 @@ export class BlockchainService {
   }> {
     try {
       const accounts = await this.connection.getProgramAccounts(
-        this.caseStudyProgramId,
+        this.optimizationLogProgramId,
         {
           filters: [
-            { dataSize: 254 }, // CaseStudy account size
+            { dataSize: 254 }, // OptimizationLog account size
           ],
         }
       );
@@ -1029,7 +1029,7 @@ export class BlockchainService {
 
       for (const { account, pubkey } of accounts) {
         try {
-          const parsed = parseCaseStudyAccount(account.data, pubkey);
+          const parsed = parseOptimizationLogAccount(account.data, pubkey);
           if (parsed) {
             totalDuration += parsed.durationDays;
             const category = parsed.techniqueCategoryName;
@@ -1052,20 +1052,20 @@ export class BlockchainService {
   }
 
   /**
-   * Get all validator stakes for a case study
+   * Get all validator stakes for a optimization log
    */
-  async getValidatorStakesForCaseStudy(
-    caseStudyPubkey: PublicKey
+  async getValidatorStakesForOptimizationLog(
+    optimizationLogPubkey: PublicKey
   ): Promise<PublicKey[]> {
     try {
       const accounts = await this.connection.getProgramAccounts(
-        this.caseStudyProgramId,
+        this.optimizationLogProgramId,
         {
           filters: [
             {
               memcmp: {
-                offset: 40, // Skip discriminator + patient_id
-                bytes: caseStudyPubkey.toBase58(),
+                offset: 40, // Skip discriminator + agent_id
+                bytes: optimizationLogPubkey.toBase58(),
               },
             },
           ],

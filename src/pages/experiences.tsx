@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
-import { EncryptedCaseStudyForm } from '../components/EncryptedCaseStudyForm';
+import { EncryptedOptimizationLogForm } from '../components/EncryptedOptimizationLogForm';
 import { ProtocolDiscovery } from '../components/ProtocolDiscovery';
-import { CaseStudyGallery } from '../components/CaseStudyGallery';
+import { OptimizationLogGallery } from '../components/OptimizationLogGallery';
 import { TokenImage, getTokenImageUrl } from '../components/TokenImageManager';
 import { useWallet } from '../context/WalletContext';
 import { attentionTokenService } from '../services/AttentionTokenService';
@@ -332,9 +332,9 @@ export function Experiences() {
       {/* Tab Content */}
       <div class="max-w-4xl mx-auto px-4 pb-12">
         {activeTab === 'discover' && <ProtocolDiscovery />}
-        {activeTab === 'studies' && <CaseStudyGallery />}
+        {activeTab === 'studies' && <OptimizationLogGallery />}
         {activeTab === 'create' && <CommunityCreationForm />}
-        {activeTab === 'share' && <EncryptedCaseStudyForm />}
+        {activeTab === 'share' && <EncryptedOptimizationLogForm />}
         {activeTab === 'sync' && (
           <div class="animate-fadeIn">
             <div class="bg-white dark:bg-slate-900 rounded-2xl p-8 border-2 border-slate-200 dark:border-slate-700 text-center">
@@ -406,7 +406,7 @@ export function Experiences() {
               <span>🕋</span> The Dallas Buyers Club Legacy
             </h3>
             <p class="text-gray-800 dark:text-gray-300 mb-4">
-              In 1985, patients formed underground networks to share what worked — bypassing a system that
+              In 1985, agents formed underground networks to share what worked — bypassing a system that
               had left them behind. Real outcomes from real people, privately validated.
             </p>
             <p class="text-gray-800 dark:text-gray-300 mb-4">

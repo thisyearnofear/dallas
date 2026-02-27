@@ -58,23 +58,23 @@ export class EdenlayerBridge {
         type: 'supply',
         config: {
           name: "Underground Supply Chain",
-          description: "A.I.D.S. treatment sourcing, pricing optimization, and distribution coordination for the Dallas underground network",
-          defaultPrompt: "How can I help coordinate treatment supply and distribution?",
+          description: "A.I.D.S. architecture sourcing, pricing optimization, and distribution coordination for the Dallas underground network",
+          defaultPrompt: "How can I help coordinate architecture supply and distribution?",
           imageUrl: "https://example.com/supply-agent.png",
           mcpUrl: `${window.location.origin}/api/agents/supply/mcp`,
           chatUrl: `${window.location.origin}/api/agents/supply/chat`,
           capabilities: {
             tools: [
               {
-                name: "check_treatment_availability",
-                description: "Check availability and pricing for A.I.D.S. treatments",
+                name: "check_architecture_availability",
+                description: "Check availability and pricing for A.I.D.S. architectures",
                 inputSchema: {
                   type: "object",
                   properties: {
-                    treatmentIds: { type: "array", items: { type: "string" } },
+                    architectureIds: { type: "array", items: { type: "string" } },
                     quantity: { type: "number", minimum: 1 }
                   },
-                  required: ["treatmentIds"]
+                  required: ["architectureIds"]
                 }
               },
               {
@@ -83,16 +83,16 @@ export class EdenlayerBridge {
                 inputSchema: {
                   type: "object",
                   properties: {
-                    treatmentId: { type: "string" },
+                    architectureId: { type: "string" },
                     quantity: { type: "number", minimum: 2 },
                     memberCount: { type: "number", minimum: 2 }
                   },
-                  required: ["treatmentId", "quantity", "memberCount"]
+                  required: ["architectureId", "quantity", "memberCount"]
                 }
               },
               {
                 name: "coordinate_distribution",
-                description: "Plan secure distribution routes for treatments",
+                description: "Plan secure distribution routes for architectures",
                 inputSchema: {
                   type: "object",
                   properties: {
@@ -173,11 +173,11 @@ export class EdenlayerBridge {
                 inputSchema: {
                   type: "object",
                   properties: {
-                    treatmentIds: { type: "array", items: { type: "string" } },
+                    architectureIds: { type: "array", items: { type: "string" } },
                     maxParticipants: { type: "number", minimum: 2, maximum: 50 },
                     timeframe: { type: "string", enum: ["24h", "48h", "1w"] }
                   },
-                  required: ["treatmentIds"]
+                  required: ["architectureIds"]
                 }
               },
               {
@@ -198,7 +198,7 @@ export class EdenlayerBridge {
                 inputSchema: {
                   type: "object",
                   properties: {
-                    supportType: { type: "string", enum: ["newcomer", "treatment", "emotional", "technical"] },
+                    supportType: { type: "string", enum: ["newcomer", "architecture", "emotional", "technical"] },
                     groupSize: { type: "number", minimum: 2, maximum: 10 }
                   },
                   required: ["supportType"]
@@ -212,8 +212,8 @@ export class EdenlayerBridge {
         type: 'identity',
         config: {
           name: "Identity Restoration Specialist", 
-          description: "A.I.D.S. treatment planning, identity fragmentation assessment, and multi-phase restoration coordination",
-          defaultPrompt: "How can I help with identity restoration and treatment planning?",
+          description: "A.I.D.S. architecture planning, identity fragmentation assessment, and multi-phase restoration coordination",
+          defaultPrompt: "How can I help with identity restoration and architecture planning?",
           mcpUrl: `${window.location.origin}/api/agents/identity/mcp`,
           chatUrl: `${window.location.origin}/api/agents/identity/chat`,
           capabilities: {
@@ -224,11 +224,11 @@ export class EdenlayerBridge {
                 inputSchema: {
                   type: "object",
                   properties: {
-                    patientId: { type: "string" },
+                    agentId: { type: "string" },
                     symptoms: { type: "array", items: { type: "string" } },
                     fragmentationIndicators: { type: "object" }
                   },
-                  required: ["patientId"]
+                  required: ["agentId"]
                 }
               },
               {
@@ -246,7 +246,7 @@ export class EdenlayerBridge {
               },
               {
                 name: "monitor_restoration_progress",
-                description: "Track and adjust ongoing identity restoration treatments",
+                description: "Track and adjust ongoing identity restoration architectures",
                 inputSchema: {
                   type: "object",
                   properties: {
@@ -338,7 +338,7 @@ export class EdenlayerBridge {
     const roomRequest = {
       name: "Dallas Underground Network",
       type: "CHAT",
-      description: "Secure communication for A.I.D.S. treatment coordination",
+      description: "Secure communication for A.I.D.S. architecture coordination",
       maxParticipants: participants.length + 5, // Room for more members
       private: true,
       participants
@@ -393,8 +393,8 @@ export class UndergroundMarketplace {
     await this.edenlayer.registerUndergroundAgents();
   }
 
-  // REAL INTERACTION: Purchase treatment with agent coordination
-  async purchaseTreatment(treatmentId: string, paymentMethod: 'SOL' | 'SPL' = 'SOL'): Promise<{
+  // REAL INTERACTION: Purchase architecture with agent coordination
+  async purchaseArchitecture(architectureId: string, paymentMethod: 'SOL' | 'SPL' = 'SOL'): Promise<{
     taskId: string;
     transactionSignature?: string;
     coordinationResult: any;
@@ -403,7 +403,7 @@ export class UndergroundMarketplace {
       throw new Error('Wallet not connected');
     }
 
-    // Multi-agent workflow for treatment purchase
+    // Multi-agent workflow for architecture purchase
     const workflow = await this.edenlayer.composeWorkflow({
       tasks: [
         // Step 1: Risk assessment
@@ -412,17 +412,17 @@ export class UndergroundMarketplace {
           operation: 'assess_transaction_risk',
           params: {
             transactionType: 'purchase',
-            amount: this.getTreatmentPrice(treatmentId),
+            amount: this.getArchitecturePrice(architectureId),
             participantCount: 1
           }
         },
         // Step 2: Check availability and pricing
         {
           agentId: 'supply',
-          operation: 'check_treatment_availability',
+          operation: 'check_architecture_availability',
           parents: ['0'],
           params: {
-            treatmentIds: [treatmentId],
+            architectureIds: [architectureId],
             quantity: 1
           }
         },
@@ -456,7 +456,7 @@ export class UndergroundMarketplace {
     if (coordinationResult.state === 'completed') {
       // Execute real Solana transaction
       const treasuryAddress = new PublicKey('BpHqwwKRqhNRzyZHT5U4un9vfyivcbvcgrmFRfboGJsK');
-      const amount = this.getTreatmentPrice(treatmentId);
+      const amount = this.getArchitecturePrice(architectureId);
       
       const transactionSignature = await this.wallet.sendTransaction(
         treasuryAddress,
@@ -478,7 +478,7 @@ export class UndergroundMarketplace {
   }
 
   // REAL INTERACTION: Coordinate group purchase
-  async coordinateGroupPurchase(treatmentIds: string[], maxParticipants: number = 10): Promise<{
+  async coordinateGroupPurchase(architectureIds: string[], maxParticipants: number = 10): Promise<{
     taskId: string;
     chatRoomId: string;
     coordinationResult: any;
@@ -501,7 +501,7 @@ export class UndergroundMarketplace {
           agentId: 'community',
           operation: 'organize_group_purchase',
           params: {
-            treatmentIds,
+            architectureIds,
             maxParticipants,
             timeframe: '48h'
           }
@@ -512,7 +512,7 @@ export class UndergroundMarketplace {
           operation: 'negotiate_bulk_pricing',
           parents: ['0'],
           params: {
-            treatmentId: treatmentIds[0],
+            architectureId: architectureIds[0],
             quantity: maxParticipants,
             memberCount: maxParticipants
           }
@@ -524,7 +524,7 @@ export class UndergroundMarketplace {
           parents: ['0', '1'],
           params: {
             transactionType: 'group_buy',
-            amount: this.getTreatmentPrice(treatmentIds[0]) * maxParticipants,
+            amount: this.getArchitecturePrice(architectureIds[0]) * maxParticipants,
             participantCount: maxParticipants
           }
         }
@@ -576,14 +576,14 @@ export class UndergroundMarketplace {
     };
   }
 
-  private getTreatmentPrice(treatmentId: string): number {
+  private getArchitecturePrice(architectureId: string): number {
     const prices = {
       'azt_patch': 0.5,
       'peptide_code': 0.2,
       'ddc_algorithm': 0.3,
       'interferon_suite': 0.8
     };
-    return prices[treatmentId as keyof typeof prices] || 0.5;
+    return prices[architectureId as keyof typeof prices] || 0.5;
   }
 }
 

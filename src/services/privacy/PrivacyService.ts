@@ -13,9 +13,9 @@
 
 import { PublicKey } from '@solana/web3.js';
 import { noirService, ProofResult } from './NoirService';
-import { lightProtocolService, CompressedCaseStudy } from './LightProtocolService';
+import { lightProtocolService, CompressedOptimizationLog } from './LightProtocolService';
 import { arciumMPCService, MPCAccessRequest } from './ArciumMPCService';
-import { HealthMetric, HealthInsight } from '../../types';
+import { AgentMetric, AgentInsight } from '../../types';
 
 // Unified privacy operation result
 export interface PrivacyOperationResult {
@@ -34,7 +34,7 @@ export interface PrivacyOperation {
 }
 
 // Case study with full privacy
-export interface PrivacyEnhancedCaseStudy {
+export interface PrivacyEnhancedOptimizationLog {
   // Original data (encrypted)
   encryptedData: {
     baseline: string;
@@ -45,7 +45,7 @@ export interface PrivacyEnhancedCaseStudy {
   };
 
   // Privacy features
-  compression: CompressedCaseStudy;
+  compression: CompressedOptimizationLog;
   proofs: ProofResult[];
 
   // Metadata
@@ -56,10 +56,10 @@ export interface PrivacyEnhancedCaseStudy {
 
 // Validation with full privacy
 export interface PrivacyEnhancedValidation {
-  caseStudyId: string;
+  optimizationLogId: string;
   validator: PublicKey;
   proofs: ProofResult[];
-  compressedVote: CompressedCaseStudy;
+  compressedVote: CompressedOptimizationLog;
   privacyScore: number;
   validatedAt: number;
 }
@@ -87,7 +87,7 @@ export const PRIVACY_SCORE_WEIGHTS = {
  * PrivacyService - Unified facade for all privacy operations
  * 
  * This service orchestrates Noir, Light Protocol, and Arcium MPC
- * to provide seamless privacy for health data operations.
+ * to provide seamless privacy for agent data operations.
  */
 export class PrivacyService {
   private initialized = false;
@@ -116,7 +116,7 @@ export class PrivacyService {
   }
 
   /**
-   * Submit case study with FULL privacy stack
+   * Submit optimization log with FULL privacy stack
    * 
    * Orchestrates:
    * 1. Wallet-derived encryption
@@ -124,12 +124,12 @@ export class PrivacyService {
    * 3. Light Protocol compression
    * 4. Combines proofs into compressed metadata
    */
-  async submitCaseStudyWithPrivacy(
+  async submitOptimizationLogWithPrivacy(
     submitter: PublicKey,
     data: {
       encryptedBaseline: string;
       encryptedOutcome: string;
-      treatmentProtocol: string;
+      architectureProtocol: string;
       durationDays: number;
       costUSD: number;
       // Decrypted values for proof generation (not stored)
@@ -145,7 +145,7 @@ export class PrivacyService {
       compressionRatio?: number;
       generateProofs?: boolean;
     } = {}
-  ): Promise<PrivacyOperationResult & { caseStudy?: PrivacyEnhancedCaseStudy }> {
+  ): Promise<PrivacyOperationResult & { optimizationLog?: PrivacyEnhancedOptimizationLog }> {
     this.validateInitialized();
 
     const operations: PrivacyOperation[] = [];
@@ -191,14 +191,14 @@ export class PrivacyService {
         metadata: { ratio: options.compressionRatio || 10 },
       });
 
-      const compressed = await lightProtocolService.compressCaseStudy(
+      const compressed = await lightProtocolService.compressOptimizationLog(
         {
           ipfsCid: 'pending_ipfs_cid', // In a real flow, this comes from IPFS upload
           encryptedData: new TextEncoder().encode(
             JSON.stringify({
               baseline: data.encryptedBaseline,
               outcome: data.encryptedOutcome,
-              protocol: data.treatmentProtocol,
+              protocol: data.architectureProtocol,
             })
           ),
         },
@@ -232,11 +232,11 @@ export class PrivacyService {
       });
       privacyScore += PRIVACY_SCORE_WEIGHTS.encryption;
 
-      const caseStudy: PrivacyEnhancedCaseStudy = {
+      const optimizationLog: PrivacyEnhancedOptimizationLog = {
         encryptedData: {
           baseline: data.encryptedBaseline,
           outcome: data.encryptedOutcome,
-          protocol: data.treatmentProtocol,
+          protocol: data.architectureProtocol,
           duration: data.durationDays,
           cost: data.costUSD,
         },
@@ -251,7 +251,7 @@ export class PrivacyService {
         success: true,
         privacyScore,
         operations,
-        caseStudy,
+        optimizationLog,
       };
     } catch (error) {
       // Mark last pending operation as failed
@@ -270,18 +270,18 @@ export class PrivacyService {
   }
 
   /**
-   * Submit High-Frequency Health Metric with FULL privacy stack
+   * Submit High-Frequency Agent Metric with FULL privacy stack
    * 
    * Orchestrates:
    * 1. Encryption of raw telemetry (IPFS Archive)
    * 2. ZK Compression of daily/weekly insights (Light Protocol State)
    * 3. ZK Proofs of achievement/consistency (Noir)
    */
-  async submitHealthMetricWithPrivacy(
+  async submitAgentMetricWithPrivacy(
     owner: PublicKey,
-    metric: HealthMetric,
-    insight: HealthInsight
-  ): Promise<PrivacyOperationResult & { compressedState?: CompressedCaseStudy }> {
+    metric: AgentMetric,
+    insight: AgentInsight
+  ): Promise<PrivacyOperationResult & { compressedState?: CompressedOptimizationLog }> {
     this.validateInitialized();
 
     const operations: PrivacyOperation[] = [];
@@ -305,7 +305,7 @@ export class PrivacyService {
         metadata: { period: insight.period },
       });
 
-      const compressedState = await lightProtocolService.compressHealthInsight(insight);
+      const compressedState = await lightProtocolService.compressAgentInsight(insight);
 
       operations[operations.length - 1].status = 'success';
       operations[operations.length - 1].metadata = {
@@ -343,7 +343,7 @@ export class PrivacyService {
   }
 
   /**
-   * Validate case study with full privacy
+   * Validate optimization log with full privacy
    * 
    * Orchestrates:
    * 1. Generate Noir ZK proofs
@@ -352,7 +352,7 @@ export class PrivacyService {
    */
   async validateWithPrivacy(
     validator: PublicKey,
-    caseStudyId: string,
+    optimizationLogId: string,
     validationData: {
       baselineSeverity: number;
       outcomeSeverity: number;
@@ -409,9 +409,9 @@ export class PrivacyService {
         metadata: { purpose: 'validation_vote' },
       });
 
-      const compressedVote = await lightProtocolService.compressCaseStudy(
+      const compressedVote = await lightProtocolService.compressOptimizationLog(
         {
-          ipfsCid: `validation_${caseStudyId}`,
+          ipfsCid: `validation_${optimizationLogId}`,
           encryptedData: new TextEncoder().encode(JSON.stringify({ approve: true })),
         },
         {
@@ -423,7 +423,7 @@ export class PrivacyService {
       privacyScore += PRIVACY_SCORE_WEIGHTS.compression;
 
       const validation: PrivacyEnhancedValidation = {
-        caseStudyId,
+        optimizationLogId,
         validator,
         proofs,
         compressedVote,
@@ -457,17 +457,17 @@ export class PrivacyService {
    * 
    * Orchestrates:
    * 1. Create Arcium MPC session
-   * 2. Verify case study has required privacy features
+   * 2. Verify optimization log has required privacy features
    * 3. Return combined requirements
    */
   async requestResearchAccess(
     requester: PublicKey,
     input: {
-      caseStudyId: string;
+      optimizationLogId: string;
       justification: string;
-      requesterType: 'researcher' | 'validator' | 'patient';
+      requesterType: 'researcher' | 'validator' | 'agent';
     },
-    caseStudyPrivacy: {
+    optimizationLogPrivacy: {
       hasCompression: boolean;
       proofCount: number;
       privacyScore: number;
@@ -484,11 +484,11 @@ export class PrivacyService {
         type: 'mpc',
         service: 'arcium',
         status: 'pending',
-        metadata: { caseStudyId: input.caseStudyId },
+        metadata: { optimizationLogId: input.optimizationLogId },
       });
 
       const mpcSession = await arciumMPCService.requestAccess(requester, {
-        caseStudyId: input.caseStudyId,
+        optimizationLogId: input.optimizationLogId,
         justification: input.justification,
         requesterType: input.requesterType,
       });
@@ -501,9 +501,9 @@ export class PrivacyService {
       };
       privacyScore += PRIVACY_SCORE_WEIGHTS.mpc;
 
-      // Step 2: Verify case study privacy requirements
+      // Step 2: Verify optimization log privacy requirements
       const requiredProofs: string[] = [];
-      if (caseStudyPrivacy.proofCount < 2) {
+      if (optimizationLogPrivacy.proofCount < 2) {
         requiredProofs.push('benchmark_delta');
         requiredProofs.push('data_completeness');
       }
@@ -520,7 +520,7 @@ export class PrivacyService {
 
       return {
         success: true,
-        privacyScore: caseStudyPrivacy.privacyScore + privacyScore,
+        privacyScore: optimizationLogPrivacy.privacyScore + privacyScore,
         operations,
         accessRequest,
       };
@@ -540,7 +540,7 @@ export class PrivacyService {
   }
 
   /**
-   * Calculate privacy score for a case study
+   * Calculate privacy score for a optimization log
    */
   calculatePrivacyScore(
     hasEncryption: boolean,

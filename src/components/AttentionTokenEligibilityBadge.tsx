@@ -1,6 +1,6 @@
 /**
  * Attention Token Eligibility Badge
- * Shows if a case study is eligible for attention token creation
+ * Shows if a optimization log is eligible for attention token creation
  */
 
 import React from 'react';

@@ -68,7 +68,7 @@ const popupAds: PopupAd[] = [
     {
         id: '5',
         type: 'newsletter',
-        entityName: 'Underground Health Network',
+        entityName: 'Underground Agent Network',
         title: 'NEW TREATMENT DISCOVERED!',
         content: 'European researchers found miracle compound! Big Pharma trying to suppress this breakthrough. Get the inside story now!',
         buttonText: 'READ MORE',
@@ -319,7 +319,7 @@ export function Authentic90sPopups() {
                          popup.type === 'freetrials' ? '★ GEOCITIES AWARD WINNER ★' :
                          popup.type === 'winnernotif' ? '⏰ LIMITED TIME ONLY ⏰' :
                          popup.type === 'adnetwork' ? '📢 DOCTORS HATE HIM 📢' :
-                         popup.type === 'newsletter' ? '📧 INSIDER HEALTH NEWS 📧' :
+                         popup.type === 'newsletter' ? '📧 INSIDER AGENT NEWS 📧' :
                          popup.type === 'token_promotion' ? '🔥 COMMUNITY PROMOTION 🔥' :
                          '📢 LIVE UPDATES 📢'}
                     </div>
@@ -354,7 +354,7 @@ export function LiveActivityNotifications() {
     if (!settings.liveNotificationsEnabled) return null;
     
     const activities = [
-        "🚨 Patient #420 just ordered AZT from Mexico!",
+        "🚨 Developer #420 just ordered AZT from Mexico!",
         "📍 New member joined from Austin, TX - 5 min ago",
         "⭐ Success story shared: 'Ron saved my life!'", 
         "💊 High demand: 23 orders today!",
@@ -441,7 +441,7 @@ export function WinnerPopup() {
                     </div>
                     
                     <div class="text-sm text-black mb-4">
-                        You've been selected for EXCLUSIVE access to our underground treatment network!
+                        You've been selected for EXCLUSIVE access to our underground architecture network!
                     </div>
                     
                     <div class="bg-white border-4 border-black p-3 mb-4">

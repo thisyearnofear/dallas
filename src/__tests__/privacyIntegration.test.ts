@@ -20,12 +20,12 @@ import {
 import { DbcTokenService } from '../services/DbcTokenService';
 
 // Mock data for testing
-const mockCaseStudyData = {
+const mockOptimizationLogData = {
     baselineSeverity: 8,
     outcomeSeverity: 3,
     durationDays: 30,
     costUsd: 500,
-    treatmentProtocol: 'Test Protocol',
+    architectureProtocol: 'Test Protocol',
     hasBaseline: true,
     hasOutcome: true,
     hasDuration: true,
@@ -59,8 +59,8 @@ describe('Privacy Service Integration', () => {
 
         it('should generate symptom improvement proof', async () => {
             const proof = await noirService.proveSymptomImprovement({
-                baseline_severity: mockCaseStudyData.baselineSeverity,
-                outcome_severity: mockCaseStudyData.outcomeSeverity,
+                baseline_severity: mockOptimizationLogData.baselineSeverity,
+                outcome_severity: mockOptimizationLogData.outcomeSeverity,
             });
 
             expect(proof.circuitType).toBe('benchmark_delta');
@@ -71,7 +71,7 @@ describe('Privacy Service Integration', () => {
 
         it('should generate duration verification proof', async () => {
             const proof = await noirService.proveDurationVerification({
-                duration_days: mockCaseStudyData.durationDays,
+                duration_days: mockOptimizationLogData.durationDays,
             });
 
             expect(proof.circuitType).toBe('execution_duration');
@@ -81,11 +81,11 @@ describe('Privacy Service Integration', () => {
 
         it('should generate data completeness proof', async () => {
             const proof = await noirService.proveDataCompleteness({
-                has_baseline: mockCaseStudyData.hasBaseline,
-                has_outcome: mockCaseStudyData.hasOutcome,
-                has_duration: mockCaseStudyData.hasDuration,
-                has_protocol: mockCaseStudyData.hasProtocol,
-                has_cost: mockCaseStudyData.hasCost,
+                has_baseline: mockOptimizationLogData.hasBaseline,
+                has_outcome: mockOptimizationLogData.hasOutcome,
+                has_duration: mockOptimizationLogData.hasDuration,
+                has_protocol: mockOptimizationLogData.hasProtocol,
+                has_cost: mockOptimizationLogData.hasCost,
             });
 
             expect(proof.circuitType).toBe('data_completeness');
@@ -95,7 +95,7 @@ describe('Privacy Service Integration', () => {
 
         it('should generate cost range proof', async () => {
             const proof = await noirService.proveCostRange({
-                cost_usd_cents: mockCaseStudyData.costUsd * 100,
+                cost_usd_cents: mockOptimizationLogData.costUsd * 100,
             });
 
             expect(proof.circuitType).toBe('resource_range');
@@ -104,7 +104,7 @@ describe('Privacy Service Integration', () => {
         });
 
         it('should generate all validation proofs', async () => {
-            const proofs = await noirService.generateValidationProofs(mockCaseStudyData);
+            const proofs = await noirService.generateValidationProofs(mockOptimizationLogData);
 
             expect(proofs).toHaveLength(4);
             expect(proofs.every(p => p.verified)).toBe(true);
@@ -148,17 +148,17 @@ describe('Privacy Service Integration', () => {
             expect(compression.savings).toBe(900);
         });
 
-        it('should compress case study data', async () => {
+        it('should compress optimization log data', async () => {
             const compressionData = {
-                encryptedBaseline: new TextEncoder().encode(mockCaseStudyData.baselineSeverity.toString()),
-                encryptedOutcome: new TextEncoder().encode(mockCaseStudyData.outcomeSeverity.toString()),
-                treatmentProtocol: mockCaseStudyData.treatmentProtocol,
-                durationDays: mockCaseStudyData.durationDays,
-                costUSD: mockCaseStudyData.costUsd,
+                encryptedBaseline: new TextEncoder().encode(mockOptimizationLogData.baselineSeverity.toString()),
+                encryptedOutcome: new TextEncoder().encode(mockOptimizationLogData.outcomeSeverity.toString()),
+                architectureProtocol: mockOptimizationLogData.architectureProtocol,
+                durationDays: mockOptimizationLogData.durationDays,
+                costUSD: mockOptimizationLogData.costUsd,
                 metadataHash: crypto.getRandomValues(new Uint8Array(32)),
             };
 
-            const compressed = await lightProtocolService.compressCaseStudy(compressionData);
+            const compressed = await lightProtocolService.compressOptimizationLog(compressionData);
 
             expect(compressed.compressedAccount).toBeInstanceOf(PublicKey);
             expect(compressed.originalSize).toBeGreaterThan(0);
@@ -172,13 +172,13 @@ describe('Privacy Service Integration', () => {
             const compressionData = {
                 encryptedBaseline: new TextEncoder().encode('test'),
                 encryptedOutcome: new TextEncoder().encode('test'),
-                treatmentProtocol: 'test',
+                architectureProtocol: 'test',
                 durationDays: 30,
                 costUSD: 100,
                 metadataHash: crypto.getRandomValues(new Uint8Array(32)),
             };
 
-            const compressed = await lightProtocolService.compressCaseStudy(compressionData);
+            const compressed = await lightProtocolService.compressOptimizationLog(compressionData);
             const isValid = await lightProtocolService.verifyCompression(compressed);
 
             expect(isValid).toBe(true);
@@ -198,13 +198,13 @@ describe('Privacy Service Integration', () => {
 
         it('should create MPC access request', async () => {
             const request = await arciumMPCService.requestAccess(mockValidator, {
-                caseStudyId: 'test_case_study',
-                justification: 'This is a test justification for accessing encrypted case study data for research purposes.',
+                optimizationLogId: 'test_optimization_log',
+                justification: 'This is a test justification for accessing encrypted optimization log data for research purposes.',
                 requesterType: 'researcher',
             });
 
             expect(request.id).toBeDefined();
-            expect(request.caseStudyId).toBe('test_case_study');
+            expect(request.optimizationLogId).toBe('test_optimization_log');
             expect(request.requester.equals(mockValidator)).toBe(true);
             expect(request.status).toBe('pending');
             expect(request.committee).toHaveLength(5);
@@ -214,7 +214,7 @@ describe('Privacy Service Integration', () => {
         it('should approve access request', async () => {
             // Create request first
             const request = await arciumMPCService.requestAccess(mockValidator, {
-                caseStudyId: 'test_case_study_2',
+                optimizationLogId: 'test_optimization_log_2',
                 justification: 'Test justification for approval test case with sufficient detail.',
                 requesterType: 'validator',
             });
@@ -235,7 +235,7 @@ describe('Privacy Service Integration', () => {
         it('should reach threshold and enable decryption', async () => {
             // Create request
             const request = await arciumMPCService.requestAccess(mockValidator, {
-                caseStudyId: 'test_threshold',
+                optimizationLogId: 'test_threshold',
                 justification: 'Test case for threshold approval with detailed research justification.',
                 requesterType: 'researcher',
             });
@@ -263,7 +263,7 @@ describe('Privacy Service Integration', () => {
 
         it('should track committee status', async () => {
             const request = await arciumMPCService.requestAccess(mockValidator, {
-                caseStudyId: 'test_committee_status',
+                optimizationLogId: 'test_committee_status',
                 justification: 'Test case for committee status tracking with proper justification length.',
                 requesterType: 'validator',
             });
@@ -298,8 +298,8 @@ describe('Privacy Service Integration', () => {
             expect(status.allInitialized).toBe(true);
         });
 
-        it('should process complete privacy case study', async () => {
-            const result = await privacyServiceManager.processPrivacyCaseStudy(mockCaseStudyData, {
+        it('should process complete privacy optimization log', async () => {
+            const result = await privacyServiceManager.processPrivacyOptimizationLog(mockOptimizationLogData, {
                 generateProofs: true,
                 compressData: true,
                 createMPCSession: false,
@@ -368,36 +368,36 @@ describe('Privacy Service Integration', () => {
     });
 
     describe('Integration Scenarios', () => {
-        it('should handle complete case study submission flow', async () => {
+        it('should handle complete optimization log submission flow', async () => {
             // 1. Generate ZK proofs
-            const proofs = await noirService.generateValidationProofs(mockCaseStudyData);
+            const proofs = await noirService.generateValidationProofs(mockOptimizationLogData);
             expect(proofs).toHaveLength(4);
             expect(proofs.every(p => p.verified)).toBe(true);
 
             // 2. Compress data
             const compressionData = {
-                encryptedBaseline: new TextEncoder().encode(mockCaseStudyData.baselineSeverity.toString()),
-                encryptedOutcome: new TextEncoder().encode(mockCaseStudyData.outcomeSeverity.toString()),
-                treatmentProtocol: mockCaseStudyData.treatmentProtocol,
-                durationDays: mockCaseStudyData.durationDays,
-                costUSD: mockCaseStudyData.costUsd,
+                encryptedBaseline: new TextEncoder().encode(mockOptimizationLogData.baselineSeverity.toString()),
+                encryptedOutcome: new TextEncoder().encode(mockOptimizationLogData.outcomeSeverity.toString()),
+                architectureProtocol: mockOptimizationLogData.architectureProtocol,
+                durationDays: mockOptimizationLogData.durationDays,
+                costUSD: mockOptimizationLogData.costUsd,
                 metadataHash: crypto.getRandomValues(new Uint8Array(32)),
             };
 
-            const compressed = await lightProtocolService.compressCaseStudy(compressionData);
+            const compressed = await lightProtocolService.compressOptimizationLog(compressionData);
             expect(compressed.achievedRatio).toBeGreaterThan(1);
 
             // 3. Create MPC session for research access
             const mpcRequest = await arciumMPCService.requestAccess(mockValidator, {
-                caseStudyId: 'integration_test',
-                justification: 'Integration test for complete case study submission flow with research access.',
+                optimizationLogId: 'integration_test',
+                justification: 'Integration test for complete optimization log submission flow with research access.',
                 requesterType: 'researcher',
             });
 
             expect(mpcRequest.status).toBe('pending');
             expect(mpcRequest.committee).toHaveLength(5);
 
-            console.log('✅ Complete case study submission flow tested successfully');
+            console.log('✅ Complete optimization log submission flow tested successfully');
         });
 
         it('should handle validator staking and validation flow', async () => {
@@ -435,7 +435,7 @@ describe('Error Handling', () => {
 
     it('should handle insufficient MPC justification', async () => {
         await expect(arciumMPCService.requestAccess(mockValidator, {
-            caseStudyId: 'test',
+            optimizationLogId: 'test',
             justification: 'Too short', // Less than 50 characters
             requesterType: 'researcher',
         })).rejects.toThrow('Justification must be at least 50 characters');

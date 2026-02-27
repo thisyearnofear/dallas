@@ -7,7 +7,7 @@ export function Donate() {
             <div class="flex flex-col gap-8">
                 <div>
                     <p class="text-xl">
-                        The Dallas Buyers Club is not just a place to get medicine. It's a community. It's a lifeline. Your support helps us continue our mission to provide access to life-saving treatments for those in need.
+                        The Dallas Buyers Club is not just a place to get medicine. It's a community. It's a lifeline. Your support helps us continue our mission to provide access to life-saving architectures for those in need.
                     </p>
                 </div>
 
@@ -24,7 +24,7 @@ export function Donate() {
                         <ul class="space-y-2 text-lg">
                             <li class="flex items-start">
                                 <span class="text-brand mr-3">✓</span>
-                                <span>Support life-saving treatment access</span>
+                                <span>Support life-saving architecture access</span>
                             </li>
                             <li class="flex items-start">
                                 <span class="text-brand mr-3">✓</span>
@@ -32,7 +32,7 @@ export function Donate() {
                             </li>
                             <li class="flex items-start">
                                 <span class="text-brand mr-3">✓</span>
-                                <span>Join a movement fighting for health freedom</span>
+                                <span>Join a movement fighting for agent freedom</span>
                             </li>
                             <li class="flex items-start">
                                 <span class="text-brand mr-3">✓</span>

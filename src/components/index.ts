@@ -45,10 +45,10 @@ export type { NotificationProps, TouchButtonProps } from './MobileEnhancements';
 export { WalletButton } from './WalletButton';
 
 // Form Components
-export { EncryptedCaseStudyForm } from './EncryptedCaseStudyForm';
+export { EncryptedOptimizationLogForm } from './EncryptedOptimizationLogForm';
 
 // Display Components
-export { CaseStudyGallery } from './CaseStudyGallery';
+export { OptimizationLogGallery } from './OptimizationLogGallery';
 export { LiveActivityFeed } from './LiveActivityFeed';
 export { ProtocolCard } from './ProtocolCard';
 export { ProductCard } from './ProductCard';

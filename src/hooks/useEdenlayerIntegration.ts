@@ -54,8 +54,8 @@ export function useEdenlayerIntegration() {
     initializeEdenlayer();
   }, [wallet.connected]);
 
-  // REAL INTERACTION: Purchase treatment with agent coordination
-  const purchaseTreatment = async (treatmentId: string): Promise<{
+  // REAL INTERACTION: Purchase architecture with agent coordination
+  const purchaseArchitecture = async (architectureId: string): Promise<{
     success: boolean;
     taskId?: string;
     transactionSignature?: string;
@@ -68,14 +68,14 @@ export function useEdenlayerIntegration() {
     setState(prev => ({ ...prev, isExecutingTask: true, lastError: null }));
 
     try {
-      const result = await undergroundMarketplace.purchaseTreatment(treatmentId);
+      const result = await undergroundMarketplace.purchaseArchitecture(architectureId);
       
       setState(prev => ({
         ...prev,
         isExecutingTask: false,
         activeTasks: new Map(prev.activeTasks.set(result.taskId, {
           type: 'purchase',
-          treatmentId,
+          architectureId,
           status: 'completed',
           transactionSignature: result.transactionSignature
         }))
@@ -98,7 +98,7 @@ export function useEdenlayerIntegration() {
   };
 
   // REAL INTERACTION: Coordinate group purchase
-  const coordinateGroupPurchase = async (treatmentIds: string[]): Promise<{
+  const coordinateGroupPurchase = async (architectureIds: string[]): Promise<{
     success: boolean;
     taskId?: string;
     chatRoomId?: string;
@@ -111,14 +111,14 @@ export function useEdenlayerIntegration() {
     setState(prev => ({ ...prev, isExecutingTask: true, lastError: null }));
 
     try {
-      const result = await undergroundMarketplace.coordinateGroupPurchase(treatmentIds);
+      const result = await undergroundMarketplace.coordinateGroupPurchase(architectureIds);
       
       setState(prev => ({
         ...prev,
         isExecutingTask: false,
         activeTasks: new Map(prev.activeTasks.set(result.taskId, {
           type: 'group_purchase',
-          treatmentIds,
+          architectureIds,
           status: 'coordinating',
           chatRoomId: result.chatRoomId
         })),
@@ -204,7 +204,7 @@ export function useEdenlayerIntegration() {
     ...state,
     
     // Real interactions
-    purchaseTreatment,
+    purchaseArchitecture,
     coordinateGroupPurchase,
     triggerEmergencyResponse,
     
@@ -221,7 +221,7 @@ export function useEdenlayerIntegration() {
 
 // CLEAN: Simplified hook for specific agent interactions
 export function useUndergroundAgents() {
-  const { registeredAgents, purchaseTreatment, coordinateGroupPurchase } = useEdenlayerIntegration();
+  const { registeredAgents, purchaseArchitecture, coordinateGroupPurchase } = useEdenlayerIntegration();
   
   return {
     agents: {
@@ -231,7 +231,7 @@ export function useUndergroundAgents() {
       identity: registeredAgents.get('identity')
     },
     actions: {
-      buyTreatment: purchaseTreatment,
+      buyArchitecture: purchaseArchitecture,
       organizeGroupBuy: coordinateGroupPurchase
     }
   };

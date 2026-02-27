@@ -7,23 +7,23 @@
 // Output: Boolean proving improvement met threshold
 
 fn main(
-    baseline_severity: u8,           // Private: Initial benchmark score (1-10)
-    outcome_severity: u8,            // Private: Final benchmark score (1-10)
+    baseline_metric: u8,           // Private: Initial benchmark score (1-10)
+    outcome_metric: u8,            // Private: Final benchmark score (1-10)
     min_improvement_percent: u8,     // Public: Minimum required improvement %
 ) -> pub bool {
     // Constraint: Scores must be in valid range (1-10)
-    assert(baseline_severity >= 1);
-    assert(baseline_severity <= 10);
-    assert(outcome_severity >= 1);
-    assert(outcome_severity <= 10);
+    assert(baseline_metric >= 1);
+    assert(baseline_metric <= 10);
+    assert(outcome_metric >= 1);
+    assert(outcome_metric <= 10);
     
     // Constraint: Minimum improvement must be 0-100%
     assert(min_improvement_percent <= 100);
     
     // Calculate improvement amount
     // Note: We expect outcome < baseline for improvement (lower score = better)
-    let improvement = if baseline_severity > outcome_severity {
-        baseline_severity - outcome_severity
+    let improvement = if baseline_metric > outcome_metric {
+        baseline_metric - outcome_metric
     } else {
         0  // No improvement or worsened
     };
@@ -31,7 +31,7 @@ fn main(
     // Calculate threshold: baseline * min_improvement / 100
     // Example: baseline=8, min_improvement=20% -> threshold=1.6 -> need delta >= 2
     // Use u16 to prevent overflow (10 * 100 = 1000, well within u16)
-    let threshold = ((baseline_severity as u16) * (min_improvement_percent as u16)) / 100;
+    let threshold = ((baseline_metric as u16) * (min_improvement_percent as u16)) / 100;
     let threshold_u8 = threshold as u8;
     
     // Ensure at least 1 point improvement if threshold rounds to 0

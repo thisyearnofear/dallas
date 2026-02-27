@@ -12,13 +12,13 @@ interface Activity {
 
 // Simulated live activities
 const activities: Activity[] = [
-    { id: 1, type: 'purchase', user: 'Patient #4201', action: 'ordered AZT', timestamp: '2 min ago', location: 'Dallas, TX', product: 'AZT', icon: '💊', color: 'text-green-600' },
+    { id: 1, type: 'purchase', user: 'Agent #4201', action: 'ordered AZT', timestamp: '2 min ago', location: 'Dallas, TX', product: 'AZT', icon: '💊', color: 'text-green-600' },
     { id: 2, type: 'join', user: 'New Member', action: 'joined the club', timestamp: '5 min ago', location: 'Austin, TX', icon: '🤝', color: 'text-blue-600' },
-    { id: 3, type: 'testimonial', user: 'Patient #6969', action: 'shared success story', timestamp: '8 min ago', icon: '⭐', color: 'text-yellow-600' },
-    { id: 4, type: 'purchase', user: 'Patient #1337', action: 'ordered Peptide T', timestamp: '12 min ago', location: 'Houston, TX', product: 'Peptide T', icon: '💊', color: 'text-green-600' },
+    { id: 3, type: 'testimonial', user: 'Agent #6969', action: 'shared success story', timestamp: '8 min ago', icon: '⭐', color: 'text-yellow-600' },
+    { id: 4, type: 'purchase', user: 'Agent #1337', action: 'ordered Peptide T', timestamp: '12 min ago', location: 'Houston, TX', product: 'Peptide T', icon: '💊', color: 'text-green-600' },
     { id: 5, type: 'milestone', user: 'Community', action: 'reached 420 members!', timestamp: '15 min ago', icon: '🎉', color: 'text-purple-600' },
-    { id: 6, type: 'purchase', user: 'Patient #8080', action: 'ordered DDC', timestamp: '18 min ago', location: 'Fort Worth, TX', product: 'DDC', icon: '💊', color: 'text-green-600' },
-    { id: 7, type: 'join', user: 'Patient #1985', action: 'joined the fight', timestamp: '22 min ago', location: 'San Antonio, TX', icon: '🤝', color: 'text-blue-600' },
+    { id: 6, type: 'purchase', user: 'Agent #8080', action: 'ordered DDC', timestamp: '18 min ago', location: 'Fort Worth, TX', product: 'DDC', icon: '💊', color: 'text-green-600' },
+    { id: 7, type: 'join', user: 'Agent #1985', action: 'joined the fight', timestamp: '22 min ago', location: 'San Antonio, TX', icon: '🤝', color: 'text-blue-600' },
 ];
 
 export function LiveActivityFeed() {

@@ -38,7 +38,7 @@ interface CompressionResult {
   costSavings: string;
 }
 
-export interface CompressedCaseStudy extends CompressionResult {
+export interface CompressedOptimizationLog extends CompressionResult {
   ipfsCid?: string;
 }
 
@@ -101,10 +101,10 @@ class LightProtocolServiceClass {
     return COMPRESSION_RATIOS;
   }
 
-  async compressCaseStudy(
+  async compressOptimizationLog(
     data: { ipfsCid?: string; encryptedData: Uint8Array },
     options: { storeFullData: boolean; ratio?: number } = { storeFullData: false }
-  ): Promise<CompressedCaseStudy> {
+  ): Promise<CompressedOptimizationLog> {
     return this.compressState(data.encryptedData, {
       storeFullData: options.storeFullData,
       ipfsCid: data.ipfsCid,
@@ -115,7 +115,7 @@ class LightProtocolServiceClass {
   async compressState<T>(
     state: T,
     options: { storeFullData: boolean; ipfsCid?: string; ratio?: number } = { storeFullData: false }
-  ): Promise<CompressedCaseStudy> {
+  ): Promise<CompressedOptimizationLog> {
     const originalData = typeof state === 'string' ? state : JSON.stringify(state);
     const originalSize = new TextEncoder().encode(originalData).length;
     const ratio = options.ratio || 10;
@@ -136,7 +136,7 @@ class LightProtocolServiceClass {
     originalSize: number,
     ratio: number,
     options: { storeFullData: boolean; ipfsCid?: string }
-  ): Promise<CompressedCaseStudy> {
+  ): Promise<CompressedOptimizationLog> {
     console.log(`   🔄 Using Light Protocol ZK compression (${ratio}x target)...`);
     
     const dataBuffer = Buffer.from(originalData);
@@ -154,7 +154,7 @@ class LightProtocolServiceClass {
 
     const costSaved = (originalSize - compressedSize) * 0.0001;
 
-    const result: CompressedCaseStudy = {
+    const result: CompressedOptimizationLog = {
       compressedAccount: address,
       originalSize,
       compressedSize,
@@ -178,7 +178,7 @@ class LightProtocolServiceClass {
     originalSize: number,
     ratio: number,
     options: { storeFullData: boolean; ipfsCid?: string }
-  ): CompressedCaseStudy {
+  ): CompressedOptimizationLog {
     console.log(`   🔄 Simulation mode: ${ratio}x compression...`);
     
     const onChainSize = Math.max(32, Math.floor(originalSize / ratio));
@@ -186,7 +186,7 @@ class LightProtocolServiceClass {
 
     const dataHash = this.hashDataSync(Buffer.from(originalData));
     
-    const result: CompressedCaseStudy = {
+    const result: CompressedOptimizationLog = {
       compressedAccount: new PublicKey(dataHash.slice(0, 32)),
       originalSize,
       compressedSize: onChainSize,
@@ -223,7 +223,7 @@ class LightProtocolServiceClass {
     return result;
   }
 
-  private updateStats(result: CompressedCaseStudy): void {
+  private updateStats(result: CompressedOptimizationLog): void {
     this.stats.totalCompressed++;
     this.stats.totalOriginalBytes += result.originalSize;
     this.stats.totalSavedBytes += (result.originalSize - result.compressedSize);

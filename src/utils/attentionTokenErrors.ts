@@ -126,7 +126,7 @@ export function parseAttentionTokenError(error: any): {
     return {
       code: AttentionTokenErrorCode.CASE_STUDY_NOT_APPROVED,
       message: 'Case study not approved',
-      userMessage: 'Your case study must be approved before creating an attention token.',
+      userMessage: 'Your optimization log must be approved before creating an attention token.',
     };
   }
 
@@ -134,7 +134,7 @@ export function parseAttentionTokenError(error: any): {
     return {
       code: AttentionTokenErrorCode.TOKEN_ALREADY_EXISTS,
       message: 'Attention token already exists',
-      userMessage: 'This case study already has an attention token.',
+      userMessage: 'This optimization log already has an attention token.',
     };
   }
 
@@ -142,7 +142,7 @@ export function parseAttentionTokenError(error: any): {
     return {
       code: AttentionTokenErrorCode.INSUFFICIENT_REPUTATION,
       message: 'Insufficient reputation score',
-      userMessage: 'Your case study needs a reputation score of 75+ to create an attention token.',
+      userMessage: 'Your optimization log needs a reputation score of 75+ to create an attention token.',
     };
   }
 
@@ -150,7 +150,7 @@ export function parseAttentionTokenError(error: any): {
     return {
       code: AttentionTokenErrorCode.INSUFFICIENT_VALIDATORS,
       message: 'Insufficient validators',
-      userMessage: 'Your case study needs at least 5 validators to create an attention token.',
+      userMessage: 'Your optimization log needs at least 5 validators to create an attention token.',
     };
   }
 
@@ -181,16 +181,16 @@ function getErrorUserMessage(code: AttentionTokenErrorCode, details?: any): stri
       return details?.message || 'API request failed. Please try again.';
     
     case AttentionTokenErrorCode.INSUFFICIENT_REPUTATION:
-      return 'Your case study needs a reputation score of 75+ to create an attention token.';
+      return 'Your optimization log needs a reputation score of 75+ to create an attention token.';
     
     case AttentionTokenErrorCode.INSUFFICIENT_VALIDATORS:
-      return 'Your case study needs at least 5 validators to create an attention token.';
+      return 'Your optimization log needs at least 5 validators to create an attention token.';
     
     case AttentionTokenErrorCode.TOKEN_ALREADY_EXISTS:
-      return 'This case study already has an attention token.';
+      return 'This optimization log already has an attention token.';
     
     case AttentionTokenErrorCode.CASE_STUDY_NOT_APPROVED:
-      return 'Your case study must be approved before creating an attention token.';
+      return 'Your optimization log must be approved before creating an attention token.';
     
     case AttentionTokenErrorCode.TOKEN_CREATION_FAILED:
       return 'Failed to create attention token. Please try again.';
@@ -234,11 +234,11 @@ export function validateAttentionTokenParams(params: {
   const errors: string[] = [];
 
   if (!params.techniqueName || params.techniqueName.trim().length < 3) {
-    errors.push('Treatment name must be at least 3 characters');
+    errors.push('Architecture name must be at least 3 characters');
   }
 
   if (params.techniqueName && params.techniqueName.length > 50) {
-    errors.push('Treatment name must be less than 50 characters');
+    errors.push('Architecture name must be less than 50 characters');
   }
 
   if (!params.description || params.description.trim().length < 20) {

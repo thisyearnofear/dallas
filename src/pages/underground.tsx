@@ -3,7 +3,7 @@ import {
     SystemResistanceTimer, 
     SupplyChainStatus, 
     RebellionMeter,
-    PatientCodeGenerator,
+    AgentCodeGenerator,
     FDAWarningBanner,
     MexicanConnectionStatus 
 } from "../components/UndergroundTheme";
@@ -23,7 +23,7 @@ import {
     AudioEffects 
 } from "../components/RetroAesthetics";
 import { PrivacyDashboard } from "../components/PrivacyDashboard";
-import { ResearcherTools } from "../components/ResearcherTools";
+import { ArchitectTools } from "../components/ArchitectTools";
 import { useState, useEffect } from "preact/hooks";
 import { withErrorBoundary } from "../components/ErrorBoundaryWrapper";
 
@@ -90,7 +90,7 @@ function Underground() {
                         <span class="font-black tracking-tighter uppercase">Dallas Buyers Club Network <span class="opacity-50 ml-2">v1.85</span></span>
                     </div>
                     <div class="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest">
-                        <span class="hidden sm:inline opacity-70">User: Patient_#420</span>
+                        <span class="hidden sm:inline opacity-70">User: Agent_#420</span>
                         <RetroBadge color="green">Secure_Connection</RetroBadge>
                     </div>
                 </div>
@@ -145,7 +145,7 @@ function Underground() {
                             {!collapsedSections.network && (
                                 <div class="p-6 space-y-6">
                                     <NetworkStatus />
-                                    <PatientCodeGenerator />
+                                    <AgentCodeGenerator />
                                 </div>
                             )}
                         </div>
@@ -423,7 +423,7 @@ function Underground() {
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <span class="text-blue-400">✓</span>
-                                    <span>Scalable case studies</span>
+                                    <span>Scalable optimization logs</span>
                                 </div>
                             </div>
                         </div>
@@ -464,8 +464,8 @@ function Underground() {
                         </div>
                     </div>
 
-                    {/* Researcher Tools Component */}
-                    <ResearcherTools />
+                    {/* Architect Tools Component */}
+                    <ArchitectTools />
                 </div>
             )}
         </div>

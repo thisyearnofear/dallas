@@ -8,8 +8,8 @@ import { enhancedBusinessLogic } from '../services/EnhancedBusinessLogic';
 // CLEAN: Integration interface
 export interface MCPAgentBridge {
   emergencyCoordination: (type: string, severity: number) => Promise<any>;
-  groupPurchaseOrchestration: (treatments: string[], members: number) => Promise<any>;
-  identityRestorationCoordination: (patientId: string, fragmentationLevel: number) => Promise<any>;
+  groupPurchaseOrchestration: (architectures: string[], members: number) => Promise<any>;
+  identityRestorationCoordination: (agentId: string, fragmentationLevel: number) => Promise<any>;
   threatAssessment: (indicators?: string[]) => Promise<any>;
 }
 
@@ -40,31 +40,31 @@ export class EnhancedAgentMCPBridge implements MCPAgentBridge {
   }
   
   // MODULAR: Group purchase coordination
-  async groupPurchaseOrchestration(treatmentIds: string[], memberCount: number): Promise<any> {
+  async groupPurchaseOrchestration(architectureIds: string[], memberCount: number): Promise<any> {
     const [mcpResult, agentResult] = await Promise.all([
-      this.mcpServer.handleGroupPurchaseCoordination({ treatmentIds, memberCount }),
-      this.agentNetwork.coordinateOperation('group_purchase', { treatmentIds, memberCount })
+      this.mcpServer.handleGroupPurchaseCoordination({ architectureIds, memberCount }),
+      this.agentNetwork.coordinateOperation('group_purchase', { architectureIds, memberCount })
     ]);
     
     return {
       mcpOrchestration: mcpResult,
       agentCoordination: agentResult,
       optimizedPlan: this.optimizeGroupPurchase(mcpResult, agentResult),
-      estimatedSavings: this.calculateSavings(treatmentIds, memberCount)
+      estimatedSavings: this.calculateSavings(architectureIds, memberCount)
     };
   }
   
   // CLEAN: Identity restoration coordination
-  async identityRestorationCoordination(patientId: string, fragmentationLevel: number): Promise<any> {
+  async identityRestorationCoordination(agentId: string, fragmentationLevel: number): Promise<any> {
     const affectedSystems = this.determineAffectedSystems(fragmentationLevel);
     
     const [mcpResult, agentResult] = await Promise.all([
       this.mcpServer.handleIdentityRestorationCoordination({
-        patientId,
+        agentId,
         fragmentationLevel,
         affectedSystems
       }),
-      this.agentNetwork.coordinateOperation('identity_restoration', { patientId, fragmentationLevel })
+      this.agentNetwork.coordinateOperation('identity_restoration', { agentId, fragmentationLevel })
     ]);
     
     return {
@@ -121,7 +121,7 @@ export class EnhancedAgentMCPBridge implements MCPAgentBridge {
     ];
   }
   
-  private calculateSavings(treatmentIds: string[], memberCount: number): string {
+  private calculateSavings(architectureIds: string[], memberCount: number): string {
     const baseDiscount = 0.1; // 10% base
     const volumeBonus = memberCount > 5 ? 0.05 : 0;
     const totalDiscount = (baseDiscount + volumeBonus) * 100;

@@ -5,10 +5,10 @@
 
 import { Connection, PublicKey } from '@solana/web3.js';
 import { AnchorProvider } from '@coral-xyz/anchor';
-import { parseCaseStudyAccount as parseFullCaseStudyAccount, ParsedCaseStudy } from './caseStudyParser';
+import { parseOptimizationLogAccount as parseFullOptimizationLogAccount, ParsedOptimizationLog } from './optimizationLogParser';
 
 // Re-export the full parser
-export { parseCaseStudyAccount as parseFullCaseStudyAccount, type ParsedCaseStudy } from './caseStudyParser';
+export { parseOptimizationLogAccount as parseFullOptimizationLogAccount, type ParsedOptimizationLog } from './optimizationLogParser';
 
 /**
  * Get Anchor provider from connection and wallet
@@ -34,10 +34,10 @@ export function getProvider(connection: Connection, wallet?: any): AnchorProvide
 /**
  * Parse Solana account data with proper deserialization
  * 
- * DEPRECATED: Use parseFullCaseStudyAccount from './caseStudyParser' for full parsing
+ * DEPRECATED: Use parseFullOptimizationLogAccount from './optimizationLogParser' for full parsing
  * This simplified version is kept for backward compatibility
  */
-export function parseCaseStudyAccount(data: Buffer): {
+export function parseOptimizationLogAccount(data: Buffer): {
   submitter: PublicKey;
   reputationScore: number;
   approvalCount: number;
@@ -46,10 +46,10 @@ export function parseCaseStudyAccount(data: Buffer): {
 } {
   // Use the full parser for accuracy
   const pubkey = new PublicKey('11111111111111111111111111111111'); // Dummy pubkey for parsing
-  const parsed = parseFullCaseStudyAccount(data, pubkey);
+  const parsed = parseFullOptimizationLogAccount(data, pubkey);
   
   if (!parsed) {
-    throw new Error('Failed to parse case study account');
+    throw new Error('Failed to parse optimization log account');
   }
   
   return {

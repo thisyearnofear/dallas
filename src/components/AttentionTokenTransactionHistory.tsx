@@ -41,11 +41,11 @@ export const AttentionTokenTransactionHistory: React.FC = () => {
     setLoading(true);
     try {
       const { SOLANA_CONFIG } = await import('../config/solana');
-      const { parseCaseStudyAccount } = await import('../utils/solanaUtils');
+      const { parseOptimizationLogAccount } = await import('../utils/solanaUtils');
       
-      const programId = new PublicKey(SOLANA_CONFIG.blockchain.caseStudyProgramId);
+      const programId = new PublicKey(SOLANA_CONFIG.blockchain.optimizationLogProgramId);
       
-      // Fetch all case study accounts with attention tokens
+      // Fetch all optimization log accounts with attention tokens
       const accounts = await connection.getProgramAccounts(programId, {
         filters: [
           {
@@ -60,7 +60,7 @@ export const AttentionTokenTransactionHistory: React.FC = () => {
       // Fetch trade history for each token
       const txPromises = accounts.map(async ({ account }) => {
         try {
-          const parsed = parseCaseStudyAccount(account.data);
+          const parsed = parseOptimizationLogAccount(account.data);
           if (!parsed.attentionTokenMint) return [];
 
           const trades = await attentionTokenTradingService.getTradeHistory(
