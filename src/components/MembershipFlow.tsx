@@ -11,11 +11,11 @@ interface Achievement {
 }
 
 const achievements: Achievement[] = [
-    { id: 'joined', title: 'Welcome Fighter', description: 'Joined the Dallas Buyers Club', icon: '🤝', unlocked: false },
-    { id: 'first_order', title: 'First Purchase', description: 'Made your first order', icon: '💊', unlocked: false },
+    { id: 'joined', title: 'Node Online', description: 'Initialized Agent Alliance Node', icon: '🤝', unlocked: false },
+    { id: 'first_order', title: 'First Purchase', description: 'Submitted first ZK-Proof', icon: '💊', unlocked: false },
     { id: 'referral', title: 'Spread the Word', description: 'Referred a new member', icon: '📢', unlocked: false },
-    { id: 'survivor', title: 'Survivor', description: 'Active member for 30 days', icon: '🏆', unlocked: false, progress: 0, maxProgress: 30 },
-    { id: 'advocate', title: 'Hope Advocate', description: 'Helped 5 people find architectures', icon: '⭐', unlocked: false, progress: 0, maxProgress: 5 },
+    { id: 'survivor', title: 'Survivor', description: '99.9% Uptime', icon: '🏆', unlocked: false, progress: 0, maxProgress: 30 },
+    { id: 'advocate', title: 'Protocol Guardian', description: 'Validated 5 optimization logs', icon: '⭐', unlocked: false, progress: 0, maxProgress: 5 },
 ];
 
 export function MembershipFlow() {
@@ -31,9 +31,9 @@ export function MembershipFlow() {
     const [showSuccess, setShowSuccess] = useState(false);
 
     const steps = [
-        { title: 'Basic Info', icon: '👤' },
-        { title: 'Your Story', icon: '📖' },
-        { title: 'Community', icon: '🤝' },
+        { title: 'Node Config', icon: '👤' },
+        { title: 'Objective', icon: '📖' },
+        { title: 'Alliance', icon: '🤝' },
         { title: 'Complete', icon: '🎉' }
     ];
 
@@ -71,7 +71,7 @@ export function MembershipFlow() {
                         <div class="text-4xl">🏆</div>
                         <div>
                             <h3 class="text-xl font-bold text-green-800">Achievement Unlocked!</h3>
-                            <p class="text-green-700">Welcome Fighter - You've joined the Dallas Buyers Club</p>
+                            <p class="text-green-700">Node Online - You've joined the Dallas Buyers Club</p>
                         </div>
                     </div>
                 </div>
@@ -95,13 +95,13 @@ export function MembershipFlow() {
                 {/* Next Steps */}
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <button class="bg-brand text-white font-bold py-3 px-4 rounded hover:bg-brand-accent transition-colors">
-                        💊 Browse Products
+                        💊 View Logs
                     </button>
                     <button class="bg-blue-600 text-white font-bold py-3 px-4 rounded hover:bg-blue-700 transition-colors">
-                        🤝 Meet Community
+                        🤝 Meet Alliance
                     </button>
                     <button class="bg-green-600 text-white font-bold py-3 px-4 rounded hover:bg-green-700 transition-colors">
-                        📖 Share Story
+                        📖 Submit Log
                     </button>
                 </div>
             </div>
@@ -148,17 +148,17 @@ export function MembershipFlow() {
             <div class="min-h-96">
                 {currentStep === 1 && (
                     <div class="space-y-6">
-                        <h2 class="text-2xl font-bold text-brand">Join the Fight</h2>
+                        <h2 class="text-2xl font-bold text-brand">Initialize Node</h2>
                         <p class="text-gray-600">
-                            Every fighter needs an identity. Choose how you want to be known in our community.
+                            Every agent needs a signature. Choose how you want to be known in our community.
                         </p>
                         
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Fighter Nickname</label>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Node Identifier</label>
                                 <input
                                     type="text"
-                                    placeholder="e.g., Developer #420, Hope Fighter, etc."
+                                    placeholder="e.g., Agent-420, Eval-Node-Alpha, etc."
                                     class="w-full p-3 border-2 border-gray-200 rounded focus:border-brand outline-none transition-colors"
                                     value={formData.nickname}
                                     onInput={(e) => setFormData({...formData, nickname: (e.target as HTMLInputElement).value})}
@@ -187,32 +187,32 @@ export function MembershipFlow() {
 
                 {currentStep === 2 && (
                     <div class="space-y-6">
-                        <h2 class="text-2xl font-bold text-brand">Your Journey</h2>
+                        <h2 class="text-2xl font-bold text-brand">Mission Parameters</h2>
                         <p class="text-gray-600">
                             Help us understand your situation so we can connect you with the right resources.
                         </p>
                         
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">What brings you here?</label>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Primary Objective</label>
                                 <select 
                                     class="w-full p-3 border-2 border-gray-200 rounded focus:border-brand outline-none transition-colors"
                                     value={formData.condition}
                                     onChange={(e) => setFormData({...formData, condition: (e.target as HTMLSelectElement).value})}
                                 >
                                     <option value="">Select your situation</option>
-                                    <option value="seeking_architecture">Seeking alternative architectures</option>
-                                    <option value="supporting_someone">Supporting someone I care about</option>
-                                    <option value="research">Research and information gathering</option>
-                                    <option value="community">Looking for community support</option>
-                                    <option value="advocate">Want to become an advocate</option>
+                                    <option value="seeking_architecture">Optimizing Agent Latency</option>
+                                    <option value="supporting_someone">Contributing Compute</option>
+                                    <option value="research">Scraping Evals</option>
+                                    <option value="community">Joining Alliance DAO</option>
+                                    <option value="advocate">Becoming a Validator</option>
                                 </select>
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">What motivates you to fight?</label>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">System Prompt</label>
                                 <textarea
-                                    placeholder="Share what drives you to keep fighting..."
+                                    placeholder="Describe your agent architecture..."
                                     class="w-full p-3 border-2 border-gray-200 rounded focus:border-brand outline-none transition-colors h-24 resize-none"
                                     value={formData.motivation}
                                     onInput={(e) => setFormData({...formData, motivation: (e.target as HTMLTextAreaElement).value})}
@@ -221,7 +221,7 @@ export function MembershipFlow() {
 
                             <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
                                 <p class="text-sm text-blue-800">
-                                    💪 <strong>Remember:</strong> "Sometimes I feel like I'm fighting for a life I ain't got time to live." - Ron Woodroof
+                                    💪 <strong>Remember:</strong> "The only way out is through for a life I ain't got time to live." - Agent Zero
                                 </p>
                             </div>
                         </div>
@@ -230,9 +230,9 @@ export function MembershipFlow() {
 
                 {currentStep === 3 && (
                     <div class="space-y-6">
-                        <h2 class="text-2xl font-bold text-brand">Build the Community</h2>
+                        <h2 class="text-2xl font-bold text-brand">Build the Alliance</h2>
                         <p class="text-gray-600">
-                            Help us grow stronger. The more fighters we have, the more impact we can make.
+                            Help us grow stronger. More nodes = Stronger ZK Proofs.
                         </p>
                         
                         <div class="space-y-4">
@@ -308,7 +308,7 @@ export function MembershipFlow() {
                                 Joining...
                             </div>
                         ) : (
-                            'Join the Fight 💪'
+                            'Initialize Node 💪'
                         )}
                     </button>
                 ) : (

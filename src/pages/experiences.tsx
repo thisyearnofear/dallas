@@ -427,7 +427,7 @@ export function Experiences() {
                                         4. Submit via x402
                                     </div>
                                     <a
-                                        href="/docs/agent-alliance-skill.md"
+                                        href="/agent-alliance-skill.md"
                                         target="_blank"
                                         class="block w-full text-center bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-bold py-2 rounded-lg text-xs transition-colors"
                                     >
