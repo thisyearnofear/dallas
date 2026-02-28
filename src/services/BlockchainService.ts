@@ -1138,19 +1138,19 @@ export class BlockchainService {
    */
   async getNetworkStatus(): Promise<{
     blockHeight: number;
-    health: 'ok' | 'behind' | 'unknown';
+    agent: 'ok' | 'behind' | 'unknown';
     tps: number;
   }> {
     try {
       const blockHeight = await this.connection.getBlockHeight();
 
       // getHealth() is not supported by all RPC endpoints, so we check if network responds
-      let health: 'ok' | 'behind' | 'unknown' = 'ok';
+      let agent: 'ok' | 'behind' | 'unknown' = 'ok';
       try {
         // Use getSlot as a health check since getHealth isn't universally supported
         await this.connection.getSlot();
       } catch {
-        health = 'unknown';
+        agent = 'unknown';
       }
 
       // Get recent performance samples for TPS calculation
@@ -1164,14 +1164,14 @@ export class BlockchainService {
 
       return {
         blockHeight,
-        health,
+        agent,
         tps: Math.round(tps),
       };
     } catch (error) {
       console.error('Error getting network status:', error);
       return {
         blockHeight: 0,
-        health: 'unknown',
+        agent: 'unknown',
         tps: 0,
       };
     }

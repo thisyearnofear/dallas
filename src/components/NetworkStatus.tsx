@@ -41,7 +41,7 @@ export const NetworkStatus: FunctionalComponent<NetworkStatusProps> = ({ compact
         }
     };
 
-    const getAgentColor = (agent: string) => {
+    const getAgentColor = (agent: string = 'unknown') => {
         switch (agent) {
             case 'ok':
                 return 'text-green-600 dark:text-green-400';
@@ -52,7 +52,7 @@ export const NetworkStatus: FunctionalComponent<NetworkStatusProps> = ({ compact
         }
     };
 
-    const getAgentIcon = (agent: string) => {
+    const getAgentIcon = (agent: string = 'unknown') => {
         switch (agent) {
             case 'ok':
                 return '✅';
@@ -83,7 +83,7 @@ export const NetworkStatus: FunctionalComponent<NetworkStatusProps> = ({ compact
                         {getAgentIcon(status.agent)}
                     </div>
                     <div class={`font-bold ${getAgentColor(status.agent)} ${compact ? 'text-xs' : 'text-sm'}`}>
-                        {status.agent.toUpperCase()}
+                        {status?.agent?.toUpperCase() || 'UNKNOWN'}
                     </div>
                     {!compact && <div class="text-xs text-slate-500 dark:text-slate-400">Agent</div>}
                 </div>

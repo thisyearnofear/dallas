@@ -46,3 +46,6 @@ Thumbs.db
 # Rust
 target/
 Cargo.lock
+
+.junie
+.kiro
