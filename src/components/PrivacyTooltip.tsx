@@ -143,7 +143,7 @@ export const PrivacyTooltip: FunctionalComponent<PrivacyTooltipProps> = ({
           ⓘ
         </span>
         <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 p-4 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-          <strong class="block mb-2 text-purple-700 dark:text-purple-400 text-xs uppercase tracking-widest">
+          <strong class="block mb-2 text-purple-700 dark:text-purple-400 text-xs tracking-widest">
             {explanation.title}
           </strong>
           <p class="mb-2">{explanation.shortExplanation}</p>
