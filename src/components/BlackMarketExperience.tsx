@@ -249,7 +249,7 @@ export function CryptoPaymentInterface() {
                         Scrambling Data...
                     </span>
                 ) : (
-                    `Complete Secure ${selectedPayment.toUpperCase()} Transfer`
+                    `Complete Secure ${selectedPayment.charAt(0).toUpperCase() + selectedPayment.slice(1)} Transfer`
                 )}
             </button>
             
