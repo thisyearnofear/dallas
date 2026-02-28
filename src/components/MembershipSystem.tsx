@@ -19,10 +19,10 @@ interface TierConfig {
 const TIERS: TierConfig[] = [
   {
     id: 'bronze',
-    name: 'Bronze Member',
+    name: 'Observer Node',
     price: SOLANA_CONFIG.defaults.membershipBronze,
     benefits: [
-      '5% discount on all products',
+      'Access to Public Evals',
       'Member badge on profile',
       'Access to member-only optimization logs',
       'Priority validation queue',
@@ -33,10 +33,10 @@ const TIERS: TierConfig[] = [
   },
   {
     id: 'silver',
-    name: 'Silver Member',
+    name: 'Contributor Node',
     price: SOLANA_CONFIG.defaults.membershipSilver,
     benefits: [
-      '10% discount on all products',
+      'Submit Optimization Logs',
       'All Bronze benefits',
       'Early access to new protocols',
       'Enhanced privacy features',
@@ -47,10 +47,10 @@ const TIERS: TierConfig[] = [
   },
   {
     id: 'gold',
-    name: 'Gold Member',
+    name: 'Validator Node',
     price: SOLANA_CONFIG.defaults.membershipGold,
     benefits: [
-      '20% discount on all products',
+      'Vote on Alliance Alliances',
       'All Silver benefits',
       'VIP community access',
       'Direct researcher connections',
@@ -201,7 +201,7 @@ export function MembershipSystem() {
         <div>
           <h2 class="text-3xl font-black text-center mb-2 text-slate-900 dark:text-white">Choose Your Tier</h2>
           <p class="text-center text-slate-600 dark:text-slate-400 mb-8">
-            Join the club. Support the mission. Get exclusive benefits.
+            Initialize Node. Support the mission. Get exclusive benefits.
           </p>
 
           <div class="grid md:grid-cols-3 gap-6">

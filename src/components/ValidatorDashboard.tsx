@@ -7,6 +7,7 @@ import { DbcTokenService, calculateTier } from '../services/DbcTokenService';
 import { submitValidatorApproval, fetchPendingCaseStudies } from '../services/BlockchainIntegration';
 import { PublicKey } from '@solana/web3.js';
 import { PrivacyTooltip } from './PrivacyTooltip';
+import { parseOptimizationLogAccount } from '../utils/optimizationLogParser';
 
 interface OptimizationLogForValidation {
     pubkey: PublicKey;
@@ -63,7 +64,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                 // Convert to validation format - exclude user's own optimization logs
                 const validationCaseStudies: OptimizationLogForValidation[] = result.caseStudies
                     .filter(cs => !cs.submitter.equals(publicKey)) // Can't validate own studies
-                    .filter(cs => cs.approvalCount < 5) // Need 5 weighted approvals
+                    .filter(cs => cs.approvalCount < 3) // Need 3 weighted approvals (changed from 5 to 3)
                     .map(cs => ({
                         pubkey: cs.pubkey,
                         protocol: cs.protocol,
@@ -232,7 +233,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                         {refreshing ? '⏳' : '🔄'} Refresh
                     </button>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class={`p-6 rounded-lg border transition-colors ${
                         isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'
                     }`}>
@@ -405,10 +406,10 @@ export const ValidatorDashboard: FunctionalComponent = () => {
             </div>
 
             {/* Validator Information - Simplified Language */}
-            <div class={`p-6 rounded-lg transition-colors ${
-                isDark ? 'bg-purple-900/20 border border-purple-600' : 'bg-purple-50 border border-purple-200'
-            }`}>
-                <h3 class="text-lg font-bold text-purple-600 dark:text-purple-400 mb-4 flex items-center gap-2">
+                <div class={`p-6 rounded-lg transition-colors ${
+                    isDark ? 'bg-purple-900/20 border border-purple-600' : 'bg-purple-50 border border-purple-200'
+                }`}>
+                    <h3 class="text-lg font-bold text-purple-600 dark:text-purple-400 mb-4 flex items-center gap-2">
                   <span>🔐</span>
                   <span>How Validation Works</span>
                   <PrivacyTooltip topic="validator_privacy" variant="icon"><span></span></PrivacyTooltip>
@@ -428,7 +429,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                     </div>
                     <div class="flex items-start gap-2">
                         <span class="text-green-500 font-bold">✓</span>
-                        <span><strong>Committee Decision:</strong> 3 of 5 validators must agree for approval</span>
+                        <span><strong>Committee Decision:</strong> 3 of 3 validators must agree for approval</span>
                     </div>
                 </div>
             </div>

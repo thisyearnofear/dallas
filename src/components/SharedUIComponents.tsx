@@ -442,7 +442,7 @@ export function TermsAcceptanceModal({
           <div class="p-8">
             <p class="text-slate-900 dark:text-white text-lg font-bold leading-tight mb-6 tracking-tight">
               A privacy-first community for sharing agent architecture experiments. 
-              This is <strong class="text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/30 px-1 rounded">not medical advice</strong>.
+              This is <strong class="text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/30 px-1 rounded">not production advice</strong>.
             </p>
             
             <p class="text-slate-600 dark:text-slate-400 text-xs font-medium mb-8 leading-relaxed">

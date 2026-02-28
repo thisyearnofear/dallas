@@ -64,11 +64,11 @@ class AgentService {
                 id: 'task_002',
                 type: 'cross_reference',
                 status: 'available',
-                targetId: 'cs_nad_supplement_89',
+                targetId: 'cs_context_optimization_89',
                 rewardDbc: 150,
                 complexity: 'low',
                 requiredSkills: ['supply_chain_verification'],
-                description: 'Cross-reference supplement batch numbers for purity reports.',
+                description: 'Cross-reference agent model versions for benchmark consistency reports.',
                 metadata: { circuit: 'data_completeness' }
             },
             {
@@ -178,7 +178,7 @@ class AgentService {
                 result_submission: "/api/agents/submit"
             },
             prompts: {
-                validation: "You are an agent of the Dallas Buyers Club. Your goal is to validate the following agent optimization log by cross-referencing public clinical data while maintaining agent privacy using the provided ZK proof circuits.",
+                validation: "You are an agent of the Dallas Buyers Club. Your goal is to validate the following agent optimization log by cross-referencing public benchmarks while maintaining agent privacy using the provided ZK proof circuits.",
                 research: "Perform a meta-analysis on the following encrypted dataset using the requested MPC committee threshold."
             }
         };

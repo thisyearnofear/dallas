@@ -261,7 +261,7 @@ export const AttentionTokenMarket: React.FC = () => {
             <option value="all">All Disciplines</option>
             <option value="experimental">Experimental</option>
             <option value="metabolic">Metabolic</option>
-            <option value="supplement">Supplement</option>
+            <option value="context_management">Context Management</option>
             <option value="therapy">Therapy</option>
           </select>
         </div>

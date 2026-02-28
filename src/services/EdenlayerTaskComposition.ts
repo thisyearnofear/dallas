@@ -65,7 +65,7 @@ export class EdenlayerTaskComposer {
         operation: 'tools/assess_identity_fragmentation',
         params: {
           agentId: params.agentId,
-          symptoms: this.getTypicalSymptoms(),
+          failure_modes: this.getTypicalFailureModes(),
           fragmentationIndicators: {
             memoryLoss: Math.floor(Math.random() * 50) + 25,
             personalityShifts: Math.floor(Math.random() * 30) + 10,
@@ -380,7 +380,7 @@ export class EdenlayerTaskComposer {
     return prices[architectureId as keyof typeof prices] || 0.5;
   }
 
-  private getTypicalSymptoms(): string[] {
+  private getTypicalFailureModes(): string[] {
     return [
       'memory_fragmentation',
       'digital_signature_corruption',

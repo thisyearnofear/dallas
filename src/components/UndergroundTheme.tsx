@@ -312,7 +312,7 @@ export function MexicanConnectionStatus() {
             </div>
             
             <div class="text-[10px] font-bold text-green-200/40 mt-6 text-center italic uppercase tracking-widest">
-                "The medicine is the key to survival" — Dr. Vass
+                "The architecture is the key to survival" — Dr. Vass
             </div>
         </div>
     );

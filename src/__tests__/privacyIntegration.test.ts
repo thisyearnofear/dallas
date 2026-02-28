@@ -57,7 +57,7 @@ describe('Privacy Service Integration', () => {
             ]);
         });
 
-        it('should generate symptom improvement proof', async () => {
+        it('should generate performance improvement proof', async () => {
             const proof = await noirService.proveSymptomImprovement({
                 baseline_severity: mockOptimizationLogData.baselineSeverity,
                 outcome_severity: mockOptimizationLogData.outcomeSeverity,

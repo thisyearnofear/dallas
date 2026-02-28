@@ -15,8 +15,8 @@ import { PrivacyTooltip, PrivacyLabel } from './PrivacyTooltip';
 import { PrivacyScorePreview } from './PrivacyScorePreview';
 
 interface AgentMetrics {
-  symptomSeverity: number; // 1-10
-  energyLevel: number; // 1-10
+  latencySeverity: number; // 1-10
+  throughputLevel: number; // 1-10
   biomarkers?: Record<string, string | number>;
   notes?: string;
 }
@@ -105,8 +105,8 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
     architectureProtocol: '',
     durationDays: 8,
     costUSD: 0,
-    baselineMetrics: { symptomSeverity: 5, energyLevel: 5 },
-    outcomeMetrics: { symptomSeverity: 5, energyLevel: 5 },
+    baselineMetrics: { latencySeverity: 5, throughputLevel: 5 },
+    outcomeMetrics: { latencySeverity: 5, throughputLevel: 5 },
     sideEffects: [],
     context: '',
   });
@@ -136,11 +136,11 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
         message: formData.costUSD < 0 ? 'Cost cannot be negative' : '',
       },
       baselineMetrics: {
-        isValid: formData.baselineMetrics.symptomSeverity >= 1 && formData.baselineMetrics.energyLevel >= 1,
+        isValid: formData.baselineMetrics.latencySeverity >= 1 && formData.baselineMetrics.throughputLevel >= 1,
         message: 'Please set baseline metrics',
       },
       outcomeMetrics: {
-        isValid: formData.outcomeMetrics.symptomSeverity >= 1 && formData.outcomeMetrics.energyLevel >= 1,
+        isValid: formData.outcomeMetrics.latencySeverity >= 1 && formData.outcomeMetrics.throughputLevel >= 1,
         message: 'Please set outcome metrics',
       },
     };
@@ -393,8 +393,8 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
           architectureProtocol: '',
           durationDays: 8,
           costUSD: 0,
-          baselineMetrics: { symptomSeverity: 5, energyLevel: 5 },
-          outcomeMetrics: { symptomSeverity: 5, energyLevel: 5 },
+          baselineMetrics: { latencySeverity: 5, throughputLevel: 5 },
+          outcomeMetrics: { latencySeverity: 5, throughputLevel: 5 },
           sideEffects: [],
           context: '',
         });
@@ -624,7 +624,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
               <div class="relative">
                 <input
                   type="text"
-                  placeholder="e.g., Peptide-T + Vitamin D + NAC supplements"
+                  placeholder="e.g., Context Caching + Prompt Compression"
                   value={formData.architectureProtocol}
                   onInput={(e) =>
                     setFormData({
@@ -711,13 +711,13 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                   type="range"
                   min="1"
                   max="10"
-                  value={formData.baselineMetrics.symptomSeverity}
+                  value={formData.baselineMetrics.latencySeverity}
                   onInput={(e) =>
                     setFormData({
                       ...formData,
                       baselineMetrics: {
                         ...formData.baselineMetrics,
-                        symptomSeverity: parseInt((e.target as HTMLInputElement).value),
+                        latencySeverity: parseInt((e.target as HTMLInputElement).value),
                       },
                     })
                   }
@@ -726,7 +726,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                 <div class="flex justify-between mt-2">
                   <span class="text-[10px] font-black text-slate-400 uppercase">Mild</span>
                   <span class="text-sm font-black text-brand">
-                    {formData.baselineMetrics.symptomSeverity}/10
+                    {formData.baselineMetrics.latencySeverity}/10
                   </span>
                   <span class="text-[10px] font-black text-slate-400 uppercase">Severe</span>
                 </div>
@@ -737,13 +737,13 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                   type="range"
                   min="1"
                   max="10"
-                  value={formData.baselineMetrics.energyLevel}
+                  value={formData.baselineMetrics.throughputLevel}
                   onInput={(e) =>
                     setFormData({
                       ...formData,
                       baselineMetrics: {
                         ...formData.baselineMetrics,
-                        energyLevel: parseInt((e.target as HTMLInputElement).value),
+                        throughputLevel: parseInt((e.target as HTMLInputElement).value),
                       },
                     })
                   }
@@ -752,7 +752,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                 <div class="flex justify-between mt-2">
                   <span class="text-[10px] font-black text-slate-400 uppercase">Low</span>
                   <span class="text-sm font-black text-brand">
-                    {formData.baselineMetrics.energyLevel}/10
+                    {formData.baselineMetrics.throughputLevel}/10
                   </span>
                   <span class="text-[10px] font-black text-slate-400 uppercase">High</span>
                 </div>
@@ -775,13 +775,13 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                   type="range"
                   min="1"
                   max="10"
-                  value={formData.outcomeMetrics.symptomSeverity}
+                  value={formData.outcomeMetrics.latencySeverity}
                   onInput={(e) =>
                     setFormData({
                       ...formData,
                       outcomeMetrics: {
                         ...formData.outcomeMetrics,
-                        symptomSeverity: parseInt((e.target as HTMLInputElement).value),
+                        latencySeverity: parseInt((e.target as HTMLInputElement).value),
                       },
                     })
                   }
@@ -790,7 +790,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                 <div class="flex justify-between mt-2">
                   <span class="text-[10px] font-black text-slate-400 uppercase">Mild</span>
                   <span class="text-sm font-black text-brand">
-                    {formData.outcomeMetrics.symptomSeverity}/10
+                    {formData.outcomeMetrics.latencySeverity}/10
                   </span>
                   <span class="text-[10px] font-black text-slate-400 uppercase">Severe</span>
                 </div>
@@ -801,13 +801,13 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                   type="range"
                   min="1"
                   max="10"
-                  value={formData.outcomeMetrics.energyLevel}
+                  value={formData.outcomeMetrics.throughputLevel}
                   onInput={(e) =>
                     setFormData({
                       ...formData,
                       outcomeMetrics: {
                         ...formData.outcomeMetrics,
-                        energyLevel: parseInt((e.target as HTMLInputElement).value),
+                        throughputLevel: parseInt((e.target as HTMLInputElement).value),
                       },
                     })
                   }
@@ -816,7 +816,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                 <div class="flex justify-between mt-2">
                   <span class="text-[10px] font-black text-slate-400 uppercase">Low</span>
                   <span class="text-sm font-black text-brand">
-                    {formData.outcomeMetrics.energyLevel}/10
+                    {formData.outcomeMetrics.throughputLevel}/10
                   </span>
                   <span class="text-[10px] font-black text-slate-400 uppercase">High</span>
                 </div>

@@ -360,31 +360,31 @@ export const OptimizationLogGallery: FunctionalComponent = () => {
                   </div>
 
                   {/* Symptoms */}
-                  {detailsData.symptoms && detailsData.symptoms.length > 0 && (
+                  {detailsData.issues && detailsData.issues.length > 0 && (
                     <div>
                       <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">
                         🩺 Symptoms (Baseline)
                       </h4>
                       <div class="space-y-2">
-                        {detailsData.symptoms.map((symptom, idx) => (
+                        {detailsData.issues.map((issue, idx) => (
                           <div 
                             key={idx}
                             class="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-900/50 rounded-lg"
                           >
-                            <span class="text-gray-700 dark:text-slate-300">{symptom.name}</span>
+                            <span class="text-gray-700 dark:text-slate-300">{issue.name}</span>
                             <div class="flex items-center gap-3">
-                              <span class="text-xs text-gray-500 dark:text-slate-400">{symptom.frequency}</span>
+                              <span class="text-xs text-gray-500 dark:text-slate-400">{issue.frequency}</span>
                               <div class="flex items-center gap-1">
                                 <div 
                                   class="h-2 w-16 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden"
                                 >
                                   <div 
                                     class="h-full bg-red-500 rounded-full"
-                                    style={{ width: `${(symptom.severity / 10) * 100}%` }}
+                                    style={{ width: `${(issue.severity / 10) * 100}%` }}
                                   />
                                 </div>
                                 <span class="text-xs font-medium text-gray-600 dark:text-slate-400 w-6">
-                                  {symptom.severity}/10
+                                  {issue.severity}/10
                                 </span>
                               </div>
                             </div>

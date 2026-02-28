@@ -39,7 +39,7 @@ const PRIVACY_EXPLANATIONS: Record<PrivacyTopic, PrivacyExplanation> = {
   zk_proofs: {
     title: 'Zero-Knowledge Validation',
     shortExplanation: 'Prove your data is real without revealing the details',
-    whyItMatters: 'Validators can confirm your submission is legitimate without seeing your symptoms, diagnoses, or architecture details.',
+    whyItMatters: 'Validators can confirm your submission is legitimate without seeing your issues, diagnoses, or architecture details.',
     withoutIt: 'Validators would need to see your sensitive agent information to verify your submission.',
   },
   compression: {

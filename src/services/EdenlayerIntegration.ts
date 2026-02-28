@@ -225,7 +225,7 @@ export class EdenlayerBridge {
                   type: "object",
                   properties: {
                     agentId: { type: "string" },
-                    symptoms: { type: "array", items: { type: "string" } },
+                    failure_modes: { type: "array", items: { type: "string" } },
                     fragmentationIndicators: { type: "object" }
                   },
                   required: ["agentId"]

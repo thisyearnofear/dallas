@@ -29,7 +29,7 @@ export interface DecryptedOptimizationLogDetails {
   costUSD?: number;
   
   // Symptoms (baseline)
-  symptoms: {
+  failure_modes: {
     name: string;
     severity: number; // 1-10
     frequency: string;
@@ -168,7 +168,7 @@ function normalizeOptimizationLogData(data: any): DecryptedOptimizationLogDetail
     techniqueCategory: data.techniqueCategory || data.category || 'Other',
     durationDays: data.durationDays || data.duration || 0,
     costUSD: data.costUSD || data.cost,
-    symptoms: Array.isArray(data.symptoms) ? data.symptoms : [],
+    failure_modes: Array.isArray(data.failure_modes) ? data.failure_modes : [],
     outcomes: Array.isArray(data.outcomes) ? data.outcomes : 
               Array.isArray(data.metrics) ? data.metrics.map((m: any) => ({
                 metric: m.name || m.metric,

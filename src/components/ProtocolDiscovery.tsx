@@ -63,8 +63,8 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
         // Boost score if interests align with architecture category
         if (selectedInterests.length > 0) {
           const categoryKeywords: Record<string, string[]> = {
-            supplement: ['immune-support', 'energy-boost', 'natural'],
-            lifestyle: ['tool_calling', 'easy', 'natural'],
+            context_management: ['context-size', 'low-latency', 'high-accuracy'],
+            tool_calling: ['agentic-flow', 'reliable', 'fast'],
             device: ['proven', 'clinical-data'],
             protocol: ['proven', 'clinical-data', 'hard']
           };
