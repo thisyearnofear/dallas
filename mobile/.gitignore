@@ -1,0 +1,13 @@
+# Environment — never commit secrets
+.env
+.env.local
+.env.*.local
+
+# Expo build artifacts
+dist/
+.expo/
+android/
+ios/
+
+# Dependencies
+node_modules/
