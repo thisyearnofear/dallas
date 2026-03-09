@@ -10,6 +10,7 @@ import {
   Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../../config/theme';
 import { useWallet } from '../../hooks/useWallet';
 import { useReputation, RANK_COLORS, RANK_NEXT_XP } from '../../hooks/useReputation';
@@ -148,6 +149,46 @@ function AchievementShelf({ achievements }: { achievements: ReturnType<typeof us
           <Text style={[styles.achievementLabel, { color: Colors.textMuted }]}>{a.label}</Text>
         </View>
       ))}
+    </View>
+  );
+}
+
+// ─── Daily challenge card ────────────────────────────────────────────────────
+
+const DAILY_CHALLENGES = [
+  { icon: 'flash-outline' as const, title: 'Submit an optimization log', xp: 75, action: 'Submit' },
+  { icon: 'people-outline' as const, title: 'Join a new alliance', xp: 50, action: 'Explore' },
+  { icon: 'checkmark-circle-outline' as const, title: 'Validate a peer log', xp: 100, action: 'Validate' },
+];
+
+function DailyChallengeCard() {
+  const challenge = DAILY_CHALLENGES[new Date().getDay() % DAILY_CHALLENGES.length];
+  const glowAnim = useRef(new Animated.Value(0.6)).current;
+
+  useEffect(() => { pulseLoop(glowAnim).start(); }, []);
+
+  return (
+    <View style={styles.challengeCard}>
+      <Animated.View style={[styles.challengeGlow, { opacity: glowAnim }]} />
+      <View style={styles.challengeLeft}>
+        <View style={styles.challengeIconWrap}>
+          <Ionicons name={challenge.icon} size={18} color={Colors.accent} />
+        </View>
+        <View style={styles.challengeText}>
+          <Text style={styles.challengeEyebrow}>DAILY CHALLENGE</Text>
+          <Text style={styles.challengeTitle}>{challenge.title}</Text>
+        </View>
+      </View>
+      <View style={styles.challengeRight}>
+        <Text style={styles.challengeXp}>+{challenge.xp} XP</Text>
+        <TouchableOpacity
+          style={styles.challengeBtn}
+          activeOpacity={0.8}
+          onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+        >
+          <Text style={styles.challengeBtnText}>{challenge.action}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -346,6 +387,9 @@ export default function ProfileScreen() {
             </View>
           </View>
 
+          {/* Daily challenge */}
+          <DailyChallengeCard />
+
           {/* Settings */}
           <SectionHeader title="SETTINGS" />
           <View style={styles.section}>
@@ -437,6 +481,61 @@ const styles = StyleSheet.create({
   },
   progressFill: { height: '100%', borderRadius: 2 },
   progressLabel: { color: Colors.textMuted, fontSize: Typography.xs, fontFamily: Typography.mono },
+
+  // Daily challenge card
+  challengeCard: {
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.md,
+    backgroundColor: Colors.bgCard,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.accentBorder,
+    padding: Spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  challengeGlow: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: Colors.accent,
+    opacity: 0.04,
+    borderRadius: Radius.md,
+  },
+  challengeLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  challengeIconWrap: {
+    width: 36, height: 36, borderRadius: 18,
+    backgroundColor: 'rgba(0,255,136,0.1)',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  challengeText: { flex: 1 },
+  challengeEyebrow: {
+    color: Colors.accent,
+    fontSize: 9,
+    fontWeight: Typography.bold,
+    letterSpacing: 1.5,
+    fontFamily: Typography.mono,
+    marginBottom: 2,
+  },
+  challengeTitle: { ...Typography.body, fontSize: Typography.sm },
+  challengeRight: { alignItems: 'flex-end', gap: 6 },
+  challengeXp: {
+    color: Colors.accent,
+    fontSize: Typography.xs,
+    fontWeight: Typography.bold,
+    fontFamily: Typography.mono,
+  },
+  challengeBtn: {
+    backgroundColor: Colors.accent,
+    borderRadius: Radius.sm,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 5,
+  },
+  challengeBtnText: {
+    color: Colors.bg,
+    fontSize: Typography.xs,
+    fontWeight: Typography.bold,
+  },
 
   // Identity card
   identityCard: {

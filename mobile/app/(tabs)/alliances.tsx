@@ -13,8 +13,10 @@ import {
   Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../../config/theme';
 import { staggeredEntrance, entryStyle, fadeSlideIn, pulseLoop } from '../../config/animations';
+import AllianceDetailModal from '../../components/AllianceDetailModal';
 
 interface Alliance {
   id: string;
@@ -127,13 +129,13 @@ function ActivityTicker() {
 
 // ─── Alliance card with stagger animation ────────────────────────────────────
 
-function AllianceCard({ alliance, animValue }: { alliance: Alliance; animValue: Animated.Value }) {
+function AllianceCard({ alliance, animValue, onPress }: { alliance: Alliance; animValue: Animated.Value; onPress: () => void }) {
   const color = tierColor(alliance.tvlRaw);
   const isPositive = alliance.change24h >= 0;
 
   return (
     <Animated.View style={entryStyle(animValue)}>
-      <TouchableOpacity style={styles.card} activeOpacity={0.75}>
+      <TouchableOpacity style={styles.card} activeOpacity={0.75} onPress={onPress}>
         <View style={[styles.accentBar, { backgroundColor: color }]} />
         <View style={styles.cardContent}>
           <View style={styles.cardHeader}>
@@ -200,6 +202,9 @@ export default function AlliancesScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+  const [selectedAlliance, setSelectedAlliance] = useState<Alliance | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [joinedIds, setJoinedIds] = useState<Set<string>>(new Set());
 
   // One Animated.Value per card slot (max 10)
   const cardAnims = useRef(Array.from({ length: 10 }, () => new Animated.Value(0))).current;
@@ -300,7 +305,15 @@ export default function AlliancesScreen() {
           data={filtered}
           keyExtractor={a => a.id}
           renderItem={({ item, index }) => (
-            <AllianceCard alliance={item} animValue={cardAnims[index]} />
+            <AllianceCard
+              alliance={item}
+              animValue={cardAnims[index]}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setSelectedAlliance(item);
+                setModalVisible(true);
+              }}
+            />
           )}
           contentContainerStyle={styles.list}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.accent} />}
@@ -312,6 +325,18 @@ export default function AlliancesScreen() {
           }
         />
       )}
+
+      <AllianceDetailModal
+        alliance={selectedAlliance}
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        joined={selectedAlliance ? joinedIds.has(selectedAlliance.id) : false}
+        onJoin={(a) => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          setJoinedIds(prev => new Set([...prev, a.id]));
+          setModalVisible(false);
+        }}
+      />
     </View>
   );
 }

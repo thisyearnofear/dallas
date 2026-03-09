@@ -12,17 +12,18 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.25.9",
-    "@react-native-async-storage/async-storage": "^2.1.0",
     "@coral-xyz/anchor": "^0.29.0",
     "@expo/vector-icons": "^14.0.0",
-    "@solana-mobile/mobile-wallet-adapter-protocol-web3js": "^2.1.0",
+    "@react-native-async-storage/async-storage": "^2.1.0",
     "@solana-mobile/mobile-wallet-adapter-protocol": "^2.1.0",
+    "@solana-mobile/mobile-wallet-adapter-protocol-web3js": "^2.1.0",
     "@solana/spl-token": "^0.4.14",
     "@solana/web3.js": "^1.98.4",
     "bs58": "^6.0.0",
     "expo": "~52.0.0",
     "expo-constants": "~17.0.0",
     "expo-font": "~13.0.0",
+    "expo-haptics": "55.0.8",
     "expo-linking": "~7.0.0",
     "expo-router": "~4.0.0",
     "expo-splash-screen": "~0.29.0",
@@ -41,6 +42,7 @@
   "devDependencies": {
     "@babel/core": "7.25.9",
     "@types/react": "~18.3.0",
+    "eas-cli": "18.1.0",
     "typescript": "^5.4.5"
   }
 }

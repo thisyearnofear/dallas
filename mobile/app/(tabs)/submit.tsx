@@ -4,6 +4,7 @@ import {
   TextInput, StatusBar, KeyboardAvoidingView, Platform,
   Animated,
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../../config/theme';
 import { useWallet } from '../../hooks/useWallet';
@@ -214,10 +215,12 @@ export default function SubmitScreen() {
 
   const handleSubmit = async () => {
     if (!connected) { await connect(); return; }
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     setSubmitting(true);
     await new Promise(r => setTimeout(r, 2600));
     setSubmitting(false);
     recordLogSubmission();
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setSubmitted(true);
   };
 
@@ -259,7 +262,10 @@ export default function SubmitScreen() {
                 <TouchableOpacity
                   key={a.id}
                   style={[styles.optionCard, selectedAlliance === a.id && styles.optionCardActive]}
-                  onPress={() => setSelectedAlliance(a.id)}
+                  onPress={() => {
+                    Haptics.selectionAsync();
+                    setSelectedAlliance(a.id);
+                  }}
                   activeOpacity={0.75}
                 >
                   <View style={styles.optionLeft}>
@@ -320,13 +326,13 @@ export default function SubmitScreen() {
                 </View>
               </View>
             </View>
-            <TouchableOpacity style={styles.ackRow} onPress={() => setEncryptionAck(v => !v)} activeOpacity={0.8}>
+            <TouchableOpacity style={styles.ackRow} onPress={() => { Haptics.selectionAsync(); setEncryptionAck(v => !v); }} activeOpacity={0.8}>
               <View style={[styles.checkbox, encryptionAck && styles.checkboxActive]}>
                 {encryptionAck && <Ionicons name="checkmark" size={12} color={Colors.bg} />}
               </View>
               <Text style={styles.ackText}>I understand my data is encrypted before submission</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.ackRow} onPress={() => setZkAck(v => !v)} activeOpacity={0.8}>
+            <TouchableOpacity style={styles.ackRow} onPress={() => { Haptics.selectionAsync(); setZkAck(v => !v); }} activeOpacity={0.8}>
               <View style={[styles.checkbox, zkAck && styles.checkboxActive]}>
                 {zkAck && <Ionicons name="checkmark" size={12} color={Colors.bg} />}
               </View>
