@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "DBC Agent Alliance",
+    "slug": "dallas-buyers-club",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "dbc",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0a0a0a"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0a0a0a"
+      },
+      "package": "com.dallasbuyers.agentalliance",
+      "intentFilters": [
+        {
+          "action": "android.intent.action.VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "dbc.alliance",
+              "pathPrefix": "/"
+            }
+          ],
+          "category": ["android.intent.category.DEFAULT", "android.intent.category.BROWSABLE"]
+        }
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
