@@ -217,7 +217,9 @@ const MOCK_ALLIANCES = [
 ];
 
 export default function ProfileScreen() {
-  const { connected, publicKey, solBalance, dbcBalance, connect, disconnect } = useWallet();
+  const { connected, publicKey, balance, connect, disconnect } = useWallet();
+  const solBalance = balance;
+  const dbcBalance: number | null = null; // DBC balance fetched separately
   const rep = useReputation();
   const [connecting, setConnecting] = useState(false);
 
@@ -236,7 +238,7 @@ export default function ProfileScreen() {
   };
 
   const shortKey = publicKey
-    ? `${publicKey.slice(0, 4)}...${publicKey.slice(-4)}`
+    ? `${publicKey.toBase58().slice(0, 4)}...${publicKey.toBase58().slice(-4)}`
     : '';
 
   if (!connected) {
