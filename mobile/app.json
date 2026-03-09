@@ -29,7 +29,10 @@
               "pathPrefix": "/"
             }
           ],
-          "category": ["android.intent.category.DEFAULT", "android.intent.category.BROWSABLE"]
+          "category": [
+            "android.intent.category.DEFAULT",
+            "android.intent.category.BROWSABLE"
+          ]
         }
       ]
     },
@@ -39,6 +42,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "8ab85019-c5a4-42b4-b294-ce47d6a5efb8"
+      }
+    },
+    "owner": "papajams.eth"
   }
 }

@@ -12,6 +12,7 @@
     },
     "preview": {
       "distribution": "internal",
+      "credentialsSource": "remote",
       "android": {
         "buildType": "apk"
       }
