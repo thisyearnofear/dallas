@@ -2,13 +2,14 @@ import { useState, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   TextInput, StatusBar, KeyboardAvoidingView, Platform,
-  Animated,
+  Animated, Linking,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../../config/theme';
 import { useWallet } from '../../hooks/useWallet';
 import { useReputation } from '../../hooks/useReputation';
+import { optimizationLogService } from '../../services/OptimizationLogService';
 import { zkProofAnimation, springPop, fadeSlideIn, entryStyle } from '../../config/animations';
 
 const STEPS = [
@@ -143,7 +144,7 @@ function ReviewRow({ label, value, mono, accent }: { label: string; value: strin
 
 // ─── Success state ───────────────────────────────────────────────────────────
 
-function SuccessView({ onReset }: { onReset: () => void }) {
+function SuccessView({ onReset, txSignature }: { onReset: () => void; txSignature: string | null }) {
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const contentAnim = useRef(new Animated.Value(0)).current;
 
@@ -177,6 +178,17 @@ function SuccessView({ onReset }: { onReset: () => void }) {
             </View>
           ))}
         </View>
+        {txSignature && (
+          <TouchableOpacity
+            style={styles.txLinkBtn}
+            onPress={() => Linking.openURL(`https://explorer.solana.com/tx/${txSignature}?cluster=devnet`)}
+            activeOpacity={0.75}
+          >
+            <Ionicons name="open-outline" size={13} color={Colors.accent} />
+            <Text style={styles.txLinkText}>{txSignature.slice(0, 8)}...{txSignature.slice(-8)}</Text>
+            <Text style={styles.txLinkLabel}>View on Explorer</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity style={styles.ctaBtn} onPress={onReset} activeOpacity={0.85}>
           <Text style={styles.ctaBtnText}>Submit Another</Text>
         </TouchableOpacity>
@@ -188,11 +200,13 @@ function SuccessView({ onReset }: { onReset: () => void }) {
 // ─── Main screen ─────────────────────────────────────────────────────────────
 
 export default function SubmitScreen() {
-  const { connected, connect } = useWallet();
+  const { connected, connect, publicKey, signAndSendTransaction } = useWallet();
   const { recordLogSubmission } = useReputation();
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [txSignature, setTxSignature] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const [selectedAlliance, setSelectedAlliance] = useState('');
   const [baselineRate, setBaselineRate] = useState('');
@@ -214,23 +228,42 @@ export default function SubmitScreen() {
   };
 
   const handleSubmit = async () => {
-    if (!connected) { await connect(); return; }
+    if (!connected || !publicKey) { await connect(); return; }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     setSubmitting(true);
-    await new Promise(r => setTimeout(r, 2600));
-    setSubmitting(false);
-    recordLogSubmission();
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    setSubmitted(true);
+    setSubmitError(null);
+    try {
+      // Encrypt metrics client-side (XOR stub — swap for AES-GCM / Lit Protocol on mainnet)
+      const encode = (v: string) => new TextEncoder().encode(v);
+      const tx = await optimizationLogService.buildSubmitTransaction({
+        agentPublicKey: publicKey.toBase58(),
+        encryptedBaseline: encode(baselineRate),
+        encryptedOutcome: encode(improvedRate),
+        architectureProtocol: ALLIANCE_OPTIONS.find(a => a.id === selectedAlliance)?.ticker ?? 'unknown',
+        durationDays: 1,
+        costUSD: 0.10,
+      });
+      const sig = await signAndSendTransaction(tx);
+      setTxSignature(sig);
+      recordLogSubmission();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setSubmitted(true);
+    } catch (e: any) {
+      setSubmitError(e?.message ?? 'Transaction failed');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleReset = () => {
     setSubmitted(false); setStep(1); setSelectedAlliance('');
     setBaselineRate(''); setImprovedRate(''); setLatencyBefore('');
     setLatencyAfter(''); setEncryptionAck(false); setZkAck(false);
+    setTxSignature(null); setSubmitError(null);
   };
 
-  if (submitted) return <SuccessView onReset={handleReset} />;
+  if (submitted) return <SuccessView onReset={handleReset} txSignature={txSignature} />;
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -359,6 +392,12 @@ export default function SubmitScreen() {
               <ReviewRow label="XP Reward" value="+75 XP" accent />
             </View>
             {!connected && <InfoBox icon="wallet-outline" text="You'll be prompted to connect your wallet to sign this transaction." />}
+            {submitError && (
+              <View style={styles.errorBox}>
+                <Ionicons name="alert-circle-outline" size={16} color="#ef4444" style={{ marginTop: 1 }} />
+                <Text style={styles.errorText}>{submitError}</Text>
+              </View>
+            )}
           </View>
         )}
       </ScrollView>
@@ -608,4 +647,22 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accentMuted, alignItems: 'center',
   },
   ctaBtnText: { color: Colors.accent, fontSize: Typography.base, fontWeight: Typography.semibold },
+
+  txLinkBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing.xs,
+    backgroundColor: Colors.bgCard, borderRadius: Radius.md,
+    borderWidth: 1, borderColor: Colors.accentBorder,
+    paddingHorizontal: Spacing.md, paddingVertical: 10,
+    marginBottom: Spacing.lg, width: '100%',
+  },
+  txLinkText: { color: Colors.accent, fontSize: Typography.xs, fontFamily: Typography.mono, flex: 1 },
+  txLinkLabel: { color: Colors.textMuted, fontSize: Typography.xs },
+
+  errorBox: {
+    flexDirection: 'row', gap: Spacing.sm, alignItems: 'flex-start',
+    backgroundColor: 'rgba(239,68,68,0.08)', borderRadius: Radius.md,
+    borderWidth: 1, borderColor: 'rgba(239,68,68,0.25)',
+    padding: Spacing.md, marginTop: Spacing.md,
+  },
+  errorText: { flex: 1, color: '#ef4444', fontSize: Typography.sm, lineHeight: 18 },
 });
