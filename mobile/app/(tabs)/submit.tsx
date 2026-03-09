@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../../config/theme';
 import { useWallet } from '../../hooks/useWallet';
 import { useReputation } from '../../hooks/useReputation';
+import { notifyLogValidated } from '../../hooks/useNotifications';
 import { optimizationLogService } from '../../services/OptimizationLogService';
 import { zkProofAnimation, springPop, fadeSlideIn, entryStyle } from '../../config/animations';
 
@@ -247,6 +248,9 @@ export default function SubmitScreen() {
       setTxSignature(sig);
       recordLogSubmission();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      // Schedule a "log validated" push notification (fires 8s later to simulate validator)
+      const allianceName = ALLIANCE_OPTIONS.find(a => a.id === selectedAlliance)?.name ?? 'Alliance';
+      notifyLogValidated(allianceName, 75);
       setSubmitted(true);
     } catch (e: any) {
       setSubmitError(e?.message ?? 'Transaction failed');

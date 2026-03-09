@@ -2,6 +2,7 @@
 // Single source of truth for all reputation data across screens
 import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { notifyRankUp } from './useNotifications';
 
 export type Rank = 'INITIATE' | 'CONTRIBUTOR' | 'VALIDATOR' | 'ARCHITECT' | 'LEGEND';
 
@@ -148,6 +149,7 @@ export function useReputation() {
         if (a.id === 'legend_rank' && rank === 'LEGEND') return { ...a, unlockedAt: Date.now() };
         return a;
       });
+      if (rank !== prev.rank) notifyRankUp(rank);
       const next = { ...prev, xp, rank, rankProgress: progress, streak, logsSubmitted, achievements };
       AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       return next;

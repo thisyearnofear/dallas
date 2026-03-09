@@ -3,12 +3,16 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '../config/theme';
+import { useNotifications } from '../hooks/useNotifications';
 
 const ONBOARDING_KEY = 'dbc_onboarding_complete';
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Request notification permissions on first launch + schedule daily challenge
+  useNotifications();
 
   useEffect(() => {
     AsyncStorage.getItem(ONBOARDING_KEY).then(val => {
