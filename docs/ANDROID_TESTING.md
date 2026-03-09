@@ -1,10 +1,68 @@
 # Android Testing Without a Physical Device
 
-You don't need a Seeker or any Android phone to test the app. Android Studio's built-in emulator runs a full Android OS and supports the Solana Mobile Stack.
+You don't need a Seeker or any Android phone to test the app. Choose the path that works best for you:
+
+- **Option A (Recommended): Online cloud devices** — no install, runs in your browser
+- **Option B: Android Studio emulator** — local, full MWA support, required for real on-chain tx
 
 ---
 
-## 1. Install Android Studio
+## Option A: Online Cloud Testing (No Install Required)
+
+### BrowserStack App Live — Best for Demo Recording
+**https://www.browserstack.com/app-live**
+
+- Upload your `.apk` directly — no install needed
+- Real Android devices in the cloud (Pixel 7, Samsung S23, etc.)
+- Built-in screen recorder — ideal for capturing your hackathon demo video
+- **Free trial:** 30 minutes of real device time
+- Supports sideloading Phantom APK alongside your app for MWA testing
+
+**Steps:**
+1. Download the `.apk` from your EAS build: https://expo.dev/accounts/papajams.eth/projects/dallas-buyers-club/builds
+2. Go to **browserstack.com → App Live → Upload APK**
+3. Choose a **Pixel 7 (API 33+)** device
+4. Sideload Phantom APK for wallet signing (optional — skip for UI-only demo)
+5. Use the built-in screen recorder to capture your demo video
+
+---
+
+### Appetize.io — Best for Sharing with Judges
+**https://appetize.io**
+
+- Upload APK → get a shareable URL anyone can click to run your app in a browser
+- **Free tier:** 100 minutes/month
+- Embed the link in your pitch deck so judges can try it themselves
+- **Limitation:** MWA wallet signing requires Phantom — use BrowserStack for the full flow
+
+**Steps:**
+1. Go to **appetize.io → Upload**
+2. Upload your `.apk`
+3. Share the generated URL in your hackathon submission
+
+---
+
+### Recommended Demo Recording Path
+
+```
+1. Download APK from EAS build URL
+   ↓
+2. Upload to BrowserStack App Live (free trial)
+   ↓
+3. Walk through: onboarding → alliances → submit wizard → ZK proof overlay
+   ↓
+4. Use BrowserStack's built-in screen recorder for demo video
+   ↓
+5. Upload to Appetize.io → share link with judges
+```
+
+---
+
+## Option B: Android Studio Emulator (Full MWA Support)
+
+Use this path if you need to test the complete Mobile Wallet Adapter signing flow with Phantom.
+
+### 1. Install Android Studio
 
 Download from https://developer.android.com/studio (free).
 
@@ -15,7 +73,7 @@ During setup, accept the default SDK components — you need:
 
 ---
 
-## 2. Create a Virtual Device (AVD)
+### 2. Create a Virtual Device (AVD)
 
 1. Open Android Studio → **More Actions → Virtual Device Manager**
 2. Click **Create Device**
@@ -28,7 +86,7 @@ The emulator boots in ~30 seconds. You'll see a standard Android home screen.
 
 ---
 
-## 3. Install Phantom Wallet on the Emulator
+### 3. Install Phantom Wallet on the Emulator
 
 The emulator has a built-in browser. Install Phantom via APK sideload:
 
@@ -44,7 +102,7 @@ Or use the Google Play Store if you sign in with a Google account in the emulato
 
 ---
 
-## 4. Run the App on the Emulator
+### 4. Run the App on the Emulator
 
 ```bash
 # Make sure the emulator is running first, then:
@@ -65,7 +123,7 @@ This builds a debug APK, installs it on the running emulator, and opens it autom
 
 ---
 
-## 5. Test the Full Flow
+### 5. Test the Full Flow
 
 Once the app is running on the emulator:
 
@@ -90,7 +148,7 @@ Once the app is running on the emulator:
 
 ---
 
-## 6. Build a Release APK for Submission
+### 6. Build a Release APK for Submission
 
 Once testing is complete, build the hackathon APK via EAS:
 
@@ -104,7 +162,7 @@ This produces a downloadable `.apk` at https://expo.dev/accounts/papajams.eth/pr
 
 ---
 
-## 7. Record the Demo Video
+### 7. Record the Demo Video
 
 Use Android Studio's built-in screen recorder:
 - Emulator toolbar → **Camera icon → Start Recording**
@@ -121,7 +179,7 @@ Or use QuickTime on Mac with the emulator window captured.
 
 ---
 
-## Troubleshooting
+### Troubleshooting
 
 | Issue | Fix |
 |---|---|
