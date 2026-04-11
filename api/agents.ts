@@ -6,14 +6,15 @@
  * - Task assignment  
  * - Result submission
  * - Agent registration
+ * 
+ * Uses Vercel KV for persistence with in-memory fallback
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { db } from './kv';
 
-// In-memory storage (in production, use a database)
-const agents = new Map<string, any>();
-const tasks = new Map<string, any>();
-const results = new Map<string, any>();
+// Initialize mock tasks on first load
+initializeTasks();
 
 // Initialize mock tasks
 function initializeTasks() {

@@ -8,37 +8,40 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { db } from '../src/services/kv';
 
-// In-memory storage
-const pendingValidations = new Map<string, any>();
-const completedValidations = new Map<string, any>();
+// Initialize mock data on module load
+initializeMockData();
 
-// Initialize some mock pending validations
 function initializeMockData() {
-  pendingValidations.set('pending_001', {
-    id: 'pending_001',
-    optimizationLogId: 'opt_log_001',
-    submitter: 'user_abc123',
-    validatorType: 'quality',
-    submittedAt: Date.now() - 86400000, // 1 day ago
-    status: 'pending',
-    stakeAmount: 250,
-    priority: 'medium'
-  });
-  
-  pendingValidations.set('pending_002', {
-    id: 'pending_002', 
-    optimizationLogId: 'opt_log_002',
-    submitter: 'user_def456',
-    validatorType: 'accuracy',
-    submittedAt: Date.now() - 43200000, // 12 hours ago
-    status: 'pending',
-    stakeAmount: 150,
-    priority: 'low'
-  });
+  const mockValidations = [
+    {
+      id: 'pending_001',
+      optimizationLogId: 'opt_log_001',
+      submitter: 'user_abc123',
+      submittedAt: Date.now() - 86400000,
+      status: 'pending',
+      stakeAmount: 250,
+      priority: 'medium'
+    },
+    {
+      id: 'pending_002',
+      optimizationLogId: 'opt_log_002',
+      submitter: 'user_def456',
+      submittedAt: Date.now() - 172800000,
+      status: 'pending',
+      stakeAmount: 150,
+      priority: 'low'
+    }
+  ];
+
+  for (const v of mockValidations) {
+    db.set(`validation:${v.id}`, v);
+  }
+  db.set('validations:pending', mockValidations.map(v => v.id));
 }
 
-initializeMockData();
+await initializeMockData();
 
 /**
  * POST /api/validations - Submit for validation

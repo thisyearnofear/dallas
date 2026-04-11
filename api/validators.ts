@@ -8,12 +8,7 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-// In-memory storage
-const validators = new Map<string, any>();
-const stakes = new Map<string, any>();
-const validations = new Map<string, any>();
-const reputations = new Map<string, any>();
+import { db } from '../src/services/kv';
 
 // Minimum stake to become validator
 const MINIMUM_STAKE = 1000; // DBC
@@ -48,7 +43,8 @@ export default async function handler(
     }
 
     // Check if already registered
-    if (validators.has(address)) {
+    const existing = await db.get(`validator:${address}`);
+    if (existing) {
       return response.status(400).json({
         error: 'Validator already registered'
       });
@@ -77,10 +73,18 @@ export default async function handler(
       totalStake: actualStake
     };
 
-    validators.set(address, validator);
+    // Store validator
+    await db.set(`validator:${address}`, validator);
+    
+    // Add to index
+    const index = await db.get('validators:index') || [];
+    if (!index.includes(address)) {
+      index.push(address);
+      await db.set('validators:index', index);
+    }
 
     // Initialize stake record
-    stakes.set(address, {
+    await db.set(`stake:${address}`, {
       validatorId: address,
       amount: actualStake,
       locked: actualStake,
@@ -89,7 +93,7 @@ export default async function handler(
     });
 
     // Initialize reputation
-    reputations.set(address, {
+    await db.set(`reputation:${address}`, {
       validatorId: address,
       score: 100, // Starting reputation
       trustLevel: 'bronze', // bronze | silver | gold | platinum
@@ -116,7 +120,7 @@ export default async function handler(
     const { address, status, includeReputation } = request.query;
 
     if (address) {
-      const validator = validators.get(address as string);
+      const validator = await db.get(`validator:${address}`);
       if (!validator) {
         return response.status(404).json({ error: 'Validator not found' });
       }
@@ -125,7 +129,7 @@ export default async function handler(
 
       // Include reputation if requested
       if (includeReputation === 'true') {
-        const reputation = reputations.get(address as string);
+        const reputation = await db.get(`reputation:${address}`);
         if (reputation) {
           data.reputation = reputation;
         }
@@ -134,8 +138,15 @@ export default async function handler(
       return response.status(200).json(data);
     }
 
-    // List all validators
-    let validatorList = Array.from(validators.values());
+    // List all validators - fetch from index
+    const index = await db.get('validators:index') || [];
+    const validatorList = await Promise.all(
+      index.map(async (addr: string) => {
+        const v = await db.get(`validator:${addr}`);
+        return v ? { ...v } : null;
+      })
+    );
+    const validList = validatorList.filter(Boolean);
 
     if (status) {
       validatorList = validatorList.filter(v => v.status === status);
@@ -158,7 +169,8 @@ export default async function handler(
       return response.status(400).json({ error: 'Missing address' });
     }
 
-    const validator = validators.get(address);
+    // Fetch validator from KV
+    const validator = await db.get(`validator:${address}`);
     if (!validator) {
       return response.status(404).json({ error: 'Validator not found' });
     }
@@ -170,13 +182,14 @@ export default async function handler(
 
       validator.stakeAmount += stakeAmount;
       validator.totalStake += stakeAmount;
-      validators.set(address, validator);
+      await db.set(`validator:${address}`, validator);
 
-      const stakeRecord = stakes.get(address);
+      // Update stake record
+      const stakeRecord = await db.get(`stake:${address}`);
       if (stakeRecord) {
         stakeRecord.amount += stakeAmount;
         stakeRecord.locked += stakeAmount;
-        stakes.set(address, stakeRecord);
+        await db.set(`stake:${address}`, stakeRecord);
       }
 
       return response.status(200).json({
@@ -191,7 +204,8 @@ export default async function handler(
         return response.status(400).json({ error: 'Invalid unstake amount' });
       }
 
-      const stakeRecord = stakes.get(address);
+      // Use KV for stake fetch
+      const stakeRecord = await db.get(`stake:${address}`);
       const available = stakeRecord?.locked || 0;
       
       if (stakeAmount > available) {
@@ -200,12 +214,12 @@ export default async function handler(
 
       validator.stakeAmount -= stakeAmount;
       validator.totalStake -= stakeAmount;
-      validators.set(address, validator);
+      await db.set(`validator:${address}`, validator);
 
       if (stakeRecord) {
         stakeRecord.locked -= stakeAmount;
         stakeRecord.unlocked += stakeAmount;
-        stakes.set(address, stakeRecord);
+        await db.set(`stake:${address}`, stakeRecord);
       }
 
       return response.status(200).json({
@@ -217,7 +231,7 @@ export default async function handler(
 
     if (action === 'deactivate') {
       validator.status = 'inactive';
-      validators.set(address, validator);
+      await db.set(`validator:${address}`, validator);
 
       return response.status(200).json({
         success: true,

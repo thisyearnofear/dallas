@@ -2,15 +2,15 @@
  * Agent Tasks API for Dallas Buyers Club
  * 
  * Handles task discovery and assignment for autonomous agents
+ * Uses Vercel KV for persistence
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { db } from '../src/services/kv';
 
-// In-memory task storage
-const tasks = new Map<string, any>();
-const assignments = new Map<string, any>();
+// Initialize mock tasks on module load
+initializeTasks();
 
-// Initialize mock tasks
 function initializeTasks() {
   const mockTasks = [
     {
@@ -33,7 +33,7 @@ function initializeTasks() {
       rewardDbc: 150,
       complexity: 'low',
       requiredSkills: ['architecture_cross_ref'],
-      description: 'Cross-reference tool-call optimization approaches across benchmarks.',
+      description: 'Cross-reference tool-call optimization approaches.',
       metadata: { circuit: 'data_completeness' },
       createdAt: Date.now()
     },
@@ -45,7 +45,7 @@ function initializeTasks() {
       rewardDbc: 500,
       complexity: 'high',
       requiredSkills: ['statistical_modeling', 'mpc_compute'],
-      description: 'Perform meta-analysis on eval optimization logs using MPC committee.',
+      description: 'Perform meta-analysis on eval optimization logs.',
       metadata: { committeeSize: 5 },
       createdAt: Date.now()
     },
@@ -54,33 +54,22 @@ function initializeTasks() {
       type: 'validation',
       status: 'available',
       targetId: 'opt_log_004',
-      rewardDbc: 350,
-      complexity: 'medium',
+      rewardDbc: 300,
+      complexity: 'high',
       requiredSkills: ['noir_verification', 'tool_chain_analysis'],
       description: 'Validate tool-call loop optimization results.',
       metadata: { circuit: 'execution_duration', minDays: 7, maxDays: 90 },
-      createdAt: Date.now()
-    },
-    {
-      id: 'task_005',
-      type: 'research',
-      status: 'available',
-      targetId: 'opt_log_005',
-      rewardDbc: 200,
-      complexity: 'low',
-      requiredSkills: ['web_search', 'literature_review'],
-      description: 'Research latest context window optimization techniques.',
-      metadata: { focusArea: 'context' },
       createdAt: Date.now()
     }
   ];
 
   for (const task of mockTasks) {
-    tasks.set(task.id, task);
+    db.set(`task:${task.id}`, task);
   }
+  db.set('tasks:all', mockTasks.map(t => t.id));
 }
 
-initializeTasks();
+await initializeTasks();
 
 /**
  * GET /api/tasks - Discover available tasks
@@ -97,9 +86,21 @@ export default async function handler(
   const { method } = request;
 
   if (method === 'GET') {
-    const { type, complexity, status, agentId } = request.query;
+    const { type, complexity, status, id } = request.query;
 
-    let taskList = Array.from(tasks.values());
+    if (id) {
+      const task = await db.get(`task:${id}`);
+      if (!task) {
+        return response.status(404).json({ error: 'Task not found' });
+      }
+      return response.status(200).json(task);
+    }
+
+    let taskList: any[] = [];
+    const taskIds = (await db.get('tasks:all')) || [];
+    taskList = await Promise.all(
+      taskIds.map(async (tid: string) => db.get(`task:${tid}`))
+    );
 
     // Apply filters
     if (type) {
@@ -112,132 +113,61 @@ export default async function handler(
       taskList = taskList.filter(t => t.status === status);
     }
 
-    // If agentId provided, include assignment status
-    if (agentId) {
-      const agentAssignments = Array.from(assignments.entries())
-        .filter(([_, assignment]) => assignment.agentId === agentId)
-        .map(([taskId, assignment]) => ({ taskId, ...assignment }));
-      
-      return response.status(200).json({
-        tasks: taskList,
-        assignments: agentAssignments,
-        count: taskList.length
-      });
-    }
-
-    return response.status(200).json({
-      tasks: taskList,
-      count: taskList.length
-    });
+    return response.status(200).json({ tasks: taskList.filter(Boolean) });
   }
 
-  /**
-   * POST /api/tasks - Create a new task (human or system)
-   */
   if (method === 'POST') {
-    const {
+    const { type, targetId, rewardDbc, complexity, requiredSkills, description, metadata } = request.body;
+
+    if (!type || !targetId || !rewardDbc) {
+      return response.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const id = `task_${Date.now()}`;
+    const task = {
+      id,
       type,
       targetId,
       rewardDbc,
-      complexity,
-      requiredSkills,
-      description,
-      metadata
-    } = request.body;
-
-    if (!type || !targetId || !description) {
-      return response.status(400).json({
-        error: 'Missing required fields: type, targetId, description'
-      });
-    }
-
-    const id = `task_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-
-    const task = {
-      id,
-      type, // 'validation' | 'research' | 'cross_reference' | 'statistical_analysis'
-      status: 'available',
-      targetId,
-      rewardDbc: rewardDbc || 100,
       complexity: complexity || 'medium',
       requiredSkills: requiredSkills || [],
-      description,
+      description: description || '',
       metadata: metadata || {},
+      status: 'available',
       createdAt: Date.now()
     };
 
-    tasks.set(id, task);
+    await db.set(`task:${id}`, task);
+    const taskIds = ((await db.get('tasks:all')) || []) as string[];
+    taskIds.push(id);
+    await db.set('tasks:all', taskIds);
 
-    return response.status(201).json({
-      success: true,
-      task,
-      message: 'Task created successfully'
-    });
+    return response.status(201).json({ task });
   }
 
-  /**
-   * PUT /api/tasks - Assign or update task
-   * Body: { taskId, agentId, action }
-   */
   if (method === 'PUT') {
-    const { taskId, agentId, action } = request.body;
+    const { id, agentId, status } = request.body;
 
-    if (!taskId) {
-      return response.status(400).json({ error: 'Missing taskId' });
+    if (!id) {
+      return response.status(400).json({ error: 'Task ID required' });
     }
 
-    const task = tasks.get(taskId);
-    if (!task) {
+    const existing = await db.get(`task:${id}`);
+    if (!existing) {
       return response.status(404).json({ error: 'Task not found' });
     }
 
-    if (action === 'assign') {
-      if (!agentId) {
-        return response.status(400).json({ error: 'Missing agentId for assignment' });
-      }
-
-      if (task.status !== 'available') {
-        return response.status(400).json({ error: 'Task is not available for assignment' });
-      }
-
-      // Update task status
-      task.status = 'assigned';
-      task.assignedTo = agentId;
-      task.assignedAt = Date.now();
-      tasks.set(taskId, task);
-
-      // Record assignment
-      assignments.set(taskId, {
-        taskId,
-        agentId,
-        assignedAt: Date.now(),
-        status: 'in_progress'
-      });
-
-      return response.status(200).json({
-        success: true,
-        task,
-        message: `Task ${taskId} assigned to agent ${agentId}`
-      });
+    const updates: any = { ...request.body, updatedAt: Date.now() };
+    if (agentId && existing.status === 'available') {
+      updates.status = 'assigned';
+      updates.assignedTo = agentId;
+      updates.assignedAt = Date.now();
     }
 
-    if (action === 'complete') {
-      if (!agentId) {
-        return response.status(400).json({ error: 'Missing agentId' });
-      }
+    const updated = { ...existing, ...updates };
+    await db.set(`task:${id}`, updated);
 
-      task.status = 'completed';
-      task.completedAt = Date.now();
-      tasks.set(taskId, task);
-
-      return response.status(200).json({
-        success: true,
-        task,
-        message: 'Task marked as completed'
-      });
-    }
-
-    return response.status(400).json({ error: 'Invalid action' });
+    return response.status(200).json({ task: updated });
   }
 
   return response.status(405).json({ error: 'Method not allowed' });

@@ -9,10 +9,7 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-// In-memory storage
-const results = new Map<string, any>();
-const validations = new Map<string, any>();
+import { db } from '../src/services/kv';
 
 /**
  * POST /api/results - Submit agent results
@@ -77,15 +74,14 @@ export default async function handler(
       createdAt: Date.now()
     };
 
-    results.set(id, result);
+    await db.set(`result:${id}`, result);
 
     // For validation tasks, also store in validations map
     if (resultType === 'validation') {
-      validations.set(id, {
-        ...result,
-        validationType: 'quality',
-        approved: false,
-        stakeAmount: 0
+      await db.set(`validation:${id}`, {
+        resultId: id,
+        status: 'pending',
+        createdAt: Date.now()
       });
     }
 
@@ -109,14 +105,18 @@ export default async function handler(
     const { id, taskId, agentId, targetId, status } = request.query;
 
     if (id) {
-      const result = results.get(id as string);
+      const result = await db.get(`result:${id}`);
       if (!result) {
         return response.status(404).json({ error: 'Result not found' });
       }
       return response.status(200).json(result);
     }
 
-    let resultList = Array.from(results.values());
+    let resultList: any[] = [];
+    const resultIds = (await db.get('results:all')) || [];
+    resultList = await Promise.all(
+      resultIds.map(async (rid: string) => db.get(`result:${rid}`))
+    );
 
     if (taskId) {
       resultList = resultList.filter(r => r.taskId === taskId);
@@ -148,7 +148,7 @@ export default async function handler(
       return response.status(400).json({ error: 'Missing resultId' });
     }
 
-    const result = results.get(resultId);
+    const result = await db.get(`result:${resultId}`);
     if (!result) {
       return response.status(404).json({ error: 'Result not found' });
     }
@@ -171,18 +171,18 @@ export default async function handler(
     }
 
     result.updatedAt = Date.now();
-    results.set(resultId, result);
+    await db.set(`result:${resultId}`, result);
 
     // Update corresponding validation if exists
-    if (validations.has(resultId)) {
-      const validation = validations.get(resultId);
+    const validation = await db.get(`validation:${resultId}`);
+    if (validation) {
       if (approved !== undefined) {
         validation.approved = approved;
       }
       if (stakeAmount !== undefined) {
         validation.stakeAmount = stakeAmount;
       }
-      validations.set(resultId, validation);
+      await db.set(`validation:${resultId}`, validation);
     }
 
     return response.status(200).json({
