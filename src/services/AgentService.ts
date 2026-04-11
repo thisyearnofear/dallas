@@ -39,11 +39,44 @@ export interface AgentIdentity {
     sessionsConfirmed: number;
 }
 
+// API base URL - use relative path for client-side calls
+const API_BASE = '/api';
+
 class AgentService {
     private agentTasks: AgentTask[] = [];
     private activeAgents: AgentIdentity[] = [];
+    private useApi: boolean = true;
 
     constructor() {
+        // Try to load from API first, fall back to mock
+        this.initializeAgentData();
+    }
+
+    private async initializeAgentData() {
+        if (this.useApi) {
+            try {
+                // Fetch tasks from API
+                const tasksRes = await fetch(`${API_BASE}/tasks?status=available`);
+                if (tasksRes.ok) {
+                    const tasksData = await tasksRes.json();
+                    this.agentTasks = tasksData.tasks || [];
+                }
+
+                // Fetch registered agents
+                const agentsRes = await fetch(`${API_BASE}/agents`);
+                if (agentsRes.ok) {
+                    const agentsData = await agentsRes.json();
+                    this.activeAgents = agentsData.agents || [];
+                }
+
+                console.log('✅ AgentService initialized from API');
+                return;
+            } catch (error) {
+                console.warn('⚠️ API not available, using mock data:', error);
+            }
+        }
+
+        // Fall back to mock data
         this.initializeMockData();
     }
 
@@ -53,33 +86,33 @@ class AgentService {
                 id: 'task_001',
                 type: 'validation',
                 status: 'available',
-                targetId: 'cs_peptide_t_156',
+                targetId: 'opt_log_001',
                 rewardDbc: 250,
                 complexity: 'medium',
-                requiredSkills: ['clinical_literacy', 'web_search'],
-                description: 'Verify agent outcomes for Peptide-T protocol against clinical literature (1987-1992).',
-                metadata: { circuit: 'benchmark_delta' }
+                requiredSkills: ['noir_verification', 'mpc_compute'],
+                description: 'Verify benchmark improvement for context window optimization using ZK proofs.',
+                metadata: { circuit: 'benchmark_delta', minImprovement: 20 }
             },
             {
                 id: 'task_002',
                 type: 'cross_reference',
                 status: 'available',
-                targetId: 'cs_context_optimization_89',
+                targetId: 'opt_log_002',
                 rewardDbc: 150,
                 complexity: 'low',
-                requiredSkills: ['supply_chain_verification'],
-                description: 'Cross-reference agent model versions for benchmark consistency reports.',
+                requiredSkills: ['architecture_cross_ref'],
+                description: 'Cross-reference tool-call optimization approaches across benchmarks.',
                 metadata: { circuit: 'data_completeness' }
             },
             {
                 id: 'task_003',
                 type: 'statistical_analysis',
                 status: 'available',
-                targetId: 'agg_metabolic_disorders',
+                targetId: 'opt_log_003',
                 rewardDbc: 500,
                 complexity: 'high',
-                requiredSkills: ['statistical_modeling', 'mpc_participation'],
-                description: 'Perform meta-analysis on 500+ metabolic disorder optimization logs using MPC.',
+                requiredSkills: ['statistical_modeling', 'mpc_compute'],
+                description: 'Perform meta-analysis on eval optimization logs using MPC committee.',
                 metadata: { committeeSize: 5 }
             }
         ];
@@ -88,7 +121,7 @@ class AgentService {
             {
                 id: 'agent_openclaw_01',
                 publicKey: 'Agnt...7Xy2',
-                ownerAddress: '', // To be filled by current user
+                ownerAddress: '',
                 name: 'Claw-Validator-Alpha',
                 role: 'validator',
                 status: 'idle',
@@ -101,9 +134,47 @@ class AgentService {
 
     /**
      * Register a new agent (OpenClaw integration)
+     * Now calls the /api/agents endpoint
      */
     async registerAgent(owner: PublicKey, name: string, role: AgentIdentity['role']): Promise<AgentIdentity> {
-        // Generate a new keypair for the agent (delegated)
+        // Try API first
+        if (this.useApi) {
+            try {
+                const res = await fetch(`${API_BASE}/agents`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name,
+                        role,
+                        ownerAddress: owner.toString(),
+                        publicKey: null, // Will be generated server-side
+                        capabilities: ['web_search', 'noir_verification', 'mpc_compute']
+                    })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    const newAgent: AgentIdentity = {
+                        id: data.agent.id,
+                        publicKey: data.agent.publicKey || '',
+                        ownerAddress: data.agent.ownerAddress,
+                        name: data.agent.name,
+                        role: data.agent.role,
+                        status: data.agent.status,
+                        capabilities: data.agent.capabilities,
+                        earningsDbc: 0,
+                        sessionsConfirmed: 0
+                    };
+                    this.activeAgents.push(newAgent);
+                    console.log(`✅ Agent registered via API: ${newAgent.id}`);
+                    return newAgent;
+                }
+            } catch (error) {
+                console.warn('⚠️ API registration failed, using local:', error);
+            }
+        }
+
+        // Fall back to local keypair generation
         const agentKeypair = Keypair.generate();
 
         const newAgent: AgentIdentity = {
@@ -122,6 +193,70 @@ class AgentService {
         cacheService.set(`agent_${newAgent.id}`, agentKeypair.secretKey);
 
         return newAgent;
+    }
+
+    /**
+     * Assign a task to an agent via API
+     */
+    async assignTask(taskId: string, agentId: string): Promise<AgentTask | null> {
+        if (this.useApi) {
+            try {
+                const res = await fetch(`${API_BASE}/tasks`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        taskId,
+                        agentId,
+                        action: 'assign'
+                    })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    console.log(`✅ Task assigned via API: ${taskId} -> ${agentId}`);
+                    return data.task;
+                }
+            } catch (error) {
+                console.warn('⚠️ Task assignment failed:', error);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Submit task results via API
+     */
+    async submitResults(
+        taskId: string,
+        agentId: string,
+        resultType: AgentTask['type'],
+        targetId: string,
+        findings: any
+    ): Promise<any> {
+        if (this.useApi) {
+            try {
+                const res = await fetch(`${API_BASE}/results`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        taskId,
+                        agentId,
+                        resultType,
+                        targetId,
+                        findings
+                    })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    console.log(`✅ Results submitted via API: ${data.result.id}`);
+                    return data.result;
+                }
+            } catch (error) {
+                console.warn('⚠️ Results submission failed:', error);
+            }
+        }
+        return null;
     }
 
     /**

@@ -3,6 +3,7 @@ import { useContext, useState, useEffect, useCallback } from 'preact/hooks';
 import { PublicKey, Connection, LAMPORTS_PER_SOL, SystemProgram } from '@solana/web3.js';
 import { getRpcEndpoint, validateBlockchainConfig, SOLANA_CONFIG } from '../config/solana';
 import { transactionHistoryService, TransactionRecord } from '../services/transactionHistory';
+import { validatorService } from '../services/ValidatorService';
 
 export const WalletContext = createContext(null);
 
@@ -33,6 +34,8 @@ export interface WalletContextType {
   validationCount: number;
   accuracyRate: number;
   refreshDbcBalance: () => Promise<void>;
+  // Validator data - fetches from API
+  refreshExperienceData: () => Promise<void>;
 }
 
 const NETWORK = getRpcEndpoint();
@@ -99,12 +102,38 @@ export function WalletProvider({ children }: { children: any }) {
   }, [publicKey, connected]); // fetchDbcBalance is stable
 
   // Legacy: Fetch EXPERIENCE token data (to be deprecated)
+  // Now fetches from ValidatorService API
   const fetchExperienceData = useCallback(async (walletPublicKey: PublicKey) => {
-    // EXPERIENCE token deprecated - using DBC only
-    setExperienceBalance(0);
-    setValidationCount(0);
-    setAccuracyRate(0);
+    if (!walletPublicKey) return;
+    
+    try {
+      // Try to fetch validator profile from API
+      const reputation = await validatorService.getReputation(walletPublicKey.toString());
+      
+      if (reputation) {
+        setValidationCount(reputation.totalValidations);
+        setAccuracyRate(reputation.totalValidations > 0 
+          ? Math.round((reputation.accurateValidations / reputation.totalValidations) * 100)
+          : 0);
+      } else {
+        // Fall back to 0 values if no validator profile exists
+        setExperienceBalance(0);
+        setValidationCount(0);
+        setAccuracyRate(0);
+      }
+    } catch (error) {
+      console.warn('Failed to fetch validator data:', error);
+      setValidationCount(0);
+      setAccuracyRate(0);
+    }
   }, []);
+
+  // Refresh validator/experience data (called by components)
+  const refreshExperienceData = useCallback(async () => {
+    if (publicKey && connected) {
+      await fetchExperienceData(publicKey);
+    }
+  }, [publicKey, connected, fetchExperienceData]);
 
   // Validate blockchain configuration on startup
   useEffect(() => {
@@ -481,6 +510,8 @@ export function WalletProvider({ children }: { children: any }) {
     validationCount,
     accuracyRate,
     refreshDbcBalance,
+    // Validator data from API
+    refreshExperienceData,
   };
 
   return h(WalletContext.Provider, { value }, children);
