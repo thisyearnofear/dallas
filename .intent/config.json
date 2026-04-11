@@ -1,0 +1,40 @@
+{
+  "scripts": [
+    {
+      "name": "dev",
+      "command": "pnpm dev",
+      "mode": "service",
+      "category": "dev"
+    },
+    {
+      "name": "build",
+      "command": "pnpm build",
+      "mode": "command",
+      "category": "build"
+    },
+    {
+      "name": "preview",
+      "command": "pnpm preview",
+      "mode": "service",
+      "category": "dev"
+    },
+    {
+      "name": "test",
+      "command": "pnpm test",
+      "mode": "command",
+      "category": "test"
+    },
+    {
+      "name": "test:watch",
+      "command": "pnpm test:watch",
+      "mode": "command",
+      "category": "test"
+    },
+    {
+      "name": "prepare",
+      "command": "pnpm prepare",
+      "mode": "command",
+      "category": "other"
+    }
+  ]
+}

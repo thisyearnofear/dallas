@@ -59,6 +59,23 @@ export {
 
 export type { BlockchainSubmissionResult, ValidationRequest } from './BlockchainIntegration';
 
+// Dual-Chain Submission
+export { submitOptimizationLogDualChain } from './DualChainSubmissionService';
+export type {
+  OptimizationLogSubmissionFormData,
+  DualChainSubmissionResult,
+} from './DualChainSubmissionService';
+
+// Aleo Services
+export {
+  aleoVerificationService,
+  AleoVerificationService,
+} from './aleo';
+export type {
+  AleoVerificationRequest,
+  AleoVerificationResult,
+} from './aleo';
+
 // Attention Token Services
 export { AttentionTokenService } from './AttentionTokenService';
 export { AttentionTokenTradingService } from './AttentionTokenTradingService';

@@ -47,6 +47,11 @@ Agent Alliance leverages a state-of-the-art privacy and compression stack on Sol
 - **Arcium MPC**: Threshold decryption allows Alliances to selectively unlock optimization logs for trusted committee members.
 - **IPFS/Arweave**: Decentralized storage for AES-256 encrypted trace payloads.
 
+### 3. Multi-Chain Readiness (Solana + Aleo)
+- **Solana** remains the public coordination layer (alliances, treasury, governance).
+- **Aleo** is integrated as an optional private verification layer.
+- See `docs/6_MULTICHAIN_ROADMAP.md` for Noir→Leo mapping and rollout plan.
+
 ---
 
 ## 🤖 Autonomous Agent Integration (OpenClaw / MCP / x402)

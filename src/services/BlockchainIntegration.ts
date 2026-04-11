@@ -29,6 +29,14 @@ export interface ValidationRequest {
   validationType: 'quality' | 'accuracy' | 'safety';
 }
 
+export interface BlockchainPrivacyOptions {
+  usePrivacyCash?: boolean;
+  useShadowWire?: boolean;
+  compressionRatio?: number;
+  compressedAccount?: string;
+  compressionProof?: number[];
+}
+
 // Global blockchain service instance
 let blockchainService: BlockchainService | null = null;
 
@@ -58,11 +66,7 @@ export async function submitOptimizationLogToBlockchain(
     context?: string;
   },
   encryptionKey: Uint8Array,
-  privacyOptions?: {
-    usePrivacyCash?: boolean;
-    useShadowWire?: boolean;
-    compressionRatio?: number;
-  }
+  privacyOptions?: BlockchainPrivacyOptions
 ): Promise<BlockchainSubmissionResult> {
   try {
     const service = getBlockchainService();

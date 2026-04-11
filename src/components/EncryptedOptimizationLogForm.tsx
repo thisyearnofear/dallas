@@ -2,8 +2,9 @@ import { FunctionalComponent } from 'preact';
 import { useState, useContext, useCallback, useEffect } from 'preact/hooks';
 import { WalletContext } from '../context/WalletContext';
 import { deriveEncryptionKey, encryptAgentData } from '../utils/encryption';
-import { submitOptimizationLogToBlockchain } from '../services/BlockchainIntegration';
+import { aleoVerificationService, submitOptimizationLogDualChain } from '../services';
 import { validateBlockchainConfig } from '../config/solana';
+import { getAleoReadiness } from '../config/chains';
 import { SubmissionConsentCheckboxes } from './SharedUIComponents';
 import { LEGAL_CONFIG } from '../config/legal';
 import {
@@ -38,6 +39,9 @@ interface OptimizationLogFormData {
   context?: string;
 }
 
+type SolanaRailStatus = 'idle' | 'pending' | 'confirmed' | 'failed';
+type AleoRailStatus = 'disabled' | 'idle' | 'pending' | 'queued' | 'verified' | 'failed';
+
 export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
   const walletContext = useContext(WalletContext);
   const { publicKey, signMessage } = walletContext;
@@ -71,6 +75,9 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
     compressionRatio: privacyOptions.compressionRatio,
     zkProofs: 0, // ZK proofs generated during validation, not submission
   };
+  const aleoReadiness = getAleoReadiness();
+  const aleoEnabled = aleoReadiness.enabled;
+  const submitTargetLabel = aleoEnabled ? 'Solana + Aleo' : 'Solana';
 
   // Initialize Light Protocol service
   useEffect(() => {
@@ -160,13 +167,38 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
     type: 'success' | 'error' | 'info' | null;
     message: string;
   }>({ type: null, message: '' });
+  const [isRetryingAleo, setIsRetryingAleo] = useState(false);
+  const [railStatus, setRailStatus] = useState<{
+    solana: SolanaRailStatus;
+    aleo: AleoRailStatus;
+  }>({
+    solana: 'idle',
+    aleo: aleoEnabled ? 'idle' : 'disabled',
+  });
 
   // Success state for full-screen overlay
   const [successData, setSuccessData] = useState<{
     signature: string;
     optimizationLogId: string;
     explorerUrl: string;
+    aleoStatus?: 'disabled' | 'queued' | 'verified' | 'failed';
+    aleoVerificationId?: string;
+    aleoTxId?: string;
+    aleoError?: string;
+    aleoCircuit?: string;
+    aleoPublicInputs?: Record<string, string | number | boolean>;
   } | null>(null);
+
+  useEffect(() => {
+    setRailStatus((current) => ({
+      ...current,
+      aleo: (() => {
+        if (!aleoEnabled) return 'disabled';
+        if (current.aleo === 'disabled') return 'idle';
+        return current.aleo;
+      })(),
+    }));
+  }, [aleoEnabled]);
 
   const [consentGiven, setConsentGiven] = useState(false);
   const handleConsentChange = useCallback((allChecked: boolean) => {
@@ -287,6 +319,74 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
     }
   };
 
+  const getAleoRailStatus = (status?: 'disabled' | 'queued' | 'verified' | 'failed'): AleoRailStatus => {
+    if (!status) return aleoEnabled ? 'idle' : 'disabled';
+    if (status === 'disabled') return 'disabled';
+    if (status === 'queued') return 'queued';
+    if (status === 'verified') return 'verified';
+    return 'failed';
+  };
+
+  const formatRailStatus = (status: string): string => {
+    if (status === 'pending') return 'In Progress';
+    if (status === 'confirmed') return 'Confirmed';
+    if (status === 'verified') return 'Verified';
+    if (status === 'queued') return 'Queued';
+    if (status === 'disabled') return 'Disabled';
+    if (status === 'failed') return 'Failed';
+    return 'Idle';
+  };
+
+  const handleRetryAleoVerification = async () => {
+    if (!successData?.optimizationLogId || !successData.aleoPublicInputs || !successData.aleoCircuit) {
+      return;
+    }
+
+    setIsRetryingAleo(true);
+    setRailStatus((current) => ({ ...current, aleo: 'pending' }));
+    setSubmitStatus({
+      type: 'info',
+      message: '🔄 Retrying Aleo private verification...',
+    });
+
+    try {
+      const retryResult = await aleoVerificationService.submitVerification({
+        optimizationLogId: successData.optimizationLogId,
+        circuit: successData.aleoCircuit,
+        publicInputs: successData.aleoPublicInputs,
+      });
+
+      const nextAleoStatus = getAleoRailStatus(retryResult.status);
+      setRailStatus((current) => ({ ...current, aleo: nextAleoStatus }));
+
+      setSuccessData((current) => {
+        if (!current) return current;
+        return {
+          ...current,
+          aleoStatus: retryResult.status,
+          aleoVerificationId: retryResult.verificationId,
+          aleoTxId: retryResult.txId,
+          aleoError: retryResult.error,
+        };
+      });
+
+      setSubmitStatus({
+        type: retryResult.status === 'failed' ? 'error' : 'success',
+        message: retryResult.status === 'failed'
+          ? `❌ Aleo retry failed: ${retryResult.error || 'Unknown error'}`
+          : '✅ Aleo private verification retry submitted successfully.',
+      });
+    } catch (error) {
+      setRailStatus((current) => ({ ...current, aleo: 'failed' }));
+      setSubmitStatus({
+        type: 'error',
+        message: `❌ Aleo retry failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      });
+    } finally {
+      setIsRetryingAleo(false);
+    }
+  };
+
   // Step 2: Encrypt and submit optimization log to blockchain
   // Enhanced submission with real-time progress tracking
   const handleSubmit = async (e: Event) => {
@@ -325,6 +425,10 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
     }
 
     setIsSubmitting(true);
+    setRailStatus({
+      solana: 'pending',
+      aleo: aleoEnabled ? 'pending' : 'disabled',
+    });
 
     try {
       // Step 1: Compress data if needed
@@ -351,11 +455,20 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
       // Step 3: Sign transaction
       setSubmitStatus({
         type: 'info',
-        message: '🔄 Step 3/4: Please approve the transaction in your wallet...',
+        message: aleoEnabled
+          ? '🔄 Step 3/4: Approve Solana transaction (Aleo verification follows)...'
+          : '🔄 Step 3/4: Please approve the transaction in your wallet...',
       });
 
-      // Submit to blockchain with real program calls
-      const result = await submitOptimizationLogToBlockchain(
+      const aleoPublicInputs = {
+        baselineLatencySeverity: Number(formData.baselineMetrics.latencySeverity || 0),
+        outcomeLatencySeverity: Number(formData.outcomeMetrics.latencySeverity || 0),
+        durationDays: formData.durationDays,
+        costUSD: formData.costUSD,
+      };
+
+      // Submit using dual-chain orchestrator
+      const result = await submitOptimizationLogDualChain(
         publicKey,
         walletContext.signTransaction,
         formData,
@@ -369,23 +482,35 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
       );
 
       // Step 4: Confirm transaction
-      if (result.success) {
+      if (result.solana.success) {
+        setRailStatus((current) => ({ ...current, solana: 'confirmed' }));
         setSubmitStatus({
           type: 'info',
-          message: '🔄 Step 4/4: Confirming transaction on Solana blockchain...',
+          message: aleoEnabled
+            ? '🔄 Step 4/4: Finalizing Solana submission + Aleo verification...'
+            : '🔄 Step 4/4: Confirming transaction on Solana blockchain...',
         });
 
         // Wait a moment for confirmation
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         // Extract data for success overlay
-        const signature = result.transactionSignature || '';
-        const optimizationLogId = result.optimizationLogPubkey?.toString() || '';
-        
+        const signature = result.solana.transactionSignature || '';
+        const optimizationLogId = result.solana.optimizationLogPubkey?.toString() || '';
+        const aleoResult = result.aleo;
+        const nextAleoStatus = getAleoRailStatus(aleoResult?.status);
+        setRailStatus((current) => ({ ...current, aleo: nextAleoStatus }));
+
         setSuccessData({
           signature,
           optimizationLogId,
           explorerUrl: `https://explorer.solana.com/tx/${signature}?cluster=devnet`,
+          aleoStatus: aleoResult?.status,
+          aleoVerificationId: aleoResult?.verificationId,
+          aleoTxId: aleoResult?.txId,
+          aleoError: aleoResult?.error,
+          aleoCircuit: 'benchmark_delta',
+          aleoPublicInputs,
         });
 
         // Reset form on success
@@ -402,13 +527,23 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
         // Clear any previous status
         setSubmitStatus({ type: null, message: '' });
       } else {
+        setRailStatus((current) => ({
+          ...current,
+          solana: 'failed',
+          aleo: aleoEnabled ? 'idle' : 'disabled',
+        }));
         setSubmitStatus({
           type: 'error',
-          message: result.message,
+          message: result.solana.message,
         });
       }
     } catch (error) {
       console.error('Submission error:', error);
+      setRailStatus((current) => ({
+        ...current,
+        solana: 'failed',
+        aleo: aleoEnabled ? 'failed' : 'disabled',
+      }));
       setSubmitStatus({
         type: 'error',
         message: `❌ Submission failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -435,7 +570,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
             🎉 Optimization Log Submitted!
           </h2>
           <p class="text-slate-600 dark:text-slate-300 font-medium mb-8">
-            Your encrypted optimization log is now on Solana blockchain and ready for validation
+            Your encrypted optimization log is now submitted across the configured verification rails.
           </p>
 
           {/* Next Steps Guide */}
@@ -482,7 +617,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
               </div>
               
               <div class="flex items-start gap-3">
-                <span class="text-2xl">🏥</span>
+                <span class="text-2xl">🤖</span>
                 <div class="flex-1 min-w-0">
                   <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Optimization Log ID</div>
                   <div class="font-mono text-sm text-slate-700 dark:text-slate-300 break-all">
@@ -497,6 +632,44 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                   <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Privacy Status</div>
                   <div class="text-sm text-green-600 dark:text-green-400 font-bold">
                     Encrypted with your wallet key
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3">
+                <span class="text-2xl">⛓️</span>
+                <div class="flex-1">
+                  <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Chain Status</div>
+                  <div class="text-sm text-slate-700 dark:text-slate-300">
+                    <div class="font-semibold">Solana: Confirmed</div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">Public coordination, rewards, and governance.</div>
+                    <div class="font-semibold">
+                      Aleo: {
+                        successData.aleoStatus === 'verified'
+                          ? 'Verified'
+                          : successData.aleoStatus === 'queued'
+                            ? 'Queued'
+                            : successData.aleoStatus === 'failed'
+                              ? 'Submission failed'
+                              : 'Disabled'
+                      }
+                    </div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400">Private proof verification and encrypted attestations.</div>
+                    {successData.aleoVerificationId && (
+                      <div class="font-mono text-xs break-all mt-1">
+                        Verification: {successData.aleoVerificationId}
+                      </div>
+                    )}
+                    {successData.aleoTxId && (
+                      <div class="font-mono text-xs break-all">
+                        Tx: {successData.aleoTxId}
+                      </div>
+                    )}
+                    {successData.aleoError && (
+                      <div class="text-xs text-red-600 dark:text-red-400 mt-1">
+                        {successData.aleoError}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -521,7 +694,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
               rel="noopener noreferrer"
               class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-xl font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2"
             >
-              <span>🔍</span> View Transaction
+              <span>🔍</span> View Solana Transaction
             </a>
             <a
               href="/validators"
@@ -529,8 +702,24 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
             >
               <span>👥</span> Track Validation
             </a>
+            {successData.aleoStatus === 'failed' && (
+              <button
+                onClick={handleRetryAleoVerification}
+                disabled={isRetryingAleo}
+                class="flex-1 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-300 text-white px-6 py-4 rounded-xl font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+              >
+                <span>{isRetryingAleo ? '⏳' : '🔁'}</span>
+                {isRetryingAleo ? 'Retrying Aleo...' : 'Retry Aleo Verification'}
+              </button>
+            )}
             <button
-              onClick={() => setSuccessData(null)}
+              onClick={() => {
+                setSuccessData(null);
+                setRailStatus({
+                  solana: 'idle',
+                  aleo: aleoEnabled ? 'idle' : 'disabled',
+                });
+              }}
               class="flex-1 bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-xl font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2"
             >
               <span>✨</span> Submit Another
@@ -912,7 +1101,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
               Additional Context
             </h3>
             <textarea
-              placeholder="Any other details? (Diet changes, concurrent architectures, dosages, etc.)"
+              placeholder="Any other details? (Prompting strategy, toolchain changes, eval setup, runtime constraints, etc.)"
               value={formData.context || ''}
               onInput={(e) =>
                 setFormData({
@@ -933,6 +1122,49 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
             {LEGAL_CONFIG.positioning.examples.slice(0, 4).join(', ')}
           </div>
 
+          <div class="p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl">
+            <div class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Submission Rails</div>
+            <div class="flex items-center justify-between gap-3 text-xs font-bold">
+              <div class="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                Solana Public Coordination: Active
+              </div>
+              <div class={`flex items-center gap-2 ${aleoEnabled ? 'text-purple-700 dark:text-purple-300' : 'text-slate-500 dark:text-slate-400'}`}>
+                <span class={`w-2 h-2 rounded-full ${aleoEnabled ? 'bg-purple-500' : 'bg-slate-400'}`}></span>
+                Aleo Private Verification: {aleoEnabled ? 'Enabled' : 'Disabled'}
+              </div>
+            </div>
+            <div class="mt-2 text-[11px] text-slate-600 dark:text-slate-400 font-medium">
+              Solana handles public coordination, rewards, and governance. Aleo handles private proof verification.
+            </div>
+            <div class="mt-2 text-[11px] text-slate-600 dark:text-slate-400 font-medium">
+              Submission target: {submitTargetLabel}
+            </div>
+            {!aleoReadiness.enabled && (
+              <div class="mt-2 text-[11px] text-amber-700 dark:text-amber-300 font-semibold">
+                {aleoReadiness.reason} Set {aleoReadiness.missing.join(', ')} to enable Aleo submissions.
+              </div>
+            )}
+            {aleoReadiness.enabled && aleoReadiness.missing.length > 0 && (
+              <div class="mt-2 text-[11px] text-red-700 dark:text-red-300 font-semibold">
+                {aleoReadiness.reason} Missing: {aleoReadiness.missing.join(', ')}.
+              </div>
+            )}
+            {aleoReadiness.warnings.length > 0 && (
+              <div class="mt-2 text-[11px] text-amber-700 dark:text-amber-300 font-semibold">
+                Queue mode: add {aleoReadiness.warnings.join(', ')} to submit verification through your relayer.
+              </div>
+            )}
+            <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-semibold">
+              <div class="rounded-lg border border-slate-200 dark:border-slate-600 px-3 py-2 text-slate-700 dark:text-slate-300 bg-white/60 dark:bg-slate-900/40">
+                Solana Rail Status: {formatRailStatus(railStatus.solana)}
+              </div>
+              <div class="rounded-lg border border-slate-200 dark:border-slate-600 px-3 py-2 text-slate-700 dark:text-slate-300 bg-white/60 dark:bg-slate-900/40">
+                Aleo Rail Status: {formatRailStatus(railStatus.aleo)}
+              </div>
+            </div>
+          </div>
+
           {/* Enhanced Submit Button */}
           <button
             type="submit"
@@ -942,14 +1174,14 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
             {isSubmitting ? (
               <span class="flex items-center justify-center gap-3">
                 <span class="animate-spin">⏳</span>
-                Submitting to Blockchain...
+                {aleoEnabled ? 'Submitting to Solana + Aleo...' : 'Submitting to Solana...'}
               </span>
             ) : !validateForm() ? (
               '📝 Complete Form to Submit'
             ) : !consentGiven ? (
               '✅ Accept Terms to Submit'
             ) : (
-              '🚀 Submit to Blockchain'
+              `🚀 Submit to ${submitTargetLabel}`
             )}
           </button>
 
