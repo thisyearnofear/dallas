@@ -6,6 +6,10 @@
 		"noEmit": true,
 		"allowJs": true,
 		"checkJs": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
 
 		/* Preact Config */
 		"jsx": "react-jsx",

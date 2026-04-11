@@ -1,0 +1,6 @@
+{
+  "program": "dbc_verifier.aleo",
+  "version": "0.1.0",
+  "description": "ZK verification for Dallas Agent Alliance",
+  "license": "MIT"
+}

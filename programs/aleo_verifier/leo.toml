@@ -1,5 +1,5 @@
 [project]
-name = "aleo_verifier"
+name = "dbc_verifier"
 version = "0.1.0"
 description = "ZK verification for Dallas Agent Alliance"
 license = "MIT"

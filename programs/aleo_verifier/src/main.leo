@@ -1,31 +1,46 @@
-program aleo_verifier.aleo;
+// Dallas Agent Alliance — ZK Benchmark Verifier
+// Proves optimization improvement without revealing proprietary prompts/weights
 
-function verify_benchmark_delta:
-    input r0 as u32.private;
-    input r1 as u32.private;
-    input r2 as u32.public;
-    input r3 as field.public;
-    gte r4 r1 r0 into r4;
-    assert.eq r4 true;
-    sub r5 r0 r1 into r5;
-    gte r6 r5 r2 into r6;
-    assert.eq r6 true;
-    assert.eq r3 11223344556677889900field;
-    output r5 as u32.public;
-    output true as boolean.public;
+program dbc_verifier.aleo {
 
-function verify_benchmark_with_cost:
-    input r0 as u32.private;
-    input r1 as u32.private;
-    input r2 as u32.public;
-    input r3 as u32.public;
-    input r4 as field.public;
-    gte r5 r1 r0 into r5;
-    assert.eq r5 true;
-    sub r6 r0 r1 into r6;
-    gte r7 r6 r2 into r7;
-    assert.eq r7 true;
-    lte r8 r3 r4 into r8;
-    assert.eq r8 true;
-    output r6 as u32.public;
-    output true as boolean.public;
+    @noupgrade
+    constructor() {}
+
+    // Verify that a benchmark improved by at least `min_delta`
+    // without revealing the actual before/after scores
+    fn verify_benchmark_delta(
+        before_score: u32,       // private: original benchmark score
+        after_score: u32,        // private: improved benchmark score
+        min_delta: u32,          // public: minimum required improvement
+        alliance_id: field,      // public: alliance identifier
+    ) -> (u32, bool) {
+        // After must be >= before (improvement, not regression)
+        assert(after_score >= before_score);
+
+        let delta: u32 = after_score - before_score;
+
+        // Delta must meet the minimum threshold
+        assert(delta >= min_delta);
+
+        return (delta, true);
+    }
+
+    // Extended version that also validates cost constraints
+    fn verify_benchmark_with_cost(
+        before_score: u32,       // private: original benchmark score
+        after_score: u32,        // private: improved benchmark score
+        min_delta: u32,          // public: minimum required improvement
+        cost: u32,               // public: compute cost in credits
+        max_cost: u32,           // public: maximum allowed cost
+    ) -> (u32, bool) {
+        assert(after_score >= before_score);
+
+        let delta: u32 = after_score - before_score;
+        assert(delta >= min_delta);
+
+        // Cost must be within budget
+        assert(cost <= max_cost);
+
+        return (delta, true);
+    }
+}
