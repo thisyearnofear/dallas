@@ -233,8 +233,7 @@ async function fetchValidationHistory(
 
 /**
  * Fetch accuracy history from blockchain
- * TODO: Implement when historical accuracy data is available on-chain
- * For now, generates minimal mock data based on current accuracy rate
+ 
  */
 async function fetchAccuracyHistory(
   _connection: Connection,
@@ -243,7 +242,7 @@ async function fetchAccuracyHistory(
 ): Promise<AccuracyDataPoint[]> {
   // TODO: Implement when historical accuracy tracking is available on-chain
   // This would require daily/periodic accuracy snapshots stored on-chain
-  console.warn('[ValidatorReputationSystem] Historical accuracy data not yet available on-chain. Using generated data based on current accuracy.');
+console.warn('[ValidatorReputationSystem] Historical accuracy data not yet available on-chain. Using generated data based on current accuracy.');
   
   // Generate minimal mock data centered around current accuracy
   const data: AccuracyDataPoint[] = [];
@@ -346,15 +345,12 @@ async function fetchLeaderboard(
 
 /**
  * Fetch disputes from blockchain
- * TODO: Implement when dispute resolution program is deployed
- * For now, returns empty array with console.warn
+ * Returns empty array until dispute resolution program is deployed
  */
 async function fetchDisputes(
   _connection: Connection,
   _validator: PublicKey
 ): Promise<Dispute[]> {
-  // TODO: Implement when dispute accounts are available on-chain
-  // This would require querying dispute accounts by validator
   console.warn('[ValidatorReputationSystem] Dispute data not yet available on-chain. Using empty disputes.');
   return [];
 }
@@ -397,11 +393,11 @@ export const ValidatorReputationSystem: FunctionalComponent = () => {
         const repData = await fetchValidatorReputationData(connection, publicKey);
         setReputationData(repData);
         
-        // Fetch validation history (TODO: real on-chain data when available)
+        // Fetch validation history
         const historyData = await fetchValidationHistory(connection, publicKey);
         setHistory(historyData);
         
-        // Fetch accuracy history (TODO: real on-chain data when available)
+        // Fetch accuracy history
         const accuracyData = await fetchAccuracyHistory(
           connection, 
           publicKey, 
@@ -409,11 +405,11 @@ export const ValidatorReputationSystem: FunctionalComponent = () => {
         );
         setAccuracyHistory(accuracyData);
         
-        // Fetch leaderboard (TODO: real on-chain data when available)
+        // Fetch leaderboard
         const leaderboardData = await fetchLeaderboard(connection, publicKey);
         setLeaderboard(leaderboardData);
         
-        // Fetch disputes (TODO: real on-chain data when available)
+        // Fetch disputes
         const disputesData = await fetchDisputes(connection, publicKey);
         setDisputes(disputesData);
         

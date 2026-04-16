@@ -58,6 +58,27 @@ blockchain: {
 
 ---
 
+## Aleo Leo Deployment
+
+```bash
+# Install Leo
+curl -Ls https://install.aleo.org | bash
+source ~/.bashrc
+
+# Build Aleo verifier
+cd programs/aleo_verifier
+leo build
+
+# Deploy to Aleo devnet
+leo deploy --network devnet
+```
+
+**Deployed Program:**
+- Program ID: `dbc_verifier.aleo`
+- Transaction: `at1njg2utaxa3sx3c4w36jl8w6q7shl2y02epdawlhnvkvu6eer5qfqhvygqx`
+
+---
+
 ## Testing
 
 - [ ] `/experiences` loads
@@ -76,6 +97,7 @@ blockchain: {
 | Treasury | `C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk` |
 | Membership | `CB6yknfo1cBWhVH2ifkMAS2tKaDa9c9mgRiZpCzHwjzu` |
 | Optimization Log | `B68o3Pnre8XgwGBKN4aQeP8gPmPARUVfb7EufFgnVUyj` |
+| Aleo Verifier | `dbc_verifier.aleo` |
 
 ## Mainnet
 

@@ -49,9 +49,7 @@ export class AttentionTokenService {
       console.warn('Bags API key not configured. Attention token features will be disabled on mainnet.');
     }
 
-    if (!this.isMainnet) {
-      console.log('📢 Attention Token Service running in DEVNET MODE (mock tokens for testing)');
-    }
+    if (!this.isMainnet) {}
   }
 
   /**
@@ -106,7 +104,6 @@ export class AttentionTokenService {
   ): Promise<{ tokenMint: PublicKey; bondingCurve: PublicKey; signature: string }> {
     // Devnet: Create mock token for testing
     if (!this.isMainnet) {
-      console.log('🔧 Creating MOCK attention token for devnet testing');
       return this.createMockAttentionToken(params);
     }
 
@@ -221,12 +218,6 @@ export class AttentionTokenService {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    console.log('✅ Mock attention token created:', {
-      mint: tokenMint.toString(),
-      name: mockToken.name,
-      symbol: mockToken.symbol,
-    });
-
     return {
       tokenMint,
       bondingCurve,
@@ -258,7 +249,6 @@ export class AttentionTokenService {
   ): Promise<void> {
     // Devnet: Skip fee sharing configuration (mock)
     if (!this.isMainnet) {
-      console.log('🔧 Skipping fee sharing config for mock token (devnet)');
       return;
     }
 

@@ -137,7 +137,6 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
       setStatus(AttentionTokenCreationStatus.LINKING_ON_CHAIN);
 
       // Step 3: Link to optimization log on-chain
-      // TODO: Call link_attention_token instruction
       await linkAttentionTokenOnChain(optimizationLogPda, mint);
 
       setStatus(AttentionTokenCreationStatus.SUCCESS);

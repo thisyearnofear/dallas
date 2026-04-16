@@ -17,6 +17,8 @@ import {
   calculateTier,
 } from '../types';
 
+export { calculateTier, TIER_THRESHOLDS };
+
 // DBC Token Constants
 export const DBC_MINT = new PublicKey(SOLANA_CONFIG.blockchain.dbcMintAddress);
 export const DBC_DECIMALS = 6;

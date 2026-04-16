@@ -74,7 +74,7 @@ export class FarcasterService {
     // Check for Farcaster Mini App environment
     const farcasterClient = (window as any).farcaster;
     if (farcasterClient?.user) {
-      console.log('🎭 Farcaster Mini App environment detected');
+      
       const user = farcasterClient.user;
       const account: FarcasterAccount = {
         fid: user.fid,
@@ -89,7 +89,7 @@ export class FarcasterService {
     }
 
     // Fallback for standard web environment
-    console.log('🎭 Connecting Farcaster account (Simulation mode) for wallet:', walletAddress.toString());
+    
 
     const mockAccount: FarcasterAccount = {
       fid: 1234,
@@ -112,7 +112,7 @@ export class FarcasterService {
     this.account = null;
     this.connected = false;
     localStorage.removeItem('farcaster_account');
-    console.log('🎭 Disconnected from Farcaster - back to anonymous mode');
+    
   }
 
   /**
@@ -147,7 +147,7 @@ export class FarcasterService {
       .replace(/-+/g, '-')
       .slice(0, 32);
 
-    console.log('🌐 Creating Farcaster channel:', channelId);
+    
 
      const channel: FarcasterChannel = {
       channelId,
@@ -178,7 +178,7 @@ export class FarcasterService {
       throw new Error('Must connect Farcaster account for non-anonymous posts');
     }
 
-    console.log('📝 Posting to channel:', params.channelId, 'anonymous:', params.anonymous);
+    
 
     const cast: FarcasterCast = {
       hash: `0x${Math.random().toString(16).slice(2)}`,
@@ -201,7 +201,7 @@ export class FarcasterService {
       return [];
     }
 
-    console.log('📖 Fetching channel feed:', channelId);
+    
 
     return [];
   }

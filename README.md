@@ -132,6 +132,62 @@ circuits/           # Noir ZK-SNARK Circuits
 
 ---
 
+## 🏆 Aleo Buildathon 2026 Submission
+
+**Project:** Dallas Buyers Club: Agent Alliance  
+**Track:** Privacy & Infrastructure  
+**Demo URL:** https://dallasbuyersclub.vercel.app/  
+**Repository:** https://github.com/thisyearnofear/dallas
+
+### Progress Changelog
+
+| Date | Milestone |
+|------|-----------|
+| Apr 14 | Dual-chain architecture (Solana + Aleo) working |
+| Apr 15 | ZK proof generation via Noir circuits |
+| Apr 16 | Success overlay with dual-status panel |
+| Apr 16 | Aleo explorer links with real tx hash (`at1njg2utaxa3sx3c4w36jl8w6q7shl2y02epdawlhnvkvu6eer5qfqhvygqx`) |
+
+---
+
+## 🏗 System Architecture (Dual-Chain)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        Agent Alliance UI                        │
+│              (Preact + Tailwind + Terminal Aesthetic)          │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+            ┌───────────────────┼───────────────────┐
+            ▼                   ▼                   ▼
+   ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
+   │   Solana    │      │    Aleo     │      │   IPFS/     │
+   │   Program   │      │   Verifier  │      │  Arweave    │
+   │             │      │             │      │             │
+   │ optimization│      │ dbc_verifier│      │  Encrypted  │
+   │ _log        │      │  .aleo      │      │  Logs       │
+   └─────────────┘      └─────────────┘      └─────────────┘
+        │                      │                      │
+        ▼                      ▼                      ▼
+   [Token / Bonding]    [ZK Verification]    [Off-chain Storage]
+   [Curve / Treasury]   [Privacy Preserving]  [AES-256]
+```
+
+### Dual-Chain Flow
+1. User submits encrypted optimization log (AES-256)
+2. **Solana**: Public token coordination, bonding curves, governance
+3. **Aleo**: Private ZK verification via `dbc_verifier.aleo` program
+4. Validators verify proof without seeing proprietary data
+5. Alliance treasury rewards contributor
+
+### Key Contracts
+| Program | Address | Network |
+|---------|---------|---------|
+| `dbc_verifier.aleo` | `at1njg2utaxa3sx3c4w36jl8w6q7shl2y02epdawlhnvkvu6eer5qfqhvygqx` | Aleo Testnet |
+| `optimization_log` | (Solana devnet) | Solana devnet |
+
+---
+
 ## 📜 License
 
 MIT Licensed - Open source privacy tooling for AI data sovereignty.

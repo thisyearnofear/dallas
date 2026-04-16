@@ -157,7 +157,6 @@ export function useValidatorStaking(): UseValidatorStakingReturn {
             }>(cacheKey);
 
             if (cached !== null) {
-                console.log(`[CacheService] Cache hit for validator: ${publicKey.toString().slice(0, 8)}...`);
                 setStakingState(prev => ({
                     ...prev,
                     totalStaked: cached.totalStaked,
@@ -173,8 +172,6 @@ export function useValidatorStaking(): UseValidatorStakingReturn {
                 }));
                 return;
             }
-
-            console.log(`[CacheService] Cache miss for validator: ${publicKey.toString().slice(0, 8)}...`);
 
             // Fetch DBC balance
             const { balance } = await DbcTokenService.fetchDbcBalance(connection, publicKey);
@@ -288,7 +285,6 @@ export function useValidatorStaking(): UseValidatorStakingReturn {
             if (publicKey) {
                 const cacheKey = `validator_${publicKey.toString()}`;
                 cacheService.delete(cacheKey);
-                console.log(`[CacheService] Invalidated validator cache after stake: ${publicKey.toString().slice(0, 8)}...`);
             }
             await refreshStakingData();
 
@@ -353,7 +349,6 @@ export function useValidatorStaking(): UseValidatorStakingReturn {
             if (publicKey) {
                 const cacheKey = `validator_${publicKey.toString()}`;
                 cacheService.delete(cacheKey);
-                console.log(`[CacheService] Invalidated validator cache after unstake: ${publicKey.toString().slice(0, 8)}...`);
             }
             await refreshStakingData();
 

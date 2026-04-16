@@ -90,11 +90,8 @@ export function useDbcToken(): UseDbcTokenReturn {
         // Check cache first
         const cached = cacheService.get<{ balance: number; address: PublicKey | null }>(cacheKey);
         if (cached !== null) {
-          console.log(`[CacheService] Cache hit for balance: ${publicKey.toString().slice(0, 8)}...`);
           return cached;
         }
-
-        console.log(`[CacheService] Cache miss for balance: ${publicKey.toString().slice(0, 8)}...`);
         
         // Fetch from blockchain
         const { balance, address } = await DbcTokenService.fetchDbcBalance(
@@ -156,8 +153,7 @@ export function useDbcToken(): UseDbcTokenReturn {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      // Note: Actual implementation would use wallet adapter
-      // This is a placeholder for the hook structure
+      // Placeholder for wallet adapter implementation
       console.log('Creating DBC token account for:', publicKey.toBase58());
       
       // After creation, invalidate cache and refresh balance

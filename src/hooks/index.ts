@@ -32,7 +32,6 @@ export {
 } from './useLazyLoad';
 
 // Mobile
-// Mobile
 export {
   useNotification,
   usePullToRefresh,

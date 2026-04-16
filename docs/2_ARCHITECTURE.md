@@ -3,54 +3,49 @@
 ## System Overview
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    USER INTERFACE LAYER                       │
-│  [Wallet Connection] → [Optimization Log Submission] → [Discovery] │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-┌──────────────────────▼──────────────────────────────────────┐
-│                   PRIVACY MIDDLEWARE                         │
-│  ┌─────────────┐  ┌──────────────┐  ┌──────────────┐       │
-│  │ Light Proto │  │ Noir Circuits│  │ Arcium MPC   │       │
-│  │ Compression │  │ ZK Validation│  │ Threshold Dec│       │
-│  └─────────────┘  └──────────────┘  └──────────────┘       │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-┌──────────────────────▼──────────────────────────────────────┐
-│                  SMART CONTRACT LAYER                        │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │ case_study.rs                                       │    │
-│  │ • submit_encrypted_case_study()                     │    │
-│  │ • validator_prove_integrity()  [ZK proof required]  │    │
-│  │ • grant_selective_access()     [Threshold decrypt]  │    │
-│  └─────────────────────────────────────────────────────┘    │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │ dbc_token.rs                                        │    │
-│  │ • stake_for_validation()                            │    │
-│  │ • reward_validator()                                │    │
-│  │ • slash_on_dispute()                                │    │
-│  └─────────────────────────────────────────────────────┘    │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-┌──────────────────────▼──────────────────────────────────────┐
-│                    STORAGE LAYER                             │
-│  [IPFS] → Encrypted optimization log payloads                │
-│  [Arweave] → Immutable proof logs                           │
-│  [Light Protocol] → ZK-compressed state trees               │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                      USER INTERFACE LAYER                        │
+│  [Shield Wallet] → [Aleo Verification] → [Solana Bonding Curve]    │
+└──────────────────────┬──────────────────────────────────────────┘
+                        │
+┌──────────────────────▼──────────────────────────────────────────┐
+│                      DUAL-CHAIN ARCHITECTURE                      │
+│                                                               │
+│  ┌─────────────────────────┐     ┌──────────────────────────┐ │
+│  │      ALEO L1             │     │      SOLANA                │ │
+│  │  ┌───────────────────┐  │     │  ┌─────────────────────┐  │ │
+│  │  │ dbc_verifier.aleo  │  │ ←→ │  │ alliance_factory   │  │ │
+│  │  │ • verify_benchmark │  │     │  │ • create_bonding   │  │ │
+│  │  │ • ZK private      │  │     │  │ • manage_treasury │  │ │
+│  │  └───────────────────┘  │     │  └─────────────────────┘  │ │
+│  │                         │     │                            │ │
+│  │  [Shield Wallet]        │     │  [Phantom]                  │ │
+│  │  [Relayer]  ←───────→ │     │  [Bags API]                 │ │
+│  └─────────────────────────┘     └──────────────────────────┘ │
+│                                                               │
+│  PRIVACY STACK: Light Protocol + Noir + Arcium MPC + IPFS/Arweave  │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## Technical Stack
 
-### Privacy Technologies
+### Privacy Stack (Shared)
 - **Noir (Aztec)** - ZK-SNARK proofs for validation
 - **Light Protocol** - ZK compression for storage
 - **Arcium MPC** - Threshold decryption
 - **IPFS/Arweave** - Encrypted off-chain storage
 
-### Blockchain Infrastructure
+### Blockchain Infrastructure (Dual-Chain)
+
+#### Aleo L1 (Primary Chain)
+- **Aleo Testnet** - Privacy-first execution layer
+- **Leo** - Domain-specific language for ZK circuits
+- **Shield Wallet** - Browser extension for Aleo private keys
+- **Relayer** - Bridges Aleo → Solana for token swaps
+
+#### Solana (Secondary Chain)
 - **Solana Devnet** - Fast finality, low fees
 - **Anchor Framework** - Type-safe smart contracts
 - **Bags API** - Token creation, bonding curves
@@ -58,13 +53,50 @@
 ### Application Layer
 - **Preact + TypeScript** - Lightweight UI
 - **Helius** - RPC, webhooks, indexing
-- **Phantom** - Wallet connection
+- **Phantom** - Solana wallet connection
 
 ---
 
 ## Smart Contracts
 
-### Case Study Program
+### Aleo Verifier Program (dbc_verifier.aleo)
+**Deployed:** 2026-04-11 (Testnet)
+**Program ID:** `dbc_verifier.aleo`
+**Transaction ID:** `at1njg2utaxa3sx3c4w36jl8w6q7shl2y02epdawlhnvkvu6eer5qfqhvygqx`
+
+Key functions:
+```leo
+// Verify performance improvement without revealing scores
+function verify_benchmark_delta:
+    inputs:
+        old_score: u32.public
+        new_score: u32.public  
+        min_improvement: u32.public
+        verification_hash: field.public
+    outputs:
+        u32  // verification_result
+
+// Verify with gas cost constraint
+function verify_benchmark_with_cost:
+    inputs:
+        old_score: u32.public
+        new_score: u32.public
+        min_improvement: u32.public
+        max_gas_cost: u32.public
+        verification_hash: field.public
+    outputs:
+        u32
+```
+
+**Usage Flow:**
+1. Agent submits encrypted optimization log to Shield Wallet
+2. Relayer verifies ZK proof on Aleo (dbc_verifier.aleo)
+3. On proof success, tokens bridged to Solana via relayer
+4. Solana programs handle bonding curve + treasury
+
+---
+
+### Case Study Program (Solana)
 ```rust
 // Key instructions
 pub fn submit_encrypted_case_study(
@@ -109,6 +141,25 @@ pub fn slash_validator(
 
 ## Privacy Services
 
+### ShieldWalletService - Aleo Private Keys
+```typescript
+export class ShieldWalletService {
+  async connect(): Promise<WalletAddress>
+  async signMessage(message): Promise<Signature>
+  async encryptData(data, publicKey): Promise<EncryptedData>
+  async decryptData(encrypted, privateKey): Promise<DecryptedData>
+}
+```
+
+### RelayerService - Cross-Chain Bridge
+```typescript
+export class RelayerService {
+  async submitVerification(proof, metadata): Promise<TransactionId>
+  async bridgeToSolana(aleoAmount, recipient): Promise<TransactionId>
+  async getBridgeStatus(txId): Promise<BridgeStatus>
+}
+```
+
 ### NoirService - ZK Proofs
 ```typescript
 export class NoirService {
@@ -139,9 +190,39 @@ export class ArciumMPCService {
 
 ---
 
-## Data Flows
+## Data Flows (Dual-Chain)
 
-### Optimization Log Submission
+### Full Dual-Chain Flow
+```
+1. Agent Builder connects with Shield Wallet (Aleo)
+2. Submits encrypted optimization log to Aleo
+3. dbc_verifier.aleo validates ZK proof (private scores)
+4. On success: Relayer bridges tokens to Solana
+5. Solana: Alliance token created via Bags API bonding curve
+6. Treasury manages R&D funding per alliance
+```
+
+### Aleo Submission Flow
+```
+1. Connect Shield Wallet
+2. Generate benchmark_delta ZK proof (private scores)
+3. Call verify_benchmark_delta on Aleo
+4. Receive verification_result
+5. IPFS stores encrypted log for audit trail
+```
+
+### Bridge Flow (Aleo → Solana via Relayer)
+```
+1. Aleo verification confirmed
+2. Relayer picks up event via webhook (Helius)
+3. Burns Aleo credits, mints equivalent on Solana
+4. Alliance token bonding curve activated
+5. DUSDC/USDC follows standard SPL token
+```
+
+---
+
+### Single-Chain (Solana) Flow
 ```
 1. Builder connects wallet
 2. Derives encryption key from wallet signature
@@ -212,7 +293,12 @@ src/
 
 ## Deployment Addresses
 
-### Devnet
+### Aleo Testnet
+| Program | Program ID | Transaction ID |
+|---------|-----------|---------------|
+| dbc_verifier.aleo | `dbc_verifier.aleo` | `at1njg2utaxa3sx3c4w36jl8w6q7shl2y02epdawlhnvkvu6eer5qfqhvygqx` |
+
+### Devnet (Solana)
 | Program | Address |
 |---------|---------|
 | DBC Token | `21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB` |

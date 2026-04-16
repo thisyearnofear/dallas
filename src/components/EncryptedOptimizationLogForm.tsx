@@ -2,7 +2,8 @@ import { FunctionalComponent } from 'preact';
 import { useState, useContext, useCallback, useEffect } from 'preact/hooks';
 import { WalletContext } from '../context/WalletContext';
 import { deriveEncryptionKey, encryptAgentData } from '../utils/encryption';
-import { submitOptimizationLogToBlockchain } from '../services/BlockchainIntegration';
+import { dualChainSubmissionService, DualChainStatus } from '../services/DualChainSubmissionService';
+import { isAleoEnabled } from '../config/chains';
 import { validateBlockchainConfig } from '../config/solana';
 import { SubmissionConsentCheckboxes } from './SharedUIComponents';
 import { LEGAL_CONFIG } from '../config/legal';
@@ -46,7 +47,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [blockchainConfigValid, setBlockchainConfigValid] = useState(false);
 
-  // Privacy options - simplified to working features only
+  
   const [privacyOptions, setPrivacyOptions] = useState({
     compressionRatio: 10, // Default to 10x (recommended)
   });
@@ -166,7 +167,11 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
     signature: string;
     optimizationLogId: string;
     explorerUrl: string;
+    dualStatus: DualChainStatus;
   } | null>(null);
+
+  // Dual-chain status for submission progress
+  const [dualStatus, setDualStatus] = useState<DualChainStatus | null>(null);
 
   const [consentGiven, setConsentGiven] = useState(false);
   const handleConsentChange = useCallback((allChecked: boolean) => {
@@ -354,39 +359,44 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
         message: '🔄 Step 3/4: Please approve the transaction in your wallet...',
       });
 
-      // Submit to blockchain with real program calls
-      const result = await submitOptimizationLogToBlockchain(
-        publicKey,
-        walletContext.signTransaction,
+      // Submit to blockchain with dual-chain support
+      const result = await dualChainSubmissionService.submit({
+        walletAddress: publicKey,
+        signTransaction: walletContext.signTransaction,
         formData,
         encryptionKey,
-        {
+        privacyOptions: {
           ...privacyOptions,
-          compressedAccount: compressedData.compressedAccount.toString(),
           compressionRatio: compressedData.achievedRatio,
+        },
+        compressedData: {
+          compressedAccount: compressedData.compressedAccount.toString(),
+          achievedRatio: compressedData.achievedRatio,
           compressionProof: Array.from(compressedData.compressionProof),
-        }
-      );
+        },
+      });
 
       // Step 4: Confirm transaction
       if (result.success) {
         setSubmitStatus({
           type: 'info',
-          message: '🔄 Step 4/4: Confirming transaction on Solana blockchain...',
+          message: '🔄 Step 4/4: Confirming transaction on dual chains...',
         });
 
         // Wait a moment for confirmation
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         // Extract data for success overlay
-        const signature = result.transactionSignature || '';
-        const optimizationLogId = result.optimizationLogPubkey?.toString() || '';
+        const signature = result.solana.transactionSignature || '';
+        const optimizationLogId = result.solana.optimizationLogPubkey?.toString() || '';
         
         setSuccessData({
           signature,
           optimizationLogId,
-          explorerUrl: `https://explorer.solana.com/tx/${signature}?cluster=devnet`,
+          explorerUrl: result.dualStatus.solana.explorerUrl || `https://explorer.solana.com/tx/${signature}?cluster=devnet`,
+          dualStatus: result.dualStatus,
         });
+        setDualStatus(result.dualStatus);
 
         // Reset form on success
         setFormData({
@@ -404,7 +414,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
       } else {
         setSubmitStatus({
           type: 'error',
-          message: result.message,
+          message: result.message || result.solana.message,
         });
       }
     } catch (error) {
@@ -471,6 +481,78 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
           {/* Transaction Details Card */}
           <div class="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 mb-6 text-left border border-slate-200 dark:border-slate-700">
             <div class="space-y-4">
+              {/* Dual-Chain Status Panel */}
+              {successData.dualStatus && (
+                <div class="mb-4 p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-xl border border-purple-200 dark:border-purple-700">
+                  <div class="text-xs font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <span>⛓️</span> Dual-Chain Status
+                  </div>
+                  <div class="space-y-2">
+                    {/* Solana Status */}
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class={successData.dualStatus.solana.confirmed ? 'text-green-500' : 'text-slate-400'}>
+                          {successData.dualStatus.solana.confirmed ? '✅' : '⏳'}
+                        </span>
+                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Solana</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        {successData.dualStatus.solana.confirmed && (
+                          <a
+                            href={successData.dualStatus.solana.explorerUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                          >
+                            View ↗
+                          </a>
+                        )}
+                        <span class="text-xs font-bold text-green-600 dark:text-green-400">
+                          {successData.dualStatus.solana.confirmed ? 'Confirmed' : 'Pending'}
+                        </span>
+                      </div>
+                    </div>
+                    {/* Aleo Status */}
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class={
+                          successData.dualStatus.aleo.status === 'verified' ? 'text-green-500' :
+                          successData.dualStatus.aleo.status === 'disabled' ? 'text-slate-400' :
+                          'text-yellow-500'
+                        }>
+                          {successData.dualStatus.aleo.status === 'verified' ? '✅' :
+                           successData.dualStatus.aleo.status === 'disabled' ? '⚪' : '⏳'}
+                        </span>
+                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Aleo</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        {successData.dualStatus.aleo.txHash && (
+                          <a
+                            href={successData.dualStatus.aleo.explorerUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                          >
+                            View ↗
+                          </a>
+                        )}
+                        <span class={`text-xs font-bold ${
+                          successData.dualStatus.aleo.status === 'verified' ? 'text-green-600 dark:text-green-400' :
+                          successData.dualStatus.aleo.status === 'disabled' ? 'text-slate-500' :
+                          'text-yellow-600 dark:text-yellow-400'
+                        }`}>
+                          {successData.dualStatus.aleo.status === 'verified' ? 'Verified' :
+                           successData.dualStatus.aleo.status === 'disabled' ? 'Disabled' :
+                           successData.dualStatus.aleo.status === 'pending' ? 'Queued' :
+                           successData.dualStatus.aleo.status === 'verifying' ? 'Verifying...' :
+                           'Failed'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div class="flex items-start gap-3">
                 <span class="text-2xl">🔗</span>
                 <div class="flex-1 min-w-0">
