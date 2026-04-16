@@ -13,9 +13,9 @@
  * - MODULAR: Each service can be used independently
  */
 
-import { noirService, NoirService } from './NoirService';
-import { lightProtocolService, LightProtocolService } from './LightProtocolService';
-import { arciumMPCService, ArciumMPCService } from './ArciumMPCService';
+import { noirService } from './NoirService';
+import { lightProtocolService } from './LightProtocolService';
+import { arciumMPCService } from './ArciumMPCService';
 
 // Service status tracking
 export interface PrivacyServiceStatus {
@@ -108,7 +108,6 @@ export class PrivacyServiceManager {
      * Perform actual initialization of all services
      */
     private async performInitialization(): Promise<void> {
-        console.log('🔐 Initializing privacy services...');
         const startTime = Date.now();
 
         // Initialize services in parallel for better performance
@@ -127,10 +126,8 @@ export class PrivacyServiceManager {
             this.status.arciumMPC.initialized;
 
         const duration = Date.now() - startTime;
-        console.log(`🔐 Privacy services initialized in ${duration}ms`);
 
         if (this.status.allInitialized) {
-            console.log('✅ All privacy services ready');
         } else {
             console.warn('⚠️ Some privacy services failed to initialize - using fallbacks');
         }
@@ -143,7 +140,6 @@ export class PrivacyServiceManager {
         try {
             await noirService.initialize();
             this.status.noir.initialized = true;
-            console.log('✅ Noir ZK proof service ready');
         } catch (error) {
             this.status.noir.error = error instanceof Error ? error.message : 'Unknown error';
             console.error('❌ Noir service failed:', error);
@@ -157,7 +153,6 @@ export class PrivacyServiceManager {
         try {
             await lightProtocolService.initialize();
             this.status.lightProtocol.initialized = true;
-            console.log('✅ Light Protocol compression service ready');
         } catch (error) {
             this.status.lightProtocol.error = error instanceof Error ? error.message : 'Unknown error';
             console.error('❌ Light Protocol service failed:', error);
@@ -171,7 +166,6 @@ export class PrivacyServiceManager {
         try {
             await arciumMPCService.initialize();
             this.status.arciumMPC.initialized = true;
-            console.log('✅ Arcium MPC service ready');
         } catch (error) {
             this.status.arciumMPC.error = error instanceof Error ? error.message : 'Unknown error';
             console.error('❌ Arcium MPC service failed:', error);
@@ -245,7 +239,6 @@ export class PrivacyServiceManager {
         try {
             // Step 1: Generate ZK proofs
             if (generateProofs && this.status.noir.initialized) {
-                console.log('🔐 Generating ZK proofs...');
                 try {
                     const proofs = await noirService.generateValidationProofs(data);
                     result.zkProofs = proofs.map(proof => ({
@@ -254,7 +247,6 @@ export class PrivacyServiceManager {
                         publicInputs: proof.publicInputs,
                         verified: proof.verified,
                     }));
-                    console.log(`✅ Generated ${proofs.length} ZK proofs`);
                 } catch (error) {
                     const errorMsg = `ZK proof generation failed: ${error}`;
                     errors.push(errorMsg);
@@ -264,7 +256,6 @@ export class PrivacyServiceManager {
 
             // Step 2: Compress data
             if (compressData && this.status.lightProtocol.initialized) {
-                console.log('⚡ Compressing optimization log data...');
                 try {
                     // Prepare data for compression
                     const compressionData = {
@@ -283,7 +274,6 @@ export class PrivacyServiceManager {
                         compressedSize: compressed.compressedSize,
                         compressionRatio: compressed.achievedRatio,
                     };
-                    console.log(`✅ Compressed data ${compressed.achievedRatio}x (${compressed.originalSize} → ${compressed.compressedSize} bytes)`);
                 } catch (error) {
                     const errorMsg = `Data compression failed: ${error}`;
                     errors.push(errorMsg);
@@ -293,7 +283,6 @@ export class PrivacyServiceManager {
 
             // Step 3: Create MPC session (optional)
             if (createMPCSession && this.status.arciumMPC.initialized && mpcJustification) {
-                console.log('🔐 Creating MPC session...');
                 try {
                     // This would typically be called by researchers requesting access
                     // For now, we'll create a mock session
@@ -303,7 +292,6 @@ export class PrivacyServiceManager {
                         threshold: 3,
                         committee: ['validator1', 'validator2', 'validator3', 'validator4', 'validator5'],
                     };
-                    console.log(`✅ Created MPC session: ${result.mpcSession.sessionId}`);
                 } catch (error) {
                     const errorMsg = `MPC session creation failed: ${error}`;
                     errors.push(errorMsg);
@@ -315,7 +303,6 @@ export class PrivacyServiceManager {
             result.errors = errors;
             result.processingTime = Date.now() - startTime;
 
-            console.log(`🔐 Privacy processing completed in ${result.processingTime}ms`);
             return result;
 
         } catch (error) {

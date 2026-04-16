@@ -14,8 +14,8 @@
 import { PublicKey } from '@solana/web3.js';
 import { noirService, ProofResult } from './NoirService';
 import { lightProtocolService, CompressedOptimizationLog } from './LightProtocolService';
-import { arciumMPCService, MPCAccessRequest } from './ArciumMPCService';
-import { AgentMetric, AgentInsight } from '../../types';
+import { arciumMPCService } from './ArciumMPCService';
+import { AgentMetric, AgentInsight, MPCAccessRequest } from '../../types';
 
 // Unified privacy operation result
 export interface PrivacyOperationResult {

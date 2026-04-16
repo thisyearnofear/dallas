@@ -13,17 +13,11 @@
  * - MODULAR: Composable mobile components
  */
 
-import { useState, useEffect, useCallback } from "preact/hooks";
+import { useState, useEffect, useCallback, useRef } from "preact/hooks";
 import { FunctionalComponent } from 'preact';
+import { NotificationProps } from '../types';
 
 // ============= Notification System =============
-
-export interface NotificationProps {
-    type: 'success' | 'warning' | 'info' | 'achievement';
-    title: string;
-    message: string;
-    duration?: number;
-}
 
 export function useNotification() {
     const [notification, setNotification] = useState<NotificationProps | null>(null);

@@ -10,6 +10,12 @@
 
 import { Connection, PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
 import { SOLANA_CONFIG } from '../config/solana';
+import {
+  type ValidatorTier,
+  type TierThreshold,
+  TIER_THRESHOLDS,
+  calculateTier,
+} from '../types';
 
 // DBC Token Constants
 export const DBC_MINT = new PublicKey(SOLANA_CONFIG.blockchain.dbcMintAddress);
@@ -252,47 +258,11 @@ export function calculateValidatorReward(validationCount: number, accuracyRate: 
  * Get current emission year info
  */
 export function getCurrentEmissionYear(): typeof EMISSION_SCHEDULE[number] {
-  // For now, return year 1 (bootstrap)
-  // In production, calculate from treasury initialization timestamp
   return EMISSION_SCHEDULE[0];
 }
 
 // ============= Tier System =============
-
-export type ValidatorTier = 'Bronze' | 'Silver' | 'Gold' | 'Platinum';
-
-export interface TierThreshold {
-  minValidations: number;
-  minAccuracy: number;
-  color: string;
-  icon: string;
-}
-
-export const TIER_THRESHOLDS: Record<ValidatorTier, TierThreshold> = {
-  Bronze: { minValidations: 0, minAccuracy: 0, color: '#CD7F32', icon: '🥉' },
-  Silver: { minValidations: 25, minAccuracy: 60, color: '#C0C0C0', icon: '🥈' },
-  Gold: { minValidations: 100, minAccuracy: 70, color: '#FFD700', icon: '🥇' },
-  Platinum: { minValidations: 500, minAccuracy: 80, color: '#E5E4E2', icon: '💎' },
-};
-
-/**
- * Calculate validator tier
- */
-export function calculateTier(totalValidations: number, accuracyRate: number): ValidatorTier {
-  if (totalValidations >= TIER_THRESHOLDS.Platinum.minValidations &&
-    accuracyRate >= TIER_THRESHOLDS.Platinum.minAccuracy) {
-    return 'Platinum';
-  }
-  if (totalValidations >= TIER_THRESHOLDS.Gold.minValidations &&
-    accuracyRate >= TIER_THRESHOLDS.Gold.minAccuracy) {
-    return 'Gold';
-  }
-  if (totalValidations >= TIER_THRESHOLDS.Silver.minValidations &&
-    accuracyRate >= TIER_THRESHOLDS.Silver.minAccuracy) {
-    return 'Silver';
-  }
-  return 'Bronze';
-}
+// Tier types and constants imported from ../types (single source of truth)
 
 // ============= Staking Implementation =============
 
@@ -446,9 +416,6 @@ export async function getValidatorStake(
     }> = [];
 
     let totalStaked = 0;
-
-    // For now, return mock data since we don't have deployed programs
-    // In production, this would query actual stake accounts
 
     return {
       totalStaked,

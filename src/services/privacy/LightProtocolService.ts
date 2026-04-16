@@ -18,6 +18,7 @@
 
 import { PublicKey, Connection, Keypair } from '@solana/web3.js';
 import { SOLANA_CONFIG } from '../../config/solana';
+import type { CompressionResult as BaseCompressionResult } from '../../types';
 
 interface CompressedAccount {
   address: PublicKey;
@@ -26,13 +27,7 @@ interface CompressedAccount {
   queue: PublicKey;
 }
 
-interface CompressionResult {
-  compressedAccount: PublicKey;
-  originalSize: number;
-  compressedSize: number;
-  achievedRatio: number;
-  merkleRoot: Uint8Array;
-  compressionProof: Uint8Array;
+export interface CompressionResult extends BaseCompressionResult {
   onChainSize: number;
   offChainSize: number;
   costSavings: string;
@@ -65,12 +60,7 @@ class LightProtocolServiceClass {
     if (this.initialized) return;
 
     try {
-      console.log('⚡ Initializing Light Protocol ZK Compression...');
       
-      await this.checkLightProtocolAvailability();
-      
-      this.initialized = true;
-      console.log(`✅ Light Protocol initialized (${this.lightProtocolAvailable ? 'LIVE' : 'SIMULATION MODE'})`);
     } catch (error) {
       console.warn('⚠️ Light Protocol initialization failed, using simulation:', error);
       this.lightProtocolAvailable = false;
@@ -84,11 +74,11 @@ class LightProtocolServiceClass {
       const conn = new Connection(testRpc, 'confirmed');
       
       const version = await conn.getVersion();
-      console.log(`   Solana version: ${version.solanaCore}`);
+      
       
       this.lightProtocolAvailable = true;
     } catch (error) {
-      console.warn('   ⚠️ Cannot reach RPC - running in simulation mode');
+      
       this.lightProtocolAvailable = false;
     }
   }
@@ -137,7 +127,7 @@ class LightProtocolServiceClass {
     ratio: number,
     options: { storeFullData: boolean; ipfsCid?: string }
   ): Promise<CompressedOptimizationLog> {
-    console.log(`   🔄 Using Light Protocol ZK compression (${ratio}x target)...`);
+    
     
     const dataBuffer = Buffer.from(originalData);
     
@@ -167,9 +157,6 @@ class LightProtocolServiceClass {
       ipfsCid: options.ipfsCid,
     };
 
-    this.updateStats(result);
-    console.log(`   ✅ Compressed: ${this.formatBytes(originalSize)} → ${this.formatBytes(compressedSize)} (${result.achievedRatio.toFixed(1)}x, saved ${result.costSavings})`);
-
     return result;
   }
 
@@ -179,8 +166,6 @@ class LightProtocolServiceClass {
     ratio: number,
     options: { storeFullData: boolean; ipfsCid?: string }
   ): CompressedOptimizationLog {
-    console.log(`   🔄 Simulation mode: ${ratio}x compression...`);
-    
     const onChainSize = Math.max(32, Math.floor(originalSize / ratio));
     const costSaved = (originalSize - onChainSize) * 0.0001;
 
