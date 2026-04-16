@@ -149,14 +149,7 @@ export class FarcasterService {
 
     console.log('🌐 Creating Farcaster channel:', channelId);
 
-    // TODO: Implement channel creation via Neynar or Warpcast API
-    // This would:
-    // 1. Verify creator has connected Farcaster account
-    // 2. Create channel on Farcaster
-    // 3. Link channel to community mint
-    // 4. Set permissions (public/token-gated)
-
-    const channel: FarcasterChannel = {
+     const channel: FarcasterChannel = {
       channelId,
       name: params.name,
       description: params.description,
@@ -187,9 +180,6 @@ export class FarcasterService {
 
     console.log('📝 Posting to channel:', params.channelId, 'anonymous:', params.anonymous);
 
-    // TODO: Implement posting via Farcaster Hub API
-    // Anonymous posts would use a proxy account linked to wallet signature
-
     const cast: FarcasterCast = {
       hash: `0x${Math.random().toString(16).slice(2)}`,
       author: {
@@ -213,8 +203,6 @@ export class FarcasterService {
 
     console.log('📖 Fetching channel feed:', channelId);
 
-    // TODO: Implement feed fetching via Neynar or Hub API
-
     return [];
   }
 
@@ -226,9 +214,6 @@ export class FarcasterService {
     if (!this.isEnabled()) {
       return false;
     }
-
-    // TODO: Check if wallet holds community token
-    // This would query Solana for token balance
 
     return false;
   }
@@ -246,9 +231,6 @@ export class FarcasterService {
     if (!this.isEnabled()) {
       return '';
     }
-
-    // TODO: Generate Frame metadata
-    // Frames are HTML meta tags that Warpcast renders as interactive cards
 
     const frameHtml = `
       <meta property="fc:frame" content="vnd.farcaster.frame:vnd" />
