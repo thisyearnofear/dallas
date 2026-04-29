@@ -4,6 +4,7 @@ import { WalletContext } from '../context/WalletContext';
 import { deriveEncryptionKey, encryptAgentData } from '../utils/encryption';
 import { aleoVerificationService, submitOptimizationLogDualChain } from '../services';
 import { validateBlockchainConfig } from '../config/solana';
+import { SOLANA_CONFIG } from '../config/solana';
 import { getAleoReadiness } from '../config/chains';
 import { SubmissionConsentCheckboxes } from './SharedUIComponents';
 import { LEGAL_CONFIG } from '../config/legal';
@@ -424,6 +425,24 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
       return;
     }
 
+    // Anti-spam (client-side): prevent rapid repeat submissions during pilots.
+    try {
+      const MIN_INTERVAL_MS = 30_000;
+      const last = Number(localStorage.getItem('dbc_last_submit_ts') || '0');
+      const now = Date.now();
+      if (last && now - last < MIN_INTERVAL_MS) {
+        const wait = Math.ceil((MIN_INTERVAL_MS - (now - last)) / 1000);
+        setSubmitStatus({
+          type: 'error',
+          message: `Please wait ${wait}s before submitting another log.`,
+        });
+        return;
+      }
+      localStorage.setItem('dbc_last_submit_ts', String(now));
+    } catch {
+      // ignore if localStorage not available
+    }
+
     setIsSubmitting(true);
     setRailStatus({
       solana: 'pending',
@@ -504,7 +523,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
         setSuccessData({
           signature,
           optimizationLogId,
-          explorerUrl: `https://explorer.solana.com/tx/${signature}?cluster=devnet`,
+          explorerUrl: `https://explorer.solana.com/tx/${signature}?cluster=${SOLANA_CONFIG.network}`,
           aleoStatus: aleoResult?.status,
           aleoVerificationId: aleoResult?.verificationId,
           aleoTxId: aleoResult?.txId,

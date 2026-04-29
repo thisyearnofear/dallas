@@ -3,7 +3,7 @@
  * Displays all attention tokens with analytics and trading interface
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { PublicKey, Connection } from '@solana/web3.js';
 import { useWallet } from '../context/WalletContext';
 import { attentionTokenService } from '../services/AttentionTokenService';
@@ -17,12 +17,14 @@ import {
 } from '../types/attentionToken';
 import { AttentionTokenAnalyticsDashboard } from './AttentionTokenAnalyticsDashboard';
 import { TokenImage, getTokenImageUrl } from './TokenImageManager';
+import { ToastContext } from '../context/ToastContext';
 
 const MIN_DBC_FOR_PROMOTION = 10000;
 const PROMOTION_COST_DBC = 10000;
 const MAX_PROMOTIONS_PER_TOKEN = 10;
 
 export const AttentionTokenMarket: React.FC = () => {
+  const toast = useContext(ToastContext as any);
   const { publicKey, connection } = useWallet();
   const { addTokenPromotion, getTokenPromotionCount } = useSettings();
   const [tokens, setTokens] = useState<OptimizationLogWithAttentionToken[]>([]);
@@ -137,13 +139,16 @@ export const AttentionTokenMarket: React.FC = () => {
     
     const promotionCount = getTokenPromotionCount(tokenMint);
     if (promotionCount >= MAX_PROMOTIONS_PER_TOKEN) {
-      alert(`Maximum ${MAX_PROMOTIONS_PER_TOKEN} promotions reached for this token`);
+      toast?.push('error', `Maximum ${MAX_PROMOTIONS_PER_TOKEN} promotions reached for this token.`);
       return;
     }
 
     const requiredBalance = PROMOTION_COST_DBC * (promotionCount + 1);
     if (userDbcBalance < requiredBalance) {
-      alert(`Need ${requiredBalance.toLocaleString()} DBC to promote. You have ${userDbcBalance.toLocaleString()} DBC`);
+      toast?.push(
+        'error',
+        `Need ${requiredBalance.toLocaleString()} DBC to promote. You have ${userDbcBalance.toLocaleString()} DBC.`
+      );
       return;
     }
 
@@ -168,7 +173,7 @@ export const AttentionTokenMarket: React.FC = () => {
     window.dispatchEvent(new CustomEvent('dbc-trigger-promotion', { detail: promotionData }));
     
     setPromotingToken(null);
-    alert(`🚀 ${tokenName} promoted! Popup will appear across the platform.`);
+    toast?.push('success', `🚀 ${tokenName} promoted! Popup will appear across the platform.`);
   };
 
   const canPromoteToken = (tokenMint: string): boolean => {

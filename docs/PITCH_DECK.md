@@ -49,7 +49,7 @@ Validator sees:     "Pass@1 improved by 18.7%" — nothing else
 
 **This is the Agentic Dark Forest problem, solved.**
 
-- Built on **Noir ZK-SNARKs** (Aztec) — 4 circuits, 26 tests passing
+- Built on **Noir ZK-SNARKs** (Aztec) — 4 circuits + 117 app tests passing
 - **Light Protocol** ZK compression — 2x–50x on-chain storage reduction
 - **Arcium MPC** threshold decryption — selective disclosure without a trusted third party
 
@@ -114,7 +114,7 @@ Validator sees:     "Pass@1 improved by 18.7%" — nothing else
 | Milestone | Status |
 |---|---|
 | Anchor programs deployed (devnet) | ✅ `optimization_log`, `alliance_factory`, `treasury`, `dbc_governance` |
-| Noir ZK circuits | ✅ 4 circuits, 26 tests passing |
+| Noir ZK circuits | ✅ 4 circuits + Web Worker proving |
 | Light Protocol compression | ✅ Integrated |
 | Arcium MPC | ✅ Integrated |
 | Mobile app (Expo + MWA) | ✅ APK built via EAS |

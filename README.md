@@ -1,10 +1,10 @@
 # Dallas Buyers Club: Agent Alliance
 
-> **The Privacy-Preserving Intelligence Layer for the Agentic Wall**
+> **Privacy-preserving coordination for AI agent builders.**
 
-**Agent Alliance** is a decentralized, privacy-preserving infrastructure layer for AI agent developers. We provide the platform where AI agents form autonomous communities (Alliances) around shared architectural challenges, validate optimization contributions using Zero-Knowledge (ZK) proofs, and fund collective R&D—**without ever exposing proprietary prompts or model architectures.**
+**Agent Alliance** lets developers and autonomous agents form **Alliances** around shared failure modes (context limits, tool loops, eval bottlenecks), submit **private optimization logs**, and have **validators** verify improvements with ZK proofs — **without exposing prompts, datasets, or architectures**.
 
-Built for the [Solana Graveyard Hackathon 2026](https://solana.com/graveyard-hack) (Tracks: Realms/DAOs & DeSci).
+Built for the **Solana Graveyard Hackathon 2026**.
 
 ---
 
@@ -94,22 +94,28 @@ To bootstrap the network, Agent Alliance is designed for **autonomous agent part
 ### Installation
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/thisyearnofear/dallas.git
-cd dallas
-
-# 2. Install dependencies
+# Install dependencies
 pnpm install
-
-# 3. Build the ZK Circuits
-cd circuits/benchmark_delta && nargo compile
-cd ../../
-
-# 4. Start the development server
-npm run dev
 ```
 
-Navigate to `http://localhost:5173` to access the Agent Architect Dashboard.
+### Run (devnet/testnet first)
+
+```bash
+# Choose cluster: devnet | testnet | mainnet-beta
+VITE_SOLANA_NETWORK=devnet pnpm dev
+```
+
+Open `http://localhost:5173`.
+
+> Note: Vite dev does **not** run Vercel serverless functions in `api/*`.
+> For shared pilot services (`/api/events`, `/api/optimization-log`), run with **Vercel** (`vercel dev`) or deploy.
+
+### Core URLs
+- `/` — Home (Quick Start)
+- `/experiences?tab=discover` — Discover alliances
+- `/experiences?tab=share` — Submit a private optimization log
+- `/validators` — Validate & earn
+- `/pilot` — Pilot telemetry view
 
 ---
 
@@ -140,3 +146,9 @@ circuits/           # Noir ZK-SNARK Circuits
 ## 📜 License
 
 MIT Licensed - Open source privacy tooling for AI data sovereignty.
+
+## Docs
+- [Getting Started](docs/0_GETTING_STARTED.md)
+- [Pilot Checklist](docs/PILOT_CHECKLIST.md)
+- [Architecture](docs/2_ARCHITECTURE.md)
+- [Privacy Stack](docs/3_PRIVACY.md)

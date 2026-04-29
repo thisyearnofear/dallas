@@ -21,6 +21,34 @@ const IPFS_GATEWAYS = [
   'https://dweb.link/ipfs',
 ];
 
+/**
+ * Internal devnet/testnet storage scheme:
+ * cid: "dbc_<hash>" stored via /api/optimization-log
+ */
+async function fetchFromInternalStore(cid: string): Promise<Uint8Array | null> {
+  try {
+    const response = await fetch(`/api/optimization-log?cid=${encodeURIComponent(cid)}`, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) return null;
+    const json = await response.json();
+    const encryptedBase64 = String(json?.encryptedBase64 || '');
+    if (!encryptedBase64) return null;
+    return new TextEncoder().encode(encryptedBase64);
+  } catch (error) {
+    // Local dev fallback (vite dev doesn't serve Vercel functions)
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const fallback = localStorage.getItem(`dbc_optlog_${cid}`);
+        if (fallback) return new TextEncoder().encode(fallback);
+      }
+    } catch {}
+    console.warn('Failed to fetch from internal store:', error);
+    return null;
+  }
+}
+
 export interface DecryptedOptimizationLogDetails {
   // Architecture information
   architectureProtocol: string;
@@ -203,13 +231,19 @@ export async function fetchOptimizationLogDetails(
   signMessage?: (message: Uint8Array) => Promise<Uint8Array>
 ): Promise<FetchDetailsResult> {
   try {
-    // Fetch encrypted data from IPFS
-    const data = await fetchFromIpfs(cid);
+    // Fetch encrypted data:
+    // - "dbc_*" uses internal pilot store
+    // - otherwise uses IPFS gateways
+    const data = cid.startsWith('dbc_')
+      ? await fetchFromInternalStore(cid)
+      : await fetchFromIpfs(cid);
     
     if (!data) {
       return {
         success: false,
-        error: 'Failed to fetch data from IPFS. The content may be unavailable or the CID may be invalid.',
+        error: cid.startsWith('dbc_')
+          ? 'Failed to fetch encrypted data for this log. Pilot storage may be unavailable or reset.'
+          : 'Failed to fetch data from IPFS. The content may be unavailable or the CID may be invalid.',
       };
     }
 

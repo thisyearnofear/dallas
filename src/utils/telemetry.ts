@@ -23,13 +23,28 @@ function getSessionId(): string {
 
 export async function track(event: TelemetryEvent, payload: TelemetryPayload = {}): Promise<void> {
   try {
-    const body = JSON.stringify({
+    const evt = {
       event,
       ts: Date.now(),
       sessionId: getSessionId(),
       path: typeof location !== 'undefined' ? location.pathname : undefined,
       ...payload,
-    });
+    };
+    const body = JSON.stringify(evt);
+
+    // Local dev fallback: keep a small rolling buffer so /pilot can still show something
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const key = 'dbc_telemetry_local';
+        const existing = JSON.parse(localStorage.getItem(key) || '[]');
+        const next = Array.isArray(existing) ? existing : [];
+        next.push(evt);
+        if (next.length > 500) next.splice(0, 100);
+        localStorage.setItem(key, JSON.stringify(next));
+      }
+    } catch {
+      // ignore
+    }
 
     // Prefer sendBeacon (non-blocking, survives navigation)
     if (typeof navigator !== 'undefined' && 'sendBeacon' in navigator) {
@@ -47,4 +62,3 @@ export async function track(event: TelemetryEvent, payload: TelemetryPayload = {
     // Never let telemetry break product flows
   }
 }
-

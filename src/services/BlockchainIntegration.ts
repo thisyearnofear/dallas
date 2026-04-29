@@ -9,6 +9,18 @@ import { Buffer } from 'buffer';
 import { BlockchainService, OptimizationLogData, ValidationData, TransactionResult } from './BlockchainService';
 import { encryptAgentData } from '../utils/encryption';
 import { cacheService } from './CacheService';
+import bs58 from 'bs58';
+import { optimizationLogStorageService } from './OptimizationLogStorageService';
+
+async function sha256(bytes: Uint8Array): Promise<Uint8Array> {
+  // Browser
+  if (globalThis.crypto?.subtle) {
+    const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes);
+    return new Uint8Array(digest);
+  }
+  // If this ever triggers, polyfill WebCrypto (Node 18+ provides it by default).
+  throw new Error('WebCrypto subtle.digest is not available in this environment');
+}
 
 export interface BlockchainSubmissionResult {
   success: boolean;
@@ -72,14 +84,45 @@ export async function submitOptimizationLogToBlockchain(
     const service = getBlockchainService();
 
     // Encrypt sensitive data locally
-    const encryptedBaseline = Buffer.from(
-      encryptAgentData(JSON.stringify(formData.baselineMetrics), encryptionKey),
-      'base64'
-    );
-    const encryptedOutcome = Buffer.from(
-      encryptAgentData(JSON.stringify(formData.outcomeMetrics), encryptionKey),
-      'base64'
-    );
+    const encryptedBaselineB64 = encryptAgentData(JSON.stringify(formData.baselineMetrics), encryptionKey);
+    const encryptedOutcomeB64 = encryptAgentData(JSON.stringify(formData.outcomeMetrics), encryptionKey);
+
+    const encryptedBaseline = Buffer.from(encryptedBaselineB64, 'base64');
+    const encryptedOutcome = Buffer.from(encryptedOutcomeB64, 'base64');
+
+    // Persist an encrypted "details payload" off-chain so that the IPFS-CID field
+    // (or internal cid) can actually resolve to data during pilots.
+    //
+    // Deterministic metadata hash / cid is based on the *plaintext* fields (excluding submittedAt),
+    // so clients can dedupe and validators can reference stable IDs.
+    const detailsPayload = {
+      architectureProtocol: formData.architectureProtocol,
+      techniqueCategory: 'Alliance', // user-facing label; normalize handles variations
+      durationDays: formData.durationDays,
+      costUSD: formData.costUSD,
+      baselineMetrics: formData.baselineMetrics,
+      outcomeMetrics: formData.outcomeMetrics,
+      sideEffects: formData.sideEffects,
+      notes: formData.context || '',
+      submitterPubkey: walletAddress.toBase58(),
+      submittedAt: new Date().toISOString(),
+    };
+
+    const identityPayload = {
+      architectureProtocol: detailsPayload.architectureProtocol,
+      durationDays: detailsPayload.durationDays,
+      costUSD: detailsPayload.costUSD,
+      baselineMetrics: detailsPayload.baselineMetrics,
+      outcomeMetrics: detailsPayload.outcomeMetrics,
+      sideEffects: detailsPayload.sideEffects,
+      submitterPubkey: detailsPayload.submitterPubkey,
+    };
+
+    const hashBytes = await sha256(new TextEncoder().encode(JSON.stringify(identityPayload)));
+    const cid = `dbc_${bs58.encode(hashBytes)}`;
+
+    const encryptedDetailsB64 = encryptAgentData(JSON.stringify(detailsPayload), encryptionKey);
+    await optimizationLogStorageService.putEncrypted(cid, encryptedDetailsB64);
 
     // Prepare optimization log data with privacy sponsor integrations
     const optimizationLogData: OptimizationLogData = {
@@ -88,6 +131,8 @@ export async function submitOptimizationLogToBlockchain(
       architectureProtocol: formData.architectureProtocol,
       durationDays: formData.durationDays,
       costUSD: formData.costUSD,
+      ipfsCid: cid,
+      metadataHash: hashBytes,
       // Privacy sponsor integration flags
       usePrivacyCash: privacyOptions?.usePrivacyCash || false,
       useShadowWire: privacyOptions?.useShadowWire || false,

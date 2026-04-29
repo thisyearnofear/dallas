@@ -55,7 +55,7 @@ We provide infrastructure that enables anyone to form alliances around agent cha
 
 | Technology | Status | Integration |
 |------------|--------|-------------|
-| **Noir (Aztec)** | Complete | 4 circuits, 26 tests passing |
+| **Noir (Aztec)** | Complete | 4 circuits + Web Worker proving (UI stays responsive) |
 | **Light Protocol** | Complete | ZK compression 2x-50x ratios |
 | **Arcium MPC** | Complete | Threshold decryption K-of-N |
 | **IPFS/Arweave** | Complete | Encrypted off-chain storage |
@@ -94,10 +94,10 @@ We provide infrastructure that enables anyone to form alliances around agent cha
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Start dev server
-npm run dev
+VITE_SOLANA_NETWORK=devnet pnpm dev
 
 # Navigate to http://localhost:5173
 ```

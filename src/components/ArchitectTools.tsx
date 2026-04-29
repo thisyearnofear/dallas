@@ -21,6 +21,7 @@ import { WalletContext, useWallet, type WalletContextType } from '../context/Wal
 import { blockchainService } from '../services/BlockchainService';
 import { SOLANA_CONFIG } from '../config/solana';
 import { useTheme } from '../context/ThemeContext';
+import { ToastContext } from '../context/ToastContext';
 import {
   arciumMPCService,
   type MPCAccessRequest,
@@ -223,6 +224,7 @@ const generateMockExports = (): ResearchExport[] => [
 // ============= Components =============
 
 export const ArchitectTools: FunctionalComponent = () => {
+  const toast = useContext(ToastContext);
   const { publicKey, connected } = useContext(WalletContext) as WalletContextType;
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
@@ -303,12 +305,12 @@ export const ArchitectTools: FunctionalComponent = () => {
   // Enhanced MPC access request with real committee management
   const handleRequestAccess = async (optimizationLogId: string) => {
     if (!publicKey || !connected) {
-      alert('Please connect your wallet first');
+      toast?.push('error', 'Please connect your wallet first.');
       return;
     }
 
     if (justification.length < 50) {
-      alert('Justification must be at least 50 characters');
+      toast?.push('error', 'Justification must be at least 50 characters.');
       return;
     }
 
@@ -336,11 +338,14 @@ export const ArchitectTools: FunctionalComponent = () => {
       });
 
       // Simulate committee notification
-      alert(`✅ Access request created! Committee of ${request.committee.length} validators formed. Threshold: ${request.threshold} approvals needed.`);
+      toast?.push(
+        'success',
+        `Access request created. Committee of ${request.committee.length} validators formed. Threshold: ${request.threshold} approvals needed.`
+      );
 
     } catch (error) {
       console.error('Failed to create access request:', error);
-      alert(`❌ Request failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast?.push('error', `Request failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -370,9 +375,12 @@ export const ArchitectTools: FunctionalComponent = () => {
         setAccessRequests(prev =>
           prev.map(r => r.id === requestId ? { ...r, status: 'approved' } : r)
         );
-        alert(`🎉 Request approved! ${approvedCount}/${request.committee.length} validators approved. Data can now be decrypted.`);
+        toast?.push(
+          'success',
+          `Request approved! ${approvedCount}/${request.committee.length} validators approved. Data can now be decrypted.`
+        );
       } else {
-        alert(`✅ Approval received! ${approvedCount}/${request.threshold} approvals needed.`);
+        toast?.push('info', `Approval received. ${approvedCount}/${request.threshold} approvals needed.`);
       }
     }
   };

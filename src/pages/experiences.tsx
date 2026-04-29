@@ -42,17 +42,20 @@ function CommunityCreationForm() {
 
     const handleCreate = async () => {
         if (!wallet.publicKey) {
-            alert("Please connect your wallet first");
+            setError("Please connect your wallet first.");
+            setStatus("error");
             return;
         }
 
         if (!name.trim()) {
-            alert("Please enter an alliance name");
+            setError("Please enter an alliance name.");
+            setStatus("error");
             return;
         }
 
         if (!description.trim()) {
-            alert("Please enter a description");
+            setError("Please enter a description.");
+            setStatus("error");
             return;
         }
 

@@ -205,8 +205,11 @@ cd circuits/resource_range && nargo test
 [execution_duration] 7 tests passed
 [data_completeness] 6 tests passed
 [resource_range] 7 tests passed
-Total: 26 tests passing
+Total: 26 circuit tests passing (Nargo)
 ```
+
+App-level tests:
+- `pnpm test` (Jest): 117 tests passing
 
 ---
 

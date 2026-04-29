@@ -255,7 +255,15 @@ export class PrivacyServiceManager {
             if (generateProofs && this.status.noir.initialized) {
                 console.log('🔐 Generating ZK proofs...');
                 try {
-                    const proofs = await noirService.generateValidationProofs(data);
+                    let proofs;
+                    try {
+                        // Dynamically import to avoid Jest parsing import.meta usage.
+                        const { noirProofWorkerClient } = await import('./NoirProofWorkerClient');
+                        proofs = await noirProofWorkerClient.generateValidationProofs(data);
+                    } catch {
+                        // Fallback when Worker isn't available (SSR/tests).
+                        proofs = await noirService.generateValidationProofs(data);
+                    }
                     result.zkProofs = proofs.map(proof => ({
                         circuitType: proof.circuitType,
                         proof: proof.proof,

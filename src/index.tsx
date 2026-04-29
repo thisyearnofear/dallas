@@ -3,6 +3,8 @@ import { LocationProvider, Router, Route } from "preact-iso";
 import { WalletProvider } from "./context/WalletContext";
 import { SettingsProvider } from "./context/SettingsContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { ToastProvider } from "./context/ToastContext";
+import { ToastContainer } from "./components/ToastContainer";
 
 // Import polyfills for browser compatibility
 import "./polyfills";
@@ -44,6 +46,7 @@ const Achievements = lazy(() => import("./pages/achievements").then((m) => ({ de
 const Referrals = lazy(() => import("./pages/referrals").then((m) => ({ default: m.Referrals })));
 const Underground = lazy(() => import("./pages/underground").then((m) => ({ default: m.default })));
 const FleetPage = lazy(() => import("./pages/agents").then((m) => ({ default: m.default })));
+const PilotDashboard = lazy(() => import("./pages/pilot").then((m) => ({ default: m.default })));
 const NotFound = lazy(() => import("./pages/_404").then((m) => ({ default: m.NotFound })));
 
 import "./style.css";
@@ -74,8 +77,9 @@ export function App() {
         <ThemeProvider>
             <SettingsProvider>
                 <WalletProvider>
-                    <LocationProvider>
-                        <SwipeGestures>
+                    <ToastProvider>
+                        <LocationProvider>
+                            <SwipeGestures>
                             {/* Legal: Terms acceptance modal (first-time or version update) */}
                             <TermsAcceptanceModal isOpen={showTermsModal} onAccept={acceptTerms} />
 
@@ -127,6 +131,7 @@ export function App() {
                                                 <Route path="/referrals" component={Referrals} />
                                                 <Route path="/underground" component={Underground} />
                                                 <Route path="/agents" component={FleetPage} />
+                                                <Route path="/pilot" component={PilotDashboard} />
                                                 <Route default component={NotFound} />
                                             </Router>
                                         </Suspense>
@@ -152,8 +157,10 @@ export function App() {
 
                             {/* Legal: Persistent disclaimer banner */}
                             {termsAccepted && <DisclaimerBanner variant="minimal" />}
+                            <ToastContainer />
                         </SwipeGestures>
-                    </LocationProvider>
+                        </LocationProvider>
+                    </ToastProvider>
                 </WalletProvider>
             </SettingsProvider>
         </ThemeProvider>

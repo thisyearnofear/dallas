@@ -35,6 +35,16 @@ export interface OptimizationLogData {
   architectureProtocol: string;
   durationDays: number;
   costUSD: number;
+  /**
+   * Content identifier for off-chain encrypted payload.
+   * Historically this was treated as an IPFS CID; for devnet/testnet pilots
+   * we also support internal cids like "dbc_<hash>".
+   */
+  ipfsCid?: string;
+  /**
+   * 32-byte metadata hash committed on-chain (should correspond to the off-chain payload).
+   */
+  metadataHash?: Uint8Array;
   // Privacy sponsor integration fields
   lightProtocolProof?: Uint8Array;
   compressionRatio?: number;
@@ -105,15 +115,28 @@ export class BlockchainService {
     // This is sha256("global:submit_encrypted_optimization_log")[0..8]
     const discriminator = Buffer.from([0x61, 0x8a, 0xe3, 0x5e, 0x03, 0x3d, 0x4d, 0x83]);
 
-    // Generate IPFS CID (46 bytes, starts with "Qm")
-    const ipfsCid = `Qm${(Buffer.from(data.encryptedBaseline.slice(0, 22)) as any).toString('hex').substring(0, 44)}`;
+    // Content id / "CID" (string) committed on chain. If caller provided one, use it.
+    // Otherwise fall back to a synthetic CID for compatibility.
+    const ipfsCid =
+      data.ipfsCid ||
+      `Qm${(Buffer.from(data.encryptedBaseline.slice(0, 22)) as any)
+        .toString('hex')
+        .substring(0, 44)}`;
 
-    // Generate metadata hash from encrypted data (32 bytes)
-    const metadataHash = new Uint8Array(32);
-    for (let i = 0; i < 32; i++) {
-      metadataHash[i] = data.encryptedBaseline[i % data.encryptedBaseline.length] ^
-        data.encryptedOutcome[i % data.encryptedOutcome.length];
-    }
+    // 32-byte metadata hash committed on-chain. If caller provided one, use it.
+    // Otherwise fall back to an xor-derived placeholder.
+    const metadataHash =
+      data.metadataHash && data.metadataHash.length === 32
+        ? data.metadataHash
+        : (() => {
+            const h = new Uint8Array(32);
+            for (let i = 0; i < 32; i++) {
+              h[i] =
+                data.encryptedBaseline[i % data.encryptedBaseline.length] ^
+                data.encryptedOutcome[i % data.encryptedOutcome.length];
+            }
+            return h;
+          })();
 
     // Architecture category (0=experimental, 1=approved, 2=alternative)
     const techniqueCategory = 0;

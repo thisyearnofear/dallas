@@ -1,9 +1,10 @@
 import { FunctionalComponent } from 'preact';
-import { useState } from 'preact/hooks';
+import { useContext, useState } from 'preact/hooks';
 import { Community, CommunityCategory, CommunityFilters, CATEGORY_INFO } from '../types/community';
 import { attentionTokenService } from '../services/AttentionTokenService';
 import { AttentionToken } from '../types/attentionToken';
 import { PrivacyTooltip } from './PrivacyTooltip';
+import { ToastContext } from '../context/ToastContext';
 
 interface ProtocolMatch {
   id: string;
@@ -35,6 +36,7 @@ const DIFFICULTY_LEVELS = ['easy', 'moderate', 'hard'] as const;
 const CATEGORIES: (CommunityCategory | 'all')[] = ['all', 'context_management', 'tool_calling', 'evaluation', 'orchestration'];
 
 export const ProtocolDiscovery: FunctionalComponent = () => {
+  const toast = useContext(ToastContext);
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'moderate' | 'hard' | ''>('');
   const [selectedCategory, setSelectedCategory] = useState<CommunityCategory | 'all'>('all');
@@ -108,7 +110,7 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
       setMatchedProtocols(filteredProtocols);
     } catch (error) {
       console.error('Search failed:', error);
-      alert('❌ Search failed. Check console for details.');
+      toast?.push('error', 'Search failed. Please try again.');
       setMatchedProtocols([]);
     } finally {
       setIsSearching(false);
@@ -124,8 +126,9 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
   };
 
   const handleRequestAccess = (protocol: ProtocolMatch) => {
-    alert(
-      `Request sent to protocol creator.\n\nYou'll be notified when ${protocol.name} owner grants access to see the full optimization logs.`
+    toast?.push(
+      'info',
+      `Access request sent. You'll be notified when the ${protocol.name} owner grants access.`
     );
   };
 
@@ -135,10 +138,10 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
       <div class="mb-10">
         <h2 class="text-3xl font-black mb-2 uppercase tracking-tighter flex items-center gap-3">
           <span class="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-lg text-2xl">🌐</span>
-          <span>Discover Communities</span>
+          <span>Discover Alliances</span>
         </h2>
         <p class="text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-          Find developer communities around agent architectures and prompts. Your search stays private - we never log your interests.
+          Find alliances around agent architectures and prompts. Your search stays private - we never log your interests.
         </p>
       </div>
 

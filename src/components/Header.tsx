@@ -5,13 +5,16 @@ import { encryptionService } from "../services/EncryptionService";
 import { useSettings } from "../context/SettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { useState, useEffect } from "preact/hooks";
+import { useContext } from "preact/hooks";
 import { privacyService } from "../services/privacy/PrivacyService";
 import { cacheService } from "../services/CacheService";
 import { NetworkBadge } from "./NetworkBadge";
+import { ToastContext } from "../context/ToastContext";
 
 export function Header() {
     const { connected, signMessage, publicKey, isNetworkMismatch, walletCluster, connection, dbcBalance } = useWallet();
     const { settings, toggleSetting } = useSettings();
+    const toast = useContext(ToastContext);
     const [isEncrypted, setIsEncrypted] = useState(false);
     const [isDecrypting, setIsDecrypting] = useState(false);
     const [solBalance, setSolBalance] = useState<number | null>(null);
@@ -84,7 +87,10 @@ export function Header() {
             setIsEncrypted(true);
         } catch (error) {
             console.error("Decryption failed:", error);
-            alert("Authentication failed. " + error.message);
+            toast?.push(
+                "error",
+                `Authentication failed: ${error instanceof Error ? error.message : "Unknown error"}`
+            );
         } finally {
             setIsDecrypting(false);
         }

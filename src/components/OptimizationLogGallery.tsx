@@ -57,11 +57,10 @@ export const OptimizationLogGallery: FunctionalComponent = () => {
       const programId = new PublicKey(SOLANA_CONFIG.blockchain.optimizationLogProgramId);
 
       // Fetch all optimization log accounts from the program
-      const accounts = await connection.getProgramAccounts(programId, {
-        filters: [
-          { dataSize: 254 }, // Exact size of OptimizationLog account with typical IPFS CID
-        ],
-      });
+      // NOTE: Do NOT use a fixed dataSize filter: the OptimizationLog account contains
+      // a variable-length IPFS CID string, so sizes differ. We'll parse and skip
+      // malformed accounts instead.
+      const accounts = await connection.getProgramAccounts(programId);
 
       const parsed: OptimizationLogDisplay[] = [];
 
@@ -90,8 +89,10 @@ export const OptimizationLogGallery: FunctionalComponent = () => {
           // Build display object
           parsed.push({
             pubkey: pubkey.toString(),
-            protocol: optimizationLog.techniqueCategoryName,
-            category: optimizationLog.techniqueCategoryName,
+            // The on-chain account currently stores an optimization category (not full protocol text),
+            // so we display it explicitly to avoid confusing users.
+            protocol: optimizationLog.optimizationCategoryName,
+            category: optimizationLog.optimizationCategoryName,
             submittedAt: optimizationLog.createdAt,
             validationStatus: status,
             approvalCount: optimizationLog.approvalCount,

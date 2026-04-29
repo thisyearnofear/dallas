@@ -19,16 +19,15 @@
 ┌──────────────────────▼──────────────────────────────────────┐
 │                  SMART CONTRACT LAYER                        │
 │  ┌─────────────────────────────────────────────────────┐    │
-│  │ case_study.rs                                       │    │
-│  │ • submit_encrypted_case_study()                     │    │
-│  │ • validator_prove_integrity()  [ZK proof required]  │    │
-│  │ • grant_selective_access()     [Threshold decrypt]  │    │
+│  │ optimization_log (Anchor program)                   │    │
+│  │ • submit encrypted optimization log                  │    │
+│  │ • validators approve/reject + reputation updates     │    │
+│  │ • optional selective disclosure hooks (MPC)           │    │
 │  └─────────────────────────────────────────────────────┘    │
 │  ┌─────────────────────────────────────────────────────┐    │
-│  │ dbc_token.rs                                        │    │
-│  │ • stake_for_validation()                            │    │
-│  │ • reward_validator()                                │    │
-│  │ • slash_on_dispute()                                │    │
+│  │ dbc_token (Anchor program)                          │    │
+│  │ • staking / eligibility gating for validators         │    │
+│  │ • reputation-linked permissions                       │    │
 │  └─────────────────────────────────────────────────────┘    │
 └──────────────────────┬──────────────────────────────────────┘
                        │
@@ -64,45 +63,16 @@
 
 ## Smart Contracts
 
-### Case Study Program
+### Optimization Log Program
 ```rust
-// Key instructions
-pub fn submit_encrypted_case_study(
-    ctx: Context<SubmitCaseStudy>,
-    encrypted_data: Vec<u8>,
-    light_proof: LightProof,
-) -> Result<Pubkey>
-
-pub fn validator_prove_integrity(
-    ctx: Context<ValidateWithProof>,
-    proof: Vec<u8>,  // Noir ZK-SNARK proof
-    public_inputs: ValidationInputs,
-) -> Result<()>
-
-pub fn grant_selective_access(
-    ctx: Context<GrantAccess>,
-    arcium_params: ArciumParams,
-) -> Result<()>
+// See: programs/optimization_log/src/lib.rs
+// Core: submit log + validate/score log on-chain.
 ```
 
 ### DBC Token Program
 ```rust
-// Key instructions
-pub fn stake_for_validation(
-    ctx: Context<StakeForValidation>,
-    amount: u64,
-) -> Result<()>
-
-pub fn reward_case_study(
-    ctx: Context<RewardCaseStudy>,
-    case_study: Pubkey,
-) -> Result<()>
-
-pub fn slash_validator(
-    ctx: Context<SlashValidator>,
-    validator: Pubkey,
-    percentage: u8,  // 50% for fraud
-) -> Result<()>
+// See: programs/dbc_token/src/lib.rs
+// Core: staking + validator eligibility gating.
 ```
 
 ---

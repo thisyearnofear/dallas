@@ -103,6 +103,14 @@ export const ValidatorDashboard: FunctionalComponent = () => {
             return;
         }
 
+        if (!canStake) {
+            setSubmitStatus({
+                type: 'error',
+                message: `You need at least ${DbcTokenService.STAKING_CONFIG.MINIMUM_STAKE} DBC staked to validate.`,
+            });
+            return;
+        }
+
         setValidating(optimizationLogPubkey.toString());
         setSubmitStatus({
             type: 'info',
