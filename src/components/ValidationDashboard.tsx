@@ -11,6 +11,8 @@ import { fetchPendingCaseStudies, submitValidatorApproval } from '../services/Bl
 import { blinkService } from '../services/BlinkService';
 import { DbcTokenService } from '../services/DbcTokenService';
 import { SOLANA_CONFIG } from '../config/solana';
+import { useDbcToken } from '../hooks/useDbcToken';
+import { noirProofWorkerClient } from '../services/privacy/NoirProofWorkerClient';
 
 interface ValidationTask {
   optimizationLogId: string;
@@ -53,6 +55,7 @@ interface ValidationState {
 
 export const ValidationDashboard: FunctionalComponent = () => {
   const { publicKey, connected, signTransaction } = useWallet();
+  const { canStake } = useDbcToken();
   const [state, setState] = useState<ValidationState>({
     tasks: [],
     selected: null,
@@ -167,7 +170,13 @@ export const ValidationDashboard: FunctionalComponent = () => {
     if (!state.selected?.encryptedData) return;
     setState((s) => ({ ...s, isGeneratingProofs: true }));
     try {
-      const proofs = await noirService.generateValidationProofs(state.selected.encryptedData);
+      // Generating proofs can take a few seconds; prefer the worker to keep UI responsive.
+      let proofs: ProofResult[];
+      try {
+        proofs = await noirProofWorkerClient.generateValidationProofs(state.selected.encryptedData);
+      } catch {
+        proofs = await noirService.generateValidationProofs(state.selected.encryptedData);
+      }
       setState((s) => ({ ...s, generatedProofs: proofs, isGeneratingProofs: false }));
       setSubmitStatus({ type: 'success', message: `✅ Generated ${proofs.length} ZK proofs.` });
     } catch (error) {
@@ -223,6 +232,14 @@ export const ValidationDashboard: FunctionalComponent = () => {
       setSubmitStatus({
         type: 'error',
         message: 'Please connect wallet and select a optimization log',
+      });
+      return;
+    }
+
+    if (!canStake(DbcTokenService.STAKING_CONFIG.MINIMUM_STAKE)) {
+      setSubmitStatus({
+        type: 'error',
+        message: `You need at least ${DbcTokenService.STAKING_CONFIG.MINIMUM_STAKE} DBC staked to validate.`,
       });
       return;
     }

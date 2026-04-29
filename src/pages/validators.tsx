@@ -9,6 +9,9 @@ function Validators() {
     const walletContext = useContext(WalletContext) as WalletContextType;
     const { publicKey } = walletContext;
     const isConnected = !!publicKey;
+    const deepLinkLog = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('log')
+        : null;
 
     return (
         <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
@@ -46,7 +49,7 @@ function Validators() {
                     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
                         {/* Validator Dashboard - Main Content */}
                         <div class="lg:col-span-3 space-y-8">
-                            <ValidatorDashboard />
+                            <ValidatorDashboard initialLogPubkey={deepLinkLog || undefined} />
                             <ValidatorReputationSystem />
                         </div>
 
@@ -62,7 +65,7 @@ function Validators() {
                     /* Not Connected: Compact layout with info cards below */
                     <div class="space-y-6">
                         {/* Validator Dashboard - Compact */}
-                        <ValidatorDashboard />
+                        <ValidatorDashboard initialLogPubkey={deepLinkLog || undefined} />
                         
                         {/* Validator Reputation System */}
                         <ValidatorReputationSystem />

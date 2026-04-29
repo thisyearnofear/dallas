@@ -7,6 +7,58 @@
 
 // Injected by Vite at build-time (see vite.config.ts). In Jest/Node it may be undefined.
 declare const __DBC_SOLANA_NETWORK__: string | undefined;
+declare const __DBC_SOLANA_RPC_ENDPOINT__: string | undefined;
+declare const __DBC_SOLANA_OPTIMIZATION_LOG_PROGRAM_ID__: string | undefined;
+declare const __DBC_DBC_MINT_ADDRESS__: string | undefined;
+declare const __DBC_TREASURY_PROGRAM_ID__: string | undefined;
+declare const __DBC_MEMBERSHIP_PROGRAM_ID__: string | undefined;
+declare const __DBC_DBC_TOKEN_PROGRAM_ID_DEVNET__: string | undefined;
+
+type SolanaNetwork = 'devnet' | 'testnet' | 'mainnet-beta';
+
+function envStr(v: any): string {
+  return typeof v === 'string' ? v : '';
+}
+
+function pick(...vals: Array<string | undefined>): string {
+  for (const v of vals) {
+    if (typeof v === 'string' && v.trim().length > 0) return v.trim();
+  }
+  return '';
+}
+
+const DEFAULTS_BY_NETWORK: Record<SolanaNetwork, {
+  optimizationLogProgramId: string;
+  dbcMintAddress: string;
+  treasuryProgramId: string;
+  membershipProgramId: string;
+  dbcTokenProgramIdDevnet: string;
+}> = {
+  devnet: {
+    optimizationLogProgramId: 'B68o3Pnre8XgwGBKN4aQeP8gPmPARUVfb7EufFgnVUyj',
+    dbcMintAddress: '8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT',
+    treasuryProgramId: 'C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk',
+    membershipProgramId: 'CB6yknfo1cBWhVH2ifkMAS2tKaDa9c9mgRiZpCzHwjzu',
+    dbcTokenProgramIdDevnet: '21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB',
+  },
+  // Until you deploy to testnet, require explicit env overrides.
+  testnet: {
+    optimizationLogProgramId: '',
+    dbcMintAddress: '',
+    treasuryProgramId: '',
+    membershipProgramId: '',
+    dbcTokenProgramIdDevnet: '',
+  },
+  // Mainnet values are intentionally not auto-filled for hackathon safety.
+  'mainnet-beta': {
+    optimizationLogProgramId: '',
+    // DBC mint on mainnet may be pump or custom; require explicit override.
+    dbcMintAddress: '',
+    treasuryProgramId: '',
+    membershipProgramId: '',
+    dbcTokenProgramIdDevnet: '',
+  },
+};
 
 export const SOLANA_CONFIG = {
   // Network: 'devnet', 'testnet', or 'mainnet-beta'
@@ -17,7 +69,7 @@ export const SOLANA_CONFIG = {
     // Jest/Node runtime
     (typeof process !== 'undefined' ? (process as any).env?.VITE_SOLANA_NETWORK : undefined) ||
     'devnet'
-  ) as 'devnet' | 'testnet' | 'mainnet-beta',
+  ) as SolanaNetwork,
 
   // RPC endpoints
   rpcEndpoint: {
@@ -38,20 +90,20 @@ export const SOLANA_CONFIG = {
 
   // Smart contract program IDs (from deployment)
   blockchain: {
-    optimizationLogProgramId: 'B68o3Pnre8XgwGBKN4aQeP8gPmPARUVfb7EufFgnVUyj',
+    optimizationLogProgramId: '', // populated below
     // DBC Token - Platform Coordination Token
     // Mainnet: J4q4vfHwe57x7hRjcQMJfV3YoE5ToqJhGeg3aaxGpump (pump.fun)
     // Devnet:  8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT (custom program)
-    dbcMintAddress: '8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT', // Devnet for testing
+    dbcMintAddress: '', // populated below
     dbcTokenProgramId: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', // Standard SPL Token Program
     // Treasury Program (deploy to SolPG, then update)
-    treasuryProgramId: 'C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk', // Deployed on devnet
-    membershipProgramId: 'CB6yknfo1cBWhVH2ifkMAS2tKaDa9c9mgRiZpCzHwjzu', // Deployed on devnet
+    treasuryProgramId: '', // populated below
+    membershipProgramId: '', // populated below
 
     // DBC Token Program (devnet)
-    dbcTokenProgramIdDevnet: '21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB',
+    dbcTokenProgramIdDevnet: '', // populated below
     dbcMintAddressDevnet: '8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT',
-    attentionTokenFactoryProgramId: 'XXXX', // To be deployed
+    attentionTokenFactoryProgramId: '', // optional (deploy later)
     governanceProgramId: 'DBCGoVFq5xGnD1WNCLauKoFG4Y4Rw3xPp3z3t8X6w3x',
   },
 
@@ -103,8 +155,70 @@ export const SOLANA_CONFIG = {
   },
 } as const;
 
+// Apply network-aware defaults + env overrides (single source of truth).
+(() => {
+  const net = SOLANA_CONFIG.network;
+  const defaults = DEFAULTS_BY_NETWORK[net];
+
+  const nodeEnv = typeof process !== 'undefined' ? (process as any).env || {} : {};
+
+  // Prefer build-time injected constants, then Node env, then defaults.
+  (SOLANA_CONFIG.blockchain as any).optimizationLogProgramId = pick(
+    envStr(typeof __DBC_SOLANA_OPTIMIZATION_LOG_PROGRAM_ID__ !== 'undefined' ? __DBC_SOLANA_OPTIMIZATION_LOG_PROGRAM_ID__ : ''),
+    nodeEnv.VITE_SOLANA_OPTIMIZATION_LOG_PROGRAM_ID,
+    defaults.optimizationLogProgramId
+  );
+
+  (SOLANA_CONFIG.blockchain as any).dbcMintAddress = pick(
+    envStr(typeof __DBC_DBC_MINT_ADDRESS__ !== 'undefined' ? __DBC_DBC_MINT_ADDRESS__ : ''),
+    nodeEnv.VITE_DBC_MINT_ADDRESS,
+    defaults.dbcMintAddress
+  );
+
+  (SOLANA_CONFIG.blockchain as any).treasuryProgramId = pick(
+    envStr(typeof __DBC_TREASURY_PROGRAM_ID__ !== 'undefined' ? __DBC_TREASURY_PROGRAM_ID__ : ''),
+    nodeEnv.VITE_TREASURY_PROGRAM_ID,
+    defaults.treasuryProgramId
+  );
+
+  (SOLANA_CONFIG.blockchain as any).membershipProgramId = pick(
+    envStr(typeof __DBC_MEMBERSHIP_PROGRAM_ID__ !== 'undefined' ? __DBC_MEMBERSHIP_PROGRAM_ID__ : ''),
+    nodeEnv.VITE_MEMBERSHIP_PROGRAM_ID,
+    defaults.membershipProgramId
+  );
+
+  (SOLANA_CONFIG.blockchain as any).dbcTokenProgramIdDevnet = pick(
+    envStr(typeof __DBC_DBC_TOKEN_PROGRAM_ID_DEVNET__ !== 'undefined' ? __DBC_DBC_TOKEN_PROGRAM_ID_DEVNET__ : ''),
+    nodeEnv.VITE_DBC_TOKEN_PROGRAM_ID_DEVNET,
+    defaults.dbcTokenProgramIdDevnet
+  );
+
+  // RPC override (optional)
+  const rpcOverride = pick(
+    envStr(typeof __DBC_SOLANA_RPC_ENDPOINT__ !== 'undefined' ? __DBC_SOLANA_RPC_ENDPOINT__ : ''),
+    nodeEnv.VITE_SOLANA_RPC_ENDPOINT
+  );
+  if (rpcOverride) (SOLANA_CONFIG.rpcEndpoint as any)[net] = rpcOverride;
+})();
+
 export function getRpcEndpoint(): string {
   return SOLANA_CONFIG.rpcEndpoint[SOLANA_CONFIG.network];
+}
+
+export function getBlockchainConfigErrors(): string[] {
+  const { blockchain } = SOLANA_CONFIG;
+  const errors: string[] = [];
+  const isMissing = (addr: string) => !addr || addr.includes('XXXX') || addr.includes('XXX');
+
+  if (isMissing(blockchain.dbcMintAddress)) {
+    errors.push('Missing DBC mint address (VITE_DBC_MINT_ADDRESS).');
+  }
+
+  if (isMissing(blockchain.optimizationLogProgramId)) {
+    errors.push('Missing optimization log program id (VITE_SOLANA_OPTIMIZATION_LOG_PROGRAM_ID).');
+  }
+
+  return errors;
 }
 
 /**
@@ -112,21 +226,8 @@ export function getRpcEndpoint(): string {
  * Throws error if critical program IDs are not set
  */
 export function validateBlockchainConfig(): void {
-  const { blockchain } = SOLANA_CONFIG;
-
-  const isPlaceholder = (addr: string) => addr.includes('XXXX') || addr.includes('XXX');
-
-  // Validate DBC Token is configured (primary token)
-  if (isPlaceholder(blockchain.dbcMintAddress)) {
-    throw new Error(
-      'DBC Token Mint Address not configured. Set SOLANA_CONFIG.blockchain.dbcMintAddress to your DBC token mint'
-    );
-  }
-
-  // Optimization log program is optional for basic functionality
-  if (isPlaceholder(blockchain.optimizationLogProgramId)) {
-    console.warn(
-      'Optimization Log Program ID not configured. Deploy to solpgf and update SOLANA_CONFIG.blockchain.optimizationLogProgramId for validation features'
-    );
+  const errors = getBlockchainConfigErrors();
+  if (errors.length > 0) {
+    throw new Error(errors.join(' '));
   }
 }

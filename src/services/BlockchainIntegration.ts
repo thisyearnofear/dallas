@@ -122,7 +122,7 @@ export async function submitOptimizationLogToBlockchain(
     const cid = `dbc_${bs58.encode(hashBytes)}`;
 
     const encryptedDetailsB64 = encryptAgentData(JSON.stringify(detailsPayload), encryptionKey);
-    await optimizationLogStorageService.putEncrypted(cid, encryptedDetailsB64);
+    await optimizationLogStorageService.putEncrypted(cid, encryptedDetailsB64, walletAddress.toBase58());
 
     // Prepare optimization log data with privacy sponsor integrations
     const optimizationLogData: OptimizationLogData = {

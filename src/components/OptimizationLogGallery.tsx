@@ -317,10 +317,30 @@ export const OptimizationLogGallery: FunctionalComponent = () => {
 
             {/* Modal Content */}
             <div class="p-6">
+              {/* Primary CTA: validate */}
+              {selectedStudy.validationStatus === 'pending' && (
+                <div class="mb-6 flex flex-wrap items-center justify-between gap-3 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
+                  <div>
+                    <div class="font-black text-yellow-900 dark:text-yellow-200">
+                      ⚖️ Help validate this log
+                    </div>
+                    <div class="text-sm text-yellow-800 dark:text-yellow-300">
+                      Validators must stake DBC and cannot validate their own submissions.
+                    </div>
+                  </div>
+                  <a
+                    class="px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-black text-sm"
+                    href={`/validators?log=${encodeURIComponent(selectedStudy.pubkey)}`}
+                  >
+                    Validate this log →
+                  </a>
+                </div>
+              )}
+
               {detailsLoading ? (
                 <div class="flex flex-col items-center justify-center py-12">
                   <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mb-4"></div>
-                  <p class="text-gray-600 dark:text-slate-400">Fetching from IPFS...</p>
+                  <p class="text-gray-600 dark:text-slate-400">Fetching encrypted details…</p>
                   <p class="text-xs text-gray-400 dark:text-slate-500 mt-2 font-mono">{selectedStudy.ipfsCid}</p>
                 </div>
               ) : detailsError ? (

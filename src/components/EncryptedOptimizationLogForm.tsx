@@ -55,6 +55,8 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
   const [privacyOptions, setPrivacyOptions] = useState({
     compressionRatio: 10, // Default to 10x (recommended)
   });
+  // Demo setting: faster, less privacy. Clearly labeled in UI.
+  const [demoFastMode, setDemoFastMode] = useState(false);
 
   // Light Protocol compression state
   const [compressionStats, setCompressionStats] = useState<{
@@ -84,6 +86,14 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
   useEffect(() => {
     lightProtocolService.initialize().catch(console.error);
   }, []);
+
+  // Demo fast mode: bias toward speed (2x compression) and clear cached compression.
+  useEffect(() => {
+    if (demoFastMode) {
+      setPrivacyOptions((p) => ({ ...p, compressionRatio: 2 }));
+      setCompressionStats((s) => ({ ...s, compressedData: null }));
+    }
+  }, [demoFastMode]);
 
   // Validate form whenever data changes
   useEffect(() => {
@@ -392,6 +402,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
   // Enhanced submission with real-time progress tracking
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
     if (!encryptionKey) {
       setSubmitStatus({
@@ -453,7 +464,9 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
       // Step 1: Compress data if needed
       setSubmitStatus({
         type: 'info',
-        message: '🔄 Step 1/4: Compressing optimization log data...',
+        message: demoFastMode
+          ? '⚡ Step 1/4: Compressing (fast mode, typically ~2–8s)…'
+          : '🔄 Step 1/4: Compressing (typically ~5–20s)…',
       });
 
       let compressedData = compressionStats.compressedData;
@@ -468,7 +481,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
       // Step 2: Prepare transaction
       setSubmitStatus({
         type: 'info',
-        message: `🔄 Step 2/4: Preparing blockchain transaction (${compressionStats.savingsPercent}% compression achieved)...`,
+        message: `🔄 Step 2/4: Preparing transaction…`,
       });
 
       // Step 3: Sign transaction
@@ -1288,13 +1301,27 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                           compressionRatio: parseInt((e.target as HTMLSelectElement).value),
                         })
                       }
+                      disabled={demoFastMode}
                       class="flex-1 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 outline-none"
                     >
+                      <option value={2}>Fast (2x savings)</option>
                       <option value={5}>Standard (5x savings)</option>
                       <option value={10}>Recommended (10x savings)</option>
                       <option value={20}>Maximum (20x savings)</option>
                     </select>
                   </div>
+
+                  <label class="mt-3 flex items-start gap-3 text-xs font-bold text-slate-600 dark:text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={demoFastMode}
+                      onChange={(e) => setDemoFastMode((e.target as HTMLInputElement).checked)}
+                      class="mt-1"
+                    />
+                    <span>
+                      Demo fast mode (skip heavy settings; faster, slightly less private). Recommended for live demos.
+                    </span>
+                  </label>
 
                   {/* Savings Preview */}
                   {compressionStats.originalSize > 0 && (

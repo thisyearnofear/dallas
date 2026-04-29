@@ -32,6 +32,7 @@ import { MobileNav } from "./components/MobileNav";
 import { useConsent } from "./hooks/useConsent";
 import { useState, useEffect } from "preact/hooks";
 import { lazy, Suspense } from "preact/compat";
+import { ChainConfigBanner } from "./components/ChainConfigBanner";
 
 // Route-level code splitting: keep initial bundle small.
 const Home = lazy(() => import("./pages/home").then((m) => ({ default: m.Home })));
@@ -94,6 +95,7 @@ export function App() {
                             <LiveCounter />
 
                             <ErrorBoundary>
+                                <ChainConfigBanner />
                                 <Header />
                             </ErrorBoundary>
                             <div class="flex flex-1 relative items-stretch">

@@ -10,12 +10,12 @@
  *  - payload stored via /api/optimization-log
  */
 export class OptimizationLogStorageService {
-  async putEncrypted(cid: string, encryptedBase64: string): Promise<void> {
+  async putEncrypted(cid: string, encryptedBase64: string, wallet?: string): Promise<void> {
     try {
       const res = await fetch('/api/optimization-log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cid, encryptedBase64 }),
+        body: JSON.stringify({ cid, encryptedBase64, wallet }),
       });
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);

@@ -18,7 +18,7 @@ interface OptimizationLogForValidation {
     needsValidation: boolean;
 }
 
-export const ValidatorDashboard: FunctionalComponent = () => {
+export const ValidatorDashboard: FunctionalComponent<{ initialLogPubkey?: string }> = ({ initialLogPubkey }) => {
     const walletContext = useContext(WalletContext) as WalletContextType;
     const { publicKey, reputationTier, validationCount, accuracyRate, refreshExperienceData } = walletContext;
     const { resolvedTheme } = useTheme();
@@ -50,7 +50,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
         if (publicKey) {
             loadCaseStudies();
         }
-    }, [publicKey]);
+    }, [publicKey, initialLogPubkey]);
 
     const loadCaseStudies = async () => {
         if (!publicKey) return;
@@ -62,7 +62,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
 
             if (result.success && result.caseStudies) {
                 // Convert to validation format - exclude user's own optimization logs
-                const validationCaseStudies: OptimizationLogForValidation[] = result.caseStudies
+                let validationCaseStudies: OptimizationLogForValidation[] = result.caseStudies
                     .filter(cs => !cs.submitter.equals(publicKey)) // Can't validate own studies
                     .filter(cs => cs.approvalCount < 3) // Need 3 weighted approvals (changed from 5 to 3)
                     .map(cs => ({
@@ -73,6 +73,17 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                         approvalCount: cs.approvalCount,
                         needsValidation: true,
                     }));
+
+                // If deep-linked from “Validate this log”, move it to top if present.
+                if (initialLogPubkey) {
+                    const target = validationCaseStudies.find(cs => cs.pubkey.toString() === initialLogPubkey);
+                    if (target) {
+                        validationCaseStudies = [
+                            target,
+                            ...validationCaseStudies.filter(cs => cs.pubkey.toString() !== initialLogPubkey),
+                        ];
+                    }
+                }
 
                 setCaseStudies(validationCaseStudies);
             } else {
@@ -103,7 +114,7 @@ export const ValidatorDashboard: FunctionalComponent = () => {
             return;
         }
 
-        if (!canStake) {
+        if (!canStake(DbcTokenService.STAKING_CONFIG.MINIMUM_STAKE)) {
             setSubmitStatus({
                 type: 'error',
                 message: `You need at least ${DbcTokenService.STAKING_CONFIG.MINIMUM_STAKE} DBC staked to validate.`,
@@ -147,6 +158,11 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                             : cs
                     )
                 );
+
+                // Re-fetch from chain so UI reflects final counts/status without manual refresh.
+                setTimeout(() => {
+                    loadCaseStudies().catch(() => {});
+                }, 1500);
             } else {
                 setSubmitStatus({
                     type: 'error',
@@ -282,7 +298,21 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                 {loading ? (
                     <div class={`text-center py-8 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Loading optimization logs...</div>
                 ) : caseStudies.length === 0 ? (
-                    <div class={`text-center py-8 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>No optimization logs pending validation.</div>
+                    <div class={`p-6 rounded-lg border text-center ${isDark ? 'bg-slate-800 border-slate-700 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'}`}>
+                        <div class="text-2xl mb-2">📭</div>
+                        <div class="font-black mb-1">No pending logs found.</div>
+                        <div class="text-sm opacity-80">
+                            For a live demo: submit a log first, then validate it from a second wallet.
+                        </div>
+                        <div class="mt-4 flex flex-wrap gap-2 justify-center">
+                            <a class="px-3 py-2 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm" href="/experiences?tab=share">
+                                Submit a log →
+                            </a>
+                            <button class={`px-3 py-2 rounded font-black text-sm ${isDark ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-slate-200 hover:bg-slate-300 text-slate-900'}`} onClick={loadCaseStudies}>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
                 ) : (
                     <div class="space-y-4">
                         {caseStudies.map((optimizationLog) => (
@@ -292,6 +322,11 @@ export const ValidatorDashboard: FunctionalComponent = () => {
                                     isDark ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'
                                 }`}
                             >
+                                {initialLogPubkey && optimizationLog.pubkey.toString() === initialLogPubkey && (
+                                    <div class="mb-3 inline-flex items-center gap-2 text-xs font-black px-2 py-1 rounded bg-blue-100 text-blue-800 border border-blue-200">
+                                        From “Validate this log”
+                                    </div>
+                                )}
                                 <div class="flex items-start justify-between mb-4">
                                     <div class="flex-1">
                                         <h4 class={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>

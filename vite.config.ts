@@ -57,6 +57,12 @@ export default defineConfig({
     global: 'globalThis',
     'process.env': {},
     __DBC_SOLANA_NETWORK__: JSON.stringify(process.env.VITE_SOLANA_NETWORK || ''),
+    __DBC_SOLANA_RPC_ENDPOINT__: JSON.stringify(process.env.VITE_SOLANA_RPC_ENDPOINT || ''),
+    __DBC_SOLANA_OPTIMIZATION_LOG_PROGRAM_ID__: JSON.stringify(process.env.VITE_SOLANA_OPTIMIZATION_LOG_PROGRAM_ID || ''),
+    __DBC_DBC_MINT_ADDRESS__: JSON.stringify(process.env.VITE_DBC_MINT_ADDRESS || ''),
+    __DBC_TREASURY_PROGRAM_ID__: JSON.stringify(process.env.VITE_TREASURY_PROGRAM_ID || ''),
+    __DBC_MEMBERSHIP_PROGRAM_ID__: JSON.stringify(process.env.VITE_MEMBERSHIP_PROGRAM_ID || ''),
+    __DBC_DBC_TOKEN_PROGRAM_ID_DEVNET__: JSON.stringify(process.env.VITE_DBC_TOKEN_PROGRAM_ID_DEVNET || ''),
   },
   build: {
     target: 'esnext',
