@@ -56,6 +56,25 @@ export default defineConfig({
   define: {
     global: 'globalThis',
     'process.env': {},
+    __DBC_SOLANA_NETWORK__: JSON.stringify(process.env.VITE_SOLANA_NETWORK || ''),
+  },
+  build: {
+    target: 'esnext',
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // Keep Barretenberg / bb.js out of the entry chunk (massive).
+          if (
+            id.includes('@aztec/bb.js') ||
+            id.includes('@noir-lang/backend_barretenberg') ||
+            id.includes('bb.js:wasm')
+          ) {
+            return 'noir-bb';
+          }
+          return undefined;
+        },
+      },
+    },
   },
   resolve: {
     alias: {
@@ -70,9 +89,7 @@ export default defineConfig({
       },
     },
   },
-  build: {
-    target: 'esnext',
-  },
+  
   worker: {
     format: 'es',
   },

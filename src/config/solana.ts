@@ -5,9 +5,19 @@
  * You'll get these from https://beta.solpg.io/ deployment output
  */
 
+// Injected by Vite at build-time (see vite.config.ts). In Jest/Node it may be undefined.
+declare const __DBC_SOLANA_NETWORK__: string | undefined;
+
 export const SOLANA_CONFIG = {
   // Network: 'devnet', 'testnet', or 'mainnet-beta'
-  network: 'devnet' as 'devnet' | 'testnet' | 'mainnet-beta',
+  // Controlled via env so we can do devnet/testnet pilots before mainnet.
+  network: (
+    // Injected at build-time by Vite define() (see vite.config.ts)
+    (typeof __DBC_SOLANA_NETWORK__ !== 'undefined' && __DBC_SOLANA_NETWORK__) ||
+    // Jest/Node runtime
+    (typeof process !== 'undefined' ? (process as any).env?.VITE_SOLANA_NETWORK : undefined) ||
+    'devnet'
+  ) as 'devnet' | 'testnet' | 'mainnet-beta',
 
   // RPC endpoints
   rpcEndpoint: {

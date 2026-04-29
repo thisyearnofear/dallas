@@ -13,6 +13,8 @@ export interface AgentNetworkState {
     risk: { status: string; role: string };
     community: { status: string; role: string };
     context: { status: string; role: string };
+    // Compatibility alias (some modules/tests expect this key)
+    identity?: { status: string; role: string };
   };
   currentDangerLevel: number;
   agentSuggestions: string[];

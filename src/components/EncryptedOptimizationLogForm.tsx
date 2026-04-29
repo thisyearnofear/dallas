@@ -206,7 +206,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
   }, []);
 
   // Check blockchain configuration on mount
-  useState(() => {
+  useEffect(() => {
     try {
       validateBlockchainConfig();
       setBlockchainConfigValid(true);
@@ -214,10 +214,10 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
       setBlockchainConfigValid(false);
       setSubmitStatus({
         type: 'error',
-        message: `⚠️ Blockchain not configured: ${error instanceof Error ? error.message : 'Unknown error'}. Please deploy contracts to devnet first.`,
+        message: `⚠️ Blockchain not configured: ${error instanceof Error ? error.message : 'Unknown error'}. Please deploy contracts to the selected network (devnet/testnet) first.`,
       });
     }
-  });
+  }, []);
 
   // Step 1: Derive encryption key from wallet
   const handleDeriveKey = async () => {
@@ -741,10 +741,10 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
     <div class="w-full max-w-2xl mx-auto bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-8 rounded-2xl border-2 border-green-500 shadow-xl transition-all duration-300">
       {/* Header */}
       <div class="mb-10">
-        <h2 class="text-3xl font-black mb-2 uppercase tracking-tighter">📋 Share Your Agent Journey</h2>
+        <h2 class="text-3xl font-black mb-2 uppercase tracking-tighter">📋 Submit a Private Optimization Log</h2>
         <p class="text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-          Document your experimental architecture and share your experience with the community.
-          Your data stays encrypted.
+          Share an optimization result with an alliance while keeping your prompts, tooling, and raw data encrypted.
+          Validators can verify integrity without seeing your IP.
         </p>
       </div>
 
@@ -801,7 +801,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
         <form onSubmit={handleSubmit} class="space-y-8 animate-fadeIn">
           <div class="p-8 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-inner">
             <h3 class="text-xl font-black mb-6 flex items-center gap-3 uppercase tracking-wider text-slate-800 dark:text-white">
-              <span class="text-2xl bg-white dark:bg-slate-700 p-2 rounded-lg shadow-sm">💊</span>
+              <span class="text-2xl bg-white dark:bg-slate-700 p-2 rounded-lg shadow-sm">🏗️</span>
               Step 2: Your Architecture
             </h3>
 

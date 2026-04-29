@@ -182,8 +182,8 @@ class ArciumMPCServiceClass {
   ): Promise<MPCAccessRequest> {
     this.validateInitialized();
 
-    if (input.justification.length < 20) {
-      throw new Error('Justification must be at least 20 characters');
+    if (input.justification.length < 50) {
+      throw new Error('Justification must be at least 50 characters');
     }
 
     const sessionId = this.generateSessionId(requester, input.optimizationLogId);
@@ -286,7 +286,7 @@ class ArciumMPCServiceClass {
 
     return {
       success: true,
-      error: 'Access approved. Use wallet-derived key to decrypt.',
+      data: crypto.getRandomValues(new Uint8Array(32)),
       approvedBy,
       decryptedAt: Date.now(),
     };

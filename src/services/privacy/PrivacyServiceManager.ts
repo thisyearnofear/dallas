@@ -16,6 +16,7 @@
 import { noirService, NoirService } from './NoirService';
 import { lightProtocolService, LightProtocolService } from './LightProtocolService';
 import { arciumMPCService, ArciumMPCService } from './ArciumMPCService';
+import { track } from '../../utils/telemetry';
 
 // Service status tracking
 export interface PrivacyServiceStatus {
@@ -229,6 +230,13 @@ export class PrivacyServiceManager {
         // Ensure services are initialized
         await this.initialize();
 
+        track('privacy_process', {
+            phase: 'start',
+            generateProofs,
+            compressData,
+            createMPCSession,
+        });
+
         const result: PrivacyProcessingResult = {
             zkProofs: [],
             compression: {
@@ -316,6 +324,14 @@ export class PrivacyServiceManager {
             result.processingTime = Date.now() - startTime;
 
             console.log(`🔐 Privacy processing completed in ${result.processingTime}ms`);
+            track(result.success ? 'privacy_process' : 'privacy_error', {
+                phase: 'end',
+                success: result.success,
+                processingTimeMs: result.processingTime,
+                zkProofs: result.zkProofs.length,
+                compressionRatio: result.compression.compressionRatio,
+                errors: errors.slice(0, 3),
+            });
             return result;
 
         } catch (error) {
@@ -327,6 +343,12 @@ export class PrivacyServiceManager {
             result.processingTime = Date.now() - startTime;
 
             console.error('❌ Privacy processing failed:', error);
+            track('privacy_error', {
+                phase: 'crash',
+                success: false,
+                processingTimeMs: result.processingTime,
+                error: error instanceof Error ? error.message : String(error),
+            });
             return result;
         }
     }

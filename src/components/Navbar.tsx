@@ -5,11 +5,12 @@ import { useMembership } from "../hooks/useMembership";
 
 const navigationItems = [
     { href: "/", label: "Home", icon: "🏠", description: "Welcome to the Alliance" },
-    { href: "/experiences", label: "Alliances", icon: "🌐", description: "Discover & create", highlight: true },
-    { href: "/attention-tokens", label: "Token Market", icon: "💎", description: "Trade alliance tokens", highlight: true },
-    { href: "/validators", label: "Validators", icon: "⚖️", description: "Earn by validating", highlight: true },
-    { href: "/membership", label: "Join Alliance", icon: "🤝", description: "Become a member" },
-    { href: "/agents", label: "Command Center", icon: "🤖", description: "Agent intelligence", highlight: true },
+    { href: "/experiences", label: "Alliances", icon: "🌐", description: "Discover & join", highlight: true },
+    { href: "/experiences?tab=share", label: "Submit Log", icon: "📋", description: "Private optimization log", highlight: true },
+    { href: "/validators", label: "Validators", icon: "⚖️", description: "Validate & earn", highlight: true },
+    { href: "/attention-tokens", label: "Markets", icon: "💎", description: "Trade alliance tokens" },
+    { href: "/membership", label: "Membership", icon: "🤝", description: "Become a member" },
+    { href: "/agents", label: "Command Center", icon: "🤖", description: "Agent intelligence" },
     { href: "/underground", label: "Underground", icon: "🕋", description: "Secret operations", secret: true },
     { href: "/links", label: "Resources", icon: "🔗", description: "Tools & docs" }
 ];
@@ -64,10 +65,10 @@ export function Navbar() {
                                 </div>
                             )}
 
-                            {/* Highlight badge */}
+                            {/* Highlight badge (keep subtle) */}
                             {item.highlight && !isCollapsed && (
-                                <span class="bg-brand text-white text-xs px-2 py-1 rounded-full font-bold animate-pulse-custom">
-                                    NEW
+                                <span class="bg-brand/15 text-brand text-[10px] px-2 py-1 rounded-full font-black border border-brand/30">
+                                    CORE
                                 </span>
                             )}
 

@@ -392,13 +392,20 @@ export class ContextRestorationAgent extends EnhancedBusinessAgent {
   }
 }
 
+// Backward-compatible name used by tests and some UI copy.
+// Kept as a separate export to avoid breaking imports.
+export class IdentityRestorationAgent extends ContextRestorationAgent {}
+
 // MODULAR: Core Agent Network Coordination
 export class CoreAgentNetwork {
   private agents = {
     supply: new SupplyChainIntelligenceAgent(),
     risk: new RiskAssessmentAgent(), 
     community: new CommunityCoordinationAgent(),
-    context: new ContextRestorationAgent()
+    // Canonical internal name
+    context: new ContextRestorationAgent(),
+    // Compatibility alias expected by tests
+    identity: new IdentityRestorationAgent(),
   };
 
   // PERFORMANT: Coordinate multiple agents efficiently
@@ -437,6 +444,7 @@ export class CoreAgentNetwork {
       'group_purchase': ['supply', 'community', 'risk'],
       'emergency_response': ['risk', 'community', 'supply'],
       'context_restoration': ['context', 'risk'],
+      'identity_restoration': ['identity', 'risk'],
       'threat_assessment': ['risk'],
       'community_coordination': ['community', 'supply']
     };
@@ -485,7 +493,9 @@ export class CoreAgentNetwork {
       supply: { status: 'ACTIVE', role: 'Architecture sourcing & optimization' },
       risk: { status: 'MONITORING', role: 'Threat assessment & security' },
       community: { status: 'COORDINATING', role: 'Member network management' },
-      context: { status: 'PROCESSING', role: 'A.I.D.S. architecture & recovery' }
+      context: { status: 'PROCESSING', role: 'A.I.D.S. architecture & recovery' },
+      // Backward-compatible alias for UI/tests
+      identity: { status: 'PROCESSING', role: 'A.I.D.S. architecture & recovery' },
     };
   }
 }

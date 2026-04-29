@@ -29,20 +29,22 @@ import { PrivacyOnboardingModal } from "./components/PrivacyOnboardingModal";
 import { MobileNav } from "./components/MobileNav";
 import { useConsent } from "./hooks/useConsent";
 import { useState, useEffect } from "preact/hooks";
+import { lazy, Suspense } from "preact/compat";
 
-import { Home } from "./pages/home";
-import { Products } from "./pages/products";
-import { Links } from "./pages/links";
-import { Donate } from "./pages/donate";
-import { Membership } from "./pages/membership";
-import { Achievements } from "./pages/achievements";
-import { Referrals } from "./pages/referrals";
-import Underground from "./pages/underground";
-import { Experiences } from "./pages/experiences";
-import Validators from "./pages/validators";
-import AttentionTokens from "./pages/attention-tokens";
-import FleetPage from "./pages/agents";
-import { NotFound } from "./pages/_404";
+// Route-level code splitting: keep initial bundle small.
+const Home = lazy(() => import("./pages/home").then((m) => ({ default: m.Home })));
+const Experiences = lazy(() => import("./pages/experiences").then((m) => ({ default: m.Experiences })));
+const Validators = lazy(() => import("./pages/validators").then((m) => ({ default: m.default })));
+const AttentionTokens = lazy(() => import("./pages/attention-tokens").then((m) => ({ default: m.default })));
+const Products = lazy(() => import("./pages/products").then((m) => ({ default: m.Products })));
+const Links = lazy(() => import("./pages/links").then((m) => ({ default: m.Links })));
+const Donate = lazy(() => import("./pages/donate").then((m) => ({ default: m.Donate })));
+const Membership = lazy(() => import("./pages/membership").then((m) => ({ default: m.Membership })));
+const Achievements = lazy(() => import("./pages/achievements").then((m) => ({ default: m.Achievements })));
+const Referrals = lazy(() => import("./pages/referrals").then((m) => ({ default: m.Referrals })));
+const Underground = lazy(() => import("./pages/underground").then((m) => ({ default: m.default })));
+const FleetPage = lazy(() => import("./pages/agents").then((m) => ({ default: m.default })));
+const NotFound = lazy(() => import("./pages/_404").then((m) => ({ default: m.NotFound })));
 
 import "./style.css";
 
@@ -103,21 +105,31 @@ export function App() {
 
                                 <div class="w-full p-4 sm:p-6 lg:p-10 pb-24 lg:pb-10">
                                     <ErrorBoundary>
-                                        <Router>
-                                            <Route path="/" component={Home} />
-                                            <Route path="/experiences" component={Experiences} />
-                                            <Route path="/validators" component={Validators} />
-                                            <Route path="/attention-tokens" component={AttentionTokens} />
-                                            <Route path="/products" component={Products} />
-                                            <Route path="/links" component={Links} />
-                                            <Route path="/donate" component={Donate} />
-                                            <Route path="/membership" component={Membership} />
-                                            <Route path="/achievements" component={Achievements} />
-                                            <Route path="/referrals" component={Referrals} />
-                                            <Route path="/underground" component={Underground} />
-                                            <Route path="/agents" component={FleetPage} />
-                                            <Route default component={NotFound} />
-                                        </Router>
+                                        <Suspense
+                                            fallback={
+                                                <div class="min-h-[60vh] flex items-center justify-center">
+                                                    <div class="text-sm font-bold text-slate-600 dark:text-slate-300">
+                                                        Loading…
+                                                    </div>
+                                                </div>
+                                            }
+                                        >
+                                            <Router>
+                                                <Route path="/" component={Home} />
+                                                <Route path="/experiences" component={Experiences} />
+                                                <Route path="/validators" component={Validators} />
+                                                <Route path="/attention-tokens" component={AttentionTokens} />
+                                                <Route path="/products" component={Products} />
+                                                <Route path="/links" component={Links} />
+                                                <Route path="/donate" component={Donate} />
+                                                <Route path="/membership" component={Membership} />
+                                                <Route path="/achievements" component={Achievements} />
+                                                <Route path="/referrals" component={Referrals} />
+                                                <Route path="/underground" component={Underground} />
+                                                <Route path="/agents" component={FleetPage} />
+                                                <Route default component={NotFound} />
+                                            </Router>
+                                        </Suspense>
                                     </ErrorBoundary>
                                 </div>
                             </div>

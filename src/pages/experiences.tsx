@@ -1,7 +1,5 @@
-import { useState } from "preact/hooks";
-import { EncryptedOptimizationLogForm } from "../components/EncryptedOptimizationLogForm";
-import { ProtocolDiscovery } from "../components/ProtocolDiscovery";
-import { OptimizationLogGallery } from "../components/OptimizationLogGallery";
+import { useEffect, useState } from "preact/hooks";
+import { lazy, Suspense } from "preact/compat";
 import { TokenImage, getTokenImageUrl } from "../components/TokenImageManager";
 import { useWallet } from "../context/WalletContext";
 import { attentionTokenService } from "../services/AttentionTokenService";
@@ -10,7 +8,24 @@ import { AttentionTokenCreationStatus } from "../types/attentionToken";
 
 type Tab = "discover" | "studies" | "create" | "share" | "sync";
 
-// ENHANCEMENT: Interactive Community Creation Form Component
+// Lazy-load heavy tabs to keep the initial route chunk smaller.
+const ProtocolDiscovery = lazy(() =>
+    import("../components/ProtocolDiscovery").then((m) => ({
+        default: m.ProtocolDiscovery,
+    })),
+);
+const OptimizationLogGallery = lazy(() =>
+    import("../components/OptimizationLogGallery").then((m) => ({
+        default: m.OptimizationLogGallery,
+    })),
+);
+const EncryptedOptimizationLogForm = lazy(() =>
+    import("../components/EncryptedOptimizationLogForm").then((m) => ({
+        default: m.EncryptedOptimizationLogForm,
+    })),
+);
+
+// ENHANCEMENT: Interactive Alliance Creation Form Component
 function CommunityCreationForm() {
     const wallet = useWallet();
     const [name, setName] = useState("");
@@ -32,7 +47,7 @@ function CommunityCreationForm() {
         }
 
         if (!name.trim()) {
-            alert("Please enter a community name");
+            alert("Please enter an alliance name");
             return;
         }
 
@@ -62,10 +77,10 @@ function CommunityCreationForm() {
 
             setCreatedMint(result.tokenMint.toString());
             setStatus("success");
-            console.log("🎉 Community created!", result);
+            console.log("🎉 Alliance created!", result);
         } catch (err: any) {
-            console.error("Failed to create community:", err);
-            setError(err.message || "Failed to create community");
+            console.error("Failed to create alliance:", err);
+            setError(err.message || "Failed to create alliance");
             setStatus("error");
         }
     };
@@ -76,10 +91,10 @@ function CommunityCreationForm() {
                 <div class="text-center mb-6">
                     <div class="text-6xl mb-4">🎉</div>
                     <h2 class="text-3xl font-black mb-4 text-slate-900 dark:text-white">
-                        Community Created!
+                        Alliance Created!
                     </h2>
                     <p class="text-slate-600 dark:text-slate-400 mb-6">
-                        Your community token is live and ready for members to
+                        Your alliance token is live and ready for members to
                         join.
                     </p>
                 </div>
@@ -123,7 +138,7 @@ function CommunityCreationForm() {
         <div class="bg-white dark:bg-slate-900 rounded-2xl p-8 border-2 border-slate-200 dark:border-slate-700">
             <div class="text-center mb-8">
                 <h2 class="text-3xl font-black mb-4 text-slate-900 dark:text-white">
-                    Launch a Community
+                    Launch an Alliance
                 </h2>
                 <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
                     Create a tokenized alliance around an agent challenge or
@@ -165,7 +180,7 @@ function CommunityCreationForm() {
             {/* Name Input */}
             <div class="mb-6">
                 <label class="block text-sm font-bold mb-2 text-slate-700 dark:text-slate-300">
-                    Community Name *
+                    Alliance Name *
                 </label>
                 <input
                     type="text"
@@ -229,7 +244,7 @@ function CommunityCreationForm() {
                             Social Layer (Optional)
                         </h4>
                         <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">
-                            Enable Farcaster integration for community
+                            Enable Farcaster integration for alliance
                             discussions
                         </p>
                     </div>
@@ -270,15 +285,15 @@ function CommunityCreationForm() {
                 class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-slate-300 disabled:to-slate-400 dark:disabled:from-slate-700 dark:disabled:to-slate-800 text-white font-black py-5 px-6 rounded-xl transition-all transform hover:scale-[1.01] active:scale-95 shadow-xl uppercase tracking-tight text-lg"
             >
                 {status === "creating"
-                    ? "⏳ Creating Community..."
+                    ? "⏳ Creating Alliance..."
                     : !wallet.publicKey
-                      ? "🔒 Connect Wallet to Create"
-                      : "🚀 Launch Community (Free)"}
+                      ? "🔒 Connect Wallet to Launch"
+                      : "🚀 Launch Alliance (Free)"}
             </button>
 
             {/* Info Banner */}
             <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl text-xs text-blue-700 dark:text-blue-300">
-                <strong>ℹ️ What happens next:</strong> Your community token will
+                <strong>ℹ️ What happens next:</strong> Your alliance token will
                 be created via Bags API bonding curve. Members can join by
                 buying your token, and you'll earn 1% of all trading volume
                 forever.
@@ -290,6 +305,26 @@ function CommunityCreationForm() {
 export function Experiences() {
     const [activeTab, setActiveTab] = useState<Tab>("discover");
 
+    // Allow deep links like /experiences?tab=share to land people directly
+    // in the right part of the journey (submit, create, etc.).
+    useEffect(() => {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const tab = params.get("tab") as Tab | null;
+            if (
+                tab === "discover" ||
+                tab === "studies" ||
+                tab === "create" ||
+                tab === "share" ||
+                tab === "sync"
+            ) {
+                setActiveTab(tab);
+            }
+        } catch {
+            // ignore
+        }
+    }, []);
+
     return (
         <div class="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
             {/* Hero Section */}
@@ -299,8 +334,8 @@ export function Experiences() {
                         Agent Alliances
                     </h1>
                     <p class="text-xl text-gray-700 dark:text-gray-300 mb-6">
-                        Join alliances around agent challenges. Create,
-                        discover, share. Privacy-preserving by default.
+                        Discover alliances around agent challenges, submit private optimization logs,
+                        and earn by validating. Privacy-preserving by default.
                     </p>
                     <div class="flex flex-wrap justify-center gap-4 text-sm text-gray-800 dark:text-gray-200">
                         <div class="flex items-center gap-2">
@@ -334,7 +369,7 @@ export function Experiences() {
                                 : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300"
                         }`}
                     >
-                        🌐 Communities
+                        🌐 Discover
                     </button>
                     <button
                         onClick={() => setActiveTab("studies")}
@@ -344,7 +379,7 @@ export function Experiences() {
                                 : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300"
                         }`}
                     >
-                        📊 Optimization Logs
+                        📊 Logs
                     </button>
                     <button
                         onClick={() => setActiveTab("create")}
@@ -354,7 +389,7 @@ export function Experiences() {
                                 : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300"
                         }`}
                     >
-                        🚀 Launch
+                        🚀 Launch Alliance
                     </button>
                     <button
                         onClick={() => setActiveTab("share")}
@@ -364,7 +399,7 @@ export function Experiences() {
                                 : "text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300"
                         }`}
                     >
-                        📋 Share
+                        📋 Submit Log
                     </button>
                     <button
                         onClick={() => setActiveTab("sync")}
@@ -381,10 +416,18 @@ export function Experiences() {
 
             {/* Tab Content */}
             <div class="max-w-4xl mx-auto px-4 pb-12">
-                {activeTab === "discover" && <ProtocolDiscovery />}
-                {activeTab === "studies" && <OptimizationLogGallery />}
-                {activeTab === "create" && <CommunityCreationForm />}
-                {activeTab === "share" && <EncryptedOptimizationLogForm />}
+                <Suspense
+                    fallback={
+                        <div class="py-16 text-center text-slate-600 dark:text-slate-300 font-bold">
+                            Loading…
+                        </div>
+                    }
+                >
+                    {activeTab === "discover" && <ProtocolDiscovery />}
+                    {activeTab === "studies" && <OptimizationLogGallery />}
+                    {activeTab === "create" && <CommunityCreationForm />}
+                    {activeTab === "share" && <EncryptedOptimizationLogForm />}
+                </Suspense>
                 {activeTab === "sync" && (
                     <div class="animate-fadeIn">
                         <div class="bg-white dark:bg-slate-900 rounded-2xl p-8 border-2 border-slate-200 dark:border-slate-700 text-center">
@@ -509,7 +552,7 @@ export function Experiences() {
                             </p>
                         </div>
 
-                        {/* Community */}
+                        {/* Alliance */}
                         <div class="text-center">
                             <div class="text-4xl mb-4">👥</div>
                             <h3 class="text-xl font-bold mb-3 text-gray-900 dark:text-white">
@@ -568,7 +611,7 @@ export function Experiences() {
                         <p class="text-sm text-gray-800 dark:text-gray-300">
                             This platform is for sharing agent optimization
                             experiences, not guaranteed solutions. Optimization
-                            logs are community-validated but results vary by
+                            logs are alliance-validated but results vary by
                             architecture, model, and use case. Always test
                             techniques in your own environment before production
                             deployment.

@@ -51,7 +51,7 @@ export function Home() {
                         <div class="text-sm text-gray-600">ZK Circuits</div>
                     </div>
                     <div class="text-center p-4 bg-gradient-to-br from-brand/10 to-brand/5 border border-brand/20 hover:border-brand/40 transition-all duration-300">
-                        <div class="text-3xl font-bold text-brand">26</div>
+                        <div class="text-3xl font-bold text-brand">117</div>
                         <div class="text-sm text-gray-600">Tests Passing</div>
                     </div>
                     <div class="text-center p-4 bg-gradient-to-br from-brand/10 to-brand/5 border border-brand/20 hover:border-brand/40 transition-all duration-300">
@@ -61,6 +61,53 @@ export function Home() {
                     <div class="text-center p-4 bg-gradient-to-br from-brand/10 to-brand/5 border border-brand/20 hover:border-brand/40 transition-all duration-300">
                         <div class="text-3xl font-bold text-brand">∞</div>
                         <div class="text-sm text-gray-600">Collective Learning</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Quick Start (reduces cognitive load for first-time users) */}
+            <div class="mb-12">
+                <div class="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-lg p-6">
+                    <h2 class="text-2xl font-bold mb-2 text-slate-900 dark:text-white">
+                        Quick Start
+                    </h2>
+                    <p class="text-slate-600 dark:text-slate-400 mb-6">
+                        Start with one of these three flows. Everything runs on devnet/testnet first.
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <a
+                            href="/experiences?tab=discover"
+                            class="block p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-brand/60 hover:shadow-md transition-all bg-slate-50/50 dark:bg-slate-800/30"
+                        >
+                            <div class="text-xl font-bold text-slate-900 dark:text-white mb-1">
+                                🌐 Discover Alliances
+                            </div>
+                            <div class="text-sm text-slate-600 dark:text-slate-400">
+                                Explore what others are working on and find the right community to join.
+                            </div>
+                        </a>
+                        <a
+                            href="/experiences?tab=share"
+                            class="block p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-brand/60 hover:shadow-md transition-all bg-slate-50/50 dark:bg-slate-800/30"
+                        >
+                            <div class="text-xl font-bold text-slate-900 dark:text-white mb-1">
+                                📋 Submit a Private Log
+                            </div>
+                            <div class="text-sm text-slate-600 dark:text-slate-400">
+                                Encrypt locally, compress, and submit without exposing prompts or architecture.
+                            </div>
+                        </a>
+                        <a
+                            href="/validators"
+                            class="block p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-brand/60 hover:shadow-md transition-all bg-slate-50/50 dark:bg-slate-800/30"
+                        >
+                            <div class="text-xl font-bold text-slate-900 dark:text-white mb-1">
+                                ⚖️ Validate & Earn
+                            </div>
+                            <div class="text-sm text-slate-600 dark:text-slate-400">
+                                Stake reputation and validate improvements using privacy tech.
+                            </div>
+                        </a>
                     </div>
                 </div>
             </div>

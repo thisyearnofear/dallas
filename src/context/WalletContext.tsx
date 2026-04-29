@@ -4,6 +4,7 @@ import { PublicKey, Connection, LAMPORTS_PER_SOL, SystemProgram } from '@solana/
 import { getRpcEndpoint, validateBlockchainConfig, SOLANA_CONFIG } from '../config/solana';
 import { transactionHistoryService, TransactionRecord } from '../services/transactionHistory';
 import { validatorService } from '../services/ValidatorService';
+import { track } from '../utils/telemetry';
 
 export const WalletContext = createContext(null);
 
@@ -26,6 +27,10 @@ export interface WalletContextType {
   signMessage: (message: Uint8Array) => Promise<Uint8Array>;
   signTransaction: (transaction: any) => Promise<any>;
   connection: Connection;
+  // Network info / guardrails
+  appNetwork: typeof SOLANA_CONFIG.network;
+  walletCluster: string | null;
+  isNetworkMismatch: boolean;
   getTransactionHistory: () => Promise<TransactionRecord[]>;
   // DBC Token (DALLAS BUYERS CLUB) - Primary community token
   dbcBalance: number;
@@ -65,6 +70,16 @@ export function WalletProvider({ children }: { children: any }) {
   const [validationCount, setValidationCount] = useState<number>(0);
   const [accuracyRate, setAccuracyRate] = useState<number>(0);
   const connection = new Connection(NETWORK);
+
+  const [walletCluster, setWalletCluster] = useState<string | null>(null);
+  const appNetwork = SOLANA_CONFIG.network;
+  const isNetworkMismatch =
+    !!walletCluster &&
+    // Phantom may report 'mainnet-beta' or 'mainnet'
+    !(
+      walletCluster === appNetwork ||
+      (walletCluster === 'mainnet' && appNetwork === 'mainnet-beta')
+    );
 
   const reputationTier = calculateReputationTier(validationCount, accuracyRate);
 
@@ -267,10 +282,10 @@ export function WalletProvider({ children }: { children: any }) {
       }
 
       // Check Phantom network
-      const phantomNetwork = provider.network || provider.cluster;
-      if (phantomNetwork && phantomNetwork !== 'devnet' && SOLANA_CONFIG.network === 'devnet') {
-        console.warn(`Phantom is on ${phantomNetwork}, expected devnet`);
-        // Don't throw, just warn - user can still connect but transactions may fail
+      const phantomNetwork = provider.network || provider.cluster || null;
+      setWalletCluster(phantomNetwork);
+      if (phantomNetwork && phantomNetwork !== SOLANA_CONFIG.network) {
+        console.warn(`Wallet is on ${phantomNetwork}, app is configured for ${SOLANA_CONFIG.network}`);
       }
 
       // Request connection with timeout
@@ -285,9 +300,22 @@ export function WalletProvider({ children }: { children: any }) {
         const pubkeyStr = response.publicKey.toString ? response.publicKey.toString() : response.publicKey;
         setPublicKey(new PublicKey(pubkeyStr));
         setConnected(true);
+        // Update wallet cluster after connect (some providers only expose it then)
+        const postConnectNetwork = provider.network || provider.cluster || null;
+        setWalletCluster(postConnectNetwork);
+
+        track('wallet_connect', {
+          network: SOLANA_CONFIG.network,
+          wallet: pubkeyStr,
+          walletCluster: postConnectNetwork,
+        });
       }
     } catch (error: any) {
       console.error('Connection error:', error);
+      track('wallet_error', {
+        network: SOLANA_CONFIG.network,
+        error: error?.message || String(error),
+      });
       let errorMessage = 'Connection failed';
       
       // Handle specific Phantom errors
@@ -315,6 +343,8 @@ export function WalletProvider({ children }: { children: any }) {
       }
       setPublicKey(null);
       setConnected(false);
+      setWalletCluster(null);
+      track('wallet_disconnect', { network: SOLANA_CONFIG.network });
     } catch (error) {
       console.error('Disconnect error:', error);
     }
@@ -340,6 +370,12 @@ export function WalletProvider({ children }: { children: any }) {
   ): Promise<string> => {
     if (!publicKey || !connected) {
       throw new Error('Wallet not connected');
+    }
+
+    if (isNetworkMismatch) {
+      throw new Error(
+        `Network mismatch: wallet is on ${walletCluster || 'unknown'} but app is set to ${appNetwork}. Switch wallet network to proceed.`
+      );
     }
 
     // Check transaction cooldown
@@ -378,6 +414,7 @@ export function WalletProvider({ children }: { children: any }) {
     }
 
     try {
+      track('tx_send', { network: SOLANA_CONFIG.network, type });
       // Get user balance to ensure they have sufficient funds
       const balance = await connection.getBalance(publicKey);
       const balanceInSol = balance / LAMPORTS_PER_SOL;
@@ -428,6 +465,11 @@ export function WalletProvider({ children }: { children: any }) {
       return signature;
     } catch (error: any) {
       console.error('Transaction error:', error);
+      track('tx_error', {
+        network: SOLANA_CONFIG.network,
+        type,
+        error: error?.message || String(error),
+      });
       // Provide more user-friendly error messages
       if (error.message.includes('insufficient funds')) {
         throw new Error('Insufficient funds for this transaction');
@@ -502,6 +544,9 @@ export function WalletProvider({ children }: { children: any }) {
     signMessage,
     signTransaction,
     connection,
+    appNetwork,
+    walletCluster,
+    isNetworkMismatch,
     getTransactionHistory,
     // DBC Token
     dbcBalance,

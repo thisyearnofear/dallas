@@ -5,20 +5,15 @@ import { encryptionService } from "../services/EncryptionService";
 import { useSettings } from "../context/SettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { useState, useEffect } from "preact/hooks";
-import { useConnection } from "@solana/wallet-adapter-react";
-import { fetchDbcBalance, formatDbc } from "../services/DbcTokenService";
-import { SOLANA_CONFIG } from "../config/solana";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { privacyService } from "../services/privacy/PrivacyService";
 import { cacheService } from "../services/CacheService";
+import { NetworkBadge } from "./NetworkBadge";
 
 export function Header() {
-    const { connected, signMessage, publicKey } = useWallet();
-    const { connection } = useConnection();
+    const { connected, signMessage, publicKey, isNetworkMismatch, walletCluster, connection, dbcBalance } = useWallet();
     const { settings, toggleSetting } = useSettings();
     const [isEncrypted, setIsEncrypted] = useState(false);
     const [isDecrypting, setIsDecrypting] = useState(false);
-    const [dbcBalance, setDbcBalance] = useState<number | null>(null);
     const [solBalance, setSolBalance] = useState<number | null>(null);
     const [privacyScore, setPrivacyScore] = useState(0);
     const [privacyLevel, setPrivacyLevel] = useState(privacyService.getPrivacyLevel(0));
@@ -57,18 +52,14 @@ export function Header() {
     // Fetch DBC and SOL balances when wallet is connected
     useEffect(() => {
         if (!connected || !publicKey || !connection) {
-            setDbcBalance(null);
             setSolBalance(null);
             return;
         }
 
         const fetchBalances = async () => {
             try {
-                // Fetch DBC balance
-                const { balance: dbcBal } = await fetchDbcBalance(connection, publicKey);
-                setDbcBalance(dbcBal);
-
                 // Fetch SOL balance
+                const LAMPORTS_PER_SOL = 1_000_000_000;
                 const solBal = await connection.getBalance(publicKey);
                 setSolBalance(solBal / LAMPORTS_PER_SOL);
             } catch (error) {
@@ -112,9 +103,18 @@ export function Header() {
                 </div>
             </a>
             <div class="flex flex-col gap-3 flex-1 sm:ml-4 lg:ml-10 w-full sm:w-auto">
+                {/* Network badge + mismatch guardrail */}
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                    <NetworkBadge />
+                    {connected && isNetworkMismatch && (
+                        <div class="text-[11px] font-bold text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 px-2 py-1 rounded">
+                            Wallet is on <span class="font-mono">{walletCluster}</span>. Switch your wallet network to avoid failed transactions.
+                        </div>
+                    )}
+                </div>
                 <div class="relative flex items-center border-b-2 border-b-gray-dark flex-wrap gap-1 min-w-0">
                     <a class="text-brand text-lg sm:text-xl cursor-not-allowed whitespace-nowrap">
-                        {connected && dbcBalance !== null ? (
+                        {connected ? (
                             <>balance <b>{dbcBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })} DBC</b></>
                         ) : (
                             <>messages <b>420</b></>

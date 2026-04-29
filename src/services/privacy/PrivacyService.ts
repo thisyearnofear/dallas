@@ -12,9 +12,9 @@
  */
 
 import { PublicKey } from '@solana/web3.js';
-import { noirService, ProofResult } from './NoirService';
-import { lightProtocolService, CompressedOptimizationLog } from './LightProtocolService';
-import { arciumMPCService, MPCAccessRequest } from './ArciumMPCService';
+import type { ProofResult } from './NoirService';
+import type { CompressedOptimizationLog } from './LightProtocolService';
+import type { MPCAccessRequest } from './ArciumMPCService';
 import { AgentMetric, AgentInsight } from '../../types';
 
 // Unified privacy operation result
@@ -91,6 +91,33 @@ export const PRIVACY_SCORE_WEIGHTS = {
  */
 export class PrivacyService {
   private initialized = false;
+  private noirService: any | null = null;
+  private lightProtocolService: any | null = null;
+  private arciumMPCService: any | null = null;
+
+  private async getNoirService() {
+    if (!this.noirService) {
+      const mod = await import('./NoirService');
+      this.noirService = mod.noirService;
+    }
+    return this.noirService;
+  }
+
+  private async getLightService() {
+    if (!this.lightProtocolService) {
+      const mod = await import('./LightProtocolService');
+      this.lightProtocolService = mod.lightProtocolService;
+    }
+    return this.lightProtocolService;
+  }
+
+  private async getArciumService() {
+    if (!this.arciumMPCService) {
+      const mod = await import('./ArciumMPCService');
+      this.arciumMPCService = mod.arciumMPCService;
+    }
+    return this.arciumMPCService;
+  }
 
   /**
    * Initialize all privacy services
@@ -98,11 +125,13 @@ export class PrivacyService {
   async initialize(): Promise<void> {
     if (this.initialized) return;
 
-    await Promise.all([
-      noirService.initialize(),
-      lightProtocolService.initialize(),
-      arciumMPCService.initialize(),
+    const [noir, light, arcium] = await Promise.all([
+      this.getNoirService(),
+      this.getLightService(),
+      this.getArciumService(),
     ]);
+
+    await Promise.all([noir.initialize(), light.initialize(), arcium.initialize()]);
 
     this.initialized = true;
     console.log('🔐 PrivacyService initialized (Noir + Light + Arcium)');
@@ -152,6 +181,9 @@ export class PrivacyService {
     let privacyScore = 0;
 
     try {
+      const noirService = await this.getNoirService();
+      const lightProtocolService = await this.getLightService();
+
       // Step 1: Generate Noir ZK proofs (if requested)
       let proofs: ProofResult[] = [];
       if (options.generateProofs !== false) {
@@ -288,6 +320,8 @@ export class PrivacyService {
     let privacyScore = 0;
 
     try {
+      const lightProtocolService = await this.getLightService();
+
       // 1. Storage Layer (Archive)
       operations.push({
         type: 'encryption',
@@ -374,6 +408,9 @@ export class PrivacyService {
     let privacyScore = 0;
 
     try {
+      const noirService = await this.getNoirService();
+      const lightProtocolService = await this.getLightService();
+
       // Step 1: Generate Noir proofs
       operations.push({
         type: 'zk_proof',
@@ -479,6 +516,8 @@ export class PrivacyService {
     let privacyScore = 0;
 
     try {
+      const arciumMPCService = await this.getArciumService();
+
       // Step 1: Create MPC session
       operations.push({
         type: 'mpc',
