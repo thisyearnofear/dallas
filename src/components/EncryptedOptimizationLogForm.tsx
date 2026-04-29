@@ -95,11 +95,6 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
     }
   }, [demoFastMode]);
 
-  // Validate form whenever data changes
-  useEffect(() => {
-    validateForm();
-  }, [formData]);
-
   // Auto-derive encryption key when wallet is connected
   useEffect(() => {
     const autoDeriveKey = async () => {
@@ -128,6 +123,12 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
     sideEffects: [],
     context: '',
   });
+
+  // Validate form whenever data changes
+  useEffect(() => {
+    validateForm();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData]);
 
   // Form validation state
   const [formValidation, setFormValidation] = useState({

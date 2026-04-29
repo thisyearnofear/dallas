@@ -3,14 +3,15 @@ import { useLocation } from "preact-iso";
 
 const mobileNavItems = [
     { href: "/", label: "Home", icon: "🏠" },
-    { href: "/experiences", label: "Communities", icon: "🌐" },
+    { href: "/experiences", label: "Alliances", icon: "🌐" },
     { href: "/membership", label: "Join", icon: "🤝" },
     { href: "/links", label: "More", icon: "☰" },
 ];
 
 const moreMenuItems = [
+    { href: "/experiences?tab=share", label: "Submit Log", icon: "📋" },
     { href: "/validators", label: "Validators", icon: "⚖️" },
-    { href: "/attention-tokens", label: "Token Market", icon: "💎" },
+    { href: "/attention-tokens", label: "Markets", icon: "💎" },
     { href: "/products", label: "Protocols", icon: "🛠️" },
     { href: "/achievements", label: "Achievements", icon: "🏆" },
     { href: "/referrals", label: "Referrals", icon: "📢" },
