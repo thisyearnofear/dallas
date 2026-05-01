@@ -29,9 +29,6 @@ export interface OptimizationLogData {
   compressionRatio?: number;
 }
 
-/** @deprecated Use OptimizationLogData instead */
-export type OptimizationLogData = OptimizationLogData;
-
 export interface ValidationData {
   optimizationLogPubkey: PublicKey;
   validationType: 'quality' | 'accuracy' | 'safety';
@@ -62,15 +59,19 @@ export interface MPCAccessRequest {
   id: string;
   optimizationLogId: string;
   requester: PublicKey;
-  requesterType: 'architect' | 'validator' | 'operator';
+  requesterType: 'researcher' | 'validator' | 'builder';
   justification: string;
-  status: 'pending' | 'active' | 'approved' | 'rejected' | 'expired';
+  status: MPCSessionStatus;
   committee: CommitteeMember[];
   threshold: number;
   createdAt: number;
   expiresAt: number;
-  encryptionScheme: 'aes-256' | 'chacha20' | 'custom';
+  encryptionScheme: 'aes-256-gcm' | 'chacha20-poly1305';
+  decryptedDataHash?: string;
+  error?: string;
 }
+
+export type MPCSessionStatus = 'pending' | 'active' | 'approved' | 'rejected' | 'expired';
 
 export interface CommitteeMember {
   validatorAddress: PublicKey;
@@ -84,6 +85,7 @@ export interface DecryptionResult {
   data?: Uint8Array;
   approvedBy: PublicKey[];
   error?: string;
+  decryptedAt?: number;
 }
 
 export interface PrivacyScoreWeights {
@@ -111,6 +113,29 @@ export interface TierThreshold {
   icon: string;
 }
 
+export const TIER_THRESHOLDS: Record<ValidatorTier, TierThreshold> = {
+  Bronze: { minValidations: 0, minAccuracy: 0, color: '#CD7F32', icon: '🥉' },
+  Silver: { minValidations: 25, minAccuracy: 60, color: '#C0C0C0', icon: '🥈' },
+  Gold: { minValidations: 100, minAccuracy: 70, color: '#FFD700', icon: '🥇' },
+  Platinum: { minValidations: 500, minAccuracy: 80, color: '#E5E4E2', icon: '💎' },
+};
+
+export function calculateTier(totalValidations: number, accuracyRate: number): ValidatorTier {
+  if (totalValidations >= TIER_THRESHOLDS.Platinum.minValidations &&
+    accuracyRate >= TIER_THRESHOLDS.Platinum.minAccuracy) {
+    return 'Platinum';
+  }
+  if (totalValidations >= TIER_THRESHOLDS.Gold.minValidations &&
+    accuracyRate >= TIER_THRESHOLDS.Gold.minAccuracy) {
+    return 'Gold';
+  }
+  if (totalValidations >= TIER_THRESHOLDS.Silver.minValidations &&
+    accuracyRate >= TIER_THRESHOLDS.Silver.minAccuracy) {
+    return 'Silver';
+  }
+  return 'Bronze';
+}
+
 export interface StakingRewards {
   baseReward: number;
   accuracyBonus: number;
@@ -134,36 +159,9 @@ export interface ValidatorReputation {
 }
 
 // ============= Community Types =============
+// Re-exported from ./community (includes CommunityCategory, Community, CreateCommunityRequest)
 
-export type CommunityCategory = 'context_management' | 'tool_calling' | 'evaluation' | 'orchestration';
-
-export interface Community {
-  id: string;
-  name: string;
-  symbol: string;
-  description: string;
-  category: CommunityCategory;
-  creator: string;
-  createdAt: number;
-  memberCount: number;
-  optimizationLogCount: number;
-  validatedCount: number;
-  treasuryBalance: number;
-  imageUrl?: string;
-  farcasterChannel?: string;
-}
-
-export interface CreateCommunityRequest {
-  name: string;
-  symbol: string;
-  category: CommunityCategory;
-  description: string;
-  longDescription?: string;
-  imageUrl?: string;
-  enableSocial: boolean;
-  guidelines?: string[];
-  researchGoals?: string[];
-}
+export type { CommunityCategory, Community, CreateCommunityRequest } from './community';
 
 // ============= Analysis Types =============
 
@@ -300,13 +298,6 @@ export interface AgentInsight {
   consistencyScore: number; // 0-100
   timestamp: number;
 }
-
-/** @deprecated Use AgentMetricType instead */
-export type AgentMetricType = AgentMetricType;
-/** @deprecated Use AgentMetric instead */
-export type AgentMetric = AgentMetric;
-/** @deprecated Use AgentInsight instead */
-export type AgentInsight = AgentInsight;
 
 export interface CompressedAccount {
   address: PublicKey;

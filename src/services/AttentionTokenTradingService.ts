@@ -76,9 +76,7 @@ export class AttentionTokenTradingService {
     this.bagsApiKey = SOLANA_CONFIG.bagsApi.key;
     this.isMainnet = SOLANA_CONFIG.network === 'mainnet-beta';
 
-    if (!this.isMainnet) {
-      console.log('📢 Attention Token Trading Service running in DEVNET MODE (mock trading)');
-    }
+    
   }
 
   /**
@@ -295,12 +293,6 @@ export class AttentionTokenTradingService {
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    console.log('✅ Mock buy executed:', {
-      signature,
-      tokensReceived: quote.outputAmount,
-      solSpent: params.solAmount,
-    });
-    
     return signature;
   }
 
@@ -396,12 +388,6 @@ export class AttentionTokenTradingService {
     
     // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    console.log('✅ Mock sell executed:', {
-      signature,
-      tokensSold: params.tokenAmount,
-      solReceived: quote.outputAmount,
-    });
     
     return signature;
   }

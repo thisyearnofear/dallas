@@ -3,53 +3,60 @@
 ## System Overview
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    USER INTERFACE LAYER                       │
-│  [Wallet Connection] → [Optimization Log Submission] → [Discovery] │
-└──────────────────────┬──────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                      USER INTERFACE LAYER                          │
+│  [Phantom + Shield Wallet] → [Optimization Log] → [Discovery]      │
+└──────────────────────┬───────────────────────────────────────────┘
                        │
-┌──────────────────────▼──────────────────────────────────────┐
-│                   PRIVACY MIDDLEWARE                         │
-│  ┌─────────────┐  ┌──────────────┐  ┌──────────────┐       │
-│  │ Light Proto │  │ Noir Circuits│  │ Arcium MPC   │       │
-│  │ Compression │  │ ZK Validation│  │ Threshold Dec│       │
-│  └─────────────┘  └──────────────┘  └──────────────┘       │
-└──────────────────────┬──────────────────────────────────────┘
+┌──────────────────────▼───────────────────────────────────────────┐
+│                     PRIVACY MIDDLEWARE                             │
+│  ┌─────────────┐  ┌──────────────┐  ┌──────────────┐             │
+│  │ Light Proto │  │ Noir Circuits│  │ Arcium MPC   │             │
+│  │ Compression │  │ ZK Validation│  │ Threshold Dec│             │
+│  └─────────────┘  └──────────────┘  └──────────────┘             │
+└──────────────────────┬───────────────────────────────────────────┘
                        │
-┌──────────────────────▼──────────────────────────────────────┐
-│                  SMART CONTRACT LAYER                        │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │ optimization_log (Anchor program)                   │    │
-│  │ • submit encrypted optimization log                  │    │
-│  │ • validators approve/reject + reputation updates     │    │
-│  │ • optional selective disclosure hooks (MPC)           │    │
-│  └─────────────────────────────────────────────────────┘    │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │ dbc_token (Anchor program)                          │    │
-│  │ • staking / eligibility gating for validators         │    │
-│  │ • reputation-linked permissions                       │    │
-│  └─────────────────────────────────────────────────────┘    │
-└──────────────────────┬──────────────────────────────────────┘
+┌──────────────────────▼───────────────────────────────────────────┐
+│                    DUAL-CHAIN SMART CONTRACT LAYER                 │
+│                                                                    │
+│  ┌─────────────────────────┐     ┌──────────────────────────┐    │
+│  │      ALEO L1             │     │      SOLANA                 │    │
+│  │  ┌───────────────────┐  │ ←→  │  ┌─────────────────────┐   │    │
+│  │  │ dbc_verifier.aleo │  │     │  │ optimization_log    │   │    │
+│  │  │ • verify_benchmark│  │     │  │ alliance_factory    │   │    │
+│  │  │ • ZK private exec │  │     │  │ dbc_token / treasury│   │    │
+│  │  └───────────────────┘  │     │  └─────────────────────┘   │    │
+│  │  [Shield Wallet]        │     │  [Phantom] [Bags API]      │    │
+│  │  [Relayer]  ────────────┼─────┤                            │    │
+│  └─────────────────────────┘     └──────────────────────────┘    │
+└──────────────────────┬───────────────────────────────────────────┘
                        │
-┌──────────────────────▼──────────────────────────────────────┐
-│                    STORAGE LAYER                             │
-│  [IPFS] → Encrypted optimization log payloads                │
-│  [Arweave] → Immutable proof logs                           │
-│  [Light Protocol] → ZK-compressed state trees               │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────▼───────────────────────────────────────────┐
+│                          STORAGE LAYER                             │
+│  [IPFS] encrypted payloads · [Arweave] proof logs                  │
+│  [Light Protocol] ZK-compressed state trees                        │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## Technical Stack
 
-### Privacy Technologies
+### Privacy Stack (Shared)
 - **Noir (Aztec)** - ZK-SNARK proofs for validation
 - **Light Protocol** - ZK compression for storage
 - **Arcium MPC** - Threshold decryption
 - **IPFS/Arweave** - Encrypted off-chain storage
 
-### Blockchain Infrastructure
+### Blockchain Infrastructure (Dual-Chain)
+
+#### Aleo L1 (Primary Chain)
+- **Aleo Testnet** - Privacy-first execution layer
+- **Leo** - Domain-specific language for ZK circuits
+- **Shield Wallet** - Browser extension for Aleo private keys
+- **Relayer** - Bridges Aleo → Solana for token swaps
+
+#### Solana (Secondary Chain)
 - **Solana Devnet** - Fast finality, low fees
 - **Anchor Framework** - Type-safe smart contracts
 - **Bags API** - Token creation, bonding curves
@@ -57,13 +64,45 @@
 ### Application Layer
 - **Preact + TypeScript** - Lightweight UI
 - **Helius** - RPC, webhooks, indexing
-- **Phantom** - Wallet connection
+- **Phantom** - Solana wallet connection
 
 ---
 
 ## Smart Contracts
 
-### Optimization Log Program
+### Aleo Verifier Program (dbc_verifier.aleo)
+**Network:** Testnet
+**Program ID:** `dbc_verifier.aleo`
+
+Key functions (private inputs preserve IP; only the proof of improvement is public):
+```leo
+// Verify performance improvement without revealing scores
+function verify_benchmark_delta(
+    private before_score: u32,
+    private after_score: u32,
+    public  min_delta: u32,
+    public  alliance_id: field,
+) -> (u32, bool)
+
+// Verify improvement subject to a max gas-cost constraint
+function verify_benchmark_with_cost(
+    private before_score: u32,
+    private after_score: u32,
+    public  min_delta: u32,
+    public  max_gas_cost: u32,
+    public  alliance_id: field,
+) -> (u32, bool)
+```
+
+**Usage flow:**
+1. Agent submits encrypted optimization log via Shield Wallet
+2. Relayer verifies ZK proof on Aleo (dbc_verifier.aleo)
+3. On proof success, attestation is bridged to Solana via relayer
+4. Solana programs handle bonding curve + treasury
+
+---
+
+### Optimization Log Program (Solana)
 ```rust
 // See: programs/optimization_log/src/lib.rs
 // Core: submit log + validate/score log on-chain.
@@ -78,6 +117,25 @@
 ---
 
 ## Privacy Services
+
+### ShieldWalletService - Aleo Private Keys
+```typescript
+export class ShieldWalletService {
+  async connect(): Promise<WalletAddress>
+  async signMessage(message): Promise<Signature>
+  async encryptData(data, publicKey): Promise<EncryptedData>
+  async decryptData(encrypted, privateKey): Promise<DecryptedData>
+}
+```
+
+### RelayerService - Cross-Chain Bridge
+```typescript
+export class RelayerService {
+  async submitVerification(proof, metadata): Promise<TransactionId>
+  async bridgeToSolana(aleoAmount, recipient): Promise<TransactionId>
+  async getBridgeStatus(txId): Promise<BridgeStatus>
+}
+```
 
 ### NoirService - ZK Proofs
 ```typescript
@@ -109,9 +167,39 @@ export class ArciumMPCService {
 
 ---
 
-## Data Flows
+## Data Flows (Dual-Chain)
 
-### Optimization Log Submission
+### Full Dual-Chain Flow
+```
+1. Agent Builder connects with Shield Wallet (Aleo)
+2. Submits encrypted optimization log to Aleo
+3. dbc_verifier.aleo validates ZK proof (private scores)
+4. On success: Relayer bridges tokens to Solana
+5. Solana: Alliance token created via Bags API bonding curve
+6. Treasury manages R&D funding per alliance
+```
+
+### Aleo Submission Flow
+```
+1. Connect Shield Wallet
+2. Generate benchmark_delta ZK proof (private scores)
+3. Call verify_benchmark_delta on Aleo
+4. Receive verification_result
+5. IPFS stores encrypted log for audit trail
+```
+
+### Bridge Flow (Aleo → Solana via Relayer)
+```
+1. Aleo verification confirmed
+2. Relayer picks up event via webhook (Helius)
+3. Burns Aleo credits, mints equivalent on Solana
+4. Alliance token bonding curve activated
+5. DUSDC/USDC follows standard SPL token
+```
+
+---
+
+### Single-Chain (Solana) Flow
 ```
 1. Builder connects wallet
 2. Derives encryption key from wallet signature
@@ -182,7 +270,12 @@ src/
 
 ## Deployment Addresses
 
-### Devnet
+### Aleo Testnet
+| Program | Program ID | Transaction ID |
+|---------|-----------|---------------|
+| dbc_verifier.aleo | `dbc_verifier.aleo` | `at1njg2utaxa3sx3c4w36jl8w6q7shl2y02epdawlhnvkvu6eer5qfqhvygqx` |
+
+### Devnet (Solana)
 | Program | Address |
 |---------|---------|
 | DBC Token | `21okj31tGEvtSBMvzjMa8uzxz89FxzNdtPaYQMfDm7FB` |

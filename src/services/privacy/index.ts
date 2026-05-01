@@ -41,16 +41,19 @@ export type {
 export {
   arciumMPCService,
   DEFAULT_MPC_CONFIG,
-  ENCRYPTION_SCHEME_OPTIONS,
 } from './ArciumMPCService';
 
+export type {
+  AccessRequestInput,
+} from './ArciumMPCService';
+
+// Re-export MPC types from types (single source of truth)
 export type {
   MPCSessionStatus,
   CommitteeMember,
   MPCAccessRequest,
   DecryptionResult,
-  AccessRequestInput,
-} from './ArciumMPCService';
+} from '../../types';
 
 // Unified Privacy Service Facade
 export {
@@ -75,7 +78,6 @@ export {
 
 export type {
   PrivacyServiceStatus,
-  PrivacyOptimizationLogData as PrivacyOptimizationLogData,
   PrivacyOptimizationLogData,
   PrivacyProcessingResult,
 } from './PrivacyServiceManager';

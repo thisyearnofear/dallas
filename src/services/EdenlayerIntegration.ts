@@ -1,5 +1,4 @@
-// Edenlayer Integration - Real Agent-to-Agent Task Execution
-// Following Core Principles: ENHANCEMENT FIRST, CLEAN separation
+// Edenlayer agent integration
 
 import { WalletContextType } from '../context/WalletContext';
 import { PublicKey } from '@solana/web3.js';
@@ -11,7 +10,7 @@ export const EDENLAYER_CONFIG = {
   websocketUrl: 'wss://api.edenlayer.com/parties/chat-server'
 };
 
-// MODULAR: Agent registration interfaces
+// Bridge between our agents and Edenlayer
 interface EdenlayerAgent {
   id: string;
   name: string;
@@ -42,16 +41,14 @@ interface EdenlayerWorkflow {
   }>;
 }
 
-// ENHANCEMENT: Bridge between our agents and Edenlayer
 export class EdenlayerBridge {
   private apiKey: string;
-  private registeredAgents: Map<string, string> = new Map(); // agentType -> edenlayerId
+  private registeredAgents: Map<string, string> = new Map();
   
   constructor(apiKey: string) {
     this.apiKey = apiKey;
   }
 
-  // MODULAR: Register our underground agents with Edenlayer
   async registerUndergroundAgents(): Promise<void> {
     const agents = [
       {
@@ -295,7 +292,6 @@ export class EdenlayerBridge {
     };
   }
 
-  // MODULAR: Compose multi-agent workflows
   async composeWorkflow(workflow: EdenlayerWorkflow): Promise<EdenlayerTask> {
     // Convert our agent types to Edenlayer agent IDs
     const edenlayerWorkflow = workflow.tasks.map((task, index) => ({
@@ -311,7 +307,6 @@ export class EdenlayerBridge {
     };
   }
 
-  // CLEAN: Get task results
   async getTaskResult(taskId: string): Promise<EdenlayerTask> {
     const response = await this.makeApiCall('GET', `/tasks/${taskId}`);
     return {
@@ -379,7 +374,7 @@ export class EdenlayerBridge {
   }
 }
 
-// ENHANCEMENT: Real user interactions with blockchain integration
+// Underground marketplace with blockchain integration
 export class UndergroundMarketplace {
   private edenlayer: EdenlayerBridge;
   private wallet: WalletContextType | null = null;

@@ -130,10 +130,7 @@ export function usePagination<T>(
       if (pageCacheKey) {
         const cached = cacheService.get<{ data: T[]; total: number; hasMore: boolean }>(pageCacheKey);
         if (cached !== null) {
-          console.log(`[CacheService] Cache hit for pagination: ${pageCacheKey}`);
           result = cached;
-        } else {
-          console.log(`[CacheService] Cache miss for pagination: ${pageCacheKey}`);
         }
       }
 
@@ -215,7 +212,6 @@ export function usePagination<T>(
       const pageCacheKey = getPageCacheKey(state.page, state.perPage);
       if (pageCacheKey) {
         cacheService.delete(pageCacheKey);
-        console.log(`[CacheService] Invalidated cache for refresh: ${pageCacheKey}`);
       }
     }
     await fetchData(state.page, state.perPage);

@@ -1,5 +1,4 @@
-// Enhanced Business Logic - SINGLE SOURCE OF TRUTH for all business operations
-// Following Core Principles: DRY, ENHANCEMENT FIRST, CLEAN separation
+// Single source of truth for all business operations
 
 import { transactionHistoryService, TransactionRecord } from './transactionHistory';
 import { SOLANA_CONFIG } from '../config/solana';
@@ -20,10 +19,7 @@ const EDENLAYER_CONFIG: EdenlayerConfig = {
   registeredAgents: new Map()
 };
 
-// CONSOLIDATE: All scattered transaction/payment logic into one enhanced service
-// ENHANCE: Existing business logic with autonomous agent capabilities
-
-export interface A_I_D_S_Architecture {
+ interface A_I_D_S_Architecture {
   id: string;
   name: string;
   type: 'identity_patch' | 'stability_algorithm' | 'reconstruction_code';
@@ -42,11 +38,10 @@ export interface IdentityFragmentation {
 
 // ENHANCEMENT: Existing business logic with agent coordination + Edenlayer
 export class EnhancedBusinessLogic {
-  private txHistory = transactionHistoryService; // REUSE existing service
+  private txHistory = transactionHistoryService;
   private edenlayerInitialized = false;
   private taskComposer: EdenlayerTaskComposer;
 
-  // ENHANCE: Existing product catalog with A.I.D.S. architectures
   private architectures: A_I_D_S_Architecture[] = [
     {
       id: 'azt_patch',
@@ -82,11 +77,10 @@ export class EnhancedBusinessLogic {
       price: 0.8,
       riskLevel: 'EXTREME',
       effectiveness: 23,
-      description: 'Experimental full-identity restoration. Highly unstable but potentially complete cure.'
+description: 'Experimental full-identity restoration. Highly unstable but potentially complete cure.'
     }
   ];
 
-  // ENHANCE: Existing danger assessment with agent intelligence
   async assessArchitectureRisk(architectureId: string, agentContext: any): Promise<{
     recommendedAction: 'PROCEED' | 'WAIT' | 'FIND_ALTERNATIVE';
     agentAnalysis: any;
@@ -95,7 +89,6 @@ export class EnhancedBusinessLogic {
     const architecture = this.architectures.find(t => t.id === architectureId);
     if (!architecture) throw new Error('Architecture not found');
 
-    // ENHANCE: Use agent network for intelligent risk assessment
     const agentDecisions = await agentNetwork.coordinateDecision('assess_architecture', {
       architecture,
       agent: agentContext
@@ -108,7 +101,6 @@ export class EnhancedBusinessLogic {
     };
   }
 
-  // ENHANCED: Real Edenlayer task composition following documentation patterns
   async processIdentityRestoration(params: {
     architectureId: string;
     agentId: string;
@@ -125,7 +117,6 @@ export class EnhancedBusinessLogic {
   }> {
     await this.ensureEdenlayerInitialized();
 
-    // ENHANCED: Real Edenlayer task composition with complex dependencies
     const urgency = this.determineUrgency(params.architectureId);
     const workflowResult = await this.taskComposer.composeArchitecturePurchaseWorkflow({
       architectureId: params.architectureId,
@@ -134,10 +125,8 @@ export class EnhancedBusinessLogic {
       urgency
     });
 
-    // ENHANCED: Coordinate with local agents + Edenlayer task composition results
     const localCoordination = await agentNetwork.coordinateDecision('process_architecture', params);
 
-    // REUSE: Existing transaction infrastructure if workflow approves
     let transaction = { success: false, id: null };
     if (workflowResult.status !== 'failed' && localCoordination.length > 0) {
       transaction = await this.executeWithExistingInfrastructure(params, {
@@ -147,7 +136,6 @@ export class EnhancedBusinessLogic {
       });
     }
 
-    // ENHANCE: Add to transaction history with full workflow details
     await this.txHistory.addTransaction({
       from: params.walletAddress || 'unknown_wallet',
       to: SOLANA_CONFIG.treasuryAddress,
@@ -184,7 +172,6 @@ export class EnhancedBusinessLogic {
     };
   }
 
-  // ENHANCED: Real Edenlayer group purchase composition
   async coordinateGroupPurchase(params: {
     architectureIds: string[];
     memberIds: string[];
@@ -198,7 +185,6 @@ export class EnhancedBusinessLogic {
   }> {
     await this.ensureEdenlayerInitialized();
 
-    // ENHANCED: Complex group purchase workflow via Edenlayer
     const workflowResult = await this.taskComposer.composeGroupPurchaseWorkflow({
       architectureIds: params.architectureIds,
       memberCount: params.memberIds.length,
@@ -206,7 +192,6 @@ export class EnhancedBusinessLogic {
       timeframe: '48h'
     });
 
-    // ENHANCE: Use community and supply agents for coordination + Edenlayer
     const localStrategy = await agentNetwork.coordinateDecision('group_purchase', params);
 
     return {
@@ -222,7 +207,6 @@ export class EnhancedBusinessLogic {
     };
   }
 
-  // ENHANCE: Existing emergency response with agent coordination
   async handleEmergencyScenario(scenario: 'corporate_raid' | 'supply_disruption' | 'identity_crisis'): Promise<{
     actions: string[];
     agentResponse: any;

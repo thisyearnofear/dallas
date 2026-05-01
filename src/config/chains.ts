@@ -10,23 +10,45 @@ export type SupportedChain = 'solana' | 'aleo';
 export type ChainRole = 'public_coordination' | 'private_verification';
 
 export interface ChainConfig {
-  chain: SupportedChain;
+  id: SupportedChain;
+  name: string;
   enabled: boolean;
   role: ChainRole;
+  explorerUrl: string;
+  rpcUrl?: string;
+  relayerUrl?: string;
+  programId?: string;
 }
 
-export const CHAIN_CONFIG: Record<SupportedChain, ChainConfig> = {
+export interface ChainsState {
+  solana: ChainConfig;
+  aleo: ChainConfig;
+}
+
+const env = (import.meta as any)?.env ?? {};
+
+export const CHAINS_CONFIG: ChainsState = {
   solana: {
-    chain: 'solana',
+    id: 'solana',
+    name: 'Solana',
     enabled: true,
     role: 'public_coordination',
+    explorerUrl: 'https://explorer.solana.com/tx',
   },
   aleo: {
-    chain: 'aleo',
-    enabled: process.env.VITE_ENABLE_ALEO === 'true',
+    id: 'aleo',
+    name: 'Aleo',
+    enabled: env.VITE_ALEO_ENABLED === 'true',
     role: 'private_verification',
+    explorerUrl: 'https://explorer.aleo.org/transaction',
+    rpcUrl: env.VITE_ALEO_RPC_URL || 'https://testnet3.aleo.org/api',
+    relayerUrl: env.VITE_ALEO_RELAYER_URL || '',
+    programId: env.VITE_ALEO_PROGRAM_ID || 'dbc_verifier.aleo',
   },
 };
+
+// Backwards-compatible alias for older import sites.
+export const CHAIN_CONFIG = CHAINS_CONFIG;
 
 export interface AleoClientConfig {
   network: 'testnet' | 'mainnet';
@@ -43,13 +65,21 @@ export interface AleoReadiness {
 }
 
 export const ALEO_CONFIG: AleoClientConfig = {
-  network: (process.env.VITE_ALEO_NETWORK as 'testnet' | 'mainnet') || 'testnet',
-  programId: process.env.VITE_ALEO_PROGRAM_ID || '',
-  relayerUrl: process.env.VITE_ALEO_RELAYER_URL || '',
+  network: (env.VITE_ALEO_NETWORK as 'testnet' | 'mainnet') || 'testnet',
+  programId: CHAINS_CONFIG.aleo.programId || '',
+  relayerUrl: CHAINS_CONFIG.aleo.relayerUrl || '',
 };
 
 export function isAleoEnabled(): boolean {
-  return CHAIN_CONFIG.aleo.enabled;
+  return CHAINS_CONFIG.aleo.enabled;
+}
+
+export function getChainConfig(chainId: string): ChainConfig | undefined {
+  return CHAINS_CONFIG[chainId as keyof ChainsState];
+}
+
+export function getEnabledChains(): ChainConfig[] {
+  return Object.values(CHAINS_CONFIG).filter((chain) => chain.enabled);
 }
 
 export function getAleoReadiness(): AleoReadiness {
@@ -57,7 +87,7 @@ export function getAleoReadiness(): AleoReadiness {
     return {
       enabled: false,
       readyForSubmission: false,
-      missing: ['VITE_ENABLE_ALEO=true'],
+      missing: ['VITE_ALEO_ENABLED=true'],
       warnings: [],
       reason: 'Aleo verification is turned off.',
     };
@@ -89,8 +119,9 @@ export function getAleoReadiness(): AleoReadiness {
     readyForSubmission: true,
     missing: [],
     warnings,
-    reason: warnings.length > 0
-      ? 'Aleo verification is enabled in queue mode (no relayer URL).'
-      : 'Aleo verification is fully configured.',
+    reason:
+      warnings.length > 0
+        ? 'Aleo verification is enabled in queue mode (no relayer URL).'
+        : 'Aleo verification is fully configured.',
   };
 }

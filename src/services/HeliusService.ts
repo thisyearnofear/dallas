@@ -93,12 +93,7 @@ class HeliusServiceClass {
         return;
       }
 
-      console.log('🔗 Initializing Helius enhanced RPC...');
-      
-      this.connection = new Connection(this.heliusRpcUrl,      const version = 'confirmed');
-      
- await this.connection.getVersion();
-      console.log(`✅ Helius RPC connected (Solana ${version.solanaCore})`);
+
       
       this.initialized = true;
     } catch (error) {

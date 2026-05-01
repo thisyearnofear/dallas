@@ -20,44 +20,17 @@
 
 import { PublicKey, Connection } from '@solana/web3.js';
 import { SOLANA_CONFIG } from '../../config/solana';
+import type {
+  MPCSessionStatus,
+  CommitteeMember,
+  MPCAccessRequest,
+  DecryptionResult,
+} from '../../types';
 
-export type MPCSessionStatus =
-  | 'pending'
-  | 'active'
-  | 'approved'
-  | 'rejected'
-  | 'expired';
+// Re-export for local use and backward compatibility
+export type { MPCSessionStatus } from '../../types';
 
-export interface CommitteeMember {
-  validatorAddress: PublicKey;
-  hasApproved: boolean;
-  approvedAt?: number;
-  shareCommitment?: Uint8Array;
-}
-
-export interface MPCAccessRequest {
-  id: string;
-  optimizationLogId: string;
-  requester: PublicKey;
-  requesterType: 'researcher' | 'validator' | 'builder';
-  justification: string;
-  status: MPCSessionStatus;
-  committee: CommitteeMember[];
-  threshold: number;
-  createdAt: number;
-  expiresAt: number;
-  encryptionScheme: 'aes-256-gcm' | 'chacha20-poly1305';
-  decryptedDataHash?: string;
-  error?: string;
-}
-
-export interface DecryptionResult {
-  success: boolean;
-  data?: Uint8Array;
-  error?: string;
-  approvedBy: PublicKey[];
-  decryptedAt: number;
-}
+// CommitteeMember, MPCAccessRequest, DecryptionResult imported from types (single source of truth)
 
 export interface AccessRequestInput {
   optimizationLogId: string;

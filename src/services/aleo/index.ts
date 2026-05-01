@@ -6,5 +6,6 @@ export {
 export type {
   AleoVerificationRequest,
   AleoVerificationResult,
+  AleoSubmissionPayload,
+  AleoSubmissionResult,
 } from './AleoVerificationService';
-

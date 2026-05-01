@@ -59,6 +59,11 @@ We provide infrastructure that enables anyone to form alliances around agent cha
 | **Light Protocol** | Complete | ZK compression 2x-50x ratios |
 | **Arcium MPC** | Complete | Threshold decryption K-of-N |
 | **IPFS/Arweave** | Complete | Encrypted off-chain storage |
+| **Aleo (Leo)** | Deployed | Program ID: `dbc_verifier.aleo`, Tx: `at1njg2utaxa3sx3c4w36jl8w6q7shl2y02epdawlhnvkvu6eer5qfqhvygqx` |
+
+**Dual-Chain Architecture:**
+- **Aleo** provides private ZK verification — prove optimization metrics without revealing prompts or architectures
+- **Solana** provides public token coordination — bonding curves, treasuries, governance voting
 
 **Noir Circuits:**
 - `benchmark_delta`: Proves performance improved without revealing scores
@@ -127,7 +132,8 @@ VITE_SOLANA_NETWORK=devnet pnpm dev
 src/
 ├── components/     # UI components
 ├── services/       # Business logic, API calls
-│   └── privacy/    # Privacy services (Noir, Light, Arcium)
+│   ├── privacy/    # Privacy services (Noir, Light, Arcium)
+│   └── aleo/       # Aleo Leo integration
 ├── hooks/          # Custom React hooks
 ├── context/        # React context providers
 ├── config/         # Constants, configuration
@@ -138,6 +144,8 @@ programs/           # Solana smart contracts
 ├── dbc_token/      # DBC token program
 ├── membership/     # Membership management
 └── treasury/       # Treasury management
+
+programs/aleo_verifier/  # Aleo Leo ZK verifier
 
 circuits/           # Noir ZK circuits
 ├── benchmark_delta/

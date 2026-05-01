@@ -1,6 +1,6 @@
 /**
  * Services Index - Centralized Service Exports
- * 
+ *
  * Core Principles:
  * - DRY: Single import point for all services
  * - CLEAN: Clear organization by domain
@@ -8,18 +8,17 @@
  */
 
 // Core Services
-export { 
+export {
   DbcTokenService,
   formatDbc,
-  calculateTier,
   calculateStakingRewards,
   STAKING_CONFIG,
   REWARD_AMOUNTS,
-  TIER_THRESHOLDS,
   EMISSION_SCHEDULE,
 } from './DbcTokenService';
 
-export type { ValidatorTier, TierThreshold, StakingRewards } from './DbcTokenService';
+export { calculateTier, TIER_THRESHOLDS } from '../types';
+export type { ValidatorTier, TierThreshold, StakingRewards } from '../types';
 
 // Privacy Services
 export {
@@ -32,15 +31,22 @@ export {
   DEFAULT_MPC_CONFIG,
 } from './privacy';
 
+// Privacy Types - exported from types (single source of truth)
+export type {
+  MPCSessionStatus,
+  CommitteeMember,
+  MPCAccessRequest,
+  DecryptionResult,
+  AccessRequestInput,
+} from './privacy';
+
+// Additional Privacy Types from ../types
 export type {
   NoirProof,
   CompressionResult,
-  MPCAccessRequest,
-  CommitteeMember,
-  DecryptionResult,
   PrivacyScoreWeights,
   PrivacyLevel,
-} from './privacy';
+} from '../types';
 
 // Cache Service
 export { cacheService } from './CacheService';
@@ -60,10 +66,15 @@ export {
 export type { BlockchainSubmissionResult, ValidationRequest } from './BlockchainIntegration';
 
 // Dual-Chain Submission
-export { submitOptimizationLogDualChain } from './DualChainSubmissionService';
+export {
+  submitOptimizationLogDualChain,
+  dualChainSubmissionService,
+} from './DualChainSubmissionService';
 export type {
   OptimizationLogSubmissionFormData,
+  DualChainStatus,
   DualChainSubmissionResult,
+  DualChainSubmissionParams,
 } from './DualChainSubmissionService';
 
 // Aleo Services
@@ -74,6 +85,8 @@ export {
 export type {
   AleoVerificationRequest,
   AleoVerificationResult,
+  AleoSubmissionPayload,
+  AleoSubmissionResult,
 } from './aleo';
 
 // Attention Token Services
@@ -85,3 +98,7 @@ export { BlockchainService } from './BlockchainService';
 export { EncryptionService } from './EncryptionService';
 export { transactionHistoryService } from './transactionHistory';
 export { FarcasterService } from './FarcasterService';
+
+// Relayer Service
+export { aleoRelayerService } from './relayer';
+export type { RelayerSubmission, RelayerResponse, RelayerStatus } from './relayer';

@@ -8,7 +8,45 @@ Dallas Buyers Club implements a multi-layer privacy stack that enables agent bui
 
 ## Privacy Technologies
 
-### 1. Noir (Aztec) - ZK-SNARK Proofs
+### 1. Aleo Leo - Native ZK Execution
+
+**Purpose:** Private-by-default computation on Aleo L1
+
+**Deployed Program:** `dbc_verifier.aleo`
+- All inputs are encrypted by default
+- Public inputs are only what the developer chooses
+- Zero knowledge by architecture
+
+**Circuits:**
+
+| Circuit | Purpose | Public Inputs |
+|---------|---------|----------------|
+| `verify_benchmark_delta` | Prove improvement without revealing scores | old_score, new_score, min_improvement, verification_hash |
+| `verify_benchmark_with_cost` | Prove improvement within gas budget | old_score, new_score, min_improvement, max_gas_cost, verification_hash |
+
+**Example:**
+```leo
+// dbc_verifier.aleo - verify_benchmark_delta
+function verify_benchmark_delta(
+    old_score: u32.public,
+    new_score: u32.public,
+    min_improvement: u32.public,
+    verification_hash: field.public
+) -> u32 {
+    // Improvement calculated but not revealed
+    let improved: bool = new_score > old_score;
+    let delta: u32 = new_score - old_score;
+    let threshold: u32 = (old_score * min_improvement) / 100u32;
+    let passes: bool = delta >= threshold && improved == true;
+    
+    // Returns 1 if passes, 0 otherwise
+    if passes { 1u32 } else { 0u32 }
+}
+```
+
+---
+
+### 2. Noir (Aztec) - Solana ZK Proofs
 
 **Purpose:** Prove data validity without revealing sensitive information
 

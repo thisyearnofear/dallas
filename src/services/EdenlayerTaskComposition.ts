@@ -1,5 +1,4 @@
-// Edenlayer Task Composition - Real implementation following Edenlayer patterns
-// Following Core Principles: CLEAN separation, MODULAR design
+// Edenlayer task composition patterns
 
 import { EDENLAYER_CONFIG } from './EdenlayerIntegration';
 
@@ -17,7 +16,6 @@ export interface TaskCompositionResult {
   status: 'pending' | 'executing' | 'completed' | 'failed';
 }
 
-// MODULAR: Real Edenlayer task composition following documentation patterns
 export class EdenlayerTaskComposer {
   private registeredAgents: Map<string, string> = new Map();
 
@@ -25,7 +23,6 @@ export class EdenlayerTaskComposer {
     this.registeredAgents = agentRegistry;
   }
 
-  // ENHANCED: Architecture purchase workflow following Edenlayer composition patterns
   async composeArchitecturePurchaseWorkflow(params: {
     architectureId: string;
     agentId: string;
@@ -159,7 +156,6 @@ export class EdenlayerTaskComposer {
     return this.executeComposition(workflow);
   }
 
-  // ENHANCED: Group purchase coordination with complex dependencies
   async composeGroupPurchaseWorkflow(params: {
     architectureIds: string[];
     memberCount: number;
@@ -265,7 +261,6 @@ export class EdenlayerTaskComposer {
     return this.executeComposition(workflow);
   }
 
-  // ENHANCED: Emergency response coordination
   async composeEmergencyResponseWorkflow(params: {
     emergencyType: 'corporate_raid' | 'supply_disruption' | 'network_compromise';
     severity: number;

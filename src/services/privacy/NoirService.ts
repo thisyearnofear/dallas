@@ -135,15 +135,12 @@ class NoirServiceClass {
     if (this.initialized) return;
 
     try {
-      console.log('🔐 Initializing NoirService with @noir-lang...');
-      
       const { Noir } = await import('@noir-lang/noir_js');
       const { BarretenbergBackend } = await import('@noir-lang/backend_barretenberg');
       
       await this.loadCircuitArtifacts(Noir, BarretenbergBackend);
       
       this.initialized = true;
-      console.log('✅ NoirService initialized successfully');
     } catch (error) {
       console.error('❌ Failed to initialize NoirService:', error);
       console.warn('⚠️ Using simulated proofs - install @noir-lang packages for real ZK proofs');
@@ -176,8 +173,6 @@ class NoirServiceClass {
         
         this.backends.set(circuitType, backend);
         this.noirInstances.set(circuitType, noir);
-        
-        console.log(`✅ Loaded circuit: ${circuitType}`);
       } catch (error) {
         console.error(`❌ Failed to load circuit ${circuitType}:`, error);
       }
@@ -293,11 +288,10 @@ class NoirServiceClass {
       const startTime = performance.now();
       
       const { witness } = await noir.execute(inputs);
-      const proof = await backend.generateProof(witness);
+      const proof = await backend.generateProof(proof);
       const isValid = await backend.verifyProof(proof);
       
       const endTime = performance.now();
-      console.log(`✅ ${circuitType} proof generated in ${(endTime - startTime).toFixed(2)}ms, verified: ${isValid}`);
 
       return {
         proof: new Uint8Array(proof),
