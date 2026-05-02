@@ -64,6 +64,15 @@
   </head>
     <body>
         <div id="app"></div>
+        <!-- Buffer/process polyfill must load before any bundled code that references globalThis.Buffer -->
+        <script type="module">
+          import { Buffer } from 'buffer';
+          globalThis.Buffer = Buffer;
+          globalThis.global = globalThis;
+          if (!globalThis.process) {
+            globalThis.process = { env: {}, version: '', platform: 'browser' };
+          }
+        </script>
         <script type="module" src="/src/index.tsx"></script>
     </body>
 </html>
