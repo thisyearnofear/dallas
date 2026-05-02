@@ -52,7 +52,10 @@ function copyCircuitsPlugin() {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [preact(), copyCircuitsPlugin()],
+  plugins: [
+    preact(),
+    copyCircuitsPlugin(),
+  ],
   define: {
     global: 'globalThis',
     'process.env': {},
@@ -91,7 +94,6 @@ export default defineConfig({
             id.includes('node_modules/@noble') ||
             id.includes('node_modules/bn.js') ||
             id.includes('node_modules/bs58') ||
-            id.includes('node_modules/buffer') ||
             id.includes('node_modules/rpc-websockets')
           ) {
             return 'wallet-solana';
