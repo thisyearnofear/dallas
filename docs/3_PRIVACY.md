@@ -257,7 +257,7 @@ App-level tests:
 |------------|--------|-------|
 | Noir | Complete | `circuits/*`, `NoirService.ts` |
 | Light Protocol | Complete | `LightProtocolService.ts` |
-| Arcium MPC | Complete | `ArciumMPCService.ts`, `ResearcherDashboard.tsx` |
+| Arcium MPC | Complete | `ArciumMPCService.ts`, `AgentArchitectDashboard.tsx` |
 | Wallet Encryption | Complete | `encryption.ts` |
 
 ---

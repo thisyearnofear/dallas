@@ -1,6 +1,6 @@
 import { createContext, h } from 'preact';
 import { useContext, useState, useEffect, useCallback } from 'preact/hooks';
-import { PublicKey, Connection, LAMPORTS_PER_SOL, SystemProgram } from '@solana/web3.js';
+import { PublicKey, Connection, LAMPORTS_PER_SOL, SystemProgram, Transaction } from '@solana/web3.js';
 import { getRpcEndpoint, validateBlockchainConfig, SOLANA_CONFIG } from '../config/solana';
 import { transactionHistoryService, TransactionRecord } from '../services/transactionHistory';
 import { validatorService } from '../services/ValidatorService';
@@ -431,7 +431,6 @@ export function WalletProvider({ children }: { children: any }) {
       const { blockhash } = await connection.getLatestBlockhash();
 
       // Create transaction
-      const { Transaction } = await import('@solana/web3.js');
       const transaction = new Transaction({
         recentBlockhash: blockhash,
         feePayer: publicKey,

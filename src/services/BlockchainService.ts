@@ -2,7 +2,7 @@
  * Enhanced Blockchain Service for Dallas Buyers Club
  * 
  * Handles interactions with Solana smart contracts:
- * - Case study submission with ZK proofs
+ * - Optimization log submission with ZK proofs
  * - Validator staking & slashing mechanism
  * - DBC token operations (staking, rewards)
  * - Privacy sponsor integrations (Light Protocol, Arcium, etc.)
@@ -306,7 +306,7 @@ export class BlockchainService {
         success: true,
       };
     } catch (error) {
-      console.error('Case study submission error:', error);
+      console.error('Optimization log submission error:', error);
       return {
         signature: '',
         success: false,

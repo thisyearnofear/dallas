@@ -1,5 +1,6 @@
 import { useState, useEffect } from "preact/hooks";
 import { PrivacyTooltip } from "../components/PrivacyTooltip";
+import { ServiceReadinessPanel } from "../components/ServiceReadinessPanel";
 
 export function Home() {
     const [secretClicks, setSecretClicks] = useState(0);
@@ -109,6 +110,40 @@ export function Home() {
                             </div>
                         </a>
                     </div>
+                </div>
+            </div>
+
+            <ServiceReadinessPanel />
+
+            {/* Operating Model (clarifies the builder workflow) */}
+            <div class="mb-12 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-lg p-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Builder Operating Model</h2>
+                        <p class="text-slate-600 dark:text-slate-400">
+                            One loop turns private agent improvements into alliance-owned intelligence.
+                        </p>
+                    </div>
+                    <a
+                        href="/experiences?tab=share"
+                        class="inline-flex items-center justify-center bg-brand text-white font-bold px-5 py-3 rounded hover:bg-brand/90 transition-colors"
+                    >
+                        Submit an Optimization Log
+                    </a>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {[
+                        ['01', 'Join by failure mode', 'Pick the alliance matching your agent bottleneck: context, tools, evals, memory, routing.'],
+                        ['02', 'Encrypt the evidence', 'Submit logs, traces, and metrics without exposing prompts, weights, or customer data.'],
+                        ['03', 'Prove the delta', 'Validators verify improvement claims through ZK proofs and reputation-weighted review.'],
+                        ['04', 'Fund shared R&D', 'Alliance token fees finance eval infra, fine-tuning datasets, and compute pools.'],
+                    ].map(([step, title, description]) => (
+                        <div key={step} class="relative p-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40">
+                            <div class="text-xs font-black text-brand uppercase tracking-[0.25em] mb-3">{step}</div>
+                            <h3 class="font-bold text-slate-900 dark:text-white mb-2">{title}</h3>
+                            <p class="text-sm text-slate-600 dark:text-slate-400">{description}</p>
+                        </div>
+                    ))}
                 </div>
             </div>
 

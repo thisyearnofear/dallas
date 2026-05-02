@@ -245,9 +245,9 @@ src/
 │   ├── BlockchainService.ts         # Low-level blockchain
 │   └── DbcTokenService.ts           # Token operations
 ├── components/
-│   ├── EncryptedCaseStudyForm.tsx   # Case study submission
+│   ├── EncryptedOptimizationLogForm.tsx # Optimization log submission
 │   ├── ValidationDashboard.tsx      # Validator UI
-│   ├── ResearcherDashboard.tsx      # Research access
+│   ├── AgentArchitectDashboard.tsx  # Architect access
 │   └── AttentionTokenMarket.tsx     # Token trading
 ├── hooks/
 │   ├── useValidatorStaking.ts       # Staking state

@@ -390,7 +390,7 @@ export class PrivacyServiceManager {
         // Check Noir service
         if (!this.status.noir.initialized) {
             issues.push('Noir ZK proof service not initialized');
-            recommendations.push('Install @noir-lang/noir_js and @noir-lang/backend_barretenberg');
+            recommendations.push('Initialize privacy services or enable VITE_ENABLE_REAL_ZK=true for real local proving');
         }
 
         // Check Light Protocol service

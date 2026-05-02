@@ -58,7 +58,7 @@ describe('Privacy Service Integration', () => {
         });
 
         it('should generate performance improvement proof', async () => {
-            const proof = await noirService.proveSymptomImprovement({
+            const proof = await noirService.proveBenchmarkDelta({
                 baseline_severity: mockOptimizationLogData.baselineSeverity,
                 outcome_severity: mockOptimizationLogData.outcomeSeverity,
             });
@@ -70,7 +70,7 @@ describe('Privacy Service Integration', () => {
         });
 
         it('should generate duration verification proof', async () => {
-            const proof = await noirService.proveDurationVerification({
+            const proof = await noirService.proveExecutionDuration({
                 duration_days: mockOptimizationLogData.durationDays,
             });
 
@@ -94,7 +94,7 @@ describe('Privacy Service Integration', () => {
         });
 
         it('should generate cost range proof', async () => {
-            const proof = await noirService.proveCostRange({
+            const proof = await noirService.proveResourceRange({
                 cost_usd_cents: mockOptimizationLogData.costUsd * 100,
             });
 
@@ -118,13 +118,13 @@ describe('Privacy Service Integration', () => {
 
         it('should validate input constraints', async () => {
             // Test invalid severity range
-            await expect(noirService.proveSymptomImprovement({
+            await expect(noirService.proveBenchmarkDelta({
                 baseline_severity: 11, // Invalid: > 10
                 outcome_severity: 5,
             })).rejects.toThrow('Baseline severity must be 1-10');
 
             // Test invalid duration
-            await expect(noirService.proveDurationVerification({
+            await expect(noirService.proveExecutionDuration({
                 duration_days: -1, // Invalid: negative
             })).rejects.toThrow('Duration must be positive');
         });
@@ -427,7 +427,7 @@ describe('Error Handling', () => {
     });
 
     it('should handle invalid proof inputs', async () => {
-        await expect(noirService.proveSymptomImprovement({
+        await expect(noirService.proveBenchmarkDelta({
             baseline_severity: 0, // Invalid
             outcome_severity: 5,
         })).rejects.toThrow();

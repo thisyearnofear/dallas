@@ -32,7 +32,7 @@ export interface PrivacyOperation {
   metadata: Record<string, any>;
 }
 
-// Case study with full privacy
+// Optimization log with full privacy
 export interface PrivacyEnhancedOptimizationLog {
   // Original data (encrypted)
   encryptedData: {

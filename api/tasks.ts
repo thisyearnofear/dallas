@@ -161,7 +161,8 @@ export default async function handler(
   }
 
   if (method === 'PUT') {
-    const { id, agentId, status } = request.body;
+    const { agentId, status } = request.body;
+    const id = request.body.id || request.body.taskId;
 
     if (!id) {
       return response.status(400).json({ error: 'Task ID required' });

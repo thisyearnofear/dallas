@@ -67,6 +67,7 @@ export { MembershipFlow } from './MembershipFlow';
 export { PrivacyTooltip } from './PrivacyTooltip';
 export { PrivacyOnboardingModal } from './PrivacyOnboardingModal';
 export { PrivacyScorePreview } from './PrivacyScorePreview';
+export { ServiceReadinessPanel } from './ServiceReadinessPanel';
 
 // Achievement Components
 export { AchievementSystem } from './AchievementSystem';

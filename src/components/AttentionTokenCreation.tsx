@@ -5,7 +5,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, Transaction } from '@solana/web3.js';
 import { useWallet } from '../context/WalletContext';
 import { attentionTokenService } from '../services/AttentionTokenService';
 import {
@@ -175,7 +175,6 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
 
     try {
       const { SOLANA_CONFIG } = await import('../config/solana');
-      const { Transaction, SystemProgram } = await import('@solana/web3.js');
       
       const programId = new PublicKey(SOLANA_CONFIG.blockchain.optimizationLogProgramId);
       

@@ -56,7 +56,7 @@ export interface DecryptedOptimizationLogDetails {
   durationDays: number;
   costUSD?: number;
   
-  // Symptoms (baseline)
+  // Failure modes (baseline)
   failure_modes: {
     name: string;
     severity: number; // 1-10

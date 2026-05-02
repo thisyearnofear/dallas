@@ -33,7 +33,7 @@ DBC doesn't pay inflationary rewards. Value comes from:
 | Source | Fee |
 |--------|-----|
 | Community token launch | 0.5 SOL |
-| Case study submission | 0.1 SOL |
+| Optimization log submission | 0.1 SOL |
 | Trading volume | 0.5% of community token trades |
 
 **Fee Distribution:**
@@ -138,7 +138,7 @@ Fee sharing configured:
 ### Reward Structure
 - **Base Reward:** 5 DBC per validation
 - **Accuracy Bonus:** Up to 2x for high accuracy
-- **Fee Share:** SOL from case study submissions
+- **Fee Share:** SOL from optimization log submissions
 - **Community Tokens:** From validated projects
 
 ### Tier System

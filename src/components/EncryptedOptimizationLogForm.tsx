@@ -1016,7 +1016,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <label class="block text-xs font-black mb-3 uppercase tracking-widest text-slate-500 dark:text-slate-400">
-                  Symptom Severity (1-10)
+                  Failure Severity (1-10)
                 </label>
                 <input
                   type="range"
@@ -1035,7 +1035,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                   class="w-full accent-brand"
                 />
                 <div class="flex justify-between mt-2">
-                  <span class="text-[10px] font-black text-slate-400 uppercase">Mild</span>
+                  <span class="text-[10px] font-black text-slate-400 uppercase">Low</span>
                   <span class="text-sm font-black text-brand">
                     {formData.baselineMetrics.latencySeverity}/10
                   </span>
@@ -1080,7 +1080,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <label class="block text-xs font-black mb-3 uppercase tracking-widest text-slate-500 dark:text-slate-400">
-                  Symptom Severity (1-10)
+                  Failure Severity (1-10)
                 </label>
                 <input
                   type="range"

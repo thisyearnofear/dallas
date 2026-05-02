@@ -147,7 +147,7 @@ export async function submitOptimizationLogToBlockchain(
     );
 
     if (result.success) {
-      // Case study submitted successfully
+      // Optimization log submitted successfully
       // Note: DBC rewards are handled by the treasury program after validation
       const qualityScore = 75; // This would come from validation in production
 
@@ -155,7 +155,7 @@ export async function submitOptimizationLogToBlockchain(
         success: true,
         optimizationLogPubkey: result.accountPubkey,
         transactionSignature: result.signature,
-        message: `✅ Case study submitted to blockchain! 
+        message: `✅ Optimization log submitted to blockchain!
 
 🔗 Transaction: ${result.signature.slice(0, 20)}...
 🏥 Optimization Log ID: ${result.accountPubkey?.toString().slice(0, 20)}...
@@ -225,7 +225,7 @@ export async function submitValidatorApproval(
 
 🔗 Transaction: ${result.signature.slice(0, 20)}...
 🎯 Type: ${validationType} validation
-${approved ? '✅ Approved: Case study meets quality standards' : '⚠️ Concerns: Issues flagged for review'}
+${approved ? '✅ Approved: optimization log meets quality standards' : '⚠️ Concerns: issues flagged for review'}
 🔐 ZK Proof: Validation without data decryption
 
 🔍 View Validation: https://explorer.solana.com/tx/${result.signature}?cluster=devnet
@@ -357,7 +357,7 @@ export async function fetchAndDecryptOptimizationLog(
     if (!optimizationLog) {
       const result = {
         success: false,
-        error: 'Case study not found on blockchain',
+        error: 'Optimization log not found on blockchain',
       };
       cacheService.set(cacheKey, result, TTL);
       return result;

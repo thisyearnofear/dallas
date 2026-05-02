@@ -36,7 +36,7 @@ export function ProductCard({ product, featured = false }: ProductCardProps) {
                 {/* Hover Overlay */}
                 <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div class="bg-white/95 dark:bg-slate-900/95 text-slate-900 dark:text-white px-4 py-2 rounded-full font-bold shadow-lg border border-brand/30">
-                        ⚠️ Use at your own risk
+                        View alliance data
                     </div>
                 </div>
             </div>
@@ -66,7 +66,7 @@ export function ProductCard({ product, featured = false }: ProductCardProps) {
                             ${featured ? 'py-3 px-6 text-lg' : 'text-sm'}
                         `}
                     >
-                        💊 Get Now
+                        Join Alliance
                     </a>
                     <button class="text-brand hover:text-brand-accent transition-all p-2 hover:bg-brand/10 rounded-full">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">

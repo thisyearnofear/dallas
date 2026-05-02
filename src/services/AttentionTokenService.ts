@@ -125,7 +125,7 @@ export class AttentionTokenService {
     const isCommunity = params.isCommunityToken || !params.optimizationLogPda;
     const tokenName = isCommunity 
       ? params.techniqueName  // Communities use name directly (e.g., "Collagen Community")
-      : `${params.techniqueName} Attention`; // Case studies append "Attention"
+      : `${params.techniqueName} Attention`; // Optimization logs append "Attention"
 
     const request: BagsTokenLaunchRequest = {
       name: tokenName,
@@ -403,7 +403,7 @@ export class AttentionTokenService {
     try {
       const accountInfo = await connection.getAccountInfo(optimizationLogPda);
       if (!accountInfo) {
-        throw new Error('Case study not found');
+        throw new Error('Optimization log not found');
       }
 
       // Parse optimization log account data

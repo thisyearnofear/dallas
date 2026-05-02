@@ -67,9 +67,8 @@ See `.env.example` for a curated list.
 Key variables:
 - `VITE_SOLANA_NETWORK` — `devnet | testnet | mainnet-beta`
 - `VITE_SOLANA_RPC_ENDPOINT` — optional override
-- `VITE_ENABLE_ALEO` — optional dual-chain verification layer
+- `VITE_ALEO_ENABLED` — optional dual-chain verification layer
 
 ## 7) Pilot runbook
 
 - [Pilot Checklist](PILOT_CHECKLIST.md)
-

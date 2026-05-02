@@ -77,6 +77,31 @@ export default defineConfig({
           ) {
             return 'noir-bb';
           }
+          if (
+            id.includes('@noir-lang/noir_js') ||
+            id.includes('@noir-lang/noirc_abi') ||
+            id.includes('@noir-lang/acvm_js') ||
+            id.includes('noirc_abi_wasm') ||
+            id.includes('acvm_js')
+          ) {
+            return 'noir-runtime';
+          }
+          if (
+            id.includes('node_modules/@solana') ||
+            id.includes('node_modules/@noble') ||
+            id.includes('node_modules/bn.js') ||
+            id.includes('node_modules/bs58') ||
+            id.includes('node_modules/buffer') ||
+            id.includes('node_modules/rpc-websockets')
+          ) {
+            return 'wallet-solana';
+          }
+          if (id.includes('node_modules/preact') || id.includes('node_modules/@preact')) {
+            return 'preact-runtime';
+          }
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
           return undefined;
         },
       },

@@ -163,7 +163,7 @@ export const ValidationDashboard: FunctionalComponent = () => {
 
   const selectOptimizationLog = (task: ValidationTask) => {
     setState((s) => ({ ...s, selected: task, generatedProofs: [] }));
-    setSubmitStatus({ type: 'info', message: '🔐 Case study selected. Review the ZK proofs.' });
+    setSubmitStatus({ type: 'info', message: '🔐 Optimization log selected. Review the ZK proofs.' });
   };
 
   const generateZKProofs = async () => {

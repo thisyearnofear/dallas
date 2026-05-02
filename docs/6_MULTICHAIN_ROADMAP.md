@@ -51,10 +51,9 @@ This is additive and non-breaking: existing Solana submission flow remains intac
 
 ## Environment Variables
 
-- `VITE_ENABLE_ALEO=true`
+- `VITE_ALEO_ENABLED=true`
 - `VITE_ALEO_NETWORK=testnet`
 - `VITE_ALEO_PROGRAM_ID=<aleo_program_id>`
 - `VITE_ALEO_RELAYER_URL=<optional_relayer_endpoint>`
 
 If Aleo is disabled or unconfigured, the app falls back to Solana-only behavior.
-

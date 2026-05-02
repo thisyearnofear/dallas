@@ -140,7 +140,7 @@ src/
 └── pages/          # Page components
 
 programs/           # Solana smart contracts
-├── case_study/     # Case study validation
+├── optimization_log/ # Optimization log validation
 ├── dbc_token/      # DBC token program
 ├── membership/     # Membership management
 └── treasury/       # Treasury management

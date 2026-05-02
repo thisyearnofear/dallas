@@ -125,7 +125,7 @@ export function parseAttentionTokenError(error: any): {
   if (error.message?.includes('not approved')) {
     return {
       code: AttentionTokenErrorCode.CASE_STUDY_NOT_APPROVED,
-      message: 'Case study not approved',
+      message: 'Optimization log not approved',
       userMessage: 'Your optimization log must be approved before creating an attention token.',
     };
   }

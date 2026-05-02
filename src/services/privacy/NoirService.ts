@@ -126,6 +126,9 @@ interface CircuitArtifact {
   abi?: any;
 }
 
+const isRealZkEnabled = import.meta.env.VITE_ENABLE_REAL_ZK === 'true';
+const loadRuntimeModule = new Function('specifier', 'return import(specifier)') as <T>(specifier: string) => Promise<T>;
+
 class NoirServiceClass {
   private initialized = false;
   private backends: Map<CircuitType, any> = new Map();
@@ -136,9 +139,17 @@ class NoirServiceClass {
   async initialize(): Promise<void> {
     if (this.initialized) return;
 
+    if (!isRealZkEnabled) {
+      console.info('NoirService initialized in simulated proof mode. Set VITE_ENABLE_REAL_ZK=true to load real proving.');
+      this.initialized = true;
+      return;
+    }
+
     try {
-      const { Noir } = await import('@noir-lang/noir_js');
-      const { BarretenbergBackend } = await import('@noir-lang/backend_barretenberg');
+      const [{ Noir }, { BarretenbergBackend }] = await Promise.all([
+        loadRuntimeModule<any>('@noir-lang/noir_js'),
+        loadRuntimeModule<any>('@noir-lang/backend_barretenberg'),
+      ]);
       
       await this.loadCircuitArtifacts(Noir, BarretenbergBackend);
       
@@ -246,30 +257,6 @@ class NoirServiceClass {
       min_cost_cents: publicInputs.min_cost_cents.toString(),
       max_cost_cents: publicInputs.max_cost_cents.toString(),
     }, publicInputs);
-  }
-
-  /**
-   * Backward-compatible aliases (older test suite names)
-   */
-  async proveSymptomImprovement(
-    inputs: BenchmarkDeltaInputs,
-    publicInputs: BenchmarkDeltaPublicInputs = DEFAULT_PUBLIC_INPUTS.benchmark_delta
-  ): Promise<ProofResult> {
-    return this.proveBenchmarkDelta(inputs, publicInputs);
-  }
-
-  async proveDurationVerification(
-    inputs: ExecutionDurationInputs,
-    publicInputs: ExecutionDurationPublicInputs = DEFAULT_PUBLIC_INPUTS.execution_duration
-  ): Promise<ProofResult> {
-    return this.proveExecutionDuration(inputs, publicInputs);
-  }
-
-  async proveCostRange(
-    inputs: ResourceRangeInputs,
-    publicInputs: ResourceRangePublicInputs = DEFAULT_PUBLIC_INPUTS.resource_range
-  ): Promise<ProofResult> {
-    return this.proveResourceRange(inputs, publicInputs);
   }
 
   private async generateProof(
