@@ -147,7 +147,7 @@ export function useAgentNetwork() {
 
     try {
       // ENHANCED: Real Edenlayer task execution with wallet integration
-      const result = await enhancedBusinessLogic.processContextRestoration({
+      const result = await enhancedBusinessLogic.processIdentityRestoration({
         architectureId,
         agentId,
         paymentMethod: 'SOL',
@@ -256,6 +256,7 @@ export function useAgentNetwork() {
     assessThreatLevel,
     coordinateGroupPurchase,
     processContextRestoration,
+    processIdentityRestoration: processContextRestoration,
     handleEmergencyResponse,
 
     // Utilities

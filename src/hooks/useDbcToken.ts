@@ -39,7 +39,7 @@ interface DbcTokenState {
   isStaking: boolean;
 }
 
-interface UseDbcTokenReturn extends DbcTokenState {
+export interface UseDbcTokenReturn extends DbcTokenState {
   // Actions
   refreshBalance: () => Promise<void>;
   createTokenAccount: () => Promise<void>;

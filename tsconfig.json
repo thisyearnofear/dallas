@@ -20,5 +20,16 @@
 			"react-dom": ["./node_modules/preact/compat/"]
 		}
 	},
-	"include": ["node_modules/vite/client.d.ts", "**/*"]
+	"include": ["node_modules/vite/client.d.ts", "src/**/*", "api/**/*"],
+	"exclude": [
+		"node_modules",
+		"dist",
+		"build",
+		"target",
+		".pnpm-store",
+		"mobile",
+		"scripts",
+		"programs/**/*.ts",
+		"programs/**/*.js"
+	]
 }

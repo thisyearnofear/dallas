@@ -59,19 +59,20 @@ export interface MPCAccessRequest {
   id: string;
   optimizationLogId: string;
   requester: PublicKey;
-  requesterType: 'researcher' | 'validator' | 'builder';
+  requesterType: 'researcher' | 'validator' | 'builder' | 'architect' | 'agent';
   justification: string;
   status: MPCSessionStatus;
   committee: CommitteeMember[];
   threshold: number;
   createdAt: number;
   expiresAt: number;
-  encryptionScheme: 'aes-256-gcm' | 'chacha20-poly1305';
+  encryptionScheme: EncryptionScheme;
   decryptedDataHash?: string;
   error?: string;
 }
 
 export type MPCSessionStatus = 'pending' | 'active' | 'approved' | 'rejected' | 'expired';
+export type EncryptionScheme = 'aes-256-gcm' | 'chacha20-poly1305';
 
 export interface CommitteeMember {
   validatorAddress: PublicKey;

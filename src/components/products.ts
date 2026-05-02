@@ -2,13 +2,16 @@ export interface AgentProtocol {
     id: number;
     name: string;
     description: string;
-    category: 'context_management' | 'tool_calling' | 'mind-body' | 'experimental';
+    category: 'context_management' | 'tool_calling' | 'evaluation' | 'orchestration' | 'mind-body' | 'experimental';
     evidenceLevel: 'anecdotal' | 'preliminary' | 'clinical' | 'established';
     memberCount: number;
     optimizationLogCount: number;
     image: string;
+    price?: string;
     tokenSymbol?: string;
 }
+
+export type Product = AgentProtocol;
 
 export const agentProtocols: AgentProtocol[] = [
     {

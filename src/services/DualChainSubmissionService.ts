@@ -15,9 +15,9 @@ export interface OptimizationLogSubmissionFormData {
   architectureProtocol: string;
   durationDays: number;
   costUSD: number;
-  baselineMetrics: Record<string, number | string | boolean>;
-  outcomeMetrics: Record<string, number | string | boolean>;
-  sideEffects: Array<Record<string, number | string | boolean>>;
+  baselineMetrics: any;
+  outcomeMetrics: any;
+  sideEffects: object[];
   context?: string;
 }
 

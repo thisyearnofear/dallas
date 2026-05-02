@@ -14,7 +14,7 @@ import { FunctionalComponent } from 'preact';
 import { privacyService } from '../services/privacy';
 
 interface PrivacyScorePreviewProps {
-  score: number;
+  score?: number;
   features: {
     encryption: boolean;
     compression: boolean;
@@ -22,10 +22,11 @@ interface PrivacyScorePreviewProps {
     zkProofs?: number;
   };
   variant?: 'compact' | 'full';
+  showBreakdown?: boolean;
 }
 
 export const PrivacyScorePreview: FunctionalComponent<PrivacyScorePreviewProps> = ({
-  score,
+  score = 0,
   features,
   variant = 'full',
 }) => {

@@ -13,6 +13,7 @@
  * - MODULAR: Works with images and components
  */
 
+import { FunctionalComponent } from 'preact';
 import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
 
 // ============= Types =============

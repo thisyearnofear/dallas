@@ -11,6 +11,31 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { db } from '../src/services/kv';
 
+interface ResultRecord {
+  id: string;
+  taskId: string;
+  agentId: string;
+  resultType: string;
+  targetId: string;
+  findings: Record<string, any>;
+  metadata: Record<string, any>;
+  status: string;
+  approved?: boolean;
+  validatorId?: string;
+  stakeAmount?: number;
+  feedback?: string;
+  createdAt: number;
+  updatedAt?: number;
+}
+
+interface ResultValidationRecord {
+  resultId: string;
+  status: string;
+  approved?: boolean;
+  stakeAmount?: number;
+  createdAt: number;
+}
+
 /**
  * POST /api/results - Submit agent results
  * 
@@ -75,6 +100,11 @@ export default async function handler(
     };
 
     await db.set(`result:${id}`, result);
+    const resultIds = await db.get<string[]>('results:all') || [];
+    if (!resultIds.includes(id)) {
+      resultIds.push(id);
+      await db.set('results:all', resultIds);
+    }
 
     // For validation tasks, also store in validations map
     if (resultType === 'validation') {
@@ -105,7 +135,7 @@ export default async function handler(
     const { id, taskId, agentId, targetId, status } = request.query;
 
     if (id) {
-      const result = await db.get(`result:${id}`);
+      const result = await db.get<ResultRecord>(`result:${id}`);
       if (!result) {
         return response.status(404).json({ error: 'Result not found' });
       }
@@ -113,7 +143,7 @@ export default async function handler(
     }
 
     let resultList: any[] = [];
-    const resultIds = (await db.get('results:all')) || [];
+    const resultIds = (await db.get<string[]>('results:all')) || [];
     resultList = await Promise.all(
       resultIds.map(async (rid: string) => db.get(`result:${rid}`))
     );
@@ -148,7 +178,7 @@ export default async function handler(
       return response.status(400).json({ error: 'Missing resultId' });
     }
 
-    const result = await db.get(`result:${resultId}`);
+    const result = await db.get<ResultRecord>(`result:${resultId}`);
     if (!result) {
       return response.status(404).json({ error: 'Result not found' });
     }
@@ -174,7 +204,7 @@ export default async function handler(
     await db.set(`result:${resultId}`, result);
 
     // Update corresponding validation if exists
-    const validation = await db.get(`validation:${resultId}`);
+    const validation = await db.get<ResultValidationRecord>(`validation:${resultId}`);
     if (validation) {
       if (approved !== undefined) {
         validation.approved = approved;

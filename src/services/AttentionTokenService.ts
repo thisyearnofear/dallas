@@ -385,6 +385,14 @@ export class AttentionTokenService {
     };
   }
 
+  async getCommunityTokens(_options?: {
+    category?: string;
+    limit?: number;
+    sortBy?: string;
+  }): Promise<AttentionToken[]> {
+    return Array.from(this.mockTokens.values());
+  }
+
   /**
    * Fetch optimization log from blockchain
    */

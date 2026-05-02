@@ -3,7 +3,7 @@ import { useSettings } from "../context/SettingsContext";
 
 interface PopupAd {
     id: string;
-    type: 'mexpharm' | 'freetrials' | 'winnernotif' | 'adnetwork' | 'newsletter' | 'token_promotion';
+    type: 'mexpharm' | 'freetrials' | 'winnernotif' | 'adnetwork' | 'newsletter' | 'token_promotion' | 'alert' | 'membership' | 'promotion';
     title: string;
     content: string;
     buttonText: string;

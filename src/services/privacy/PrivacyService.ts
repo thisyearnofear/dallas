@@ -14,7 +14,7 @@
 import { PublicKey } from '@solana/web3.js';
 import type { ProofResult } from './NoirService';
 import type { CompressedOptimizationLog } from './LightProtocolService';
-import { AgentMetric, AgentInsight, MPCAccessRequest } from '../../types';
+import { AgentMetric, AgentInsight, MPCAccessRequest, PrivacyLevel } from '../../types';
 
 // Unified privacy operation result
 export interface PrivacyOperationResult {
@@ -581,27 +581,46 @@ export class PrivacyService {
    * Calculate privacy score for a optimization log
    */
   calculatePrivacyScore(
-    hasEncryption: boolean,
-    hasZkProofs: boolean,
-    hasCompression: boolean,
-    hasMPC: boolean
+    hasEncryptionOrOptions: boolean | {
+      hasEncryption?: boolean;
+      hasZkProofs?: boolean;
+      zkProofCount?: number;
+      hasCompression?: boolean;
+      hasMPC?: boolean;
+    },
+    hasZkProofs = false,
+    hasCompression = false,
+    hasMPC = false
   ): number {
+    const hasEncryption = typeof hasEncryptionOrOptions === 'object'
+      ? !!hasEncryptionOrOptions.hasEncryption
+      : hasEncryptionOrOptions;
+    const zkProofsEnabled = typeof hasEncryptionOrOptions === 'object'
+      ? !!hasEncryptionOrOptions.hasZkProofs || !!hasEncryptionOrOptions.zkProofCount
+      : hasZkProofs;
+    const compressionEnabled = typeof hasEncryptionOrOptions === 'object'
+      ? !!hasEncryptionOrOptions.hasCompression
+      : hasCompression;
+    const mpcEnabled = typeof hasEncryptionOrOptions === 'object'
+      ? !!hasEncryptionOrOptions.hasMPC
+      : hasMPC;
+
     let score = 0;
     if (hasEncryption) score += PRIVACY_SCORE_WEIGHTS.encryption;
-    if (hasZkProofs) score += PRIVACY_SCORE_WEIGHTS.zk_proofs;
-    if (hasCompression) score += PRIVACY_SCORE_WEIGHTS.compression;
-    if (hasMPC) score += PRIVACY_SCORE_WEIGHTS.mpc;
+    if (zkProofsEnabled) score += PRIVACY_SCORE_WEIGHTS.zk_proofs;
+    if (compressionEnabled) score += PRIVACY_SCORE_WEIGHTS.compression;
+    if (mpcEnabled) score += PRIVACY_SCORE_WEIGHTS.mpc;
     return Math.min(score, 100);
   }
 
   /**
    * Get privacy level label
    */
-  getPrivacyLevel(score: number): { label: string; color: string; icon: string } {
-    if (score >= 90) return { label: 'Maximum Privacy', color: 'purple', icon: '🛡️' };
-    if (score >= 70) return { label: 'High Privacy', color: 'green', icon: '🔒' };
-    if (score >= 50) return { label: 'Standard Privacy', color: 'blue', icon: '🔐' };
-    return { label: 'Basic Privacy', color: 'yellow', icon: '⚠️' };
+  getPrivacyLevel(score: number): PrivacyLevel {
+    if (score >= 90) return { label: 'Maximum Privacy', color: 'purple', icon: '🛡️', description: 'Full privacy stack enabled' };
+    if (score >= 70) return { label: 'High Privacy', color: 'green', icon: '🔒', description: 'Strong encryption and validation privacy' };
+    if (score >= 50) return { label: 'Standard Privacy', color: 'blue', icon: '🔐', description: 'Baseline privacy protections enabled' };
+    return { label: 'Basic Privacy', color: 'yellow', icon: '⚠️', description: 'Limited privacy protections enabled' };
   }
 
   /**

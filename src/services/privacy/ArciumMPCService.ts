@@ -25,18 +25,19 @@ import type {
   CommitteeMember,
   MPCAccessRequest,
   DecryptionResult,
+  EncryptionScheme,
 } from '../../types';
 
 // Re-export for local use and backward compatibility
-export type { MPCSessionStatus } from '../../types';
+export type { EncryptionScheme, MPCSessionStatus } from '../../types';
 
 // CommitteeMember, MPCAccessRequest, DecryptionResult imported from types (single source of truth)
 
 export interface AccessRequestInput {
   optimizationLogId: string;
   justification: string;
-  requesterType: 'researcher' | 'validator' | 'builder';
-  encryptionScheme?: 'aes-256-gcm' | 'chacha20-poly1305';
+  requesterType: MPCAccessRequest['requesterType'];
+  encryptionScheme?: EncryptionScheme;
   preferredThreshold?: number;
 }
 
@@ -47,7 +48,7 @@ export const DEFAULT_MPC_CONFIG = {
   defaultScheme: 'aes-256-gcm' as const,
 };
 
-const ENCRYPTION_SCHEME_OPTIONS = [
+export const ENCRYPTION_SCHEME_OPTIONS = [
   { value: 'aes-256-gcm', label: 'AES-256-GCM', description: 'Industry standard, hardware accelerated' },
   { value: 'chacha20-poly1305', label: 'ChaCha20-Poly1305', description: 'Fast in software, mobile optimized' },
 ];
@@ -311,6 +312,12 @@ class ArciumMPCServiceClass {
   getActiveSessions(): MPCAccessRequest[] {
     return Array.from(this.activeSessions.values()).filter(
       s => s.status === 'pending' || s.status === 'active'
+    );
+  }
+
+  getCompletedSessions(): MPCAccessRequest[] {
+    return Array.from(this.activeSessions.values()).filter(
+      s => s.status === 'approved' || s.status === 'rejected' || s.status === 'expired'
     );
   }
 

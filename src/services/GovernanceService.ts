@@ -9,7 +9,7 @@
  * - CLEAN: Clear separation of concerns
  */
 
-import { Connection, PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
+import { Connection, PublicKey, Transaction, SystemProgram, TransactionInstruction } from '@solana/web3.js';
 import { SOLANA_CONFIG } from '../config/solana';
 
 export const GOVERNANCE_PROGRAM_ID = new PublicKey(

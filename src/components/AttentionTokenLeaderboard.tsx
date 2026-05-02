@@ -4,7 +4,9 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey } from '@solana/web3.js';
+import { getRpcEndpoint } from '../config/solana';
+import { attentionTokenService } from '../services/AttentionTokenService';
 
 interface TokenLeaderboardEntry {
   rank: number;
@@ -30,6 +32,7 @@ interface TraderLeaderboardEntry {
 }
 
 export const AttentionTokenLeaderboard: React.FC = () => {
+  const connection = new Connection(getRpcEndpoint());
   const [activeTab, setActiveTab] = useState<'tokens' | 'traders'>('tokens');
   const [tokenTimeframe, setTokenTimeframe] = useState<'24h' | '7d' | '30d' | 'all'>('24h');
   const [tokenSortBy, setTokenSortBy] = useState<'marketCap' | 'volume' | 'holders' | 'price'>('marketCap');
@@ -97,8 +100,9 @@ export const AttentionTokenLeaderboard: React.FC = () => {
         
         // Sort based on criteria
         validTokens.sort((a, b) => {
-          const aValue = a[tokenSortBy];
-          const bValue = b[tokenSortBy];
+          const metricKey = tokenSortBy === 'volume' ? 'volume24h' : tokenSortBy === 'price' ? 'priceChange24h' : tokenSortBy;
+          const aValue = a[metricKey];
+          const bValue = b[metricKey];
           return bValue - aValue;
         });
 

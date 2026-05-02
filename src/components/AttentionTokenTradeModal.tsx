@@ -6,8 +6,12 @@
 import React, { useState, useEffect } from 'react';
 import { PublicKey } from '@solana/web3.js';
 import { useWallet } from '../context/WalletContext';
-import { toast } from 'react-hot-toast';
 import { attentionTokenTradingService, TradeQuote } from '../services/AttentionTokenTradingService';
+
+const toast = {
+  success: (message: string) => console.log(message),
+  error: (message: string) => console.error(message),
+};
 
 interface AttentionTokenTradeModalProps {
   tokenMint: PublicKey;
@@ -101,10 +105,10 @@ export const AttentionTokenTradeModal: React.FC<AttentionTokenTradeModalProps> =
             tokenMint,
             solAmount: amountNum,
             slippage,
-            buyer: wallet.publicKey,
+            buyer: publicKey,
           },
           connection,
-          wallet.signTransaction
+          signTransaction
         );
         toast.success(`Successfully bought ${tokenSymbol}!`);
       } else {
@@ -113,10 +117,10 @@ export const AttentionTokenTradeModal: React.FC<AttentionTokenTradeModalProps> =
             tokenMint,
             tokenAmount: amountNum,
             slippage,
-            seller: wallet.publicKey,
+            seller: publicKey,
           },
           connection,
-          wallet.signTransaction
+          signTransaction
         );
         toast.success(`Successfully sold ${tokenSymbol}!`);
       }

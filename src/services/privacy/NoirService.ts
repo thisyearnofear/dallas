@@ -33,7 +33,8 @@ export interface DataCompletenessInputs {
   has_baseline: boolean;
   has_outcome: boolean;
   has_duration: boolean;
-  has_strategy: boolean;
+  has_strategy?: boolean;
+  has_protocol?: boolean;
   has_cost: boolean;
 }
 
@@ -113,12 +114,12 @@ export const CIRCUIT_METADATA: Record<CircuitType, CircuitMetadata> = {
   },
 };
 
-export const DEFAULT_PUBLIC_INPUTS: Record<CircuitType, CircuitPublicInputs> = {
+export const DEFAULT_PUBLIC_INPUTS = {
   benchmark_delta: { min_improvement_percent: 20 },
   execution_duration: { min_days: 7, max_days: 90 },
   data_completeness: { minimum_required: 4 },
   resource_range: { min_cost_cents: 1000, max_cost_cents: 1000000 },
-};
+} satisfies Record<CircuitType, CircuitPublicInputs>;
 
 interface CircuitArtifact {
   bytecode: string;
@@ -130,6 +131,7 @@ class NoirServiceClass {
   private backends: Map<CircuitType, any> = new Map();
   private noirInstances: Map<CircuitType, any> = new Map();
   private artifacts: Map<CircuitType, CircuitArtifact> = new Map();
+  private proofHistory: ProofResult[] = [];
 
   async initialize(): Promise<void> {
     if (this.initialized) return;
@@ -226,7 +228,7 @@ class NoirServiceClass {
       has_baseline: inputs.has_baseline ? '1' : '0',
       has_outcome: inputs.has_outcome ? '1' : '0',
       has_duration: inputs.has_duration ? '1' : '0',
-      has_protocol: inputs.has_strategy ? '1' : '0',
+      has_protocol: (inputs.has_strategy || inputs.has_protocol) ? '1' : '0',
       has_cost: inputs.has_cost ? '1' : '0',
       minimum_required: publicInputs.minimum_required.toString(),
     }, publicInputs);
@@ -288,17 +290,19 @@ class NoirServiceClass {
       const startTime = performance.now();
       
       const { witness } = await noir.execute(inputs);
-      const proof = await backend.generateProof(proof);
+      const proof = await backend.generateProof(witness);
       const isValid = await backend.verifyProof(proof);
       
       const endTime = performance.now();
 
-      return {
+      const result = {
         proof: new Uint8Array(proof),
         publicInputs,
         circuitType,
         verified: isValid,
       };
+      this.proofHistory.push(result);
+      return result;
     } catch (error) {
       console.error(`❌ Failed to generate proof for ${circuitType}:`, error);
       return this.simulateProof(
@@ -327,13 +331,15 @@ class NoirServiceClass {
     const entropy = crypto.getRandomValues(new Uint8Array(32));
     proof.set(entropy, proof.length - entropy.length);
 
-    return {
+    const result = {
       proof,
       publicInputs,
       circuitType,
       verified: true,
       error,
     };
+    this.proofHistory.push(result);
+    return result;
   }
 
   async generateValidationProofs(
@@ -345,7 +351,8 @@ class NoirServiceClass {
       hasBaseline: boolean;
       hasOutcome: boolean;
       hasDuration: boolean;
-      hasStrategy: boolean;
+      hasStrategy?: boolean;
+      hasProtocol?: boolean;
       hasCost: boolean;
     }
   ): Promise<ProofResult[]> {
@@ -369,7 +376,8 @@ class NoirServiceClass {
         has_baseline: optimizationLogData.hasBaseline,
         has_outcome: optimizationLogData.hasOutcome,
         has_duration: optimizationLogData.hasDuration,
-        has_strategy: optimizationLogData.hasStrategy,
+        has_strategy: optimizationLogData.hasStrategy ?? optimizationLogData.hasProtocol ?? false,
+        has_protocol: optimizationLogData.hasProtocol,
         has_cost: optimizationLogData.hasCost,
       })
     );
@@ -389,6 +397,10 @@ class NoirServiceClass {
 
   getAvailableCircuits(): CircuitMetadata[] {
     return Object.values(CIRCUIT_METADATA);
+  }
+
+  getProofs(): ProofResult[] {
+    return [...this.proofHistory];
   }
 
   async destroy(): Promise<void> {

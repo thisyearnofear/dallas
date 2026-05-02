@@ -6,6 +6,22 @@ import { EnhancedBusinessAgent, AgentDecision } from './AgentFoundation';
  * Operates on encrypted queries and returns technique references, not raw architectures
  */
 export class AllianceBrokerAgent extends EnhancedBusinessAgent {
+  async makeDecision(params: {
+    challengeInterests?: string[];
+    failureTags?: string[];
+    complexity?: 'easy' | 'moderate' | 'hard';
+  }): Promise<AgentDecision> {
+    return this.matchToTechniques({
+      challengeInterests: params.challengeInterests || [],
+      failureTags: params.failureTags,
+      complexity: params.complexity,
+    });
+  }
+
+  protected analyzeTransactionPatterns(transactions: any[]): any[] {
+    return transactions;
+  }
+
   async matchToTechniques(params: {
     challengeInterests: string[];
     failureTags?: string[];

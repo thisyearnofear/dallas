@@ -11,7 +11,23 @@ import { db } from '../src/services/kv';
 // Initialize mock tasks on module load
 initializeTasks();
 
-function initializeTasks() {
+interface TaskRecord {
+  id: string;
+  type: string;
+  status: string;
+  targetId: string;
+  rewardDbc: number;
+  complexity: string;
+  requiredSkills: string[];
+  description: string;
+  metadata: Record<string, any>;
+  assignedTo?: string;
+  assignedAt?: number;
+  createdAt: number;
+  updatedAt?: number;
+}
+
+async function initializeTasks() {
   const mockTasks = [
     {
       id: 'task_001',
@@ -63,13 +79,12 @@ function initializeTasks() {
     }
   ];
 
-  for (const task of mockTasks) {
-    db.set(`task:${task.id}`, task);
+  await Promise.all(mockTasks.map(task => db.set(`task:${task.id}`, task)));
+  const existingTaskIds = await db.get<string[]>('tasks:all');
+  if (!existingTaskIds?.length) {
+    await db.set('tasks:all', mockTasks.map(t => t.id));
   }
-  db.set('tasks:all', mockTasks.map(t => t.id));
 }
-
-await initializeTasks();
 
 /**
  * GET /api/tasks - Discover available tasks
@@ -89,7 +104,7 @@ export default async function handler(
     const { type, complexity, status, id } = request.query;
 
     if (id) {
-      const task = await db.get(`task:${id}`);
+      const task = await db.get<TaskRecord>(`task:${id}`);
       if (!task) {
         return response.status(404).json({ error: 'Task not found' });
       }
@@ -97,7 +112,7 @@ export default async function handler(
     }
 
     let taskList: any[] = [];
-    const taskIds = (await db.get('tasks:all')) || [];
+    const taskIds = (await db.get<string[]>('tasks:all')) || [];
     taskList = await Promise.all(
       taskIds.map(async (tid: string) => db.get(`task:${tid}`))
     );
@@ -152,7 +167,7 @@ export default async function handler(
       return response.status(400).json({ error: 'Task ID required' });
     }
 
-    const existing = await db.get(`task:${id}`);
+    const existing = await db.get<TaskRecord>(`task:${id}`);
     if (!existing) {
       return response.status(404).json({ error: 'Task not found' });
     }

@@ -34,6 +34,7 @@ export interface WalletContextType {
   getTransactionHistory: () => Promise<TransactionRecord[]>;
   // DBC Token (DALLAS BUYERS CLUB) - Primary community token
   dbcBalance: number;
+  experienceBalance: number;
   dbcTokenAccount: PublicKey | null;
   reputationTier: ReputationTier;
   validationCount: number;
@@ -132,7 +133,6 @@ export function WalletProvider({ children }: { children: any }) {
           : 0);
       } else {
         // Fall back to 0 values if no validator profile exists
-        setExperienceBalance(0);
         setValidationCount(0);
         setAccuracyRate(0);
       }
@@ -353,7 +353,7 @@ export function WalletProvider({ children }: { children: any }) {
   // Calculate network fees
   const getNetworkFees = async (): Promise<number> => {
     try {
-      const { blockhash, feeCalculator } = await connection.getLatestBlockhashAndContext('confirmed');
+      await connection.getLatestBlockhashAndContext('confirmed');
       // This is a simplified fee calculation - in real apps, fees are more complex
       // For transfers, the fee is typically ~0.000005 SOL per signature
       return 0.000005;
@@ -550,6 +550,7 @@ export function WalletProvider({ children }: { children: any }) {
     getTransactionHistory,
     // DBC Token
     dbcBalance,
+    experienceBalance: dbcBalance,
     dbcTokenAccount,
     reputationTier,
     validationCount,

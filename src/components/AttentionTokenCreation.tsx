@@ -15,6 +15,11 @@ import {
 } from '../types/attentionToken';
 import { CommunityCategory, CATEGORY_INFO, generateSymbol, validateCommunityName } from '../types/community';
 
+const toast = {
+  success: (message: string) => console.log(message),
+  error: (message: string) => console.error(message),
+};
+
 interface AttentionTokenCreationProps {
   optimizationLogPda?: PublicKey;          // Optional - standalone community creation doesn't need optimization log
   techniqueName: string;
@@ -68,7 +73,12 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
         hasSubmittedOptimizationLog: true,
         hasMinimumValidations: true,
         hasMinimumReputation: true,
-        reason: 'Community creation is free for all users'
+        reason: 'Community creation is free for all users',
+        reasons: {
+          reputationScore: { current: 0, required: 0, met: true },
+          validatorCount: { current: 0, required: 0, met: true },
+          hasExistingToken: false,
+        },
       });
     }
   }, [optimizationLogPda, communityMode]);
@@ -137,7 +147,9 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
       setStatus(AttentionTokenCreationStatus.LINKING_ON_CHAIN);
 
       // Step 3: Link to optimization log on-chain
-      await linkAttentionTokenOnChain(optimizationLogPda, mint);
+      if (optimizationLogPda) {
+        await linkAttentionTokenOnChain(optimizationLogPda, mint);
+      }
 
       setStatus(AttentionTokenCreationStatus.SUCCESS);
       toast.success('🎉 Attention Token created successfully!');

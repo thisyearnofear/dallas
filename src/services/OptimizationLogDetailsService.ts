@@ -62,6 +62,11 @@ export interface DecryptedOptimizationLogDetails {
     severity: number; // 1-10
     frequency: string;
   }[];
+  issues?: {
+    name: string;
+    frequency: string;
+    severity: number;
+  }[];
   
   // Outcomes
   outcomes: {

@@ -37,7 +37,7 @@ interface UsePaginationOptions {
   cacheTTL?: number;
 }
 
-interface UsePaginationReturn<T> extends PaginationState<T> {
+export interface UsePaginationReturn<T> extends PaginationState<T> {
   // Actions
   goToPage: (page: number) => Promise<void>;
   nextPage: () => Promise<void>;

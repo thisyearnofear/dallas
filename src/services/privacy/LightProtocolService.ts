@@ -37,7 +37,12 @@ export interface CompressedOptimizationLog extends CompressionResult {
   ipfsCid?: string;
 }
 
-const COMPRESSION_RATIOS = [2, 5, 10, 20, 50];
+export const COMPRESSION_RATIOS = [2, 5, 10, 20, 50] as const;
+export const COMPRESSION_RATIO_OPTIONS = COMPRESSION_RATIOS.map(value => ({
+  value,
+  label: `${value}x`,
+  description: `${value}:1 compression ratio`,
+}));
 
 class LightProtocolServiceClass {
   private connection: Connection;
@@ -92,7 +97,7 @@ class LightProtocolServiceClass {
   }
 
   getSupportedRatios(): number[] {
-    return COMPRESSION_RATIOS;
+    return [...COMPRESSION_RATIOS];
   }
 
   async compressOptimizationLog(
@@ -101,7 +106,7 @@ class LightProtocolServiceClass {
     //  2) an object payload (e.g. encryptedBaseline/encryptedOutcome/metadataHash/etc.)
     // We support both to keep the service resilient.
     data: any,
-    options: { storeFullData: boolean; ratio?: number } = { storeFullData: false }
+    options: { storeFullData: boolean; ratio?: number; compressionRatio?: number } = { storeFullData: false }
   ): Promise<CompressedOptimizationLog> {
     const stateToCompress =
       data && typeof data === 'object' && 'encryptedData' in data ? data.encryptedData : data;
@@ -114,7 +119,7 @@ class LightProtocolServiceClass {
     return this.compressState(normalizedState, {
       storeFullData: options.storeFullData,
       ipfsCid: data?.ipfsCid,
-      ratio: options.ratio || 10,
+      ratio: options.ratio || options.compressionRatio || 10,
     });
   }
 

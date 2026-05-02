@@ -260,7 +260,7 @@ export class UndergroundAgentMCP extends Server {
   }
 
   // PERFORMANT: Emergency coordination with parallel agent execution
-  private async handleEmergencyCoordination(params: {
+  async handleEmergencyCoordination(params: {
     emergencyType: string;
     severity: number;
     affectedSectors?: string[];
@@ -340,7 +340,7 @@ export class UndergroundAgentMCP extends Server {
   }
 
   // MODULAR: Group purchase coordination
-  private async handleGroupPurchaseCoordination(params: {
+  async handleGroupPurchaseCoordination(params: {
     architectureIds: string[];
     memberCount: number;
     maxRiskLevel?: string;
@@ -402,7 +402,7 @@ export class UndergroundAgentMCP extends Server {
   }
 
   // CLEAN: Identity restoration coordination
-  private async handleIdentityRestorationCoordination(params: {
+  async handleIdentityRestorationCoordination(params: {
     agentId: string;
     fragmentationLevel: number;
     affectedSystems: string[];
@@ -466,7 +466,7 @@ export class UndergroundAgentMCP extends Server {
   }
 
   // PERFORMANT: Threat assessment coordination
-  private async handleThreatAssessment(params: {
+  async handleThreatAssessment(params: {
     threatIndicators?: string[];
     timeWindow?: string;
     includePredictive?: boolean;

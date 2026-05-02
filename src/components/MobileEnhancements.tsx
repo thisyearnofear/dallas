@@ -16,6 +16,7 @@
 import { useState, useEffect, useCallback, useRef } from "preact/hooks";
 import { FunctionalComponent } from 'preact';
 import { NotificationProps } from '../types';
+export type { NotificationProps } from '../types';
 
 // ============= Notification System =============
 

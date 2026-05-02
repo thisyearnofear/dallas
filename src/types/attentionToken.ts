@@ -173,6 +173,10 @@ export interface BagsAnalyticsResponse {
  */
 export interface AttentionTokenEligibility {
   isEligible: boolean;
+  hasSubmittedOptimizationLog?: boolean;
+  hasMinimumValidations?: boolean;
+  hasMinimumReputation?: boolean;
+  reason?: string;
   reasons: {
     reputationScore: {
       current: number;
@@ -264,6 +268,8 @@ export interface OptimizationLogWithToken {
   attentionToken?: AttentionToken;
   createdAt: number;
 }
+
+export type OptimizationLogWithAttentionToken = OptimizationLogWithToken;
 
 /**
  * Attention Token Revenue Stats

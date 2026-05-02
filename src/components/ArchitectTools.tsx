@@ -322,7 +322,7 @@ export const ArchitectTools: FunctionalComponent = () => {
         optimizationLogId,
         justification,
         requesterType: 'architect',
-        encryptionScheme: 'aes-256',
+        encryptionScheme: 'aes-256-gcm',
         preferredThreshold: 3,
       });
 

@@ -38,6 +38,7 @@ export interface PrivacyOptimizationLogData {
     hasOutcome: boolean;
     hasDuration: boolean;
     hasProtocol: boolean;
+    hasStrategy?: boolean;
     hasCost: boolean;
 
     // Encrypted data

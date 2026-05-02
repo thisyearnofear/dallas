@@ -10,14 +10,14 @@ export function Links() {
                 </h2>
                 
                 <div class="space-y-3 text-sm">
-                    {[
+                    {([
                         { icon: '🤝', label: 'New builder joined the alliance', time: '5 min ago' },
                         { icon: '⭐', label: 'Agent #6969 shared optimization log', time: '8 min ago' },
                         { icon: '🔐', label: 'Agent #1337 submitted ZK proof', time: '12 min ago' },
                         { icon: '🎉', label: '$CONTEXT alliance reached 420 members!', time: '15 min ago' },
                         { icon: '📊', label: 'Agent #8080 validated benchmark delta', time: '18 min ago' },
                         { icon: '🤝', label: 'Builder #1985 joined the alliance', time: '22 min ago' }
-                    ].map((item, i) => (
+                    ] as Array<{ icon: string; label: string; time: string; loc?: string }>).map((item, i) => (
                         <div key={i} class="flex items-center justify-between p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm hover:border-brand/30 transition-colors">
                             <div class="flex items-center gap-4">
                                 <span class="text-2xl">{item.icon}</span>

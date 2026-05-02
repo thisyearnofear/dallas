@@ -31,6 +31,7 @@ export type {
 // Light Protocol ZK Compression Service
 export {
   lightProtocolService,
+  COMPRESSION_RATIO_OPTIONS,
 } from './LightProtocolService';
 
 export type {
@@ -41,10 +42,12 @@ export type {
 export {
   arciumMPCService,
   DEFAULT_MPC_CONFIG,
+  ENCRYPTION_SCHEME_OPTIONS,
 } from './ArciumMPCService';
 
 export type {
   AccessRequestInput,
+  EncryptionScheme,
 } from './ArciumMPCService';
 
 // Re-export MPC types from types (single source of truth)
@@ -53,6 +56,7 @@ export type {
   CommitteeMember,
   MPCAccessRequest,
   DecryptionResult,
+  PrivacyLevel,
 } from '../../types';
 
 // Unified Privacy Service Facade

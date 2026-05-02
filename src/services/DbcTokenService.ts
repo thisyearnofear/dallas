@@ -18,6 +18,7 @@ import {
 } from '../types';
 
 export { calculateTier, TIER_THRESHOLDS };
+export type { ValidatorTier, TierThreshold } from '../types';
 
 // DBC Token Constants
 export const DBC_MINT = new PublicKey(SOLANA_CONFIG.blockchain.dbcMintAddress);

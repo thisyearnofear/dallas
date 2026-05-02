@@ -43,7 +43,7 @@ export const AgentArchitectDashboard: FunctionalComponent = () => {
     activeRequests: [],
     selectedRequest: null,
     justification: '',
-    encryptionScheme: 'aes-256',
+    encryptionScheme: 'aes-256-gcm',
     preferredThreshold: DEFAULT_MPC_CONFIG.threshold,
     isSubmitting: false,
     isDecrypting: false,
@@ -84,7 +84,7 @@ export const AgentArchitectDashboard: FunctionalComponent = () => {
             threshold: 3,
             createdAt: Date.now() - 86400000,
             expiresAt: Date.now() + 86400000,
-            encryptionScheme: 'aes-256',
+            encryptionScheme: 'aes-256-gcm',
           };
           setState(s => ({ ...s, activeRequests: [demoRequest] }));
         }

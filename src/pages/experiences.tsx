@@ -9,17 +9,17 @@ import { AttentionTokenCreationStatus } from "../types/attentionToken";
 type Tab = "discover" | "studies" | "create" | "share" | "sync";
 
 // Lazy-load heavy tabs to keep the initial route chunk smaller.
-const ProtocolDiscovery = lazy(() =>
+const ProtocolDiscovery: any = lazy(() =>
     import("../components/ProtocolDiscovery").then((m) => ({
         default: m.ProtocolDiscovery,
     })),
 );
-const OptimizationLogGallery = lazy(() =>
+const OptimizationLogGallery: any = lazy(() =>
     import("../components/OptimizationLogGallery").then((m) => ({
         default: m.OptimizationLogGallery,
     })),
 );
-const EncryptedOptimizationLogForm = lazy(() =>
+const EncryptedOptimizationLogForm: any = lazy(() =>
     import("../components/EncryptedOptimizationLogForm").then((m) => ({
         default: m.EncryptedOptimizationLogForm,
     })),

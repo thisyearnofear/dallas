@@ -35,20 +35,20 @@ import { lazy, Suspense } from "preact/compat";
 import { ChainConfigBanner } from "./components/ChainConfigBanner";
 
 // Route-level code splitting: keep initial bundle small.
-const Home = lazy(() => import("./pages/home").then((m) => ({ default: m.Home })));
-const Experiences = lazy(() => import("./pages/experiences").then((m) => ({ default: m.Experiences })));
-const Validators = lazy(() => import("./pages/validators").then((m) => ({ default: m.default })));
-const AttentionTokens = lazy(() => import("./pages/attention-tokens").then((m) => ({ default: m.default })));
-const Products = lazy(() => import("./pages/products").then((m) => ({ default: m.Products })));
-const Links = lazy(() => import("./pages/links").then((m) => ({ default: m.Links })));
-const Donate = lazy(() => import("./pages/donate").then((m) => ({ default: m.Donate })));
-const Membership = lazy(() => import("./pages/membership").then((m) => ({ default: m.Membership })));
-const Achievements = lazy(() => import("./pages/achievements").then((m) => ({ default: m.Achievements })));
-const Referrals = lazy(() => import("./pages/referrals").then((m) => ({ default: m.Referrals })));
-const Underground = lazy(() => import("./pages/underground").then((m) => ({ default: m.default })));
-const FleetPage = lazy(() => import("./pages/agents").then((m) => ({ default: m.default })));
-const PilotDashboard = lazy(() => import("./pages/pilot").then((m) => ({ default: m.default })));
-const NotFound = lazy(() => import("./pages/_404").then((m) => ({ default: m.NotFound })));
+const Home: any = lazy(() => import("./pages/home").then((m) => ({ default: m.Home })));
+const Experiences: any = lazy(() => import("./pages/experiences").then((m) => ({ default: m.Experiences })));
+const Validators: any = lazy(() => import("./pages/validators").then((m) => ({ default: m.default })));
+const AttentionTokens: any = lazy(() => import("./pages/attention-tokens").then((m) => ({ default: m.default })));
+const Products: any = lazy(() => import("./pages/products").then((m) => ({ default: m.Products })));
+const Links: any = lazy(() => import("./pages/links").then((m) => ({ default: m.Links })));
+const Donate: any = lazy(() => import("./pages/donate").then((m) => ({ default: m.Donate })));
+const Membership: any = lazy(() => import("./pages/membership").then((m) => ({ default: m.Membership })));
+const Achievements: any = lazy(() => import("./pages/achievements").then((m) => ({ default: m.Achievements })));
+const Referrals: any = lazy(() => import("./pages/referrals").then((m) => ({ default: m.Referrals })));
+const Underground: any = lazy(() => import("./pages/underground").then((m) => ({ default: m.default })));
+const FleetPage: any = lazy(() => import("./pages/agents").then((m) => ({ default: m.default })));
+const PilotDashboard: any = lazy(() => import("./pages/pilot").then((m) => ({ default: m.default })));
+const NotFound: any = lazy(() => import("./pages/_404").then((m) => ({ default: m.NotFound })));
 
 import "./style.css";
 

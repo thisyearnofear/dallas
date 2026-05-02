@@ -17,8 +17,6 @@ export { MobileNav } from './MobileNav';
 export { PrivacyDashboard } from './PrivacyDashboard';
 export { ValidatorDashboard } from './ValidatorDashboard';
 export { ValidatorReputationSystem } from './ValidatorReputationSystem';
-export { ResearcherDashboard } from './ResearcherDashboard';
-export { ResearcherTools } from './ResearcherTools';
 
 // Mobile Components
 export {

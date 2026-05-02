@@ -8,7 +8,8 @@ type ValidationProofInput = {
   hasBaseline: boolean;
   hasOutcome: boolean;
   hasDuration: boolean;
-  hasStrategy: boolean;
+  hasStrategy?: boolean;
+  hasProtocol?: boolean;
   hasCost: boolean;
 };
 
@@ -34,8 +35,11 @@ export class NoirProofWorkerClient {
       const p = this.pending.get(msg.id);
       if (!p) return;
       this.pending.delete(msg.id);
-      if (msg.ok) p.resolve(msg.result);
-      else p.reject(new Error(msg.error));
+      if (msg.ok) {
+        p.resolve(msg.result);
+      } else {
+        p.reject(new Error((msg as { ok: false; error: string }).error));
+      }
     };
     this.worker = w;
     return w;
@@ -60,4 +64,3 @@ export class NoirProofWorkerClient {
 }
 
 export const noirProofWorkerClient = new NoirProofWorkerClient();
-

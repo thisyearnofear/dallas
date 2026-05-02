@@ -13,6 +13,38 @@ import { db } from '../src/services/kv';
 // Minimum stake to become validator
 const MINIMUM_STAKE = 1000; // DBC
 
+interface ValidatorRecord {
+  id: string;
+  address: string;
+  name: string;
+  stakeAmount: number;
+  status: 'active' | 'inactive';
+  specializations: string[];
+  createdAt: number;
+  validationsCount: number;
+  approvedCount: number;
+  rejectedCount: number;
+  totalStake: number;
+  reputation?: ReputationRecord;
+}
+
+interface StakeRecord {
+  validatorId: string;
+  amount: number;
+  locked: number;
+  unlocked: number;
+  stakedAt: number;
+}
+
+interface ReputationRecord {
+  validatorId: string;
+  score: number;
+  trustLevel: 'bronze' | 'silver' | 'gold' | 'platinum';
+  totalValidations: number;
+  accurateValidations: number;
+  lastValidationAt: number | null;
+}
+
 /**
  * POST /api/validators - Register and stake
  * 
@@ -43,7 +75,7 @@ export default async function handler(
     }
 
     // Check if already registered
-    const existing = await db.get(`validator:${address}`);
+    const existing = await db.get<ValidatorRecord>(`validator:${address}`);
     if (existing) {
       return response.status(400).json({
         error: 'Validator already registered'
@@ -77,7 +109,7 @@ export default async function handler(
     await db.set(`validator:${address}`, validator);
     
     // Add to index
-    const index = await db.get('validators:index') || [];
+    const index = await db.get<string[]>('validators:index') || [];
     if (!index.includes(address)) {
       index.push(address);
       await db.set('validators:index', index);
@@ -120,7 +152,7 @@ export default async function handler(
     const { address, status, includeReputation } = request.query;
 
     if (address) {
-      const validator = await db.get(`validator:${address}`);
+      const validator = await db.get<ValidatorRecord>(`validator:${address}`);
       if (!validator) {
         return response.status(404).json({ error: 'Validator not found' });
       }
@@ -129,7 +161,7 @@ export default async function handler(
 
       // Include reputation if requested
       if (includeReputation === 'true') {
-        const reputation = await db.get(`reputation:${address}`);
+        const reputation = await db.get<ReputationRecord>(`reputation:${address}`);
         if (reputation) {
           data.reputation = reputation;
         }
@@ -139,14 +171,14 @@ export default async function handler(
     }
 
     // List all validators - fetch from index
-    const index = await db.get('validators:index') || [];
-    const validatorList = await Promise.all(
+    const index = await db.get<string[]>('validators:index') || [];
+    let validatorList = await Promise.all(
       index.map(async (addr: string) => {
-        const v = await db.get(`validator:${addr}`);
+        const v = await db.get<ValidatorRecord>(`validator:${addr}`);
         return v ? { ...v } : null;
       })
     );
-    const validList = validatorList.filter(Boolean);
+    validatorList = validatorList.filter((validator): validator is ValidatorRecord => Boolean(validator));
 
     if (status) {
       validatorList = validatorList.filter(v => v.status === status);
@@ -170,7 +202,7 @@ export default async function handler(
     }
 
     // Fetch validator from KV
-    const validator = await db.get(`validator:${address}`);
+    const validator = await db.get<ValidatorRecord>(`validator:${address}`);
     if (!validator) {
       return response.status(404).json({ error: 'Validator not found' });
     }
@@ -185,7 +217,7 @@ export default async function handler(
       await db.set(`validator:${address}`, validator);
 
       // Update stake record
-      const stakeRecord = await db.get(`stake:${address}`);
+      const stakeRecord = await db.get<StakeRecord>(`stake:${address}`);
       if (stakeRecord) {
         stakeRecord.amount += stakeAmount;
         stakeRecord.locked += stakeAmount;
@@ -205,7 +237,7 @@ export default async function handler(
       }
 
       // Use KV for stake fetch
-      const stakeRecord = await db.get(`stake:${address}`);
+      const stakeRecord = await db.get<StakeRecord>(`stake:${address}`);
       const available = stakeRecord?.locked || 0;
       
       if (stakeAmount > available) {

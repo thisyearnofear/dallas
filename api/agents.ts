@@ -13,12 +13,35 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { db } from './kv';
 
-// Initialize mock tasks on first load
-initializeTasks();
+interface AgentRecord {
+  id: string;
+  name: string;
+  role: 'validator' | 'researcher' | 'oracle';
+  ownerAddress: string;
+  publicKey: string | null;
+  status: 'idle' | 'executing' | 'offline';
+  capabilities: string[];
+  earningsDbc: number;
+  sessionsConfirmed: number;
+  createdAt: number;
+}
+
+interface AgentTaskRecord {
+  id: string;
+  type: 'validation' | 'cross_reference' | 'statistical_analysis';
+  status: 'available' | 'assigned' | 'completed' | 'failed';
+  targetId: string;
+  rewardDbc: number;
+  complexity: 'low' | 'medium' | 'high';
+  requiredSkills: string[];
+  description: string;
+  metadata: Record<string, any>;
+  createdAt: number;
+}
 
 // Initialize mock tasks
-function initializeTasks() {
-  tasks.set('task_001', {
+async function initializeTasks() {
+  const mockTasks: AgentTaskRecord[] = [{
     id: 'task_001',
     type: 'validation',
     status: 'available',
@@ -29,9 +52,7 @@ function initializeTasks() {
     description: 'Verify benchmark improvement for context window optimization.',
     metadata: { circuit: 'benchmark_delta', minImprovement: 20 },
     createdAt: Date.now()
-  });
-  
-  tasks.set('task_002', {
+  }, {
     id: 'task_002', 
     type: 'cross_reference',
     status: 'available',
@@ -42,9 +63,7 @@ function initializeTasks() {
     description: 'Cross-reference tool-call optimization approaches.',
     metadata: { circuit: 'data_completeness' },
     createdAt: Date.now()
-  });
-  
-  tasks.set('task_003', {
+  }, {
     id: 'task_003',
     type: 'statistical_analysis',
     status: 'available', 
@@ -55,7 +74,13 @@ function initializeTasks() {
     description: 'Perform meta-analysis on eval optimization logs.',
     metadata: { committeeSize: 5 },
     createdAt: Date.now()
-  });
+  }];
+
+  await Promise.all(mockTasks.map(task => db.set(`task:${task.id}`, task)));
+  const existingTaskIds = await db.get<string[]>('tasks:all');
+  if (!existingTaskIds?.length) {
+    await db.set('tasks:all', mockTasks.map(task => task.id));
+  }
 }
 
 initializeTasks();
@@ -73,7 +98,7 @@ export default async function handler(
     const { id } = request.query;
     
     if (id) {
-      const agent = agents.get(id as string);
+      const agent = await db.get<AgentRecord>(`agent:${id}`);
       if (!agent) {
         return response.status(404).json({ error: 'Agent not found' });
       }
@@ -81,9 +106,14 @@ export default async function handler(
     }
     
     // Return all agents
+    const agentIds = await db.get<string[]>('agents:all') || [];
+    const agentList = (await Promise.all(
+      agentIds.map(agentId => db.get<AgentRecord>(`agent:${agentId}`))
+    )).filter(Boolean);
+
     return response.status(200).json({
-      agents: Array.from(agents.values()),
-      count: agents.size
+      agents: agentList,
+      count: agentList.length
     });
   }
 
@@ -98,7 +128,7 @@ export default async function handler(
 
     const id = `agent_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
     
-    const agent = {
+    const agent: AgentRecord = {
       id,
       name,
       role, // 'validator' | 'researcher' | 'oracle'
@@ -111,7 +141,12 @@ export default async function handler(
       createdAt: Date.now()
     };
 
-    agents.set(id, agent);
+    await db.set(`agent:${id}`, agent);
+    const agentIds = await db.get<string[]>('agents:all') || [];
+    if (!agentIds.includes(id)) {
+      agentIds.push(id);
+      await db.set('agents:all', agentIds);
+    }
 
     return response.status(201).json({
       success: true,

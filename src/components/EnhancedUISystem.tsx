@@ -94,10 +94,12 @@ export function InteractiveDangerMeter({
 }: {
   level: number;
   onLevelChange?: (newLevel: number) => void;
+  isCoordinating?: boolean;
 }) {
   const [isHovered, setIsHovered] = useState(false);
   const [pulseIntensity, setPulseIntensity] = useState(1);
   const [glitchEffect, setGlitchEffect] = useState(false);
+  const isCoordinating = false;
 
   useEffect(() => {
     // Dynamic pulse and glitch based on danger level

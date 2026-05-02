@@ -23,6 +23,7 @@ import {
     AudioEffects 
 } from "../components/RetroAesthetics";
 import { PrivacyDashboard } from "../components/PrivacyDashboard";
+import { NetworkStatus } from "../components/NetworkStatus";
 import { ArchitectTools } from "../components/ArchitectTools";
 import { useState, useEffect } from "preact/hooks";
 import { withErrorBoundary } from "../components/ErrorBoundaryWrapper";

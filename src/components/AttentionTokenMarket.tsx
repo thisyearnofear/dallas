@@ -24,7 +24,7 @@ const PROMOTION_COST_DBC = 10000;
 const MAX_PROMOTIONS_PER_TOKEN = 10;
 
 export const AttentionTokenMarket: React.FC = () => {
-  const toast = useContext(ToastContext as any);
+  const toast = useContext(ToastContext as any) as { push?: (type: string, message: string) => void } | null;
   const { publicKey, connection } = useWallet();
   const { addTokenPromotion, getTokenPromotionCount } = useSettings();
   const [tokens, setTokens] = useState<OptimizationLogWithAttentionToken[]>([]);
@@ -356,18 +356,20 @@ export const AttentionTokenMarket: React.FC = () => {
 
       {!loading && filteredTokens.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
-          {filteredTokens.map((token) => (
+          {filteredTokens.map((token) => {
+            const tokenMint = token.attentionTokenMint?.toString() || '';
+            return (
             <AttentionTokenCard 
               key={token.publicKey.toString()} 
               optimizationLog={token} 
               onEnterWarRoom={() => token.attentionToken && setSelectedToken(token.attentionToken)}
-              onPromote={() => handlePromoteToken(token.attentionTokenMint || '', token.techniqueName)}
-              canPromote={canPromoteToken(token.attentionTokenMint || '')}
-              promotionStatus={getPromotionStatus(token.attentionTokenMint || '')}
-              promotionCount={getTokenPromotionCount(token.attentionTokenMint || '')}
-              isPromoting={promotingToken === token.attentionTokenMint}
+              onPromote={() => handlePromoteToken(tokenMint, token.techniqueName)}
+              canPromote={canPromoteToken(tokenMint)}
+              promotionStatus={getPromotionStatus(tokenMint)}
+              promotionCount={getTokenPromotionCount(tokenMint)}
+              isPromoting={promotingToken === tokenMint}
             />
-          ))}
+          )})}
         </div>
       )}
     </div>

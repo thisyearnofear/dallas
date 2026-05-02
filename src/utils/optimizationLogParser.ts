@@ -63,7 +63,9 @@ export interface ParsedOptimizationLog {
   metadataHash: Uint8Array;
   optimizationCategory: OptimizationCategory;
   optimizationCategoryName: string;
+  techniqueCategoryName: string;
   executionDuration: number;
+  durationDays: number;
   createdAt: Date;
   
   // Validation state
@@ -236,7 +238,9 @@ export function parseOptimizationLogAccount(
       metadataHash,
       optimizationCategory,
       optimizationCategoryName: OPTIMIZATION_CATEGORY_NAMES[optimizationCategory] || 'Unknown',
+      techniqueCategoryName: OPTIMIZATION_CATEGORY_NAMES[optimizationCategory] || 'Unknown',
       executionDuration,
+      durationDays: executionDuration,
       createdAt: new Date(createdAtTimestamp * 1000),
       validationStatus,
       validationStatusName: VALIDATION_STATUS_NAMES[validationStatus] || 'Unknown',
