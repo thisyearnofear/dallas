@@ -89,15 +89,6 @@ export default defineConfig({
           ) {
             return 'noir-runtime';
           }
-          if (
-            id.includes('node_modules/@solana') ||
-            id.includes('node_modules/@noble') ||
-            id.includes('node_modules/bn.js') ||
-            id.includes('node_modules/bs58') ||
-            id.includes('node_modules/rpc-websockets')
-          ) {
-            return 'wallet-solana';
-          }
           if (id.includes('node_modules/preact') || id.includes('node_modules/@preact')) {
             return 'preact-runtime';
           }
