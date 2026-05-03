@@ -40,7 +40,7 @@ export function SettingsPanel() {
       </button>
 
       {isOpen && (
-        <div class="fixed inset-0 bg-slate-900/80 dark:bg-black/80 z-[10001] flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
+        <div class="fixed inset-0 bg-slate-900/80 dark:bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn">
           <div class="bg-white dark:bg-slate-900 border-4 border-yellow-500 rounded-2xl shadow-2xl max-w-md w-full font-mono overflow-hidden animate-scaleIn transition-colors duration-300">
             {/* Header */}
             <div class="bg-yellow-500 dark:bg-yellow-600 text-black px-6 py-4 flex justify-between items-center border-b-2 border-yellow-600">

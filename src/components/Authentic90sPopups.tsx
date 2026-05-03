@@ -487,7 +487,7 @@ export function WinnerPopup() {
     if (!isVisible) return null;
 
     return (
-        <div class="fixed bottom-6 right-6 z-[9999] font-mono animate-bounce">
+        <div class="fixed bottom-6 right-6 z-[60] font-mono animate-bounce">
             <div class="bg-yellow-300 border-4 border-red-600 shadow-2xl w-72">
                 {/* Blinking header */}
                 <div class="bg-red-600 text-yellow-300 text-center py-2 font-bold text-sm animate-pulse border-b-2 border-black">

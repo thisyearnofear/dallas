@@ -20,7 +20,7 @@ export const InfomercialPopup = ({ isOpen, onClose, children }: any) => (
 );
 
 export const RetroAlert = ({ type, message, onClose }: any) => (
-    <div class={`fixed top-6 right-6 z-[200] p-5 border-4 rounded-xl shadow-2xl font-mono animate-slideInRight ${
+    <div class={`fixed top-6 right-6 z-50 p-5 border-4 rounded-xl shadow-2xl font-mono animate-slideInRight ${
         type === 'warning' 
             ? 'bg-red-600 dark:bg-red-900 border-red-400 dark:border-red-500 text-white' 
             : 'bg-slate-800 dark:bg-gray-900 border-slate-600 dark:border-gray-500 text-white'
