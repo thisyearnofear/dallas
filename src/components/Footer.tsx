@@ -7,7 +7,7 @@ export function Footer() {
 
     return (
         <>
-            <footer class="flex flex-wrap justify-between items-center mt-auto border-t-2 border-t-neutral-200 px-5 py-2 pb-12 gap-2">
+            <footer class="flex flex-wrap justify-between items-center mt-auto border-t-2 border-t-neutral-200 dark:border-t-slate-700 px-5 py-2 pb-12 gap-2">
                 <div class="flex gap-4">
                     <a 
                         class="text-brand hover:underline flex items-center gap-1" 
@@ -32,16 +32,16 @@ export function Footer() {
                         <span>🔒</span> Contact
                     </a>
                 </div>
-                <div class="flex gap-4 text-sm text-gray-500">
+                <div class="flex gap-4 text-sm text-gray-500 dark:text-slate-400">
                     <button 
                         onClick={() => setShowTerms(true)}
-                        class="hover:text-gray-700 hover:underline"
+                        class="hover:text-gray-700 dark:hover:text-slate-200 hover:underline"
                     >
                         Terms
                     </button>
                     <button 
                         onClick={() => setShowPrivacy(true)}
-                        class="hover:text-gray-700 hover:underline"
+                        class="hover:text-gray-700 dark:hover:text-slate-200 hover:underline"
                     >
                         Privacy
                     </button>

@@ -4,6 +4,7 @@ export default {
         "./index.html",
         "./src/**/*.{vue,js,ts,jsx,tsx}"
     ],
+    darkMode: 'class',
     theme: {
         extend: {
             colors: {
@@ -13,10 +14,18 @@ export default {
                 "white-secondary": "#f7f7f7",
                 "gray-light": "#d4d4d4",
                 "gray": "#333333",
+                // Semantic tokens
+                "surface": "var(--color-surface)",
+                "surface-alt": "var(--color-surface-alt)",
+                "on-surface": "var(--color-on-surface)",
+                "on-surface-muted": "var(--color-on-surface-muted)",
+                "border-default": "var(--color-border)",
+                "border-strong": "var(--color-border-strong)",
             },
         },
         fontFamily: {
-            "sans": "'Special Elite', cursive",
+            "sans": ["system-ui", "-apple-system", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "Noto Sans", "sans-serif"],
+            "display": ["'Special Elite'", "cursive"],
         }
     },
     plugins: [],
