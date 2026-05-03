@@ -63,6 +63,9 @@ export function MobileNav() {
             {showMoreMenu && (
                 <div 
                     class="fixed inset-0 bg-black/50 z-50 lg:hidden"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Navigation menu"
                     onClick={() => setShowMoreMenu(false)}
                 >
                     <div 

@@ -139,6 +139,9 @@ export const FloatingActionButton: FunctionalComponent = () => {
             {showQuickJoin && (
                 <div 
                     class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Quick Join"
                     onClick={() => setShowQuickJoin(false)}
                 >
                     <div 

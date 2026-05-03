@@ -267,6 +267,8 @@ export function Authentic90sPopups() {
                 <div
                     key={popup.id}
                     style={getPopupStyle(popup)}
+                    role="alert"
+                    aria-live="polite"
                     class={`
                         w-80 border-4 border-black shadow-2xl font-mono
                         ${popup.blink ? 'animate-pulse' : ''}
@@ -285,6 +287,7 @@ export function Authentic90sPopups() {
                         <button 
                             onClick={() => closePopup(popup.id)}
                             class="bg-red-600 hover:bg-red-700 text-white font-bold px-1 text-xs border border-black"
+                            aria-label="Close popup"
                         >
                             ✕
                         </button>
@@ -302,12 +305,14 @@ export function Authentic90sPopups() {
                                 <button
                                     onClick={handleKeepPopups}
                                     class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-2 text-[10px] border border-black"
+                                    aria-label="Keep popups enabled"
                                 >
                                     Keep them on
                                 </button>
                                 <button
                                     onClick={handleTurnOffPopups}
                                     class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-1 px-2 text-[10px] border border-black"
+                                    aria-label="Disable popups"
                                 >
                                     Turn them off
                                 </button>
@@ -447,7 +452,7 @@ export function LiveActivityNotifications() {
     if (!currentNotification) return null;
 
     return (
-        <div class="fixed bottom-4 right-4 z-50 animate-bounce">
+        <div class="fixed bottom-4 right-4 z-50 animate-bounce" role="status" aria-live="polite">
             <div class="bg-yellow-300 border-4 border-red-600 p-3 max-w-sm font-mono shadow-2xl">
                 <div class="bg-red-600 text-white text-center py-1 mb-2 font-bold text-xs">
                     ⚡ LIVE UPDATE ⚡
@@ -459,6 +464,7 @@ export function LiveActivityNotifications() {
                     <button 
                         onClick={() => setCurrentNotification(null)}
                         class="bg-red-600 hover:bg-red-700 text-white font-bold px-2 py-1 text-xs border border-black"
+                        aria-label="Close notification"
                     >
                         CLOSE
                     </button>
@@ -487,7 +493,7 @@ export function WinnerPopup() {
     if (!isVisible) return null;
 
     return (
-        <div class="fixed bottom-6 right-6 z-[60] font-mono animate-bounce">
+        <div class="fixed bottom-6 right-6 z-[60] font-mono animate-bounce" role="alert" aria-live="assertive">
             <div class="bg-yellow-300 border-4 border-red-600 shadow-2xl w-72">
                 {/* Blinking header */}
                 <div class="bg-red-600 text-yellow-300 text-center py-2 font-bold text-sm animate-pulse border-b-2 border-black">
@@ -515,6 +521,7 @@ export function WinnerPopup() {
                         <button 
                             onClick={() => setIsVisible(false)}
                             class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-2 border-2 border-black text-xs"
+                            aria-label="Close winner popup"
                         >
                             ✕
                         </button>
