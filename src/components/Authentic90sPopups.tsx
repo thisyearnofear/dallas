@@ -1,5 +1,14 @@
-import { useState, useEffect } from "preact/hooks";
+import { useState, useEffect, useCallback } from "preact/hooks";
 import { useSettings } from "../context/SettingsContext";
+
+const SPOOF_DISMISSED_KEY = 'dbc-spoof-popup-dismissed';
+
+function isSpoofDismissed(): boolean {
+    try { return localStorage.getItem(SPOOF_DISMISSED_KEY) === 'true'; } catch { return false; }
+}
+function dismissSpoof(): void {
+    try { localStorage.setItem(SPOOF_DISMISSED_KEY, 'true'); } catch {}
+}
 
 interface PopupAd {
     id: string;
@@ -80,9 +89,10 @@ const popupAds: PopupAd[] = [
 ];
 
 export function Authentic90sPopups() {
-    const { settings } = useSettings();
+    const { settings, updateSetting } = useSettings();
     const [activePopups, setActivePopups] = useState<PopupAd[]>([]);
     const [positions, setPositions] = useState<{[key: string]: {x: number, y: number}}>({});
+    const [showDisclosure, setShowDisclosure] = useState(!isSpoofDismissed());
 
     if (!settings.popupsEnabled) return null;
 
@@ -214,20 +224,17 @@ export function Authentic90sPopups() {
         const pos = positions[popup.id] || { x: 100, y: 100 };
         
         let bgColor = 'bg-yellow-300';
-        let borderColor = 'border-red-600';
         
         switch (popup.type) {
             case 'alert':
                 bgColor = 'bg-red-500';
-                borderColor = 'border-yellow-400';
                 break;
             case 'membership':
                 bgColor = 'bg-blue-400';
-                borderColor = 'border-white';
                 break;
             case 'promotion':
+            case 'token_promotion':
                 bgColor = 'bg-yellow-300';
-                borderColor = 'border-red-600';
                 break;
         }
 
@@ -242,6 +249,18 @@ export function Authentic90sPopups() {
         };
     };
 
+    const handleKeepPopups = useCallback(() => {
+        dismissSpoof();
+        setShowDisclosure(false);
+    }, []);
+
+    const handleTurnOffPopups = useCallback(() => {
+        dismissSpoof();
+        updateSetting('popupsEnabled', false);
+    }, [updateSetting]);
+
+    const isRealOffer = (popup: PopupAd) => popup.isPromotion && popup.type === 'token_promotion';
+
     return (
         <>
             {activePopups.map((popup, index) => (
@@ -251,10 +270,14 @@ export function Authentic90sPopups() {
                     class={`
                         w-80 border-4 border-black shadow-2xl font-mono
                         ${popup.blink ? 'animate-pulse' : ''}
+                        ${isRealOffer(popup) ? 'ring-4 ring-green-500' : ''}
                     `}
                 >
                     {/* Title Bar - 90s Style */}
-                    <div class="bg-blue-800 text-white px-2 py-1 flex justify-between items-center border-b-2 border-black">
+                    <div class={isRealOffer(popup) 
+                        ? "bg-green-700 text-white px-2 py-1 flex justify-between items-center border-b-2 border-black"
+                        : "bg-blue-800 text-white px-2 py-1 flex justify-between items-center border-b-2 border-black"
+                    }>
                         <div class="flex items-center gap-1">
                             <div class="w-3 h-3 bg-gray-400 border border-black"></div>
                             <span class="font-bold text-xs">DALLAS BUYERS CLUB</span>
@@ -266,6 +289,38 @@ export function Authentic90sPopups() {
                             ✕
                         </button>
                     </div>
+
+                    {/* Disclosure banner - shown on first popup until user chooses */}
+                    {showDisclosure && (
+                        <div class="bg-slate-800 text-white px-3 py-2 border-b-2 border-black">
+                            <div class="text-[10px] leading-tight mb-2 opacity-90">
+                                These are nostalgic 90s spam popups. They're a spoof &mdash; but
+                                sometimes they carry <strong>real offers</strong> from community
+                                members and agents.
+                            </div>
+                            <div class="flex gap-1">
+                                <button
+                                    onClick={handleKeepPopups}
+                                    class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-2 text-[10px] border border-black"
+                                >
+                                    Keep them on
+                                </button>
+                                <button
+                                    onClick={handleTurnOffPopups}
+                                    class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-1 px-2 text-[10px] border border-black"
+                                >
+                                    Turn them off
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Real offer badge */}
+                    {isRealOffer(popup) && (
+                        <div class="bg-green-600 text-white text-center py-1 text-[10px] font-bold border-b border-black animate-pulse">
+                            ✓ REAL OFFER from a community member
+                        </div>
+                    )}
 
                     {/* Content */}
                     <div class="p-3">
@@ -282,7 +337,11 @@ export function Authentic90sPopups() {
                         {/* Action Buttons */}
                         <div class="flex gap-1">
                             <button
-                                class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-2 text-xs border-2 border-black"
+                                class={`flex-1 font-bold py-2 px-2 text-xs border-2 border-black ${
+                                    isRealOffer(popup) 
+                                        ? 'bg-green-600 hover:bg-green-700 text-white' 
+                                        : 'bg-red-600 hover:bg-red-700 text-white'
+                                }`}
                                 onClick={() => {
                                     if (popup.isPromotion && popup.tokenMint) {
                                         window.open(`/attention-tokens?highlight=${popup.tokenMint}`, '_blank');
@@ -409,7 +468,7 @@ export function LiveActivityNotifications() {
     );
 }
 
-// Authentic 90s "You've won!" style popup
+// Authentic 90s "You've won!" style popup - now non-blocking
 export function WinnerPopup() {
     const { settings } = useSettings();
     const [isVisible, setIsVisible] = useState(false);
@@ -428,41 +487,41 @@ export function WinnerPopup() {
     if (!isVisible) return null;
 
     return (
-        <div class="fixed inset-0 bg-black/80 z-[10000] flex items-center justify-center p-4">
-            <div class="bg-yellow-300 border-8 border-red-600 shadow-2xl font-mono animate-bounce">
+        <div class="fixed bottom-6 right-6 z-[9999] font-mono animate-bounce">
+            <div class="bg-yellow-300 border-4 border-red-600 shadow-2xl w-72">
                 {/* Blinking header */}
-                <div class="bg-red-600 text-yellow-300 text-center py-2 font-bold text-lg animate-pulse">
+                <div class="bg-red-600 text-yellow-300 text-center py-2 font-bold text-sm animate-pulse border-b-2 border-black">
                     ⭐⭐⭐ CONGRATULATIONS! ⭐⭐⭐
                 </div>
                 
-                <div class="p-6 text-center">
-                    <div class="text-2xl font-bold text-red-800 mb-4 animate-pulse">
+                <div class="p-4 text-center">
+                    <div class="text-lg font-bold text-red-800 mb-2 animate-pulse">
                         YOU'RE VISITOR #420!
                     </div>
                     
-                    <div class="text-sm text-black mb-4">
+                    <div class="text-xs text-black mb-3">
                         You've been selected for EXCLUSIVE access to our underground architecture network!
                     </div>
                     
-                    <div class="bg-white border-4 border-black p-3 mb-4">
-                        <div class="font-bold text-lg text-red-600">PRIZE VALUE: $500!</div>
-                        <div class="text-xs">Free consultation + priority shipping</div>
+                    <div class="bg-white border-2 border-black p-2 mb-3">
+                        <div class="font-bold text-sm text-red-600">PRIZE VALUE: $500!</div>
+                        <div class="text-[10px]">Free consultation + priority shipping</div>
                     </div>
                     
-                    <div class="flex gap-2">
-                        <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 border-4 border-black flex-1">
+                    <div class="flex gap-1">
+                        <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 border-2 border-black flex-1 text-xs">
                             CLAIM NOW!
                         </button>
                         <button 
                             onClick={() => setIsVisible(false)}
-                            class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-3 border-4 border-black"
+                            class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-2 border-2 border-black text-xs"
                         >
                             ✕
                         </button>
                     </div>
                 </div>
                 
-                <div class="bg-blue-800 text-white text-center py-1 text-xs font-bold animate-pulse">
+                <div class="bg-blue-800 text-white text-center py-1 text-[10px] font-bold animate-pulse border-t-2 border-black">
                     THIS OFFER EXPIRES IN 3 MINUTES!
                 </div>
             </div>
