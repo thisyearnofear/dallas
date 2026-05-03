@@ -102,15 +102,6 @@ export function SettingsPanel() {
                       enabled={settings.liveNotificationsEnabled}
                       onToggle={() => toggleSetting("liveNotificationsEnabled")}
                     />
-
-                    {/* Sound Toggle */}
-                    <SettingToggle
-                      label="Sound Effects"
-                      description="Retro computer sounds (coming soon)"
-                      enabled={settings.soundEnabled}
-                      onToggle={() => toggleSetting("soundEnabled")}
-                      disabled
-                    />
                   </div>
                 </>
               ) : (
@@ -159,19 +150,8 @@ export function SettingsPanel() {
                     {/* Privacy Stats */}
                     <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
                       <h4 class="text-xs font-black text-green-800 dark:text-green-300 uppercase tracking-widest mb-3">Your Privacy Stats</h4>
-                      <div class="space-y-2 text-xs">
-                        <div class="flex justify-between">
-                          <span class="text-slate-600 dark:text-slate-400">Data encrypted:</span>
-                          <span class="font-bold text-green-600 dark:text-green-400">{localStorage.getItem('dbc-encrypted-count') || '0'} items</span>
-                        </div>
-                        <div class="flex justify-between">
-                          <span class="text-slate-600 dark:text-slate-400">Storage saved:</span>
-                          <span class="font-bold text-green-600 dark:text-green-400">{localStorage.getItem('dbc-storage-saved') || '0'} KB</span>
-                        </div>
-                        <div class="flex justify-between">
-                          <span class="text-slate-600 dark:text-slate-400">ZK proofs generated:</span>
-                          <span class="font-bold text-green-600 dark:text-green-400">{localStorage.getItem('dbc-zk-count') || '0'}</span>
-                        </div>
+                      <div class="text-xs text-slate-500 dark:text-slate-400 text-center py-2">
+                        Stats will appear here as you submit encrypted optimization logs and generate ZK proofs.
                       </div>
                     </div>
                   </div>

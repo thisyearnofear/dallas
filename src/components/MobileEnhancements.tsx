@@ -87,9 +87,8 @@ export const FloatingActionButton: FunctionalComponent = () => {
 
     const actions = [
         { icon: '🤝', label: 'Quick Join', action: () => setShowQuickJoin(true), color: 'bg-green-500 hover:bg-green-600' },
-        { icon: '💬', label: 'Live Chat', action: () => {}, color: 'bg-blue-500 hover:bg-blue-600' },
-        { icon: '🚨', label: 'Emergency', action: () => {}, color: 'bg-red-500 hover:bg-red-600' },
-        { icon: '📱', label: 'Share', action: () => {}, color: 'bg-purple-500 hover:bg-purple-600' }
+        { icon: '🌐', label: 'Alliances', action: () => { window.location.href = '/experiences'; }, color: 'bg-blue-500 hover:bg-blue-600' },
+        { icon: '📋', label: 'Submit Log', action: () => { window.location.href = '/experiences?tab=share'; }, color: 'bg-purple-500 hover:bg-purple-600' },
     ];
 
     return (

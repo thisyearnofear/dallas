@@ -190,26 +190,6 @@ export function Header() {
                     <ThemeToggle />
                 </div>
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
-                    {/* Search Section */}
-                    <div class="flex items-center gap-2 flex-1 min-w-0">
-                        <label class="text-gray-dark text-base sm:text-lg font-bold whitespace-nowrap hidden sm:block">
-                            Search
-                        </label>
-                        <div class="flex flex-1 min-w-0">
-                            <input
-                                class="search-bar flex-1 min-w-0 background-white-secondary text-gray-dark text-base sm:text-lg border-[1px] border-gray-light px-3 py-2 disabled:cursor-not-allowed rounded-l-lg"
-                                disabled
-                                placeholder="Search..."
-                            />
-                            <input
-                                class="text-base sm:text-lg text-gray-dark px-3 search-button py-2 border-[1px] border-gray-light disabled:cursor-not-allowed rounded-r-lg"
-                                type="button"
-                                value="Go"
-                                disabled
-                            />
-                        </div>
-                    </div>
-
                     {/* Wallet/User Section */}
                     <div class="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:ml-auto">
                         <WalletButton />
@@ -217,15 +197,6 @@ export function Header() {
                             <p class="text-sm sm:text-lg whitespace-nowrap">
                                 Hi, <b>{meta.author}</b>
                             </p>
-                            <div class="flex whitespace-nowrap text-xs sm:text-sm">
-                                <a class="text-brand italic cursor-not-allowed">
-                                    settings
-                                </a>
-                                <p class="text-brand italic font-medium mx-2">-</p>
-                                <a class="text-brand italic cursor-not-allowed">
-                                    logout
-                                </a>
-                            </div>
                         </div>
                     </div>
                 </div>
