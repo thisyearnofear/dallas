@@ -79,11 +79,11 @@ export { ReferralSystem } from './ReferralSystem';
 export { InfomercialPopup, RetroButton, RetroModal, RetroTerminal } from './RetroAesthetics';
 export { Authentic90sPopups, LiveActivityNotifications, WinnerPopup } from './Authentic90sPopups';
 
-// Shared UI Components
+// Shared UI Components (from decomposed modules)
 export {
   TermsAcceptanceModal,
   DisclaimerBanner,
-} from './SharedUIComponents';
+} from './LegalComponents';
 export { ProgressIndicator } from './ProgressIndicator';
 
 // Error Handling

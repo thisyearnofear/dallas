@@ -26,7 +26,7 @@ import {
 } from "./components/MobileEnhancements";
 import { InfomercialPopup } from "./components/RetroAesthetics";
 import { Authentic90sPopups, LiveActivityNotifications, WinnerPopup } from "./components/Authentic90sPopups";
-import { TermsAcceptanceModal, DisclaimerBanner } from "./components/SharedUIComponents";
+import { TermsAcceptanceModal, DisclaimerBanner } from "./components/LegalComponents";
 import { PrivacyOnboardingModal } from "./components/PrivacyOnboardingModal";
 import { MobileNav } from "./components/MobileNav";
 import { useConsent } from "./hooks/useConsent";

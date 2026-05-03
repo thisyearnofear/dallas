@@ -2,7 +2,7 @@
 // Following Core Principles: CLEAN, MODULAR
 
 import MCPAgentDashboard from "../components/MCPAgentDashboard";
-import { NetworkStatus } from "../components/SharedUIComponents";
+import { EnhancedNetworkStatus as NetworkStatus } from "../components/EnhancedNetworkStatus";
 
 export default function MCPDemoPage() {
   return (

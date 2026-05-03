@@ -12,7 +12,7 @@ import { isAleoEnabled } from '../config/chains';
 import { validateBlockchainConfig } from '../config/solana';
 import { SOLANA_CONFIG } from '../config/solana';
 import { getAleoReadiness } from '../config/chains';
-import { SubmissionConsentCheckboxes } from './SharedUIComponents';
+import { SubmissionConsentCheckboxes } from './LegalComponents';
 import { LEGAL_CONFIG } from '../config/legal';
 import {
   lightProtocolService,

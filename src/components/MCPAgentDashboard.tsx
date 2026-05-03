@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "preact/hooks";
 import { useAgentNetwork } from "../hooks/useAgentNetwork";
-import { Modal } from "./SharedUIComponents";
+import { AgentEnhancedModal as Modal } from "./Modal";
 import { 
   DelightfulTypingText, 
   AgentStatusIndicator, 

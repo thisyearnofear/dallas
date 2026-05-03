@@ -1,5 +1,6 @@
 import { useState } from "preact/hooks";
-import { Modal, TermsOfServiceContent, PrivacyPolicyContent } from "./SharedUIComponents";
+import { AgentEnhancedModal as Modal } from "./Modal";
+import { TermsOfServiceContent, PrivacyPolicyContent } from "./LegalComponents";
 
 export function Footer() {
     const [showTerms, setShowTerms] = useState(false);

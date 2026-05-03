@@ -1,5 +1,6 @@
 
-import { Modal, Terminal } from './SharedUIComponents';
+import { AgentEnhancedModal as Modal } from './Modal';
+import { EnhancedTerminalInterface as Terminal } from './Terminal';
 
 export const RetroModal = Modal;
 export const RetroTerminal = (props: any) => (

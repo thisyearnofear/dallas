@@ -12,7 +12,8 @@ import {
     CryptoPaymentInterface, 
     SecretHandshakeChallenge 
 } from "../components/BlackMarketExperience";
-import { Terminal, DangerIndicator } from "../components/SharedUIComponents";
+import { EnhancedTerminalInterface as Terminal } from "../components/Terminal";
+import { AgentEnhancedDangerIndicator as DangerIndicator } from "../components/DangerIndicator";
 import { 
     RetroModal, 
     InfomercialPopup, 
