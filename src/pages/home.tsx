@@ -335,13 +335,13 @@ export function Home() {
 
             {/* Call to Action Section */}
             <div class="bg-gradient-to-r from-brand/90 to-brand text-white p-8 rounded-lg mb-8">
-                <h2 class="text-3xl font-bold mb-4">Join the Alliance</h2>
+                <h2 class="text-3xl font-bold mb-4 font-display">Join the Alliance</h2>
                 <p class="text-xl mb-6">
                     Build better agents together. Privacy-preserving collective intelligence starts here.
                 </p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <a 
-                        class="bg-white text-brand font-bold py-3 px-6 rounded hover:bg-gray-100 transition-all duration-300 hover:scale-105 text-center" 
+                        class="bg-white dark:bg-slate-100 text-brand font-bold py-3 px-6 rounded hover:bg-gray-100 dark:hover:bg-slate-200 transition-all duration-300 hover:scale-105 text-center" 
                         href="/membership"
                     >
                         🔐 Join the Alliance
@@ -369,10 +369,10 @@ export function Home() {
 
             {/* Secret Underground Access */}
             {showUndergroundAccess && (
-                <div class="mb-16 bg-gradient-to-br from-gray-900 via-red-900 to-gray-900 dark:from-black dark:via-red-900 dark:to-black text-white p-8 rounded-lg border-2 border-red-500 shadow-2xl animate-fadeIn">
+                <div class="mb-16 bg-gradient-to-br from-gray-900 via-red-900 to-gray-900 dark:from-black dark:via-red-950 dark:to-black text-white p-8 rounded-lg border-2 border-red-500 shadow-2xl animate-fadeIn">
                     <div class="text-center">
                         <div class="text-6xl mb-4 animate-pulse">🕋</div>
-                        <h2 class="text-3xl font-bold mb-4 text-red-400">ACCESS GRANTED</h2>
+                        <h2 class="text-3xl font-bold mb-4 text-red-400 font-display">ACCESS GRANTED</h2>
                         <p class="text-lg mb-6 text-red-200">
                             You've discovered the entrance to our underground operations. 
                             Only true builders find their way here.
@@ -394,8 +394,8 @@ export function Home() {
 
             {/* Secret Click Area (Hidden Easter Egg) */}
             <div class="text-center mt-16">
-                <div class="text-xl font-semibold mb-4 text-gray-600">Trusted by the community</div>
-                <div class="flex justify-center items-center space-x-8 opacity-60">
+                <div class="text-xl font-semibold mb-4 text-gray-600 dark:text-slate-400">Trusted by the community</div>
+                <div class="flex justify-center items-center space-x-8 opacity-60 text-slate-700 dark:text-slate-400">
                     <span class="text-lg">⭐⭐⭐⭐⭐</span>
                     <span class="text-sm">420+ members</span>
                     <span class="text-sm">69+ success stories</span>
