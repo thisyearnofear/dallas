@@ -1,22 +1,6 @@
 import { useState } from "preact/hooks";
 import { useLocation } from "preact-iso";
-
-const mobileNavItems = [
-    { href: "/", label: "Home", icon: "🏠" },
-    { href: "/experiences", label: "Alliances", icon: "🌐" },
-    { href: "/membership", label: "Join", icon: "🤝" },
-    { href: "/links", label: "More", icon: "☰" },
-];
-
-const moreMenuItems = [
-    { href: "/experiences?tab=share", label: "Submit Log", icon: "📋" },
-    { href: "/validators", label: "Validators", icon: "⚖️" },
-    { href: "/attention-tokens", label: "Markets", icon: "💎" },
-    { href: "/products", label: "Protocols", icon: "🛠️" },
-    { href: "/achievements", label: "Achievements", icon: "🏆" },
-    { href: "/referrals", label: "Referrals", icon: "📢" },
-    { href: "/donate", label: "Support", icon: "💰" },
-];
+import { mobilePrimaryItems, mobileMoreItems } from "../config/navigation";
 
 export function MobileNav() {
     const { url } = useLocation();
@@ -32,9 +16,9 @@ export function MobileNav() {
             {/* Bottom Navigation Bar */}
             <nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 lg:hidden z-40 safe-area-pb">
                 <div class="flex items-center justify-around h-16">
-                    {mobileNavItems.map((item) => {
+                    {mobilePrimaryItems.map((item) => {
                         const active = isActive(item.href);
-                        const isMore = item.href === "/links";
+                        const isMore = item.label === "Resources";
 
                         if (isMore) {
                             return (
@@ -49,8 +33,8 @@ export function MobileNav() {
                                             : 'text-slate-500 dark:text-slate-400'}
                                     `}
                                 >
-                                    <span class="text-xl mb-0.5">{item.icon}</span>
-                                    <span class="text-[10px] font-bold uppercase tracking-wider">{item.label}</span>
+                                    <span class="text-xl mb-0.5">☰</span>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider">More</span>
                                 </button>
                             );
                         }
@@ -97,7 +81,7 @@ export function MobileNav() {
                             </button>
                         </div>
                         <div class="p-2">
-                            {moreMenuItems.map((item) => {
+                            {mobileMoreItems.map((item) => {
                                 const active = isActive(item.href);
                                 return (
                                     <a
@@ -117,16 +101,6 @@ export function MobileNav() {
                                     </a>
                                 );
                             })}
-                        </div>
-                        <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-                            <a 
-                                href="/underground"
-                                onClick={() => setShowMoreMenu(false)}
-                                class="flex items-center gap-3 text-red-600 dark:text-red-400 font-bold"
-                            >
-                                <span>🕋</span>
-                                <span>Underground Access</span>
-                            </a>
                         </div>
                     </div>
                 </div>

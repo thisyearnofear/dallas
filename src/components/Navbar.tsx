@@ -1,19 +1,7 @@
-import { meta } from "./constants";
 import { useState } from "preact/hooks";
 import { useWallet } from "../context/WalletContext";
 import { useMembership } from "../hooks/useMembership";
-
-const navigationItems = [
-    { href: "/", label: "Home", icon: "🏠", description: "Welcome to the Alliance" },
-    { href: "/experiences", label: "Alliances", icon: "🌐", description: "Discover & join", highlight: true },
-    { href: "/experiences?tab=share", label: "Submit Log", icon: "📋", description: "Private optimization log", highlight: true },
-    { href: "/validators", label: "Validators", icon: "⚖️", description: "Validate & earn", highlight: true },
-    { href: "/attention-tokens", label: "Markets", icon: "💎", description: "Trade alliance tokens" },
-    { href: "/membership", label: "Membership", icon: "🤝", description: "Become a member" },
-    { href: "/agents", label: "Command Center", icon: "🤖", description: "Agent intelligence" },
-    { href: "/underground", label: "Underground", icon: "🕋", description: "Secret operations", secret: true },
-    { href: "/links", label: "Resources", icon: "🔗", description: "Tools & docs" }
-];
+import { desktopNavItems } from "../config/navigation";
 
 export function Navbar() {
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -40,7 +28,7 @@ export function Navbar() {
             </div>
 
             <ul class="space-y-2 px-2">
-                {navigationItems.map((item, index) => (
+                {desktopNavItems.map((item, index) => (
                     <li key={item.href}>
                         <a
                             href={item.href}
