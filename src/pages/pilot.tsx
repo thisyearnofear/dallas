@@ -57,7 +57,7 @@ export default function PilotDashboard() {
         </div>
         <button
           onClick={load}
-          class="px-4 py-2 rounded-lg bg-slate-900 text-white font-bold hover:bg-slate-800"
+          class="px-4 py-2 rounded-lg bg-slate-900 dark:bg-slate-700 text-white font-bold hover:bg-slate-800 dark:hover:bg-slate-600"
           disabled={loading}
         >
           {loading ? 'Loading…' : 'Refresh'}
@@ -65,7 +65,7 @@ export default function PilotDashboard() {
       </div>
 
       {error && (
-        <div class="mb-4 p-3 rounded-lg border border-red-300 bg-red-50 text-red-700 font-bold">
+        <div class="mb-4 p-3 rounded-lg border border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 font-bold">
           Failed to load telemetry: {error}
         </div>
       )}
