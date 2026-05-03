@@ -1,6 +1,5 @@
 /* Import enhanced animations, dark mode, mobile optimizations, and navigation */
 @import './styles/animations.css';
-@import './styles/dark-mode.css';
 @import './styles/mobile.css';
 @import './styles/navigation.css';
 
@@ -44,6 +43,34 @@
     --color-on-surface-muted: #9ca3af;
     --color-border: #374151;
     --color-border-strong: #4b5563;
+}
+
+/* Dark mode base styles (replaces dark-mode.css !important overrides) */
+.dark body,
+.dark #app {
+    background-color: #111827;
+    color: #f9fafb;
+}
+
+.dark #app {
+    box-shadow: 15px 0 50px rgba(0, 0, 0, 0.9), -15px 0 50px rgba(0, 0, 0, 0.9);
+}
+
+.dark .header-separator {
+    background: linear-gradient(180deg, #1f2937 0%, #1f2937 85%, #374151 95%);
+}
+
+.dark .title-shadow {
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .dark * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
 #app {
