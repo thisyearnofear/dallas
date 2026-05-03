@@ -100,10 +100,10 @@ export function Header() {
         <header class="header-separator flex flex-col sm:flex-row pt-2 pb-1 items-start sm:items-center px-2 sm:px-4 overflow-hidden gap-4">
             <a href="/" class="flex-shrink-0">
                 <div>
-                    <h1 class="font-bold text-xl sm:text-2xl lg:text-5xl title-shadow text-gray-dark font-sans leading-tight">
+                    <h1 class="font-bold text-xl sm:text-2xl lg:text-5xl title-shadow text-gray-dark dark:text-slate-100 font-display leading-tight">
                         Dallas Buyers Club
                     </h1>
-                    <h3 class="text-gray font-bold italic text-base sm:text-lg lg:text-2xl font-sans">
+                    <h3 class="text-gray dark:text-slate-300 font-bold italic text-base sm:text-lg lg:text-2xl font-display">
                         The Agent Alliance.
                     </h3>
                 </div>
@@ -118,29 +118,29 @@ export function Header() {
                         </div>
                     )}
                 </div>
-                <div class="relative flex items-center border-b-2 border-b-gray-dark flex-wrap gap-1 min-w-0">
-                    <a class="text-brand text-lg sm:text-xl cursor-not-allowed whitespace-nowrap">
+                <div class="relative flex items-center border-b-2 border-b-gray-dark dark:border-b-slate-600 flex-wrap gap-1 min-w-0">
+                    <span class="text-brand text-lg sm:text-xl whitespace-nowrap">
                         {connected ? (
                             <>balance <b>{dbcBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })} DBC</b></>
                         ) : (
                             <>messages <b>420</b></>
                         )}
-                    </a>
-                    <div class="w-[2px] h-5 bg-gray-dark mx-1 sm:mx-3"></div>
-                    <a class="text-brand text-lg sm:text-xl cursor-not-allowed whitespace-nowrap">
+                    </span>
+                    <div class="w-[2px] h-5 bg-gray-dark dark:bg-slate-500 mx-1 sm:mx-3"></div>
+                    <span class="text-brand text-lg sm:text-xl whitespace-nowrap">
                         orders <b>69</b>
-                    </a>
-                    <div class="w-[2px] h-5 bg-gray-dark mx-1 sm:mx-3"></div>
-                    <a class="text-brand text-lg sm:text-xl cursor-not-allowed whitespace-nowrap">
+                    </span>
+                    <div class="w-[2px] h-5 bg-gray-dark dark:bg-slate-500 mx-1 sm:mx-3"></div>
+                    <span class="text-brand text-lg sm:text-xl whitespace-nowrap">
                         {connected && solBalance !== null ? (
                             <>account <b>◎{solBalance.toLocaleString(undefined, { maximumFractionDigits: 4 })}</b></>
                         ) : (
                             <>account <b>&#8383;80085</b></>
                         )}
-                    </a>
+                    </span>
                     {connected && !isEncrypted && (
                         <>
-                            <div class="w-[2px] h-5 bg-gray-dark mx-1 sm:mx-3"></div>
+                            <div class="w-[2px] h-5 bg-gray-dark dark:bg-slate-500 mx-1 sm:mx-3"></div>
                             <button
                                 onClick={handleDecrypt}
                                 disabled={isDecrypting}
@@ -152,11 +152,11 @@ export function Header() {
                     )}
                     {connected && isEncrypted && (
                         <>
-                            <div class="w-[2px] h-5 bg-gray-dark mx-1 sm:mx-3"></div>
+                            <div class="w-[2px] h-5 bg-gray-dark dark:bg-slate-500 mx-1 sm:mx-3"></div>
                             <span class="text-green-600 dark:text-green-400 text-sm font-bold flex items-center gap-1">
                                 🔐 SECURE
                             </span>
-                            <div class="w-[2px] h-5 bg-gray-dark mx-1 sm:mx-2"></div>
+                            <div class="w-[2px] h-5 bg-gray-dark dark:bg-slate-500 mx-1 sm:mx-2"></div>
                             <a
                                 href="/underground"
                                 class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:scale-105 transition-all group"
@@ -173,12 +173,12 @@ export function Header() {
                     )}
 
                     {/* Popup Toggle */}
-                    <div class="w-[2px] h-5 bg-gray-dark mx-1 sm:mx-3"></div>
+                    <div class="w-[2px] h-5 bg-gray-dark dark:bg-slate-500 mx-1 sm:mx-3"></div>
                     <button
                         onClick={() => toggleSetting("popupsEnabled")}
                         class={`text-sm font-bold px-3 py-1 rounded shadow-md transition-colors border-2 ${settings.popupsEnabled
                             ? "bg-yellow-500 hover:bg-yellow-600 text-black border-yellow-700 animate-pulse"
-                            : "bg-white hover:bg-gray-100 text-gray-900 border-gray-400 shadow-lg"
+                            : "bg-white dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 text-gray-900 dark:text-white border-gray-400 dark:border-slate-500 shadow-lg"
                             }`}
                         title={settings.popupsEnabled ? "Disable 90s popups" : "Enable 90s popups"}
                     >
@@ -186,7 +186,7 @@ export function Header() {
                     </button>
 
                     {/* Theme Toggle */}
-                    <div class="w-[2px] h-5 bg-gray-dark mx-1 sm:mx-3"></div>
+                    <div class="w-[2px] h-5 bg-gray-dark dark:bg-slate-500 mx-1 sm:mx-3"></div>
                     <ThemeToggle />
                 </div>
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
