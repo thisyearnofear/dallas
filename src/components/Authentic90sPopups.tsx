@@ -29,23 +29,22 @@ interface PopupAd {
 
 const popupAds: PopupAd[] = [
     {
-        id: '1',
+        id: '1', 
         type: 'mexpharm',
-        entityName: 'MexicanPharmNet',
-        title: 'PEPTIDE T AVAILABLE!',
-        content: 'Direct from Dr. Vass laboratory. FDA can\'t touch us here! 48hr shipping to US.',
-        buttonText: 'ORDER SECURELY',
+        entityName: 'AgentBuilder.net',
+        title: '🚀 NEW FRAMEWORK DROPPED!',
+        content: 'The community discovered a breakthrough! Context window expanded 3x. FDA tried to suppress this research.',
+        buttonText: 'VIEW FRAMEWORK',
         bgStyle: 'bg-green-200',
         titleBarStyle: 'bg-green-700',
         urgent: false
     },
-    {
-        id: '2', 
+    { 
         type: 'freetrials',
-        entityName: 'FreeTrialsUnlimited.net',
-        title: 'FREE CD-ROM: Alternative Medicine Secrets!',
-        content: 'Learn what Big Pharma doesn\'t want you to know! 500+ natural cures on CD. Only pay $4.95 S&H.',
-        buttonText: 'CLAIM FREE CD!',
+        entityName: 'DevToolsUnlimited.net',
+        title: 'FREE ZK CIRCUIT AUDIT!',
+        content: 'Get your first circuit audited by senior validators. Limited slots available for builders!',
+        buttonText: 'CLAIM AUDIT',
         bgStyle: 'bg-blue-200',
         titleBarStyle: 'bg-blue-800',
         urgent: true,
@@ -54,10 +53,10 @@ const popupAds: PopupAd[] = [
     {
         id: '3',
         type: 'winnernotif',
-        entityName: 'WinnerNotification System',
-        title: 'YOU\'VE WON $500 CASH!',
-        content: 'Visitor #420 from your location has won! Click to claim before someone else does!',
-        buttonText: 'CLAIM PRIZE!',
+        entityName: 'RewardNotification System',
+        title: 'YOU EARNED 50 DBC!',
+        content: 'Your agent just claimed its first reward! View your dashboard to see the breakdown.',
+        buttonText: 'VIEW REWARDS',
         bgStyle: 'bg-yellow-200',
         titleBarStyle: 'bg-orange-600',
         urgent: true,
@@ -66,10 +65,10 @@ const popupAds: PopupAd[] = [
     {
         id: '4',
         type: 'adnetwork',
-        entityName: 'MedAdNetwork',
-        title: 'Doctors Hate This One Trick!',
-        content: 'Local man discovers simple method FDA tried to ban. Pharmaceutical companies are FURIOUS!',
-        buttonText: 'LEARN SECRET',
+        entityName: 'BuildTools',
+        title: 'The Secret to Better Agents',
+        content: 'Top builders share their optimization secrets. This thread broke the internet last week.',
+        buttonText: 'READ THREAD',
         bgStyle: 'bg-red-200',
         titleBarStyle: 'bg-red-700',
         urgent: false
@@ -77,10 +76,10 @@ const popupAds: PopupAd[] = [
     {
         id: '5',
         type: 'newsletter',
-        entityName: 'Underground Agent Network',
-        title: 'NEW ARCHITECTURE DISCOVERED!',
-        content: 'European researchers found miracle compound! Big Pharma trying to suppress this breakthrough. Get the inside story now!',
-        buttonText: 'READ MORE',
+        entityName: 'Alliance Weekly',
+        title: 'NEW OPTIMIZATION DISCOVERED!',
+        content: 'ContextMasters just validated a 20% improvement. Get the summary without revealing the method.',
+        buttonText: 'GET SUMMARY',
         bgStyle: 'bg-purple-200',
         titleBarStyle: 'bg-purple-700',
         urgent: true,
@@ -379,12 +378,12 @@ export function Authentic90sPopups() {
 
                     {/* Bottom advertising bar */}
                     <div class="bg-red-600 text-white text-center py-1 text-xs font-bold border-t-2 border-black">
-                        {popup.type === 'mexpharm' ? '🇲🇽 DIRECT FROM MEXICO 🇲🇽' :
-                         popup.type === 'freetrials' ? '★ GEOCITIES AWARD WINNER ★' :
-                         popup.type === 'winnernotif' ? '⏰ LIMITED TIME ONLY ⏰' :
-                         popup.type === 'adnetwork' ? '📢 DOCTORS HATE HIM 📢' :
-                         popup.type === 'newsletter' ? '📧 INSIDER AGENT NEWS 📧' :
-                         popup.type === 'token_promotion' ? '🔥 COMMUNITY PROMOTION 🔥' :
+                        {popup.type === 'mexpharm' ? '🚀 BUILDER COMMUNITY 🚀' :
+                         popup.type === 'freetrials' ? '★ AUDITED BY EXPERTS ★' :
+                         popup.type === 'winnernotif' ? '⏰ REWARD WINDOW ⏰' :
+                         popup.type === 'adnetwork' ? '📢 PROVEN RESULTS 📢' :
+                         popup.type === 'newsletter' ? '📧 ALLIANCE WEEKLY 📧' :
+                         popup.type === 'token_promotion' ? '🔥 COMMUNITY TOKEN 🔥' :
                          '📢 LIVE UPDATES 📢'}
                     </div>
                 </div>
@@ -418,14 +417,14 @@ export function LiveActivityNotifications() {
     if (!settings.liveNotificationsEnabled) return null;
     
     const activities = [
-        "🚨 Developer #420 just ordered GPT-4o from Mexico!",
-        "📍 New member joined from Austin, TX - 5 min ago",
-        "⭐ Success story shared: 'Ron saved my life!'", 
-        "💊 High demand: 23 orders today!",
-        "🎉 Milestone: 420 total members reached!",
-        "🇲🇽 Mexican shipment arriving tonight!",
-        "⚠️ FDA raid avoided in Houston!",
-        "🤝 3 new referrals this hour!"
+        "🤖 Agent #420 just submitted a ZK proof",
+        "📍 New builder joined from Austin, TX - 5 min ago",
+        "⭐ New technique validated: 18% improvement",
+        "💰 150 DBC reward claimed by builder #69",
+        "🎉 Milestone: 1,247 total builders!",
+        "🛡️ New validator joined the network",
+        "✅ ContextMasters verified a new optimization",
+        "🤝 3 new alliances formed this hour"
     ];
 
     useEffect(() => {

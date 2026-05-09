@@ -342,7 +342,7 @@ export function Home() {
                 <p class="text-xl mb-6">
                     Build better agents together. Privacy-preserving collective intelligence starts here.
                 </p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                     <a 
                         class="bg-white dark:bg-slate-100 text-brand font-bold py-3 px-6 rounded hover:bg-gray-100 dark:hover:bg-slate-200 transition-all duration-300 hover:scale-105 text-center" 
                         href="/membership"
@@ -357,9 +357,15 @@ export function Home() {
                     </a>
                     <a 
                         class="border-2 border-white text-white font-bold py-3 px-6 rounded hover:bg-white hover:text-brand transition-all duration-300 hover:scale-105 text-center" 
-                        href="/achievements"
+                        href="/pricing"
                     >
-                        🏆 Track Progress
+                        💳 View Pricing
+                    </a>
+                    <a 
+                        class="border-2 border-white text-white font-bold py-3 px-6 rounded hover:bg-white hover:text-brand transition-all duration-300 hover:scale-105 text-center" 
+                        href="/api-docs"
+                    >
+                        🤖 Agent API
                     </a>
                     <a 
                         class="border-2 border-white text-white font-bold py-3 px-6 rounded hover:bg-white hover:text-brand transition-all duration-300 hover:scale-105 text-center" 

@@ -26,13 +26,14 @@ import {
 } from "./components/MobileEnhancements";
 import { InfomercialPopup } from "./components/RetroAesthetics";
 import { Authentic90sPopups, LiveActivityNotifications, WinnerPopup } from "./components/Authentic90sPopups";
-import { TermsAcceptanceModal, DisclaimerBanner } from "./components/LegalComponents";
-import { PrivacyOnboardingModal } from "./components/PrivacyOnboardingModal";
+import { DisclaimerBanner } from "./components/LegalComponents";
+import { ProgressiveOnboarding } from "./components/ProgressiveOnboarding";
+import { RetryFlowBanners } from "./components/RetryFlowBanners";
 import { MobileNav } from "./components/MobileNav";
-import { useConsent } from "./hooks/useConsent";
 import { useState, useEffect } from "preact/hooks";
 import { lazy, Suspense } from "preact/compat";
 import { ChainConfigBanner } from "./components/ChainConfigBanner";
+import { useConsent } from "./hooks/useConsent";
 
 // Route-level code splitting: keep initial bundle small.
 const Home: any = lazy(() => import("./pages/home").then((m) => ({ default: m.Home })));
@@ -48,31 +49,28 @@ const Referrals: any = lazy(() => import("./pages/referrals").then((m) => ({ def
 const Underground: any = lazy(() => import("./pages/underground").then((m) => ({ default: m.default })));
 const FleetPage: any = lazy(() => import("./pages/agents").then((m) => ({ default: m.default })));
 const PilotDashboard: any = lazy(() => import("./pages/pilot").then((m) => ({ default: m.default })));
+const Pricing: any = lazy(() => import("./pages/pricing").then((m) => ({ default: m.Pricing })));
+const ApiDocs: any = lazy(() => import("./pages/api-docs").then((m) => ({ default: m.default })));
 const NotFound: any = lazy(() => import("./pages/_404").then((m) => ({ default: m.NotFound })));
 
 import "./style.css";
 
 export function App() {
     const { notification, showNotification } = useNotification();
-    const { termsAccepted, acceptTerms, needsTermsUpdate, isLoading } = useConsent();
-    const [showPrivacyOnboarding, setShowPrivacyOnboarding] = useState(false);
+    const [showOnboarding, setShowOnboarding] = useState(false);
+    const [onboardingComplete, setOnboardingComplete] = useState(false);
 
-    // Show terms modal if not accepted or needs update
-    const showTermsModal = !isLoading && (!termsAccepted || needsTermsUpdate);
-
-    // Show privacy onboarding after terms are accepted (first time only)
+    // Show progressive onboarding on first visit
     useEffect(() => {
-        if (termsAccepted && !isLoading) {
-            const hasSeenPrivacyOnboarding = localStorage.getItem('dbc-privacy-onboarding');
-            if (!hasSeenPrivacyOnboarding) {
-                // Small delay to let terms modal close first
-                const timer = setTimeout(() => {
-                    setShowPrivacyOnboarding(true);
-                }, 500);
-                return () => clearTimeout(timer);
-            }
+        const seen = localStorage.getItem('dbc-progressive-onboarding');
+        if (!seen) {
+            // Small delay to let app render first
+            const timer = setTimeout(() => setShowOnboarding(true), 500);
+            return () => clearTimeout(timer);
+        } else {
+            setOnboardingComplete(true);
         }
-    }, [termsAccepted, isLoading]);
+    }, []);
 
     return (
         <ThemeProvider>
@@ -81,13 +79,13 @@ export function App() {
                     <ToastProvider>
                         <LocationProvider>
                             <SwipeGestures>
-                            {/* Legal: Terms acceptance modal (first-time or version update) */}
-                            <TermsAcceptanceModal isOpen={showTermsModal} onAccept={acceptTerms} />
-
-                            {/* Privacy onboarding (first-time users) */}
-                            <PrivacyOnboardingModal
-                                isOpen={showPrivacyOnboarding}
-                                onComplete={() => setShowPrivacyOnboarding(false)}
+                            {/* Progressive onboarding (replaces Terms + Privacy modal stack) */}
+                            <ProgressiveOnboarding
+                                isOpen={showOnboarding}
+                                onComplete={() => {
+                                    setShowOnboarding(false);
+                                    setOnboardingComplete(true);
+                                }}
                             />
 
                             {/* Mobile Progress & Live Counter */}
@@ -134,6 +132,8 @@ export function App() {
                                                 <Route path="/underground" component={Underground} />
                                                 <Route path="/agents" component={FleetPage} />
                                                 <Route path="/pilot" component={PilotDashboard} />
+                                                <Route path="/pricing" component={Pricing} />
+                                                <Route path="/api-docs" component={ApiDocs} />
                                                 <Route default component={NotFound} />
                                             </Router>
                                         </Suspense>
@@ -149,6 +149,9 @@ export function App() {
                             <ScrollToTop />
                             <NotificationToast notification={notification} />
 
+                            {/* Retry flow banners for incomplete actions */}
+                            <RetryFlowBanners />
+
                             {/* Authentic 90s Experience */}
                             <Authentic90sPopups />
                             <LiveActivityNotifications />
@@ -158,7 +161,7 @@ export function App() {
                             <SettingsPanel />
 
                             {/* Legal: Persistent disclaimer banner */}
-                            {termsAccepted && <DisclaimerBanner variant="minimal" />}
+                            {onboardingComplete && <DisclaimerBanner variant="minimal" />}
                             <ToastContainer />
                         </SwipeGestures>
                         </LocationProvider>

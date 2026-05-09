@@ -79,6 +79,22 @@ export const navigationItems: NavItem[] = [
         desktop: true,
     },
     {
+        href: "/pricing",
+        label: "Pricing",
+        icon: "💳",
+        description: "Simple, transparent pricing",
+        mobileMore: true,
+        desktop: true,
+    },
+    {
+        href: "/api-docs",
+        label: "API Docs",
+        icon: "📖",
+        description: "Agent integration guide",
+        mobileMore: true,
+        desktop: true,
+    },
+    {
         href: "/underground",
         label: "Underground",
         icon: "🕋",

@@ -17,7 +17,7 @@ const REFERRAL_REWARDS: ReferralReward[] = [
         level: 1,
         referralsNeeded: 1,
         title: "Hope Spreader",
-        rewards: ["100 DBC Bonus", "Referral Badge", "Priority Support"],
+        rewards: ["100 DBC Bonus", "Referral Badge", "1 Free Validation"],
         icon: "📢",
         unlocked: true,
         dbcBonus: 100,
@@ -26,7 +26,7 @@ const REFERRAL_REWARDS: ReferralReward[] = [
         level: 2,
         referralsNeeded: 3,
         title: "Community Builder",
-        rewards: ["250 DBC Bonus", "Member Discount", "Featured Profile"],
+        rewards: ["250 DBC Bonus", "15% Product Discount", "Featured Profile"],
         icon: "🏗️",
         unlocked: false,
         dbcBonus: 250,
@@ -202,6 +202,25 @@ export function ReferralSystem() {
                     </div>
                 </div>
             )}
+
+            {/* Double-Sided Referral Banner */}
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-6 rounded-2xl shadow-lg">
+                <div class="flex flex-col md:flex-row items-center gap-6">
+                    <div class="text-4xl">🎁</div>
+                    <div class="flex-1 text-center md:text-left">
+                        <h3 class="text-xl font-black mb-1">Both of You Earn!</h3>
+                        <p class="text-white/90">
+                            When your friend joins with your code, <strong>they get 100 DBC</strong> and <strong>you earn 100 DBC</strong>. It's a win-win.
+                        </p>
+                    </div>
+                    <a
+                        href="/pricing"
+                        class="bg-white text-green-600 font-bold py-3 px-6 rounded-xl hover:bg-green-50 transition-all whitespace-nowrap"
+                    >
+                        View Rewards →
+                    </a>
+                </div>
+            </div>
 
             {/* Referral Progress */}
             <div class="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
