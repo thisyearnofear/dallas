@@ -46,7 +46,7 @@ pub mod membership {
         ctx: Context<PurchaseMembership>,
         tier: MembershipTier,
         nickname: String,
-        health_focus: Option<String>,
+        specialization: Option<String>,
     ) -> Result<()> {
         require!(nickname.len() >= 3 && nickname.len() <= 32, MembershipError::InvalidNickname);
         
@@ -72,7 +72,7 @@ pub mod membership {
         membership.member = ctx.accounts.member.key();
         membership.tier = tier;
         membership.nickname = nickname.clone();
-        membership.health_focus = health_focus.clone().unwrap_or_default();
+        membership.specialization = specialization.clone().unwrap_or_default();
         membership.purchased_at = Clock::get()?.unix_timestamp;
         membership.expires_at = membership.purchased_at + (365 * 86400); // 1 year
         membership.is_active = true;
@@ -103,7 +103,7 @@ pub mod membership {
             member: ctx.accounts.member.key(),
             tier,
             nickname,
-            health_focus,
+            specialization,
             price,
         });
 
@@ -147,11 +147,11 @@ pub mod membership {
         Ok(())
     }
 
-    /// Update profile (nickname, health focus)
+    /// Update profile (nickname, specialization)
     pub fn update_profile(
         ctx: Context<UpdateProfile>,
         nickname: Option<String>,
-        health_focus: Option<String>,
+        specialization: Option<String>,
     ) -> Result<()> {
         let membership = &mut ctx.accounts.membership;
 
@@ -160,14 +160,14 @@ pub mod membership {
             membership.nickname = new_nickname;
         }
 
-        if let Some(new_focus) = health_focus {
-            membership.health_focus = new_focus;
+        if let Some(new_spec) = specialization {
+            membership.specialization = new_spec;
         }
 
         emit!(ProfileUpdated {
             member: ctx.accounts.member.key(),
             nickname: membership.nickname.clone(),
-            health_focus: membership.health_focus.clone(),
+            specialization: membership.specialization.clone(),
         });
 
         Ok(())
@@ -192,7 +192,7 @@ pub struct Membership {
     pub member: Pubkey,
     pub tier: MembershipTier,
     pub nickname: String,           // 3-32 chars
-    pub health_focus: String,       // e.g., "immune", "chronic pain"
+    pub specialization: String,     // e.g., "prompt_engineering", "fine_tuning", "agent_architecture"
     pub purchased_at: i64,
     pub expires_at: i64,
     pub is_active: bool,
@@ -246,7 +246,7 @@ pub struct Initialize<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(tier: MembershipTier, nickname: String, health_focus: Option<String>)]
+#[instruction(tier: MembershipTier, nickname: String, specialization: Option<String>)]
 pub struct PurchaseMembership<'info> {
     #[account(mut)]
     pub config: Account<'info, Config>,
@@ -332,7 +332,7 @@ pub struct MembershipPurchased {
     pub member: Pubkey,
     pub tier: MembershipTier,
     pub nickname: String,
-    pub health_focus: Option<String>,
+    pub specialization: Option<String>,
     pub price: u64,
 }
 
@@ -347,7 +347,7 @@ pub struct MembershipRenewed {
 pub struct ProfileUpdated {
     pub member: Pubkey,
     pub nickname: String,
-    pub health_focus: String,
+    pub specialization: String,
 }
 
 // ============= ERRORS =============

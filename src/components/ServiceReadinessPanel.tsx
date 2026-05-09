@@ -26,7 +26,10 @@ const STATUS_LABELS: Record<ReadinessStatus, string> = {
 };
 
 function getRuntimeEnv() {
-  return (import.meta as any)?.env ?? {};
+  if (typeof process !== 'undefined' && (process as any).env) {
+    return (process as any).env;
+  }
+  return {};
 }
 
 function getReadinessItems(): ReadinessItem[] {

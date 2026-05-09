@@ -119,25 +119,21 @@ export function Header() {
                     )}
                 </div>
                 <div class="relative flex items-center border-b-2 border-b-gray-dark dark:border-b-slate-600 flex-wrap gap-1 min-w-0">
-                    <span class="text-brand text-lg sm:text-xl whitespace-nowrap">
-                        {connected ? (
-                            <>balance <b>{dbcBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })} DBC</b></>
-                        ) : (
-                            <>messages <b>420</b></>
-                        )}
-                    </span>
-                    <div class="w-[2px] h-5 bg-gray-dark dark:bg-slate-500 mx-1 sm:mx-3"></div>
-                    <span class="text-brand text-lg sm:text-xl whitespace-nowrap">
-                        orders <b>69</b>
-                    </span>
-                    <div class="w-[2px] h-5 bg-gray-dark dark:bg-slate-500 mx-1 sm:mx-3"></div>
-                    <span class="text-brand text-lg sm:text-xl whitespace-nowrap">
-                        {connected && solBalance !== null ? (
-                            <>account <b>◎{solBalance.toLocaleString(undefined, { maximumFractionDigits: 4 })}</b></>
-                        ) : (
-                            <>account <b>&#8383;80085</b></>
-                        )}
-                    </span>
+                    {connected ? (
+                        <>
+                            <span class="text-brand text-lg sm:text-xl whitespace-nowrap">
+                                balance <b>{dbcBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })} DBC</b>
+                            </span>
+                            <div class="w-[2px] h-5 bg-gray-dark dark:bg-slate-500 mx-1 sm:mx-3"></div>
+                            <span class="text-brand text-lg sm:text-xl whitespace-nowrap">
+                                SOL <b>{solBalance !== null ? `◎${solBalance.toLocaleString(undefined, { maximumFractionDigits: 4 })}` : '...'}</b>
+                            </span>
+                        </>
+                    ) : (
+                        <span class="text-brand text-lg sm:text-xl whitespace-nowrap">
+                            Connect wallet to view balances
+                        </span>
+                    )}
                     {connected && !isEncrypted && (
                         <>
                             <div class="w-[2px] h-5 bg-gray-dark dark:bg-slate-500 mx-1 sm:mx-3"></div>

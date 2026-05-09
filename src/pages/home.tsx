@@ -327,8 +327,11 @@ export function Home() {
                 
                 <div class="mt-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                     <p class="text-sm text-green-800 dark:text-green-300 font-medium">
-                        <strong>💡 The bottom line:</strong> We built Dallas Buyers Club because agent architectures and optimization data are too valuable for traditional sharing platforms. 
+                        <strong>The bottom line:</strong> We built Dallas Buyers Club because agent architectures and optimization data are too valuable for traditional sharing platforms. 
                         Your IP, your control, always.
+                    </p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 italic">
+                        Note: Some features shown above are in simulated mode on devnet. See the Service Readiness panel above for live status.
                     </p>
                 </div>
             </div>
@@ -394,11 +397,10 @@ export function Home() {
 
             {/* Secret Click Area (Hidden Easter Egg) */}
             <div class="text-center mt-16">
-                <div class="text-xl font-semibold mb-4 text-gray-600 dark:text-slate-400">Trusted by the community</div>
+                <div class="text-xl font-semibold mb-4 text-gray-600 dark:text-slate-400">Open infrastructure for agent builders</div>
                 <div class="flex justify-center items-center space-x-8 opacity-60 text-slate-700 dark:text-slate-400">
-                    <span class="text-lg">⭐⭐⭐⭐⭐</span>
-                    <span class="text-sm">420+ members</span>
-                    <span class="text-sm">69+ success stories</span>
+                    <span class="text-sm">Open source</span>
+                    <span class="text-sm">Devnet live</span>
                     <span 
                         class="text-sm cursor-pointer hover:text-brand transition-colors"
                         onClick={handleSecretClick}

@@ -25,7 +25,13 @@ export interface ChainsState {
   aleo: ChainConfig;
 }
 
-const env = (import.meta as any)?.env ?? {};
+const env = (() => {
+  try {
+    return (import.meta as any)?.env ?? {};
+  } catch {
+    return (typeof process !== 'undefined' ? (process as any).env ?? {} : {});
+  }
+})();
 
 export const CHAINS_CONFIG: ChainsState = {
   solana: {

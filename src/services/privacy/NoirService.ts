@@ -126,7 +126,10 @@ interface CircuitArtifact {
   abi?: any;
 }
 
-const isRealZkEnabled = import.meta.env.VITE_ENABLE_REAL_ZK === 'true';
+// Avoid import.meta.env so Jest (CJS) can parse this file.
+// Vite shims process.env to {} at build time; real values come from
+// __DBC_* build-time defines or server-side env.
+const isRealZkEnabled = (typeof process !== 'undefined' && (process as any).env?.VITE_ENABLE_REAL_ZK === 'true');
 const loadRuntimeModule = new Function('specifier', 'return import(specifier)') as <T>(specifier: string) => Promise<T>;
 
 class NoirServiceClass {

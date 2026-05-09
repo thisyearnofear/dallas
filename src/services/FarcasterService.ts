@@ -59,7 +59,7 @@ export class FarcasterService {
    * Check if Farcaster is enabled in the app
    */
   isEnabled(): boolean {
-    return import.meta.env.VITE_FARCASTER_ENABLED === 'true';
+    return (typeof process !== 'undefined' && (process as any).env?.VITE_FARCASTER_ENABLED === 'true');
   }
 
   /**

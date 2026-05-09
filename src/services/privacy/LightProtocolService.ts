@@ -65,7 +65,8 @@ class LightProtocolServiceClass {
     if (this.initialized) return;
 
     try {
-      
+      await this.checkLightProtocolAvailability();
+      this.initialized = true;
     } catch (error) {
       console.warn('⚠️ Light Protocol initialization failed, using simulation:', error);
       this.lightProtocolAvailable = false;

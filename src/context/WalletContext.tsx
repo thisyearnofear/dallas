@@ -50,6 +50,9 @@ const MIN_TRANSACTION_AMOUNT = 0.001; // Minimum SOL amount to prevent spam
 const MAX_TRANSACTION_AMOUNT = 100; // Maximum SOL amount per transaction
 const TRANSACTION_COOLDOWN_MS = 5000; // 5 seconds cooldown between transactions
 
+// Singleton Connection — reuse across renders to avoid opening new WebSockets
+const connection = new Connection(NETWORK);
+
 function calculateReputationTier(validationCount: number, accuracyRate: number): ReputationTier {
   if (validationCount === 0) return null;
   
@@ -70,7 +73,6 @@ export function WalletProvider({ children }: { children: any }) {
   const [dbcTokenAccount, setDbcTokenAccount] = useState<PublicKey | null>(null);
   const [validationCount, setValidationCount] = useState<number>(0);
   const [accuracyRate, setAccuracyRate] = useState<number>(0);
-  const connection = new Connection(NETWORK);
 
   const [walletCluster, setWalletCluster] = useState<string | null>(null);
   const appNetwork = SOLANA_CONFIG.network;
@@ -108,7 +110,7 @@ export function WalletProvider({ children }: { children: any }) {
       setDbcBalance(0);
       setDbcTokenAccount(null);
     }
-  }, [connection]);
+  }, []);
 
   const refreshDbcBalance = useCallback(async () => {
     if (publicKey && connected) {
