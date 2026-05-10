@@ -18,12 +18,14 @@ import { FunctionalComponent } from 'preact';
 import { useState, useEffect, useCallback } from 'preact/hooks';
 import {
   privacyService,
-  lightProtocolService,
-  noirService,
-  arciumMPCService,
   PRIVACY_SCORE_WEIGHTS,
   type PrivacyLevel,
 } from '../services/privacy';
+import {
+  lightProtocolService,
+  noirService,
+  arciumMPCService,
+} from '../services/privacy/prover';
 import { useIsMobile } from './MobileEnhancements';
 import { useWallet } from '../context/WalletContext';
 import { SOLANA_CONFIG } from '../config/solana';

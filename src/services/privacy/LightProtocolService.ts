@@ -276,11 +276,6 @@ class LightProtocolServiceClass {
     };
   }
 
-  // Backward-compatible alias
-  calculateCompressionEstimate(dataSizeBytes: number, ratio: number) {
-    return this.calculateCompression(dataSizeBytes, { compressionRatio: ratio });
-  }
-
   async verifyCompression(_compressed: CompressedOptimizationLog): Promise<boolean> {
     // In a full integration this would verify merkleRoot/proof against Light Protocol.
     // For hackathon/devnet use, we treat our compression output as valid if it is well-formed.

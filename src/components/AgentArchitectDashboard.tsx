@@ -16,10 +16,10 @@ import { useState, useContext, useEffect } from 'preact/hooks';
 import { PublicKey } from '@solana/web3.js';
 import { WalletContext, useWallet } from '../context/WalletContext';
 import {
-  arciumMPCService,
   ENCRYPTION_SCHEME_OPTIONS,
   DEFAULT_MPC_CONFIG,
 } from '../services/privacy';
+import { arciumMPCService } from '../services/privacy/prover';
 import type {
   MPCAccessRequest,
   EncryptionScheme

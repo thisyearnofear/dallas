@@ -22,11 +22,7 @@ export type { ValidatorTier, TierThreshold, StakingRewards } from '../types';
 
 // Privacy Services
 export {
-  noirService,
-  lightProtocolService,
-  arciumMPCService,
   privacyService,
-  privacyServiceManager,
   PRIVACY_SCORE_WEIGHTS,
   DEFAULT_MPC_CONFIG,
 } from './privacy';

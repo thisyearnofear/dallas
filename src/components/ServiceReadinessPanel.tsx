@@ -1,6 +1,6 @@
 import { getAleoReadiness } from '../config/chains';
 import { getBlockchainConfigErrors, getRpcEndpoint, SOLANA_CONFIG } from '../config/solana';
-import { arciumMPCService, lightProtocolService } from '../services/privacy';
+import { arciumMPCService, lightProtocolService } from '../services/privacy/prover';
 
 type ReadinessStatus = 'ready' | 'partial' | 'simulated' | 'blocked';
 
@@ -39,6 +39,10 @@ function getReadinessItems(): ReadinessItem[] {
   const realZkEnabled = runtimeEnv.VITE_ENABLE_REAL_ZK === 'true';
   const heliusConfigured = Boolean(runtimeEnv.VITE_HELIUS_API_KEY || runtimeEnv.VITE_HELIUS_RPC_URL);
 
+  // Live status from services
+  const lightAvailable = lightProtocolService.isAvailable();
+  const arciumAvailable = arciumMPCService.isAvailable();
+
   return [
     {
       name: 'Solana coordination',
@@ -75,14 +79,14 @@ function getReadinessItems(): ReadinessItem[] {
     },
     {
       name: 'Light compression',
-      status: lightProtocolService.isAvailable() ? 'ready' : 'simulated',
-      detail: lightProtocolService.isAvailable() ? 'Live compression path available' : 'Compression simulator active',
+      status: lightAvailable ? 'ready' : 'simulated',
+      detail: lightAvailable ? 'Live compression path available' : 'Compression simulator active',
       action: 'Fallback preserves UX while infra matures',
     },
     {
       name: 'Arcium MPC',
-      status: arciumMPCService.isAvailable() ? 'ready' : 'simulated',
-      detail: arciumMPCService.isAvailable() ? 'MPC network path available' : 'Local committee fallback active',
+      status: arciumAvailable ? 'ready' : 'simulated',
+      detail: arciumAvailable ? 'MPC network path available' : 'Local committee fallback active',
       action: 'Threshold access flow remains testable',
     },
   ];

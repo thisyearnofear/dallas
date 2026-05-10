@@ -53,9 +53,6 @@ export const CHAINS_CONFIG: ChainsState = {
   },
 };
 
-// Backwards-compatible alias for older import sites.
-export const CHAIN_CONFIG = CHAINS_CONFIG;
-
 export interface AleoClientConfig {
   network: 'testnet' | 'mainnet';
   programId: string;

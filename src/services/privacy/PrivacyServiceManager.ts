@@ -13,9 +13,6 @@
  * - MODULAR: Each service can be used independently
  */
 
-import { noirService } from './NoirService';
-import { lightProtocolService } from './LightProtocolService';
-import { arciumMPCService } from './ArciumMPCService';
 import { track } from '../../utils/telemetry';
 
 // Service status tracking
@@ -140,6 +137,7 @@ export class PrivacyServiceManager {
      */
     private async initializeNoir(): Promise<void> {
         try {
+            const { noirService } = await import('./NoirService');
             await noirService.initialize();
             this.status.noir.initialized = true;
         } catch (error) {
@@ -153,6 +151,7 @@ export class PrivacyServiceManager {
      */
     private async initializeLightProtocol(): Promise<void> {
         try {
+            const { lightProtocolService } = await import('./LightProtocolService');
             await lightProtocolService.initialize();
             this.status.lightProtocol.initialized = true;
         } catch (error) {
@@ -166,6 +165,7 @@ export class PrivacyServiceManager {
      */
     private async initializeArciumMPC(): Promise<void> {
         try {
+            const { arciumMPCService } = await import('./ArciumMPCService');
             await arciumMPCService.initialize();
             this.status.arciumMPC.initialized = true;
         } catch (error) {
@@ -189,13 +189,19 @@ export class PrivacyServiceManager {
     }
 
     /**
-     * Get individual service instances
+     * Get individual service instances dynamically
      */
-    getServices() {
+    async getServices() {
+        const [noir, light, arcium] = await Promise.all([
+            import('./NoirService'),
+            import('./LightProtocolService'),
+            import('./ArciumMPCService'),
+        ]);
+
         return {
-            noir: noirService,
-            lightProtocol: lightProtocolService,
-            arciumMPC: arciumMPCService,
+            noir: noir.noirService,
+            lightProtocol: light.lightProtocolService,
+            arciumMPC: arcium.arciumMPCService,
         };
     }
 
@@ -256,6 +262,7 @@ export class PrivacyServiceManager {
                         proofs = await noirProofWorkerClient.generateValidationProofs(data);
                     } catch {
                         // Fallback when Worker isn't available (SSR/tests).
+                        const { noirService } = await import('./NoirService');
                         proofs = await noirService.generateValidationProofs(data);
                     }
                     result.zkProofs = proofs.map(proof => ({
@@ -274,6 +281,7 @@ export class PrivacyServiceManager {
             // Step 2: Compress data
             if (compressData && this.status.lightProtocol.initialized) {
                 try {
+                    const { lightProtocolService } = await import('./LightProtocolService');
                     // Prepare data for compression
                     const compressionData = {
                         encryptedBaseline: data.encryptedBaseline || new TextEncoder().encode(data.baselineSeverity.toString()),
@@ -353,12 +361,12 @@ export class PrivacyServiceManager {
     /**
      * Get privacy processing statistics
      */
-    getPrivacyStats(): {
+    async getPrivacyStats(): Promise<{
         noir: { circuitsLoaded: number; proofsGenerated: number };
         lightProtocol: { totalCompressed: number; averageRatio: number };
         arciumMPC: { activeSessions: number };
-    } {
-        const services = this.getServices();
+    }> {
+        const services = await this.getServices();
 
         return {
             noir: {

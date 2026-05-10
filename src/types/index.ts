@@ -177,9 +177,6 @@ export interface TechniqueStats {
   regressionRate: number;
 }
 
-/** @deprecated Use TechniqueStats instead */
-export type ProtocolStats = TechniqueStats;
-
 export interface AggregateMetrics {
   totalLogs: number;
   totalOperators: number;
@@ -198,9 +195,6 @@ export interface AnalysisExport {
   size: number;
   downloadUrl: string;
 }
-
-/** @deprecated Use AnalysisExport instead */
-export type ResearchExport = AnalysisExport;
 
 // ============= UI Types =============
 

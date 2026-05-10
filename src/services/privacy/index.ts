@@ -3,16 +3,19 @@
  * 
  * Centralized exports for all privacy-related services.
  * Follows domain-driven design with clear separation of concerns.
+ * 
+ * NOTE: For heavy proof generation/verification, import from './prover'.
+ * This index only provides types and the lightweight PrivacyService facade.
  */
 
-// Noir ZK-SNARK Service
+// Types & Metadata
 export {
-  noirService,
   CIRCUIT_METADATA,
   DEFAULT_PUBLIC_INPUTS,
 } from './NoirService';
 
 export type {
+  NoirServiceClass,
   CircuitType,
   CircuitMetadata,
   CircuitPrivateInputs,
@@ -28,24 +31,22 @@ export type {
   ResourceRangePublicInputs,
 } from './NoirService';
 
-// Light Protocol ZK Compression Service
 export {
-  lightProtocolService,
   COMPRESSION_RATIO_OPTIONS,
 } from './LightProtocolService';
 
 export type {
+  LightProtocolServiceClass,
   CompressedOptimizationLog,
 } from './LightProtocolService';
 
-// Arcium MPC Threshold Decryption Service
 export {
-  arciumMPCService,
   DEFAULT_MPC_CONFIG,
   ENCRYPTION_SCHEME_OPTIONS,
 } from './ArciumMPCService';
 
 export type {
+  ArciumMPCServiceClass,
   AccessRequestInput,
   EncryptionScheme,
 } from './ArciumMPCService';
@@ -59,7 +60,7 @@ export type {
   PrivacyLevel,
 } from '../../types';
 
-// Unified Privacy Service Facade
+// Unified Privacy Service Facade (LIGHTWEIGHT ENTRY POINT)
 export {
   PrivacyService,
   privacyService,
@@ -74,27 +75,22 @@ export type {
   PrivacyEnhancedAccessRequest,
 } from './PrivacyService';
 
-// Centralized Privacy Service Manager
-export {
-  PrivacyServiceManager,
-  privacyServiceManager,
-} from './PrivacyServiceManager';
-
+// Centralized Privacy Service Manager Types
 export type {
+  PrivacyServiceManagerClass,
   PrivacyServiceStatus,
   PrivacyOptimizationLogData,
   PrivacyProcessingResult,
 } from './PrivacyServiceManager';
 
-// Private Messaging Service
+// Private Messaging Service Types
 export {
-  PrivateMessagingService,
-  privateMessagingService,
   MESSAGING_CONFIG,
   MESSAGE_TYPE_OPTIONS,
 } from './PrivateMessagingService';
 
 export type {
+  PrivateMessagingServiceClass,
   MessageType,
   MessageStatus,
   EncryptedMessage,

@@ -23,11 +23,11 @@ import { SOLANA_CONFIG } from '../config/solana';
 import { useTheme } from '../context/ThemeContext';
 import { ToastContext } from '../context/ToastContext';
 import {
-  arciumMPCService,
   type MPCAccessRequest,
   type CommitteeMember,
   DEFAULT_MPC_CONFIG,
 } from '../services/privacy';
+import { arciumMPCService } from '../services/privacy/prover';
 import { useIsMobile } from './MobileEnhancements';
 import { PrivacyTooltip } from './PrivacyTooltip';
 

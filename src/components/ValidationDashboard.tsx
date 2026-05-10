@@ -2,9 +2,9 @@ import { FunctionalComponent } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { PublicKey, Connection } from '@solana/web3.js';
 import {
-  noirService,
   CIRCUIT_METADATA,
 } from '../services/privacy';
+import { noirService } from '../services/privacy/prover';
 import type { ProofResult, CircuitType } from '../services/privacy';
 import { useWallet } from '../context/WalletContext';
 import { fetchPendingCaseStudies, submitValidatorApproval } from '../services/BlockchainIntegration';

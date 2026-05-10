@@ -16,7 +16,7 @@ import {
     lightProtocolService,
     arciumMPCService,
     privacyServiceManager
-} from '../services/privacy';
+} from '../services/privacy/prover';
 import { DbcTokenService } from '../services/DbcTokenService';
 
 // Mock data for testing

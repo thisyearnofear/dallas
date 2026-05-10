@@ -51,6 +51,7 @@ Expected:
 - [ ] Validator action is blocked when stake eligibility is not met.
 
 ## 6) Observability
-- [ ] Open `/pilot` to view recent events.
-- [ ] Confirm you see `wallet_connect`, `tx_send`, `tx_error`, `privacy_process`, etc.
+- [x] Open `/pilot` to view recent events.
+- [x] Confirm you see `wallet_connect`, `tx_send`, `tx_error`, `privacy_process`, etc.
+
 

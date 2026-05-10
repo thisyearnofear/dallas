@@ -32,36 +32,6 @@ export function getProvider(connection: Connection, wallet?: any): AnchorProvide
 }
 
 /**
- * Parse Solana account data with proper deserialization
- * 
- * DEPRECATED: Use parseFullOptimizationLogAccount from './optimizationLogParser' for full parsing
- * This simplified version is kept for backward compatibility
- */
-export function parseOptimizationLogAccount(data: Buffer): {
-  submitter: PublicKey;
-  reputationScore: number;
-  approvalCount: number;
-  rejectionCount: number;
-  attentionTokenMint?: PublicKey;
-} {
-  // Use the full parser for accuracy
-  const pubkey = new PublicKey('11111111111111111111111111111111'); // Dummy pubkey for parsing
-  const parsed = parseFullOptimizationLogAccount(data, pubkey);
-  
-  if (!parsed) {
-    throw new Error('Failed to parse optimization log account');
-  }
-  
-  return {
-    submitter: parsed.submitter,
-    reputationScore: parsed.reputationScore,
-    approvalCount: parsed.approvalCount,
-    rejectionCount: parsed.rejectionCount,
-    attentionTokenMint: parsed.attentionTokenMint || undefined,
-  };
-}
-
-/**
  * Validate PublicKey string
  */
 export function isValidPublicKey(address: string): boolean {

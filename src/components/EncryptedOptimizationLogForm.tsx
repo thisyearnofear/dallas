@@ -15,10 +15,10 @@ import { getAleoReadiness } from '../config/chains';
 import { SubmissionConsentCheckboxes } from './LegalComponents';
 import { LEGAL_CONFIG } from '../config/legal';
 import {
-  lightProtocolService,
   COMPRESSION_RATIO_OPTIONS,
   CompressedOptimizationLog,
 } from '../services/privacy';
+import { lightProtocolService } from '../services/privacy/prover';
 import { PrivacyTooltip, PrivacyLabel } from './PrivacyTooltip';
 import { PrivacyScorePreview } from './PrivacyScorePreview';
 
