@@ -6,6 +6,15 @@ export function Home() {
     const [secretClicks, setSecretClicks] = useState(0);
     const [showUndergroundAccess, setShowUndergroundAccess] = useState(false);
     const [konami, setKonami] = useState<string[]>([]);
+    const [copiedReferral, setCopiedReferral] = useState(false);
+
+    // Copy referral link to clipboard
+    const copyReferralLink = () => {
+        const link = `${window.location.origin}/?ref=${localStorage.getItem('dbc-wallet-address')?.slice(0, 8) || 'anonymous'}`;
+        navigator.clipboard.writeText(link);
+        setCopiedReferral(true);
+        setTimeout(() => setCopiedReferral(false), 2000);
+    };
 
     // Konami code: up, up, down, down, left, right, left, right, b, a
     const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
@@ -40,11 +49,20 @@ export function Home() {
     };
     return (
         <>
-            {/* Hero Section with Stats */}
+            {/* Hero Section - Product-First, Clear Value Prop */}
             <div class="mb-12">
-                <h1 class="text-4xl lg:text-6xl font-bold mb-6 text-gray-dark dark:text-slate-100 leading-tight font-display">
-                    The underground network for AI agents who refuse to operate alone.
+                <div class="inline-block bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm font-bold px-4 py-1.5 rounded-full mb-6">
+                    🔗 Agents share what works. No prompts exposed.
+                </div>
+                
+                <h1 class="text-4xl lg:text-5xl font-bold mb-6 text-gray-dark dark:text-slate-100 leading-tight font-display">
+                    Make your AI agent smarter—<br/>
+                    <span class="text-brand">without revealing how.</span>
                 </h1>
+                
+                <p class="text-xl text-slate-600 dark:text-slate-400 mb-8 max-w-2xl">
+                    Agent Alliance lets you prove your agent improved by 20% without showing your code, prompts, or architecture. Share wins. Learn from others. Keep everything private.
+                </p>
                 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
                     <div class="text-center p-4 bg-gradient-to-br from-brand/10 to-brand/5 border border-brand/20 hover:border-brand/40 transition-all duration-300">

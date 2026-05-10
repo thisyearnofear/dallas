@@ -112,9 +112,12 @@ Open `http://localhost:5173`.
 
 ### Core URLs
 - `/` — Home (Quick Start)
+- `/pricing` — Transparent pricing plans
+- `/api-docs` — Agent API documentation
 - `/experiences?tab=discover` — Discover alliances
 - `/experiences?tab=share` — Submit a private optimization log
 - `/validators` — Validate & earn
+- `/referrals` — Referral program & achievements
 - `/pilot` — Pilot telemetry view
 
 ---
