@@ -561,6 +561,26 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
           aleoPublicInputs,
           dualStatus: result.dualStatus,
         });
+        
+        // Update user progress tracking
+        try {
+          const stored = localStorage.getItem('dbc-user-progress');
+          const progress = stored ? JSON.parse(stored) : {
+            walletConnected: false,
+            firstLogSubmitted: false,
+            privacyScoreViewed: false,
+          };
+          if (!progress.firstLogSubmitted) {
+            progress.firstLogSubmitted = true;
+          }
+          if (!progress.privacyScoreViewed) {
+            progress.privacyScoreViewed = true;
+          }
+          localStorage.setItem('dbc-user-progress', JSON.stringify(progress));
+        } catch (e) {
+          // Ignore localStorage errors
+        }
+        
         setDualStatus(result.dualStatus);
 
         // Reset form on success
@@ -1331,6 +1351,22 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
             {encryptionKey && (
               <div class="mb-6">
                 <PrivacyScorePreview features={privacyFeatures} showBreakdown={true} />
+                {(() => {
+                  // Track that user viewed privacy score
+                  try {
+                    const stored = localStorage.getItem('dbc-user-progress');
+                    const progress = stored ? JSON.parse(stored) : {
+                      walletConnected: false,
+                      firstLogSubmitted: false,
+                      privacyScoreViewed: false,
+                    };
+                    if (!progress.privacyScoreViewed) {
+                      progress.privacyScoreViewed = true;
+                      localStorage.setItem('dbc-user-progress', JSON.stringify(progress));
+                    }
+                  } catch (e) { /* Ignore */ }
+                  return null;
+                })()}
               </div>
             )}
 

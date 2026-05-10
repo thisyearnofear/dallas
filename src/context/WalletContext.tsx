@@ -152,6 +152,24 @@ export function WalletProvider({ children }: { children: any }) {
     }
   }, [publicKey, connected, fetchExperienceData]);
 
+  // Update user progress when wallet connects
+  const updateUserProgress = useCallback((walletConnected: boolean) => {
+    try {
+      const stored = localStorage.getItem('dbc-user-progress');
+      const progress = stored ? JSON.parse(stored) : {
+        walletConnected: false,
+        firstLogSubmitted: false,
+        privacyScoreViewed: false,
+      };
+      if (progress.walletConnected !== walletConnected) {
+        progress.walletConnected = walletConnected;
+        localStorage.setItem('dbc-user-progress', JSON.stringify(progress));
+      }
+    } catch (e) {
+      // Ignore localStorage errors
+    }
+  }, []);
+
   // Validate blockchain configuration on startup
   useEffect(() => {
     try {
@@ -190,6 +208,7 @@ export function WalletProvider({ children }: { children: any }) {
             const pubkeyStr = provider.publicKey.toString ? provider.publicKey.toString() : provider.publicKey;
             setPublicKey(new PublicKey(pubkeyStr));
             setConnected(true);
+            updateUserProgress(true);
             return;
           }
           
@@ -199,6 +218,7 @@ export function WalletProvider({ children }: { children: any }) {
             const pubkeyStr = response.publicKey.toString ? response.publicKey.toString() : response.publicKey;
             setPublicKey(new PublicKey(pubkeyStr));
             setConnected(true);
+            updateUserProgress(true);
           }
         } catch (err) {
           // Auto-connection expected to fail if user hasn't trusted the site
@@ -210,7 +230,7 @@ export function WalletProvider({ children }: { children: any }) {
     // Delay slightly to ensure Phantom is fully injected
     const timer = setTimeout(checkConnection, 500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [updateUserProgress]);
 
   // Listen for account changes
   useEffect(() => {
@@ -224,19 +244,23 @@ export function WalletProvider({ children }: { children: any }) {
           const pubkeyStr = newPublicKey.toString ? newPublicKey.toString() : newPublicKey;
           setPublicKey(new PublicKey(pubkeyStr));
           setConnected(true);
+          updateUserProgress(true);
         } catch (err) {
           console.error('Invalid public key from wallet:', err);
           setPublicKey(null);
           setConnected(false);
+          updateUserProgress(false);
         }
       } else {
         setPublicKey(null);
         setConnected(false);
+        updateUserProgress(false);
       }
     };
 
     const onConnect = () => {
       setConnected(true);
+      updateUserProgress(true);
     };
 
     const onDisconnect = () => {
@@ -244,6 +268,7 @@ export function WalletProvider({ children }: { children: any }) {
       setConnected(false);
       setValidationCount(0);
       setAccuracyRate(0);
+      updateUserProgress(false);
     };
 
     provider.on('accountChanged', onAccountChanged);
@@ -279,6 +304,7 @@ export function WalletProvider({ children }: { children: any }) {
         const pubkeyStr = provider.publicKey.toString ? provider.publicKey.toString() : provider.publicKey;
         setPublicKey(new PublicKey(pubkeyStr));
         setConnected(true);
+        updateUserProgress(true);
         setConnecting(false);
         return;
       }
@@ -302,6 +328,7 @@ export function WalletProvider({ children }: { children: any }) {
         const pubkeyStr = response.publicKey.toString ? response.publicKey.toString() : response.publicKey;
         setPublicKey(new PublicKey(pubkeyStr));
         setConnected(true);
+        updateUserProgress(true);
         // Update wallet cluster after connect (some providers only expose it then)
         const postConnectNetwork = provider.network || provider.cluster || null;
         setWalletCluster(postConnectNetwork);
