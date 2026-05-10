@@ -7,6 +7,33 @@ export function Home() {
     const [showUndergroundAccess, setShowUndergroundAccess] = useState(false);
     const [konami, setKonami] = useState<string[]>([]);
     const [copiedReferral, setCopiedReferral] = useState(false);
+    const [showDemo, setShowDemo] = useState(false);
+    
+    // Progress tracking for first win
+    const [userProgress, setUserProgress] = useState({
+        walletConnected: false,
+        firstLogSubmitted: false,
+        privacyScoreViewed: false,
+    });
+
+    // Load progress from localStorage
+    useEffect(() => {
+        const stored = localStorage.getItem('dbc-user-progress');
+        if (stored) {
+            setUserProgress(JSON.parse(stored));
+        }
+        // Check if wallet is connected
+        const walletAddr = localStorage.getItem('dbc-wallet-address');
+        if (walletAddr) {
+            setUserProgress(prev => ({...prev, walletConnected: true}));
+        }
+    }, []);
+
+    const updateProgress = (key: keyof typeof userProgress, value: boolean) => {
+        const updated = {...userProgress, [key]: value};
+        setUserProgress(updated);
+        localStorage.setItem('dbc-user-progress', JSON.stringify(updated));
+    };
 
     // Copy referral link to clipboard
     const copyReferralLink = () => {
@@ -47,6 +74,15 @@ export function Home() {
             return newClicks;
         });
     };
+
+    // Calculate first win completion
+    const firstWinSteps = [
+        { id: 'wallet', label: 'Connect Wallet', done: userProgress.walletConnected, action: '/membership' },
+        { id: 'log', label: 'Submit First Log', done: userProgress.firstLogSubmitted, action: '/experiences?tab=share' },
+        { id: 'privacy', label: 'View Privacy Score', done: userProgress.privacyScoreViewed, action: '/experiences?tab=share' },
+    ];
+    const completedSteps = firstWinSteps.filter(s => s.done).length;
+    const isFirstWinComplete = completedSteps === firstWinSteps.length;
     return (
         <>
             {/* Hero Section - Product-First, Clear Value Prop */}
@@ -82,6 +118,76 @@ export function Home() {
                         <div class="text-sm text-gray-600 dark:text-slate-400">Collective Learning</div>
                     </div>
                 </div>
+
+                {/* Demo Mode CTA - Right after stats */}
+                <div class="mb-8">
+                    <button
+                        onClick={() => setShowDemo(true)}
+                        class="inline-flex items-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-4 px-8 rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+                    >
+                        <span class="text-2xl">⚡</span>
+                        <span class="text-lg">Try Demo Mode — See encryption in action</span>
+                    </button>
+                    <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">
+                        No wallet needed • Experience the full flow with sample data
+                    </p>
+                </div>
+
+                {/* Your First Win Progress Panel */}
+                <div class="mb-12 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-200 dark:border-green-800 rounded-xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-green-800 dark:text-green-300 flex items-center gap-2">
+                                🏆 Your First Win
+                            </h3>
+                            <p class="text-sm text-green-600 dark:text-green-400 mt-1">
+                                {isFirstWinComplete 
+                                    ? "You've completed all steps! Welcome to the Alliance." 
+                                    : `${completedSteps}/${firstWinSteps.length} steps completed`}
+                            </p>
+                        </div>
+                        <div class="text-3xl">{isFirstWinComplete ? '🎉' : '🚀'}</div>
+                    </div>
+                    
+                    {/* Progress bar */}
+                    <div class="h-3 bg-green-100 dark:bg-green-900/50 rounded-full mb-4 overflow-hidden">
+                        <div 
+                            class="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-500"
+                            style={{ width: `${(completedSteps / firstWinSteps.length) * 100}%` }}
+                        />
+                    </div>
+
+                    {/* Steps */}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {firstWinSteps.map((step, idx) => (
+                            <a
+                                key={step.id}
+                                href={step.action}
+                                class={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
+                                    step.done 
+                                        ? 'bg-green-100 dark:bg-green-900/30 border-green-400 dark:border-green-600' 
+                                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-green-400'
+                                }`}
+                            >
+                                <div class={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+                                    step.done 
+                                        ? 'bg-green-500 text-white' 
+                                        : 'bg-slate-200 dark:bg-slate-700 text-slate-500'
+                                }`}>
+                                    {step.done ? '✓' : idx + 1}
+                                </div>
+                                <div class="flex-1">
+                                    <div class={`font-bold ${step.done ? 'text-green-700 dark:text-green-300' : 'text-slate-700 dark:text-slate-300'}`}>
+                                        {step.label}
+                                    </div>
+                                    <div class="text-xs text-slate-500 dark:text-slate-400">
+                                        {step.done ? 'Completed!' : 'Click to complete'}
+                                    </div>
+                                </div>
+                            </a>
+                        ))}
+                    </div>
+                </div>
             </div>
 
             {/* Quick Start (reduces cognitive load for first-time users) */}
@@ -99,10 +205,10 @@ export function Home() {
                             class="block p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-brand/60 hover:shadow-md transition-all bg-slate-50/50 dark:bg-slate-800/30"
                         >
                             <div class="text-xl font-bold text-slate-900 dark:text-white mb-1">
-                                🌐 Discover Alliances
+                                🔍 Find Your Problem Area
                             </div>
                             <div class="text-sm text-slate-600 dark:text-slate-400">
-                                Explore what others are working on and find the right community to join.
+                                See what challenges other builders are solving—context, tools, hallucinations, and more.
                             </div>
                         </a>
                         <a
@@ -110,10 +216,10 @@ export function Home() {
                             class="block p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-brand/60 hover:shadow-md transition-all bg-slate-50/50 dark:bg-slate-800/30"
                         >
                             <div class="text-xl font-bold text-slate-900 dark:text-white mb-1">
-                                📋 Submit a Private Log
+                                📤 Share an Optimization Win
                             </div>
                             <div class="text-sm text-slate-600 dark:text-slate-400">
-                                Encrypt locally, compress, and submit without exposing prompts or architecture.
+                                Prove your agent improved—no code exposed. See your privacy score in real-time.
                             </div>
                         </a>
                         <a
@@ -121,10 +227,10 @@ export function Home() {
                             class="block p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-brand/60 hover:shadow-md transition-all bg-slate-50/50 dark:bg-slate-800/30"
                         >
                             <div class="text-xl font-bold text-slate-900 dark:text-white mb-1">
-                                ⚖️ Validate & Earn
+                                ⚖️ Validate & Earn DBC
                             </div>
                             <div class="text-sm text-slate-600 dark:text-slate-400">
-                                Stake reputation and validate improvements using privacy tech.
+                                Stake DBC to verify others' improvements. Earn SOL for accurate validations.
                             </div>
                         </a>
                     </div>
@@ -444,6 +550,84 @@ export function Home() {
                     </div>
                 )}
             </div>
+
+            {/* Demo Mode Modal */}
+            {showDemo && (
+                <div class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setShowDemo(false)}>
+                    <div class="bg-white dark:bg-slate-900 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8" onClick={(e) => e.stopPropagation()}>
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-bold text-slate-900 dark:text-white">⚡ Demo Mode</h2>
+                            <button 
+                                onClick={() => setShowDemo(false)}
+                                class="text-slate-500 hover:text-slate-700 dark:text-slate-400"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <p class="text-slate-600 dark:text-slate-400 mb-6">
+                            Watch how your optimization data gets encrypted, compressed, and submitted—all without exposing your prompt or architecture.
+                        </p>
+
+                        {/* Demo Steps */}
+                        <div class="space-y-6 mb-8">
+                            <div class="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                                <div class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 dark:text-white">Your Data</h4>
+                                    <p class="text-sm text-slate-600 dark:text-slate-400">"My agent was 15% faster with new prompt structure..."</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-center">
+                                <span class="text-2xl">⬇️</span>
+                            </div>
+                            <div class="flex items-start gap-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                                <div class="w-10 h-10 bg-yellow-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                                <div>
+                                    <h4 class="font-bold text-yellow-800 dark:text-yellow-300">Encrypted with Your Wallet Key</h4>
+                                    <p class="text-sm text-yellow-700 dark:text-yellow-400">a8f3b2c1...4e5f6 (hashed)</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-center">
+                                <span class="text-2xl">⬇️</span>
+                            </div>
+                            <div class="flex items-start gap-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                                <div class="w-10 h-10 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                                <div>
+                                    <h4 class="font-bold text-purple-800 dark:text-purple-300">ZK Compression</h4>
+                                    <p class="text-sm text-purple-700 dark:text-purple-400">Size: 12KB → 0.8KB (93% smaller)</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-center">
+                                <span class="text-2xl">⬇️</span>
+                            </div>
+                            <div class="flex items-start gap-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                                <div class="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center font-bold">4</div>
+                                <div>
+                                    <h4 class="font-bold text-green-800 dark:text-green-300">Submitted! Privacy Score: 95%</h4>
+                                    <p class="text-sm text-green-700 dark:text-green-400">Proof verified on-chain. No IP exposed.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <a 
+                                href="/experiences?tab=share"
+                                onClick={() => setShowDemo(false)}
+                                class="flex-1 bg-brand text-white font-bold py-3 px-6 rounded-lg hover:bg-brand/90 text-center"
+                            >
+                                Submit Real Log →
+                            </a>
+                            <button 
+                                onClick={() => setShowDemo(false)}
+                                class="px-6 py-3 text-slate-600 dark:text-slate-400 hover:text-slate-800"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }
