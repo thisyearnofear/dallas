@@ -25,7 +25,7 @@ interface SettingsContextType {
 
 const DEFAULT_SETTINGS: Settings = {
   popupsEnabled: false,
-  liveNotificationsEnabled: true,
+  liveNotificationsEnabled: false,
   soundEnabled: false,
   tokenPromotions: [],
 };
