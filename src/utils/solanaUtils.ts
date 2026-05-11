@@ -7,8 +7,8 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import { AnchorProvider } from '@coral-xyz/anchor';
 import { parseOptimizationLogAccount as parseFullOptimizationLogAccount, ParsedOptimizationLog } from './optimizationLogParser';
 
-// Re-export the full parser
-export { parseOptimizationLogAccount as parseFullOptimizationLogAccount, type ParsedOptimizationLog } from './optimizationLogParser';
+// Re-export the parser under both names for backward compatibility
+export { parseOptimizationLogAccount, parseOptimizationLogAccount as parseFullOptimizationLogAccount, type ParsedOptimizationLog } from './optimizationLogParser';
 
 /**
  * Get Anchor provider from connection and wallet

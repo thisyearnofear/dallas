@@ -59,9 +59,9 @@ export const AttentionTokenPortfolio: React.FC = () => {
         ],
       });
 
-      const holdingsPromises = accounts.map(async ({ account }) => {
+      const holdingsPromises = accounts.map(async ({ pubkey, account }) => {
         try {
-          const parsed = parseOptimizationLogAccount(account.data);
+          const parsed = parseOptimizationLogAccount(account.data, pubkey);
           if (!parsed.attentionTokenMint) return null;
 
           // Get user's token balance

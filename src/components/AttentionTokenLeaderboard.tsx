@@ -70,7 +70,7 @@ export const AttentionTokenLeaderboard: React.FC = () => {
         const tokensWithAnalytics = await Promise.all(
           accounts.map(async ({ pubkey, account }, index) => {
             try {
-              const parsed = parseOptimizationLogAccount(account.data);
+              const parsed = parseOptimizationLogAccount(account.data, pubkey);
               if (!parsed.attentionTokenMint) return null;
 
               const analytics = await attentionTokenService.getTokenAnalytics(

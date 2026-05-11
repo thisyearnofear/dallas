@@ -58,9 +58,9 @@ export const AttentionTokenTransactionHistory: React.FC = () => {
       });
 
       // Fetch trade history for each token
-      const txPromises = accounts.map(async ({ account }) => {
+      const txPromises = accounts.map(async ({ pubkey, account }) => {
         try {
-          const parsed = parseOptimizationLogAccount(account.data);
+          const parsed = parseOptimizationLogAccount(account.data, pubkey);
           if (!parsed.attentionTokenMint) return [];
 
           const trades = await attentionTokenTradingService.getTradeHistory(

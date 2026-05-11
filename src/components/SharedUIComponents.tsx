@@ -10,8 +10,7 @@ export { AgentLoadingScreen } from './LoadingScreen';
 export { AgentLoadingScreen as LoadingScreen } from './LoadingScreen';
 
 // Network Status
-export { EnhancedNetworkStatus } from './EnhancedNetworkStatus';
-export { EnhancedNetworkStatus as NetworkStatus } from './EnhancedNetworkStatus';
+export { NetworkStatus } from './NetworkStatus';
 
 // Danger Indicator
 export { AgentEnhancedDangerIndicator } from './DangerIndicator';

@@ -44,13 +44,11 @@ const Validators: any = lazy(() => import("./pages/validators").then((m) => ({ d
 const AttentionTokens: any = lazy(() => import("./pages/attention-tokens").then((m) => ({ default: m.default })));
 const Products: any = lazy(() => import("./pages/products").then((m) => ({ default: m.Products })));
 const Links: any = lazy(() => import("./pages/links").then((m) => ({ default: m.Links })));
-const Donate: any = lazy(() => import("./pages/donate").then((m) => ({ default: m.Donate })));
 const Membership: any = lazy(() => import("./pages/membership").then((m) => ({ default: m.Membership })));
 const Achievements: any = lazy(() => import("./pages/achievements").then((m) => ({ default: m.Achievements })));
 const Referrals: any = lazy(() => import("./pages/referrals").then((m) => ({ default: m.Referrals })));
 const Underground: any = lazy(() => import("./pages/underground").then((m) => ({ default: m.default })));
 const FleetPage: any = lazy(() => import("./pages/agents").then((m) => ({ default: m.default })));
-const PilotDashboard: any = lazy(() => import("./pages/pilot").then((m) => ({ default: m.default })));
 const Pricing: any = lazy(() => import("./pages/pricing").then((m) => ({ default: m.Pricing })));
 const ApiDocs: any = lazy(() => import("./pages/api-docs").then((m) => ({ default: m.default })));
 const NotFound: any = lazy(() => import("./pages/_404").then((m) => ({ default: m.NotFound })));
@@ -128,13 +126,11 @@ export function App() {
                                                 <Route path="/attention-tokens" component={AttentionTokens} />
                                                 <Route path="/products" component={Products} />
                                                 <Route path="/links" component={Links} />
-                                                <Route path="/donate" component={Donate} />
                                                 <Route path="/membership" component={Membership} />
                                                 <Route path="/achievements" component={Achievements} />
                                                 <Route path="/referrals" component={Referrals} />
                                                 <Route path="/underground" component={Underground} />
                                                 <Route path="/agents" component={FleetPage} />
-                                                <Route path="/pilot" component={PilotDashboard} />
                                                 <Route path="/pricing" component={Pricing} />
                                                 <Route path="/api-docs" component={ApiDocs} />
                                                 <Route default component={NotFound} />

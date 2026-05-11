@@ -319,8 +319,8 @@ describe('Privacy Service Integration', () => {
             expect(validation.issues).toHaveLength(0);
         });
 
-        it('should provide privacy statistics', () => {
-            const stats = privacyServiceManager.getPrivacyStats();
+        it('should provide privacy statistics', async () => {
+            const stats = await privacyServiceManager.getPrivacyStats();
 
             expect(stats.noir.circuitsLoaded).toBe(4);
             expect(stats.lightProtocol.totalCompressed).toBeGreaterThanOrEqual(0);

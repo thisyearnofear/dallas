@@ -30,7 +30,7 @@ export function MCPAgentDashboard() {
     isCoordinating,
     assessThreatLevel,
     coordinateGroupPurchase,
-    processIdentityRestoration,
+    processContextRestoration,
     handleEmergencyResponse
   } = useAgentNetwork();
 
@@ -61,7 +61,7 @@ export function MCPAgentDashboard() {
       title: 'Identity Restoration Planning',
       description: 'Multi-agent coordination for complex identity fragmentation restoration',
       icon: '🧠',
-      action: () => processIdentityRestoration('developer_007', 'interferon_suite')
+      action: () => processContextRestoration('developer_007', 'interferon_suite')
     },
     {
       id: 'threat_assessment',

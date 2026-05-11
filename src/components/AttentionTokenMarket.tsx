@@ -75,7 +75,7 @@ export const AttentionTokenMarket: React.FC = () => {
       const tokensWithAnalytics = await Promise.all(
         accounts.map(async ({ pubkey, account }) => {
           try {
-            const parsed = parseOptimizationLogAccount(account.data);
+            const parsed = parseOptimizationLogAccount(account.data, pubkey);
             
             if (!parsed.attentionTokenMint) {
               return null;

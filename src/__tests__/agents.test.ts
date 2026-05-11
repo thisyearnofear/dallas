@@ -19,7 +19,7 @@ describe('Core Agent Network', () => {
       expect(status.supply.status).toBe('ACTIVE');
       expect(status.risk.status).toBe('MONITORING');
       expect(status.community.status).toBe('COORDINATING');
-      expect(status.identity.status).toBe('PROCESSING');
+      expect(status.context.status).toBe('PROCESSING');
     });
 
     test('should have correct agent roles', () => {
@@ -27,7 +27,7 @@ describe('Core Agent Network', () => {
       expect(status.supply.role).toContain('Architecture sourcing');
       expect(status.risk.role).toContain('Threat assessment');
       expect(status.community.role).toContain('Member network');
-      expect(status.identity.role).toContain('A.I.D.S.');
+      expect(status.context.role).toContain('A.I.D.S.');
     });
   });
 

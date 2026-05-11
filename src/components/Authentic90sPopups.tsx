@@ -40,6 +40,7 @@ const popupAds: PopupAd[] = [
         urgent: false
     },
     { 
+        id: '2',
         type: 'freetrials',
         entityName: 'DevToolsUnlimited.net',
         title: 'FREE ZK CIRCUIT AUDIT!',
