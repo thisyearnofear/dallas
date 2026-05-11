@@ -15,7 +15,6 @@ export {
 } from './NoirService';
 
 export type {
-  NoirServiceClass,
   CircuitType,
   CircuitMetadata,
   CircuitPrivateInputs,
@@ -36,7 +35,6 @@ export {
 } from './LightProtocolService';
 
 export type {
-  LightProtocolServiceClass,
   CompressedOptimizationLog,
 } from './LightProtocolService';
 
@@ -46,7 +44,6 @@ export {
 } from './ArciumMPCService';
 
 export type {
-  ArciumMPCServiceClass,
   AccessRequestInput,
   EncryptionScheme,
 } from './ArciumMPCService';
@@ -77,7 +74,6 @@ export type {
 
 // Centralized Privacy Service Manager Types
 export type {
-  PrivacyServiceManagerClass,
   PrivacyServiceStatus,
   PrivacyOptimizationLogData,
   PrivacyProcessingResult,
@@ -90,7 +86,6 @@ export {
 } from './PrivateMessagingService';
 
 export type {
-  PrivateMessagingServiceClass,
   MessageType,
   MessageStatus,
   EncryptedMessage,

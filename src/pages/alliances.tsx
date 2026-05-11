@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "preact/compat";
-import { CommunityCreationForm } from "./experiences";
+import { CommunityCreationForm } from "../components/CommunityCreationForm";
 
 const ProtocolDiscovery: any = lazy(() =>
     import("../components/ProtocolDiscovery").then((m) => ({

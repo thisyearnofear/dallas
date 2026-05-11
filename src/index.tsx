@@ -38,7 +38,6 @@ import { useConsent } from "./hooks/useConsent";
 
 // Route-level code splitting: keep initial bundle small.
 const Home: any = lazy(() => import("./pages/home").then((m) => ({ default: m.Home })));
-const Experiences: any = lazy(() => import("./pages/experiences").then((m) => ({ default: m.Experiences })));
 const AlliancesPage: any = lazy(() => import("./pages/alliances").then((m) => ({ default: m.default })));
 const SubmitPage: any = lazy(() => import("./pages/submit").then((m) => ({ default: m.default })));
 const Validators: any = lazy(() => import("./pages/validators").then((m) => ({ default: m.default })));
@@ -123,7 +122,6 @@ export function App() {
                                         >
                                             <Router>
                                                 <Route path="/" component={Home} />
-                                                <Route path="/experiences" component={Experiences} />
                                                 <Route path="/alliances" component={AlliancesPage} />
                                                 <Route path="/submit" component={SubmitPage} />
                                                 <Route path="/validators" component={Validators} />

@@ -80,7 +80,7 @@ export function ProtocolCard({ protocol, featured = false }: ProtocolCardProps) 
             {/* Action Buttons */}
             <div class="flex gap-2 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
                 <a
-                    href={`/experiences`}
+                    href={`/alliances`}
                     class={`
                         flex-1 bg-brand text-white font-bold py-2 px-4 rounded shadow-md
                         hover:bg-brand-accent transition-all duration-300

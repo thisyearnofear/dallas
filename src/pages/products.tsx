@@ -175,7 +175,7 @@ export function Products() {
                     </p>
                     <div class="flex flex-wrap justify-center gap-4">
                         <a
-                            href="/experiences"
+                            href="/alliances"
                             class="bg-brand text-white font-bold py-3 px-8 rounded-lg hover:bg-brand-accent transition-all transform hover:scale-105 shadow-lg"
                         >
                             🌐 Explore Communities

@@ -390,7 +390,7 @@ export function MembershipSystem() {
 
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="/experiences"
+              href="/alliances"
               class="bg-brand hover:bg-brand-accent text-white font-bold py-4 px-8 rounded-xl transition-all"
             >
               Explore Communities

@@ -309,7 +309,7 @@ export const SwipeGestures: FunctionalComponent<{ children: any }> = ({ children
         const diffX = startX - endX;
         const minSwipeDistance = 50;
 
-        const pages = ['/', '/experiences', '/membership', '/achievements', '/referrals'];
+        const pages = ['/', '/alliances', '/membership', '/achievements', '/referrals'];
         const currentIndex = pages.indexOf(currentPage);
 
         // Swipe left (next page)

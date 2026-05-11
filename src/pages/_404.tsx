@@ -39,7 +39,7 @@ export function NotFound() {
                     🏠 Go Home
                 </a>
                 <a
-                    href="/experiences"
+                    href="/alliances"
                     class="border-2 border-brand text-brand hover:bg-brand hover:text-white font-bold py-3 px-8 rounded-xl transition-all transform hover:scale-105 text-center"
                 >
                     🌐 Explore Communities

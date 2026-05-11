@@ -60,8 +60,6 @@ export { AttentionTokenAnalyticsDashboard } from './AttentionTokenAnalyticsDashb
 
 // Membership Components
 export { MembershipSystem } from './MembershipSystem';
-export { MembershipPurchase } from './MembershipPurchase';
-export { MembershipFlow } from './MembershipFlow';
 
 // Privacy Components
 export { PrivacyTooltip } from './PrivacyTooltip';
@@ -91,7 +89,6 @@ export { ErrorBoundary } from './ErrorBoundary';
 export { ErrorBoundaryWrapper } from './ErrorBoundaryWrapper';
 
 // Loading Components
-export { ValidationDashboard } from './ValidationDashboard';
 export { NetworkStatus } from './NetworkStatus';
 export { TransactionHistory } from './TransactionHistory';
 export { SettingsPanel } from './SettingsPanel';

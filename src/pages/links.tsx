@@ -60,7 +60,7 @@ export function Links() {
                                 Join our alliance forums and connect with other builders tackling similar agent challenges. Share techniques and find collaborators.
                             </p>
                             <a 
-                                href="/experiences"
+                                href="/alliances"
                                 class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 px-6 rounded-lg transition-all transform hover:scale-105 shadow-md uppercase tracking-widest text-xs text-center"
                             >
                                 🌐 Explore Communities
@@ -85,7 +85,7 @@ export function Links() {
                                     📱 Share & Earn
                                 </a>
                                 <a 
-                                    href="/experiences"
+                                    href="/alliances"
                                     class="bg-green-600 hover:bg-green-700 text-white font-black py-3 px-4 rounded-lg transition-all transform hover:scale-105 shadow-md uppercase tracking-tighter text-[10px] text-center"
                                 >
                                     🌐 Explore Alliances

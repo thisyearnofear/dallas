@@ -329,7 +329,7 @@ export const AttentionTokenMarket: React.FC = () => {
             The market is currently dormant. Be the first to launch an attention token for your validated research.
           </p>
           <a
-            href="/experiences"
+            href="/alliances"
             className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-black px-10 py-4 rounded-2xl transition-all transform hover:scale-105 active:scale-95 shadow-xl shadow-purple-500/20 uppercase tracking-widest text-sm"
           >
             Deploy Research Profile
