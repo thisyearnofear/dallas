@@ -87,8 +87,8 @@ export const FloatingActionButton: FunctionalComponent = () => {
 
     const actions = [
         { icon: '🤝', label: 'Quick Join', action: () => setShowQuickJoin(true), color: 'bg-green-500 hover:bg-green-600' },
-        { icon: '🌐', label: 'Alliances', action: () => { window.location.href = '/experiences'; }, color: 'bg-blue-500 hover:bg-blue-600' },
-        { icon: '📋', label: 'Submit Log', action: () => { window.location.href = '/experiences?tab=share'; }, color: 'bg-purple-500 hover:bg-purple-600' },
+        { icon: '🌐', label: 'Alliances', action: () => { window.location.href = '/alliances'; }, color: 'bg-blue-500 hover:bg-blue-600' },
+         { icon: '📋', label: 'File Claim', action: () => { window.location.href = '/submit'; }, color: 'bg-purple-500 hover:bg-purple-600' },
     ];
 
     return (

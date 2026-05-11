@@ -207,7 +207,7 @@ export function Pricing() {
                             <button
                                 onClick={() => {
                                     if (plan.id === "free") {
-                                        window.location.href = "/experiences?tab=discover";
+                                        window.location.href = "/alliances";
                                     } else {
                                         window.location.href = `/membership?plan=${plan.id}`;
                                     }
@@ -311,7 +311,7 @@ export function Pricing() {
                 <p class="text-xl mb-8 opacity-90">Start free. No credit card required.</p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <button
-                        onClick={() => window.location.href = "/experiences?tab=discover"}
+                        onClick={() => window.location.href = "/alliances"}
                         class="bg-white text-brand font-bold py-3 px-8 rounded-xl hover:bg-slate-100 transition-all"
                     >
                         Explore Free →

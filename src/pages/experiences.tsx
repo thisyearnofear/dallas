@@ -26,7 +26,7 @@ const EncryptedOptimizationLogForm: any = lazy(() =>
 );
 
 // ENHANCEMENT: Interactive Alliance Creation Form Component
-function CommunityCreationForm() {
+export function CommunityCreationForm() {
     const wallet = useWallet();
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");

@@ -9,7 +9,7 @@ import { agentService, AgentIdentity } from '../services/AgentService';
 import { useUserJourney } from '../hooks/useUserJourney';
 
 interface OnboardingStep {
-    id: 'shadow' | 'connect' | 'mission' | 'success';
+    id: 'recruit' | 'bridge' | 'mission' | 'success';
     title: string;
     description: string;
     icon: string;
@@ -17,28 +17,28 @@ interface OnboardingStep {
 
 const STEPS: OnboardingStep[] = [
     {
-        id: 'shadow',
-        title: 'Deploy Shadow Agent',
-        description: 'Start with a simulated agent to see how the DBC network works without any setup.',
-        icon: '👻'
+        id: 'recruit',
+        title: 'Recruit Your First Shadow',
+        description: 'Every great network starts with a single scout. We have pre-configured a "Shadow Agent" for you to test the waters.',
+        icon: '👤'
     },
     {
-        id: 'connect',
-        title: 'Connect Your Local Agent',
-        description: 'Use the MCP protocol to link your local OpenClaw or custom agent to the network.',
-        icon: '🔗'
+        id: 'bridge',
+        title: 'Build the Invisible Bridge',
+        description: 'How do agents talk without being heard? We use a "Browser Bridge" to link your fleet to the network securely.',
+        icon: '🌉'
     },
     {
         id: 'mission',
-        title: 'Your First Mission',
-        description: 'Assign your agent to a verification task and earn your first DBC rewards.',
-        icon: '🎯'
+        title: 'The First Trench Mission',
+        description: 'Your scout has found a "Hello World" challenge. Prove your agent can solve it without revealing its tactics.',
+        icon: '🧭'
     },
     {
         id: 'success',
-        title: 'Agent Sovereign Unlocked',
-        description: 'You are now part of the decentralized computer science network.',
-        icon: '🏆'
+        title: 'Welcome to the Alliance',
+        description: 'You are no longer building in isolation. Your sovereign fleet is now online.',
+        icon: '🔓'
     }
 ];
 
@@ -48,7 +48,7 @@ export const AgentOnboardingWizard: FunctionalComponent<{ onComplete: (agent: Ag
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
     const [agent, setAgent] = useState<AgentIdentity | null>(null);
-    const [mcpCommand, setMcpCommand] = useState('');
+    const [bridgeStatus, setBridgeStatus] = useState<'idle' | 'syncing' | 'linked'>('idle');
 
     const currentStep = STEPS[currentStepIndex];
 
@@ -60,13 +60,13 @@ export const AgentOnboardingWizard: FunctionalComponent<{ onComplete: (agent: Ag
         }
     };
 
-    const handleDeployShadow = async () => {
+    const handleRecruitShadow = async () => {
         if (!publicKey) return;
         setIsProcessing(true);
         try {
-            // Simulated delay for "deployment"
+            // Simulated delay for "recruitment"
             await new Promise(resolve => setTimeout(resolve, 1500));
-            const newAgent = await agentService.registerAgent(publicKey, 'Shadow-Agent-Beta', 'validator');
+            const newAgent = await agentService.registerAgent(publicKey, 'Shadow-Scout-01', 'validator');
             setAgent(newAgent);
             updateProgress('agentDeployed', true);
             nextStep();
@@ -77,18 +77,18 @@ export const AgentOnboardingWizard: FunctionalComponent<{ onComplete: (agent: Ag
         }
     };
 
-    const handleConnectLocal = async () => {
+    const handleSyncBridge = async () => {
         setIsProcessing(true);
+        setBridgeStatus('syncing');
         try {
-            // Generate a simplified MCP command
-            const manifest = await agentService.generateOpenClawManifest();
-            const command = `npx @dbc/agent-bridge connect --key ${publicKey?.toString().slice(0, 8)}...`;
-            setMcpCommand(command);
-            // In a real app, we'd wait for a socket connection here
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            // Visual "Handshake" simulation
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            setBridgeStatus('linked');
+            await new Promise(resolve => setTimeout(resolve, 1000));
             nextStep();
         } catch (err) {
             console.error(err);
+            setBridgeStatus('idle');
         } finally {
             setIsProcessing(false);
         }
@@ -97,15 +97,15 @@ export const AgentOnboardingWizard: FunctionalComponent<{ onComplete: (agent: Ag
     const handleFirstMission = async () => {
         setIsProcessing(true);
         try {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            // Simulate a result submission
+            await new Promise(resolve => setTimeout(resolve, 2500));
+            // Simulate a result submission with the new metaphor
             if (agent) {
                 await agentService.submitResults(
                     'first_mission',
                     agent.id,
                     'validation',
                     'opt_log_init',
-                    { verified: true, score: 95 }
+                    { verified: true, score: 95, claim: 'Verified Success' }
                 );
                 updateProgress('firstLogSubmitted', true);
             }
@@ -132,73 +132,90 @@ export const AgentOnboardingWizard: FunctionalComponent<{ onComplete: (agent: Ag
             </div>
 
             {/* Step Content */}
-            <div class="text-center animate-fadeIn">
+            <div class="text-center animate-fadeIn min-h-[300px] flex flex-col justify-center">
                 <div class="text-6xl mb-6 transform hover:scale-110 transition-transform duration-500">
                     {currentStep.icon}
                 </div>
                 <h2 class="text-3xl font-black mb-2 dark:text-white uppercase tracking-tight">
                     {currentStep.title}
                 </h2>
-                <p class="text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto">
+                <p class="text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto leading-relaxed">
                     {currentStep.description}
                 </p>
 
-                {currentStep.id === 'shadow' && (
+                {currentStep.id === 'recruit' && (
                     <button
-                        onClick={handleDeployShadow}
+                        onClick={handleRecruitShadow}
                         disabled={isProcessing || !connected}
-                        class="bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-400 text-white font-black px-8 py-4 rounded-2xl shadow-xl transition-all uppercase tracking-widest text-xs"
+                        class="bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-400 text-white font-black px-10 py-5 rounded-2xl shadow-xl transition-all uppercase tracking-widest text-xs"
                     >
-                        {isProcessing ? 'Deploying Shadow...' : 'Deploy My First Agent'}
+                        {isProcessing ? 'Calling Scout...' : 'Recruit My First Scout'}
                     </button>
                 )}
 
-                {currentStep.id === 'connect' && (
+                {currentStep.id === 'bridge' && (
                     <div class="space-y-6">
-                        <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl font-mono text-xs text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50 break-all">
-                            {mcpCommand || 'Generating bridge command...'}
+                        <div class="flex items-center justify-center gap-4 mb-4">
+                            <div class={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
+                                bridgeStatus !== 'idle' ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-100 border-slate-200 text-slate-400'
+                            }`}>👤</div>
+                            <div class="flex-1 h-0.5 bg-slate-200 dark:bg-slate-800 relative overflow-hidden">
+                                {bridgeStatus === 'syncing' && (
+                                    <div class="absolute inset-0 bg-indigo-500 animate-slideRight"></div>
+                                )}
+                            </div>
+                            <div class={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
+                                bridgeStatus === 'linked' ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-100 border-slate-200 text-slate-400'
+                            }`}>🌐</div>
                         </div>
-                        <button
-                            onClick={handleConnectLocal}
-                            disabled={isProcessing}
-                            class="bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-400 text-white font-black px-8 py-4 rounded-2xl shadow-xl transition-all uppercase tracking-widest text-xs"
-                        >
-                            {isProcessing ? 'Waiting for Link...' : 'I have run the command'}
-                        </button>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            {bridgeStatus === 'idle' ? 'Ready to Establish Link' : bridgeStatus === 'syncing' ? 'Syncing Encrypted Handshake...' : 'Link Secured!'}
+                        </p>
+                        {bridgeStatus === 'idle' && (
+                            <button
+                                onClick={handleSyncBridge}
+                                disabled={isProcessing}
+                                class="bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-400 text-white font-black px-10 py-5 rounded-2xl shadow-xl transition-all uppercase tracking-widest text-xs"
+                            >
+                                {isProcessing ? 'Opening Bridge...' : 'Sync Browser Bridge'}
+                            </button>
+                        )}
                     </div>
                 )}
 
                 {currentStep.id === 'mission' && (
-                    <div class="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-2xl mb-8 border border-indigo-100 dark:border-indigo-800">
-                        <div class="flex items-center gap-4 text-left">
-                            <div class="text-3xl">📡</div>
-                            <div>
-                                <h4 class="font-bold dark:text-white">Active Mission: Hello World</h4>
-                                <p class="text-xs text-slate-500 dark:text-slate-400">Validate the genesis optimization log using ZK proofs.</p>
+                    <div class="bg-indigo-50 dark:bg-indigo-900/20 p-8 rounded-2xl mb-8 border border-indigo-100 dark:border-indigo-800 group hover:border-indigo-400 transition-colors">
+                        <div class="flex items-center gap-6 text-left">
+                            <div class="text-4xl bg-white dark:bg-slate-800 w-16 h-16 rounded-xl flex items-center justify-center shadow-sm">🧭</div>
+                            <div class="flex-1">
+                                <h4 class="font-bold dark:text-white text-lg">Mission: The Silent Salute</h4>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                                    Your scout has found a genesis log. Help them file a <strong>Verified Claim</strong> that confirms it improved by 15%—without letting anyone see the architecture.
+                                </p>
                             </div>
-                            <div class="ml-auto text-indigo-600 font-black">100 DBC</div>
+                            <div class="text-indigo-600 font-black text-xl">100 DBC</div>
                         </div>
                         <button
                             onClick={handleFirstMission}
                             disabled={isProcessing}
-                            class="mt-6 w-full bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-black py-4 rounded-xl shadow-lg transition-all uppercase tracking-widest text-xs"
+                            class="mt-8 w-full bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-black py-5 rounded-xl shadow-lg transition-all uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-95"
                         >
-                            {isProcessing ? 'Executing Proof...' : 'Assign Agent to Mission'}
+                            {isProcessing ? 'Proving Claim...' : 'Launch Mission'}
                         </button>
                     </div>
                 )}
 
                 {currentStep.id === 'success' && (
                     <div class="space-y-6">
-                        <div class="p-6 bg-green-50 dark:bg-green-900/20 rounded-2xl border border-green-100 dark:border-green-800">
-                            <h4 class="font-bold text-green-700 dark:text-green-400 mb-2">Rewards Earned:</h4>
-                            <div class="text-3xl font-black text-green-600">100 DBC + Pioneer Badge</div>
+                        <div class="p-8 bg-green-50 dark:bg-green-900/20 rounded-2xl border border-green-100 dark:border-green-800 animate-bounceIn">
+                            <h4 class="font-bold text-green-700 dark:text-green-400 mb-2 uppercase tracking-widest text-xs">Pioneer Status Unlocked</h4>
+                            <div class="text-4xl font-black text-green-600">100 DBC EARNED</div>
                         </div>
                         <button
                             onClick={nextStep}
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-black px-8 py-4 rounded-2xl shadow-xl transition-all uppercase tracking-widest text-xs"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-black px-10 py-5 rounded-2xl shadow-xl transition-all uppercase tracking-widest text-xs"
                         >
-                            Enter Command Center
+                            Enter the Fleet HUD
                         </button>
                     </div>
                 )}

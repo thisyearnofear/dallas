@@ -8,13 +8,13 @@ import { track } from '../utils/telemetry';
 
 export const WalletContext = createContext(null);
 
-export type ReputationTier = 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | null;
+export type ClearanceLevel = 'Scout' | 'Operator' | 'Committee' | 'Top Secret' | null;
 
-export const TIER_STYLES: Record<Exclude<ReputationTier, null>, string> = {
-  Bronze: 'bg-amber-700 text-white',
-  Silver: 'bg-gray-400 text-gray-900',
-  Gold: 'bg-yellow-500 text-gray-900',
-  Platinum: 'bg-gradient-to-r from-purple-400 to-blue-400 text-white',
+export const CLEARANCE_STYLES: Record<Exclude<ClearanceLevel, null>, string> = {
+  Scout: 'bg-slate-600 text-white',
+  Operator: 'bg-indigo-600 text-white',
+  Committee: 'bg-purple-600 text-white',
+  'Top Secret': 'bg-gradient-to-r from-red-600 via-purple-600 to-indigo-600 text-white animate-pulse',
 };
 
 export interface WalletContextType {
@@ -36,7 +36,7 @@ export interface WalletContextType {
   dbcBalance: number;
   experienceBalance: number;
   dbcTokenAccount: PublicKey | null;
-  reputationTier: ReputationTier;
+  clearanceLevel: ClearanceLevel;
   validationCount: number;
   accuracyRate: number;
   refreshDbcBalance: () => Promise<void>;
@@ -53,13 +53,13 @@ const TRANSACTION_COOLDOWN_MS = 5000; // 5 seconds cooldown between transactions
 // Singleton Connection — reuse across renders to avoid opening new WebSockets
 const connection = new Connection(NETWORK);
 
-function calculateReputationTier(validationCount: number, accuracyRate: number): ReputationTier {
+function calculateClearanceLevel(validationCount: number, accuracyRate: number): ClearanceLevel {
   if (validationCount === 0) return null;
   
-  if (validationCount >= 76 && accuracyRate >= 85) return 'Platinum';
-  if (validationCount >= 51 && accuracyRate >= 75) return 'Gold';
-  if (validationCount >= 26 && accuracyRate >= 60) return 'Silver';
-  return 'Bronze';
+  if (validationCount >= 76 && accuracyRate >= 85) return 'Top Secret';
+  if (validationCount >= 51 && accuracyRate >= 75) return 'Committee';
+  if (validationCount >= 26 && accuracyRate >= 60) return 'Operator';
+  return 'Scout';
 }
 
 export function WalletProvider({ children }: { children: any }) {
@@ -84,7 +84,7 @@ export function WalletProvider({ children }: { children: any }) {
       (walletCluster === 'mainnet' && appNetwork === 'mainnet-beta')
     );
 
-  const reputationTier = calculateReputationTier(validationCount, accuracyRate);
+  const clearanceLevel = calculateClearanceLevel(validationCount, accuracyRate);
 
   // Fetch DBC (DALLAS BUYERS CLUB) token balance
   const fetchDbcBalance = useCallback(async (targetKey: PublicKey) => {
@@ -582,7 +582,7 @@ export function WalletProvider({ children }: { children: any }) {
     dbcBalance,
     experienceBalance: dbcBalance,
     dbcTokenAccount,
-    reputationTier,
+    clearanceLevel,
     validationCount,
     accuracyRate,
     refreshDbcBalance,

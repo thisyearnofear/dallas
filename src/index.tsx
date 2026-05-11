@@ -13,6 +13,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Header } from "./components/Header";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
+import { AllianceTicker } from "./components/LiveActivityFeed";
 import { ViralSidebar } from "./components/ViralSidebar";
 import { SettingsPanel } from "./components/SettingsPanel";
 import {
@@ -38,6 +39,8 @@ import { useConsent } from "./hooks/useConsent";
 // Route-level code splitting: keep initial bundle small.
 const Home: any = lazy(() => import("./pages/home").then((m) => ({ default: m.Home })));
 const Experiences: any = lazy(() => import("./pages/experiences").then((m) => ({ default: m.Experiences })));
+const AlliancesPage: any = lazy(() => import("./pages/alliances").then((m) => ({ default: m.default })));
+const SubmitPage: any = lazy(() => import("./pages/submit").then((m) => ({ default: m.default })));
 const Validators: any = lazy(() => import("./pages/validators").then((m) => ({ default: m.default })));
 const AttentionTokens: any = lazy(() => import("./pages/attention-tokens").then((m) => ({ default: m.default })));
 const Products: any = lazy(() => import("./pages/products").then((m) => ({ default: m.Products })));
@@ -121,6 +124,8 @@ export function App() {
                                             <Router>
                                                 <Route path="/" component={Home} />
                                                 <Route path="/experiences" component={Experiences} />
+                                                <Route path="/alliances" component={AlliancesPage} />
+                                                <Route path="/submit" component={SubmitPage} />
                                                 <Route path="/validators" component={Validators} />
                                                 <Route path="/attention-tokens" component={AttentionTokens} />
                                                 <Route path="/products" component={Products} />
@@ -140,6 +145,9 @@ export function App() {
                                     </ErrorBoundary>
                                 </div>
                             </div>
+                            <ErrorBoundary>
+                                <AllianceTicker />
+                            </ErrorBoundary>
                             <ErrorBoundary>
                                 <Footer />
                             </ErrorBoundary>

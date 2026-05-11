@@ -47,7 +47,7 @@ export { EncryptedOptimizationLogForm } from './EncryptedOptimizationLogForm';
 
 // Display Components
 export { OptimizationLogGallery } from './OptimizationLogGallery';
-export { LiveActivityFeed } from './LiveActivityFeed';
+export { LiveActivityFeed, AllianceTicker } from './LiveActivityFeed';
 export { ProtocolCard } from './ProtocolCard';
 export { ProductCard } from './ProductCard';
 

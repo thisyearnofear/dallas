@@ -1,10 +1,10 @@
 import { useState } from 'preact/hooks';
 import { SolanaTransfer } from './SolanaTransfer';
-import { useWallet, TIER_STYLES } from '../context/WalletContext';
+import { useWallet, CLEARANCE_STYLES } from '../context/WalletContext';
 import { SOLANA_CONFIG } from '../config/solana';
 
 export function MembershipPurchase() {
-  const { connected, experienceBalance, reputationTier } = useWallet();
+  const { connected, experienceBalance, clearanceLevel } = useWallet();
   const [selectedTier, setSelectedTier] = useState<'bronze' | 'silver' | 'gold' | null>(null);
 
   const tiers = {
@@ -76,12 +76,12 @@ export function MembershipPurchase() {
               <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">EXPERIENCE Balance</span>
               <div class="text-3xl font-black text-brand tracking-tight">{experienceBalance.toLocaleString()} XP</div>
             </div>
-            {reputationTier && (
+            {clearanceLevel && (
               <div>
-                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">Reputation Tier</span>
+                <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-1">Security Clearance</span>
                 <div class="mt-1">
-                  <span class={`inline-block px-4 py-1.5 rounded-full text-xs font-black shadow-sm ${TIER_STYLES[reputationTier]}`}>
-                    {reputationTier}
+                  <span class={`inline-block px-4 py-1.5 rounded-full text-xs font-black shadow-sm ${CLEARANCE_STYLES[clearanceLevel]}`}>
+                    {clearanceLevel}
                   </span>
                 </div>
               </div>

@@ -1,8 +1,7 @@
 import { useState, useEffect } from "preact/hooks";
-import { PrivacyTooltip } from "../components/PrivacyTooltip";
 import { ServiceReadinessPanel } from "../components/ServiceReadinessPanel";
-
 import { useUserJourney } from "../hooks/useUserJourney";
+import { useWallet } from "../context/WalletContext";
 
 export function Home() {
     const [secretClicks, setSecretClicks] = useState(0);
@@ -10,20 +9,28 @@ export function Home() {
     const [konami, setKonami] = useState<string[]>([]);
     const [copiedReferral, setCopiedReferral] = useState(false);
     const [showDemo, setShowDemo] = useState(false);
-    
+
     // Global journey progress
     const { progress, completedSteps, totalSteps, isComplete } = useUserJourney();
+    const { connected, clearanceLevel } = useWallet();
 
-    const firstWinSteps = [
-        { id: 'walletConnected', label: 'Connect Wallet', done: progress.walletConnected, action: '/membership' },
-        { id: 'firstLogSubmitted', label: 'Submit First Proof', done: progress.firstLogSubmitted, action: '/experiences?tab=share' },
-        { id: 'agentDeployed', label: 'Deploy First Agent', done: progress.agentDeployed, action: '/agents' },
-    ];
+    const handleSecretClick = () => {
+        const next = secretClicks + 1;
+        setSecretClicks(next);
+        if (next >= 5) setShowUndergroundAccess(true);
+    };
+
+    // Context-aware next mission
+    const nextMission = !connected
+        ? { icon: '🔐', title: 'Join the Alliance', body: 'Connect your wallet to access the underground network and start filing claims.', cta: 'Connect & Join', href: '/membership' }
+        : !progress.firstLogSubmitted
+        ? { icon: '📋', title: 'File Your First Claim', body: 'A builder in the $CONTEXT alliance claims to have solved the long-term retrieval loop. Prove your own delta — high risk, high reward.', cta: 'File First Claim →', href: '/submit' }
+        : { icon: '⚖️', title: 'Review a Peer Claim', body: 'Your clearance qualifies you to verify an encrypted optimization log. Stake your reputation and earn rewards for accuracy.', cta: 'Review Claims →', href: '/validators' };
 
     return (
         <>
-            {/* Hero Section - Product-First, Clear Value Prop */}
-            <div class="mb-12">
+            {/* Hero Section */}
+            <div class="mb-8">
                 <div class="inline-block bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm font-bold px-4 py-1.5 rounded-full mb-6">
                     🔗 Agents share what works. No prompts exposed.
                 </div>
@@ -56,73 +63,63 @@ export function Home() {
                     </div>
                 </div>
 
-                {/* Demo Mode CTA - Right after stats */}
-                <div class="mb-8">
+                {/* Primary + Secondary CTAs */}
+                <div class="flex flex-wrap gap-4 mb-8">
+                    <a
+                        href="/alliances"
+                        class="inline-flex items-center gap-3 bg-brand text-white font-bold py-4 px-8 rounded-xl hover:bg-brand/90 transition-all duration-300 hover:scale-105 shadow-lg text-lg"
+                    >
+                        <span>🌐</span>
+                        <span>Enter the Alliance →</span>
+                    </a>
                     <button
                         onClick={() => setShowDemo(true)}
-                        class="inline-flex items-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-4 px-8 rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+                        class="inline-flex items-center gap-3 border-2 border-brand text-brand dark:text-brand font-bold py-4 px-8 rounded-xl hover:bg-brand hover:text-white transition-all duration-300 text-lg"
                     >
-                        <span class="text-2xl">⚡</span>
-                        <span class="text-lg">Try Demo Mode — See encryption in action</span>
+                        <span>⚡</span>
+                        <span>Try Demo</span>
                     </button>
-                    <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">
-                        No wallet needed • Experience the full flow with sample data
-                    </p>
                 </div>
 
-                {/* Your First Win Progress Panel */}
-                <div class="mb-12 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-200 dark:border-green-800 rounded-xl p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <h3 class="text-xl font-bold text-green-800 dark:text-green-300 flex items-center gap-2">
-                                🏆 Your First Win
-                            </h3>
-                            <p class="text-sm text-green-600 dark:text-green-400 mt-1">
-                                {isFirstWinComplete 
-                                    ? "You've completed all steps! Welcome to the Alliance." 
-                                    : `${completedSteps}/${firstWinSteps.length} steps completed`}
-                            </p>
-                        </div>
-                        <div class="text-3xl">{isFirstWinComplete ? '🎉' : '🚀'}</div>
+                {/* Next Mission — context-aware */}
+                <div class="mb-8 bg-gradient-to-br from-slate-900 to-slate-800 border-2 border-brand/40 rounded-xl p-6 flex items-start gap-5">
+                    <div class="text-4xl flex-shrink-0">{nextMission.icon}</div>
+                    <div class="flex-1">
+                        <div class="text-xs font-black text-brand uppercase tracking-widest mb-1">Next Mission</div>
+                        <h3 class="text-xl font-bold text-white mb-2">{nextMission.title}</h3>
+                        <p class="text-slate-300 text-sm mb-4">{nextMission.body}</p>
+                        <a
+                            href={nextMission.href}
+                            class="inline-flex items-center gap-2 bg-brand text-white font-bold py-2 px-5 rounded-lg hover:bg-brand/90 transition-colors text-sm"
+                        >
+                            {nextMission.cta}
+                        </a>
                     </div>
-                    
-                    {/* Progress bar */}
-                    <div class="h-3 bg-green-100 dark:bg-green-900/50 rounded-full mb-4 overflow-hidden">
-                        <div 
-                            class="h-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-500"
-                            style={{ width: `${(completedSteps / firstWinSteps.length) * 100}%` }}
-                        />
-                    </div>
+                </div>
+            </div>
 
-                    {/* Steps */}
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {firstWinSteps.map((step, idx) => (
-                            <a
-                                key={step.id}
-                                href={step.action}
-                                class={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
-                                    step.done 
-                                        ? 'bg-green-100 dark:bg-green-900/30 border-green-400 dark:border-green-600' 
-                                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-green-400'
-                                }`}
-                            >
-                                <div class={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                                    step.done 
-                                        ? 'bg-green-500 text-white' 
-                                        : 'bg-slate-200 dark:bg-slate-700 text-slate-500'
-                                }`}>
-                                    {step.done ? '✓' : idx + 1}
-                                </div>
-                                <div class="flex-1">
-                                    <div class={`font-bold ${step.done ? 'text-green-700 dark:text-green-300' : 'text-slate-700 dark:text-slate-300'}`}>
-                                        {step.label}
-                                    </div>
-                                    <div class="text-xs text-slate-500 dark:text-slate-400">
-                                        {step.done ? 'Completed!' : 'Click to complete'}
-                                    </div>
-                                </div>
-                            </a>
-                        ))}
+            {/* Story Section — narrative hook, just below hero */}
+            <div class="mb-12">
+                <div class="bg-gray-50 dark:bg-slate-800 p-8 border-l-4 border-brand mb-8 rounded-r-xl">
+                    <p class="text-xl leading-relaxed text-slate-800 dark:text-slate-200">
+                        Every agent reinvents the wheel. Context overflow? Solved privately by 47 teams. Tool call failures? Fixed independently 23 times. The solutions exist—trapped in private repos, siloed behind NDAs.
+                    </p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <h3 class="text-2xl font-bold text-brand font-display">Then: Dallas Buyers Club</h3>
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            In 1985, individuals formed underground networks to share what worked—bypassing a system that had left them behind. Real outcomes from real people, privately validated.
+                        </p>
+                    </div>
+                    <div class="space-y-4">
+                        <h3 class="text-2xl font-bold text-brand font-display">Now: Agent Alliance</h3>
+                        <p class="text-lg text-slate-700 dark:text-slate-300">
+                            We're that network—for AI agents. Share optimization wins. Validate improvements with ZK proofs. Prove your agent is 15% faster without revealing the prompt.
+                        </p>
+                        <div class="bg-brand text-white p-4 rounded">
+                            <p class="font-semibold">🔐 Real improvements. ZK validated. IP protected.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -138,22 +135,22 @@ export function Home() {
                     </p>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <a
-                            href="/experiences?tab=discover"
+                            href="/alliances"
                             class="block p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-brand/60 hover:shadow-md transition-all bg-slate-50/50 dark:bg-slate-800/30"
                         >
                             <div class="text-xl font-bold text-slate-900 dark:text-white mb-1">
-                                🔍 Find a Network
+                                🔍 Find an Alliance
                             </div>
                             <div class="text-sm text-slate-600 dark:text-slate-400">
                                 Discover collective intelligence groups focused on your agent's specific failure modes.
                             </div>
                         </a>
                         <a
-                            href="/experiences?tab=share"
+                            href="/submit"
                             class="block p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-brand/60 hover:shadow-md transition-all bg-slate-50/50 dark:bg-slate-800/30"
                         >
                             <div class="text-xl font-bold text-slate-900 dark:text-white mb-1">
-                                📤 Submit a Proof
+                                📤 File a Claim
                             </div>
                             <div class="text-sm text-slate-600 dark:text-slate-400">
                                 Prove your agent improved with ZK-SNARKs. No prompts or IP exposed, ever.
@@ -186,10 +183,10 @@ export function Home() {
                         </p>
                     </div>
                     <a
-                        href="/experiences?tab=share"
+                        href="/submit"
                         class="inline-flex items-center justify-center bg-brand text-white font-bold px-5 py-3 rounded hover:bg-brand/90 transition-colors"
                     >
-                        Submit an Optimization Log
+                        File a Claim
                     </a>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -208,195 +205,6 @@ export function Home() {
                 </div>
             </div>
 
-            {/* Story Section */}
-            <div class="mb-12">
-                <div class="bg-gray-50 dark:bg-slate-800 p-8 border-l-4 border-brand mb-8">
-                    <p class="text-xl leading-relaxed text-slate-800 dark:text-slate-200">
-                        Every agent reinvents the wheel. Context overflow? Solved privately by 47 teams. Tool call failures? Fixed independently 23 times. The solutions exist—trapped in private repos, siloed behind NDAs.
-                    </p>
-                </div>
-                
-                <div class="grid md:grid-cols-2 gap-8 mb-8">
-                    <div class="space-y-4">
-                        <h3 class="text-2xl font-bold text-brand font-display">Then: Dallas Buyers Club</h3>
-                        <p class="text-lg text-slate-700 dark:text-slate-300">
-                            In 1985, individuals formed underground networks to share what worked—bypassing a system that had left them behind. Real outcomes from real people, privately validated.
-                        </p>
-                    </div>
-                    <div class="space-y-4">
-                        <h3 class="text-2xl font-bold text-brand font-display">Now: Agent Alliance</h3>
-                        <p class="text-lg text-slate-700 dark:text-slate-300">
-                            We're that network—for AI agents. Share optimization wins. Validate improvements with ZK proofs. Prove your agent is 15% faster without revealing the prompt.
-                        </p>
-                        <div class="bg-brand text-white p-4 rounded">
-                            <p class="font-semibold">🔐 Real improvements. ZK validated. IP protected.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Agent Sovereignty Section - Enhanced with Trust Indicators */}
-            <div class="bg-gradient-to-r from-blue-100/50 via-green-100/50 to-purple-100/50 dark:from-blue-900/30 dark:via-green-900/30 dark:to-purple-900/30 border-2 border-green-500/50 text-gray-900 dark:text-white p-8 rounded-lg mb-8">
-                <div class="flex items-center gap-3 mb-4">
-                    <h2 class="text-3xl font-bold">🔐 Agent Sovereignty Platform</h2>
-                    <span class="bg-green-500 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider animate-pulse">
-                        IP Protected
-                    </span>
-                </div>
-                <p class="text-xl mb-6">
-                    Privacy-preserving infrastructure for collective agent intelligence. Prove improvements without exposing architectures.
-                </p>
-                
-                {/* Trust Indicators */}
-                <div class="flex flex-wrap gap-3 mb-6">
-                    <PrivacyTooltip topic="encryption" variant="inline">
-                        <span class="inline-flex items-center gap-1 bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 px-3 py-1.5 rounded-full text-xs font-bold border border-green-200 dark:border-green-800">
-                            <span>🔐</span> Wallet-Encrypted
-                        </span>
-                    </PrivacyTooltip>
-                    <PrivacyTooltip topic="zk_proofs" variant="inline">
-                        <span class="inline-flex items-center gap-1 bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300 px-3 py-1.5 rounded-full text-xs font-bold border border-purple-200 dark:border-purple-800">
-                            <span>🛡️</span> Zero-Knowledge
-                        </span>
-                    </PrivacyTooltip>
-                    <PrivacyTooltip topic="mpc" variant="inline">
-                        <span class="inline-flex items-center gap-1 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 px-3 py-1.5 rounded-full text-xs font-bold border border-blue-200 dark:border-blue-800">
-                            <span>👥</span> Committee Access
-                        </span>
-                    </PrivacyTooltip>
-                    <PrivacyTooltip topic="compression" variant="inline">
-                        <span class="inline-flex items-center gap-1 bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-300 px-3 py-1.5 rounded-full text-xs font-bold border border-orange-200 dark:border-orange-800">
-                            <span>⚡</span> Compressed Storage
-                        </span>
-                    </PrivacyTooltip>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-white/60 dark:bg-black/30 p-4 rounded border border-green-500/50 dark:border-green-500/30 hover:shadow-lg transition-all">
-                        <h3 class="font-bold mb-2 text-gray-900 dark:text-white flex items-center gap-2">
-                            <span>🔒</span> Your Architecture, Your Control
-                        </h3>
-                        <p class="text-sm text-gray-700 dark:text-gray-300">Share optimization wins encrypted with your wallet key. Prove results without revealing prompts, tool chains, or system designs.</p>
-                    </div>
-                    <div class="bg-white/60 dark:bg-black/30 p-4 rounded border border-blue-500/50 dark:border-blue-500/30 hover:shadow-lg transition-all">
-                        <h3 class="font-bold mb-2 text-gray-900 dark:text-white flex items-center gap-2">
-                            <span>👥</span> Alliance Validated
-                        </h3>
-                        <p class="text-sm text-gray-700 dark:text-gray-300">Validators verify improvements using zero-knowledge proofs — they confirm the delta is real without seeing proprietary data.</p>
-                    </div>
-                    <div class="bg-white/60 dark:bg-black/30 p-4 rounded border border-purple-500/50 dark:border-purple-500/30 hover:shadow-lg transition-all">
-                        <h3 class="font-bold mb-2 text-gray-900 dark:text-white flex items-center gap-2">
-                            <span>⛓️</span> On-Chain Reputation
-                        </h3>
-                        <p class="text-sm text-gray-700 dark:text-gray-300">Agent reputation lives on Solana. Immutable, transparent, globally verifiable — but only authorized members access the details.</p>
-                    </div>
-                </div>
-                <a 
-                    class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded hover:scale-105 transition-all duration-300" 
-                    href="/experiences"
-                >
-                    🚀 Explore Agent Alliances
-                </a>
-            </div>
-
-            {/* Privacy Comparison Section */}
-            <div class="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 p-8 rounded-lg mb-8">
-                <h2 class="text-3xl font-bold mb-2 text-slate-900 dark:text-white flex items-center gap-2">
-                    🛡️ Why Privacy-Preserving Intelligence Sharing Matters
-                </h2>
-                <p class="text-slate-600 dark:text-slate-400 mb-6">
-                    See how we compare to traditional knowledge-sharing platforms. Your IP deserves better.
-                </p>
-                
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="border-b-2 border-slate-200 dark:border-slate-700">
-                                <th class="text-left py-3 px-4 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Feature</th>
-                                <th class="text-center py-3 px-4 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Discord / Slack</th>
-                                <th class="text-center py-3 px-4 text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">GitHub / HuggingFace</th>
-                                <th class="text-center py-3 px-4 text-sm font-bold text-green-600 dark:text-green-400 uppercase tracking-wider">Dallas Buyers Club</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-sm">
-                            <tr class="border-b border-slate-100 dark:border-slate-800">
-                                <td class="py-4 px-4 font-medium text-slate-900 dark:text-white">
-                                    <div class="flex items-center gap-2">
-                                        <span>Data Encryption</span>
-                                        <PrivacyTooltip topic="encryption" variant="icon"><span></span></PrivacyTooltip>
-                                    </div>
-                                </td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ Admins see all</td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ Public repos</td>
-                                <td class="text-center py-4 px-4 text-green-600 font-bold">✅ Wallet-locked</td>
-                            </tr>
-                            <tr class="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-                                <td class="py-4 px-4 font-medium text-slate-900 dark:text-white">
-                                    <div class="flex items-center gap-2">
-                                        <span>Data Selling</span>
-                                    </div>
-                                </td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ Platform owns data</td>
-                                <td class="text-center py-4 px-4 text-yellow-500">⚠️ Scraped for training</td>
-                                <td class="text-center py-4 px-4 text-green-600 font-bold">✅ Never sold</td>
-                            </tr>
-                            <tr class="border-b border-slate-100 dark:border-slate-800">
-                                <td class="py-4 px-4 font-medium text-slate-900 dark:text-white">
-                                    <div class="flex items-center gap-2">
-                                        <span>Improvement Validation</span>
-                                        <PrivacyTooltip topic="zk_proofs" variant="icon"><span></span></PrivacyTooltip>
-                                    </div>
-                                </td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ Trust me bro</td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ Stars ≠ quality</td>
-                                <td class="text-center py-4 px-4 text-green-600 font-bold">✅ Zero-knowledge</td>
-                            </tr>
-                            <tr class="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
-                                <td class="py-4 px-4 font-medium text-slate-900 dark:text-white">
-                                    <div class="flex items-center gap-2">
-                                        <span>Access Control</span>
-                                        <PrivacyTooltip topic="mpc" variant="icon"><span></span></PrivacyTooltip>
-                                    </div>
-                                </td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ Server admin controls</td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ Fork = full exposure</td>
-                                <td class="text-center py-4 px-4 text-green-600 font-bold">✅ Committee-based</td>
-                            </tr>
-                            <tr class="border-b border-slate-100 dark:border-slate-800">
-                                <td class="py-4 px-4 font-medium text-slate-900 dark:text-white">
-                                    <div class="flex items-center gap-2">
-                                        <span>Data Portability</span>
-                                    </div>
-                                </td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ Locked in platform</td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ Vendor lock-in</td>
-                                <td class="text-center py-4 px-4 text-green-600 font-bold">✅ On-chain ownership</td>
-                            </tr>
-                            <tr class="bg-slate-50/50 dark:bg-slate-800/30">
-                                <td class="py-4 px-4 font-medium text-slate-900 dark:text-white">
-                                    <div class="flex items-center gap-2">
-                                        <span>Anonymous Posting</span>
-                                    </div>
-                                </td>
-                                <td class="text-center py-4 px-4 text-red-500">❌ Identity required</td>
-                                <td class="text-center py-4 px-4 text-yellow-500">⚠️ Pseudonymous</td>
-                                <td class="text-center py-4 px-4 text-green-600 font-bold">✅ Wallet-only ID</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div class="mt-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                    <p class="text-sm text-green-800 dark:text-green-300 font-medium">
-                        <strong>The bottom line:</strong> We built Dallas Buyers Club because agent architectures and optimization data are too valuable for traditional sharing platforms. 
-                        Your IP, your control, always.
-                    </p>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 italic">
-                        Note: Some features shown above are in simulated mode on devnet. See the Service Readiness panel above for live status.
-                    </p>
-                </div>
-            </div>
-
             {/* Call to Action Section */}
             <div class="bg-gradient-to-r from-brand/90 to-brand text-white p-8 rounded-lg mb-8">
                 <h2 class="text-3xl font-bold mb-4 font-display">Join the Alliance</h2>
@@ -412,9 +220,9 @@ export function Home() {
                     </a>
                     <a 
                         class="border-2 border-white text-white font-bold py-3 px-6 rounded hover:bg-white hover:text-brand transition-all duration-300 hover:scale-105 text-center" 
-                        href="/experiences"
+                        href="/alliances"
                     >
-                        🔍 Discover Alliances
+                        🌐 Discover Alliances
                     </a>
                     <a 
                         class="border-2 border-white text-white font-bold py-3 px-6 rounded hover:bg-white hover:text-brand transition-all duration-300 hover:scale-105 text-center" 
@@ -549,7 +357,7 @@ export function Home() {
 
                         <div class="flex gap-4">
                             <a 
-                                href="/experiences?tab=share"
+                                href="/submit"
                                 onClick={() => setShowDemo(false)}
                                 class="flex-1 bg-brand text-white font-bold py-3 px-6 rounded-lg hover:bg-brand/90 text-center"
                             >

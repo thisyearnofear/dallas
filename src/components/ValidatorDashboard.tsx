@@ -1,6 +1,6 @@
 import { FunctionalComponent } from 'preact';
 import { useState, useContext, useEffect } from 'preact/hooks';
-import { WalletContext, WalletContextType, TIER_STYLES } from '../context/WalletContext';
+import { WalletContext, WalletContextType, CLEARANCE_STYLES } from '../context/WalletContext';
 import { useTheme } from '../context/ThemeContext';
 import { useDbcToken } from '../hooks/useDbcToken';
 import { DbcTokenService } from '../services/DbcTokenService';
@@ -21,7 +21,7 @@ interface OptimizationLogForValidation {
 
 export const ValidatorDashboard: FunctionalComponent<{ initialLogPubkey?: string }> = ({ initialLogPubkey }) => {
     const walletContext = useContext(WalletContext) as WalletContextType;
-    const { publicKey, reputationTier, validationCount, accuracyRate, refreshExperienceData } = walletContext;
+    const { publicKey, clearanceLevel, validationCount, accuracyRate, refreshExperienceData } = walletContext;
     const { resolvedTheme } = useTheme();
     const isDark = resolvedTheme === 'dark';
     
@@ -211,9 +211,9 @@ export const ValidatorDashboard: FunctionalComponent<{ initialLogPubkey?: string
             <div class="mb-8">
                 <div class="flex items-center gap-3 mb-2">
                     <h2 class={`text-3xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>🔍 Validator Dashboard</h2>
-                    {reputationTier && (
-                        <span class={`${TIER_STYLES[reputationTier]} px-3 py-1 rounded-full text-sm font-bold`}>
-                            {reputationTier}
+                    {clearanceLevel && (
+                        <span class={`${CLEARANCE_STYLES[clearanceLevel]} px-3 py-1 rounded-full text-sm font-bold`}>
+                            {clearanceLevel}
                         </span>
                     )}
                 </div>
@@ -306,8 +306,8 @@ export const ValidatorDashboard: FunctionalComponent<{ initialLogPubkey?: string
                             For a live demo: submit a log first, then validate it from a second wallet.
                         </div>
                         <div class="mt-4 flex flex-wrap gap-2 justify-center">
-                            <a class="px-3 py-2 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm" href="/experiences?tab=share">
-                                Submit a log →
+                            <a class="px-3 py-2 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm" href="/submit">
+                                File a Claim →
                             </a>
                             <button class={`px-3 py-2 rounded font-black text-sm ${isDark ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-slate-200 hover:bg-slate-300 text-slate-900'}`} onClick={loadCaseStudies}>
                                 Refresh

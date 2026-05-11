@@ -1,11 +1,11 @@
 import { useState } from "preact/hooks";
-import { useWallet } from "../context/WalletContext";
+import { useWallet, CLEARANCE_STYLES } from "../context/WalletContext";
 import { useMembership } from "../hooks/useMembership";
 import { desktopNavItems } from "../config/navigation";
 
 export function Navbar() {
     const [isCollapsed, setIsCollapsed] = useState(false);
-    const { connected, dbcBalance, reputationTier } = useWallet();
+    const { connected, dbcBalance, clearanceLevel } = useWallet();
     const { membership, hasMembership, tier } = useMembership();
 
     return (
@@ -83,10 +83,10 @@ export function Navbar() {
                                     <span class="font-bold text-brand dark:text-blue-400 capitalize">{tier}</span>
                                 </div>
                             )}
-                            {reputationTier && (
-                                <div class="flex justify-between">
-                                    <span class="text-gray-600 dark:text-gray-400">Validator Tier:</span>
-                                    <span class="font-bold text-brand dark:text-blue-400">{reputationTier}</span>
+                            {clearanceLevel && (
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600 dark:text-gray-400">Clearance:</span>
+                                    <span class={`text-[10px] font-black px-2 py-0.5 rounded-full ${CLEARANCE_STYLES[clearanceLevel]}`}>{clearanceLevel}</span>
                                 </div>
                             )}
                         </div>
