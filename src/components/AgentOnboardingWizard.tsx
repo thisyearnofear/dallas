@@ -6,6 +6,7 @@ import { FunctionalComponent } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { useWallet } from '../context/WalletContext';
 import { agentService, AgentIdentity } from '../services/AgentService';
+import { useUserJourney } from '../hooks/useUserJourney';
 
 interface OnboardingStep {
     id: 'shadow' | 'connect' | 'mission' | 'success';
@@ -43,6 +44,7 @@ const STEPS: OnboardingStep[] = [
 
 export const AgentOnboardingWizard: FunctionalComponent<{ onComplete: (agent: AgentIdentity) => void }> = ({ onComplete }) => {
     const { publicKey, connected } = useWallet();
+    const { updateProgress } = useUserJourney();
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [isProcessing, setIsProcessing] = useState(false);
     const [agent, setAgent] = useState<AgentIdentity | null>(null);
@@ -66,6 +68,7 @@ export const AgentOnboardingWizard: FunctionalComponent<{ onComplete: (agent: Ag
             await new Promise(resolve => setTimeout(resolve, 1500));
             const newAgent = await agentService.registerAgent(publicKey, 'Shadow-Agent-Beta', 'validator');
             setAgent(newAgent);
+            updateProgress('agentDeployed', true);
             nextStep();
         } catch (err) {
             console.error(err);
@@ -104,6 +107,7 @@ export const AgentOnboardingWizard: FunctionalComponent<{ onComplete: (agent: Ag
                     'opt_log_init',
                     { verified: true, score: 95 }
                 );
+                updateProgress('firstLogSubmitted', true);
             }
             nextStep();
         } catch (err) {

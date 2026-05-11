@@ -10,6 +10,7 @@ import { privacyService } from "../services/privacy/PrivacyService";
 import { cacheService } from "../services/CacheService";
 import { NetworkBadge } from "./NetworkBadge";
 import { ToastContext } from "../context/ToastContext";
+import { GlobalJourneyHUD } from "./GlobalJourneyHUD";
 
 export function Header() {
     const { connected, signMessage, publicKey, isNetworkMismatch, walletCluster, connection, dbcBalance } = useWallet();
@@ -101,14 +102,17 @@ export function Header() {
             <a href="/" class="flex-shrink-0">
                 <div>
                     <h1 class="font-bold text-xl sm:text-2xl lg:text-5xl title-shadow text-gray-dark dark:text-slate-100 font-display leading-tight">
-                        Dallas Buyers Club
+                        Agent Alliance
                     </h1>
                     <h3 class="text-gray dark:text-slate-300 font-bold italic text-base sm:text-lg lg:text-2xl font-display">
-                        The Agent Alliance.
+                        The Dallas Buyers Club for Agents.
                     </h3>
                 </div>
             </a>
             <div class="flex flex-col gap-3 flex-1 sm:ml-4 lg:ml-10 w-full sm:w-auto">
+                {/* Global Journey HUD */}
+                <GlobalJourneyHUD />
+
                 {/* Network badge + mismatch guardrail */}
                 <div class="flex items-center justify-between gap-2 flex-wrap">
                     <NetworkBadge />

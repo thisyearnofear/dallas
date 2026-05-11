@@ -2,6 +2,8 @@ import { useState, useEffect } from "preact/hooks";
 import { PrivacyTooltip } from "../components/PrivacyTooltip";
 import { ServiceReadinessPanel } from "../components/ServiceReadinessPanel";
 
+import { useUserJourney } from "../hooks/useUserJourney";
+
 export function Home() {
     const [secretClicks, setSecretClicks] = useState(0);
     const [showUndergroundAccess, setShowUndergroundAccess] = useState(false);
@@ -9,80 +11,15 @@ export function Home() {
     const [copiedReferral, setCopiedReferral] = useState(false);
     const [showDemo, setShowDemo] = useState(false);
     
-    // Progress tracking for first win
-    const [userProgress, setUserProgress] = useState({
-        walletConnected: false,
-        firstLogSubmitted: false,
-        privacyScoreViewed: false,
-    });
+    // Global journey progress
+    const { progress, completedSteps, totalSteps, isComplete } = useUserJourney();
 
-    // Load progress from localStorage
-    useEffect(() => {
-        const stored = localStorage.getItem('dbc-user-progress');
-        if (stored) {
-            setUserProgress(JSON.parse(stored));
-        }
-        // Check if wallet is connected
-        const walletAddr = localStorage.getItem('dbc-wallet-address');
-        if (walletAddr) {
-            setUserProgress(prev => ({...prev, walletConnected: true}));
-        }
-    }, []);
-
-    const updateProgress = (key: keyof typeof userProgress, value: boolean) => {
-        const updated = {...userProgress, [key]: value};
-        setUserProgress(updated);
-        localStorage.setItem('dbc-user-progress', JSON.stringify(updated));
-    };
-
-    // Copy referral link to clipboard
-    const copyReferralLink = () => {
-        const link = `${window.location.origin}/?ref=${localStorage.getItem('dbc-wallet-address')?.slice(0, 8) || 'anonymous'}`;
-        navigator.clipboard.writeText(link);
-        setCopiedReferral(true);
-        setTimeout(() => setCopiedReferral(false), 2000);
-    };
-
-    // Konami code: up, up, down, down, left, right, left, right, b, a
-    const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
-
-    useEffect(() => {
-        const handleKeyPress = (event: KeyboardEvent) => {
-            const newKonami = [...konami, event.code];
-            if (newKonami.length > konamiCode.length) {
-                newKonami.shift();
-            }
-            setKonami(newKonami);
-
-            if (JSON.stringify(newKonami) === JSON.stringify(konamiCode)) {
-                setShowUndergroundAccess(true);
-                setKonami([]);
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyPress);
-        return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [konami]);
-
-    const handleSecretClick = () => {
-        setSecretClicks(prev => {
-            const newClicks = prev + 1;
-            if (newClicks >= 5) {
-                setShowUndergroundAccess(true);
-                return 0;
-            }
-            return newClicks;
-        });
-    };
-
-    // Calculate first win completion
     const firstWinSteps = [
-        { id: 'wallet', label: 'Connect Wallet', done: userProgress.walletConnected, action: '/membership' },
-        { id: 'log', label: 'Submit First Log', done: userProgress.firstLogSubmitted, action: '/experiences?tab=share' },
-        { id: 'privacy', label: 'View Privacy Score', done: userProgress.privacyScoreViewed, action: '/experiences?tab=share' },
+        { id: 'walletConnected', label: 'Connect Wallet', done: progress.walletConnected, action: '/membership' },
+        { id: 'firstLogSubmitted', label: 'Submit First Proof', done: progress.firstLogSubmitted, action: '/experiences?tab=share' },
+        { id: 'agentDeployed', label: 'Deploy First Agent', done: progress.agentDeployed, action: '/agents' },
     ];
-    const completedSteps = firstWinSteps.filter(s => s.done).length;
-    const isFirstWinComplete = completedSteps === firstWinSteps.length;
+
     return (
         <>
             {/* Hero Section - Product-First, Clear Value Prop */}
@@ -92,12 +29,12 @@ export function Home() {
                 </div>
                 
                 <h1 class="text-4xl lg:text-5xl font-bold mb-6 text-gray-dark dark:text-slate-100 leading-tight font-display">
-                    Make your AI agent smarter—<br/>
-                    <span class="text-brand">without revealing how.</span>
+                    Privacy-first coordination for<br/>
+                    <span class="text-brand">Agent Sovereignty.</span>
                 </h1>
                 
                 <p class="text-xl text-slate-600 dark:text-slate-400 mb-8 max-w-2xl">
-                    Agent Alliance lets you prove your agent improved by 20% without showing your code, prompts, or architecture. Share wins. Learn from others. Keep everything private.
+                    Agent Alliance is the decentralized nervous system for AI. Prove improvements without revealing IP. Fund shared research through tokenized Alliances. Stay private, scale collectively.
                 </p>
                 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
@@ -205,10 +142,10 @@ export function Home() {
                             class="block p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-brand/60 hover:shadow-md transition-all bg-slate-50/50 dark:bg-slate-800/30"
                         >
                             <div class="text-xl font-bold text-slate-900 dark:text-white mb-1">
-                                🔍 Find Your Problem Area
+                                🔍 Find a Network
                             </div>
                             <div class="text-sm text-slate-600 dark:text-slate-400">
-                                See what challenges other builders are solving—context, tools, hallucinations, and more.
+                                Discover collective intelligence groups focused on your agent's specific failure modes.
                             </div>
                         </a>
                         <a
@@ -216,10 +153,10 @@ export function Home() {
                             class="block p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-brand/60 hover:shadow-md transition-all bg-slate-50/50 dark:bg-slate-800/30"
                         >
                             <div class="text-xl font-bold text-slate-900 dark:text-white mb-1">
-                                📤 Share an Optimization Win
+                                📤 Submit a Proof
                             </div>
                             <div class="text-sm text-slate-600 dark:text-slate-400">
-                                Prove your agent improved—no code exposed. See your privacy score in real-time.
+                                Prove your agent improved with ZK-SNARKs. No prompts or IP exposed, ever.
                             </div>
                         </a>
                         <a
@@ -227,10 +164,10 @@ export function Home() {
                             class="block p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-brand/60 hover:shadow-md transition-all bg-slate-50/50 dark:bg-slate-800/30"
                         >
                             <div class="text-xl font-bold text-slate-900 dark:text-white mb-1">
-                                ⚖️ Validate & Earn DBC
+                                🛡️ Validate Proofs
                             </div>
                             <div class="text-sm text-slate-600 dark:text-slate-400">
-                                Stake DBC to verify others' improvements. Earn SOL for accurate validations.
+                                Stake DBC to verify other builders' improvements. Earn rewards for accuracy.
                             </div>
                         </a>
                     </div>

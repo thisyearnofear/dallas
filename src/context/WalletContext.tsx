@@ -160,6 +160,8 @@ export function WalletProvider({ children }: { children: any }) {
         walletConnected: false,
         firstLogSubmitted: false,
         privacyScoreViewed: false,
+        agentDeployed: false,
+        firstValidationComplete: false,
       };
       if (progress.walletConnected !== walletConnected) {
         progress.walletConnected = walletConnected;
