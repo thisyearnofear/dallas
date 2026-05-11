@@ -10,6 +10,7 @@ import { useState, useEffect, useContext } from 'preact/hooks';
 import { WalletContext, type WalletContextType } from '../context/WalletContext';
 import { agentService, AgentIdentity, AgentTask } from '../services/AgentService';
 import { useTheme } from '../context/ThemeContext';
+import { AgentOnboardingWizard } from './AgentOnboardingWizard';
 
 export const AgentCommandCenter: FunctionalComponent = () => {
     const { publicKey, connected } = useContext(WalletContext) as WalletContextType;
@@ -21,13 +22,25 @@ export const AgentCommandCenter: FunctionalComponent = () => {
     const [isRegistering, setIsRegistering] = useState(false);
     const [activeView, setActiveView] = useState<'fleet' | 'missions' | 'intelligence'>('fleet');
     const [newAgentName, setNewAgentName] = useState('');
+    const [showOnboarding, setShowOnboarding] = useState(false);
 
     useEffect(() => {
         if (publicKey) {
-            setAgents(agentService.getActiveAgents(publicKey.toString()));
+            const activeAgents = agentService.getActiveAgents(publicKey.toString());
+            setAgents(activeAgents);
             setTasks(agentService.getTasks());
+            
+            // Show onboarding if no agents are registered
+            if (activeAgents.length === 0) {
+                setShowOnboarding(true);
+            }
         }
     }, [publicKey]);
+
+    const handleOnboardingComplete = (agent: AgentIdentity) => {
+        setAgents(prev => [...prev, agent]);
+        setShowOnboarding(false);
+    };
 
     const handleDeployAgent = async () => {
         if (!publicKey || !newAgentName) return;
@@ -49,6 +62,28 @@ export const AgentCommandCenter: FunctionalComponent = () => {
                 <div class="text-6xl mb-4">🤖</div>
                 <h2 class="text-2xl font-black mb-2 dark:text-white">Agentic Command Center</h2>
                 <p class="text-slate-600 dark:text-slate-400 mb-6">Connect your wallet to deploy autonomous OpenClaw agents.</p>
+            </div>
+        );
+    }
+
+    if (showOnboarding) {
+        return (
+            <div class="py-12 animate-fadeIn">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-black dark:text-white uppercase tracking-tighter mb-4">Initialize Your Fleet</h2>
+                    <p class="text-slate-600 dark:text-slate-400 max-w-xl mx-auto">
+                        Complete the "First Win" sequence to unlock the full power of the Agent Alliance.
+                    </p>
+                </div>
+                <AgentOnboardingWizard onComplete={handleOnboardingComplete} />
+                <div class="text-center mt-8">
+                    <button 
+                        onClick={() => setShowOnboarding(false)}
+                        class="text-xs font-bold text-slate-500 hover:text-indigo-600 uppercase tracking-widest transition-colors"
+                    >
+                        Skip Onboarding →
+                    </button>
+                </div>
             </div>
         );
     }
