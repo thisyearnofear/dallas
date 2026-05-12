@@ -110,13 +110,13 @@ export const ProgressiveOnboarding: FunctionalComponent<ProgressiveOnboardingPro
                     <h2 class={`text-2xl font-black text-center mb-2 ${colors.text}`}>
                         {current.title}
                     </h2>
-                    <p class="text-center text-slate-500 dark:text-slate-400 text-sm mb-6">
+                    <p class="text-center text-slate-700 dark:text-slate-600 text-sm mb-6">
                         {current.subtitle}
                     </p>
 
                     {/* Content */}
                     <div class={`p-5 rounded-xl ${colors.bg} ${colors.border} border-2 mb-6`}>
-                        <p class="text-slate-700 dark:text-slate-300 text-sm leading-relaxed text-center">
+                        <p class="text-slate-900 dark:text-slate-200 text-sm leading-relaxed text-center">
                             {current.content}
                         </p>
                     </div>
@@ -137,7 +137,7 @@ export const ProgressiveOnboarding: FunctionalComponent<ProgressiveOnboardingPro
                                     </svg>
                                 )}
                             </div>
-                            <span class="text-sm text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white">
+                            <span class="text-sm text-slate-800 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white">
                                 I understand this is a devnet demo for builders
                             </span>
                         </label>

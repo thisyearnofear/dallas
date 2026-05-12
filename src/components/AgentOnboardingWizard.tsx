@@ -139,7 +139,7 @@ export const AgentOnboardingWizard: FunctionalComponent<{ onComplete: (agent: Ag
                 <h2 class="text-3xl font-black mb-2 dark:text-white uppercase tracking-tight">
                     {currentStep.title}
                 </h2>
-                <p class="text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto leading-relaxed">
+                <p class="text-slate-900 dark:text-slate-300 mb-8 max-w-md mx-auto leading-relaxed">
                     {currentStep.description}
                 </p>
 
@@ -168,7 +168,7 @@ export const AgentOnboardingWizard: FunctionalComponent<{ onComplete: (agent: Ag
                                 bridgeStatus === 'linked' ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-100 border-slate-200 text-slate-400'
                             }`}>🌐</div>
                         </div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        <p class="text-[10px] font-bold text-slate-800 dark:text-slate-300 uppercase tracking-widest">
                             {bridgeStatus === 'idle' ? 'Ready to Establish Link' : bridgeStatus === 'syncing' ? 'Syncing Encrypted Handshake...' : 'Link Secured!'}
                         </p>
                         {bridgeStatus === 'idle' && (
@@ -189,11 +189,11 @@ export const AgentOnboardingWizard: FunctionalComponent<{ onComplete: (agent: Ag
                             <div class="text-4xl bg-white dark:bg-slate-800 w-16 h-16 rounded-xl flex items-center justify-center shadow-sm">🧭</div>
                             <div class="flex-1">
                                 <h4 class="font-bold dark:text-white text-lg">Mission: The Silent Salute</h4>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                                <p class="text-xs text-slate-800 dark:text-slate-300 mt-1 leading-relaxed">
                                     Your scout has found a genesis log. Help them file a <strong>Verified Claim</strong> that confirms it improved by 15%—without letting anyone see the architecture.
                                 </p>
                             </div>
-                            <div class="text-indigo-600 font-black text-xl">100 DBC</div>
+                            <div class="text-indigo-600 dark:text-indigo-400 font-black text-xl">100 DBC</div>
                         </div>
                         <button
                             onClick={handleFirstMission}

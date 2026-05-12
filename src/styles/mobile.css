@@ -2,6 +2,16 @@
 
 /* Base mobile breakpoints and improvements */
 @media (max-width: 640px) {
+  /* Core viewport fixes for notched devices */
+  body {
+    padding-left: env(safe-area-inset-left) !important;
+    padding-right: env(safe-area-inset-right) !important;
+  }
+  
+  #app {
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+  
   /* Navigation improvements for mobile */
   nav {
     width: 100% !important;
@@ -19,14 +29,14 @@
   
   /* Navigation text scaling */
   nav .text-lg {
-    font-size: 1rem !important; /* 16px */
+    font-size: 1rem !important;
   }
   
   nav .text-xs {
-    font-size: 0.75rem !important; /* 12px */
+    font-size: 0.75rem !important;
   }
   
-  /* Navigation touch targets */
+  /* Navigation touch targets - minimum 44px for iOS */
   nav a {
     min-height: 44px !important;
     padding: 0.75rem 0.5rem !important;
@@ -45,25 +55,25 @@
   
   /* Typography scaling */
   h1 {
-    font-size: 1.5rem !important; /* 24px */
+    font-size: 1.5rem !important;
     line-height: 1.2 !important;
   }
   
   h2 {
-    font-size: 1.25rem !important; /* 20px */
+    font-size: 1.25rem !important;
   }
   
   h3 {
-    font-size: 1.125rem !important; /* 18px */
+    font-size: 1.125rem !important;
   }
   
   p, span, div {
-    font-size: 0.875rem !important; /* 14px */
+    font-size: 0.875rem !important;
   }
   
   /* Button improvements */
   button, .btn, .button {
-    min-height: 44px !important; /* iOS touch target */
+    min-height: 44px !important;
     min-width: 44px !important;
     font-size: 1rem !important;
     padding: 0.75rem 1rem !important;
@@ -71,7 +81,7 @@
   
   /* Form elements */
   input, select, textarea {
-    font-size: 16px !important; /* Prevents zoom on iOS */
+    font-size: 16px !important;
     min-height: 44px !important;
   }
   
@@ -158,31 +168,40 @@
   
   /* Text readability improvements */
   .text-xs {
-    font-size: 0.75rem !important; /* 12px */
+    font-size: 0.75rem !important;
     line-height: 1.4 !important;
   }
   
   .text-sm {
-    font-size: 0.875rem !important; /* 14px */
+    font-size: 0.875rem !important;
     line-height: 1.5 !important;
   }
   
-  /* Contrast improvements for mobile */
-  .text-gray-400 {
-    color: #6b7280 !important; /* Darker gray for better mobile contrast */
+  /* WCAG AA Contrast improvements for mobile - darker grays for better readability */
+  .text-gray-400, .dark\:text-slate-400 {
+    color: #6b7280 !important;
   }
   
-  .text-gray-500 {
-    color: #4b5563 !important; /* Darker gray for better mobile contrast */
+  .text-gray-500, .dark\:text-slate-500 {
+    color: #4b5563 !important;
   }
   
-  .text-gray-600 {
-    color: #374151 !important; /* Darker gray for better mobile contrast */
+  .text-gray-600, .dark\:text-slate-600 {
+    color: #374151 !important;
+  }
+  
+  /* Improved contrast for muted text */
+  .text-slate-400 {
+    color: #94a3b8 !important;
+  }
+  
+  .text-slate-500 {
+    color: #64748b !important;
   }
   
   /* Border improvements */
   .border, .border-2, .border-4 {
-    border-width: 1px !important; /* Thinner borders on mobile */
+    border-width: 1px !important;
   }
   
   /* Shadow improvements */
@@ -198,7 +217,24 @@
   .animate-pulse,
   .animate-bounce,
   .animate-fadeIn {
-    animation-duration: 2s !important; /* Slower animations on mobile for performance */
+    animation-duration: 2s !important;
+  }
+  
+  /* Footer visibility fix - ensure it's above fixed elements */
+  footer {
+    z-index: 50 !important;
+    position: relative !important;
+    background: inherit !important;
+  }
+  
+  /* Bottom UI elements - ensure proper stacking */
+  .fixed.bottom-0 {
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+  
+  /* Alliance Ticker visibility */
+  .alliance-ticker, [class*="ticker"] {
+    padding-bottom: env(safe-area-inset-bottom) !important;
   }
   
   /* Reduce motion for users who prefer it */

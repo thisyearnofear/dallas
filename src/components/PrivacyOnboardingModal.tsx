@@ -177,7 +177,7 @@ export const PrivacyOnboardingModal: FunctionalComponent<PrivacyOnboardingModalP
             <h2 class={`text-3xl font-black ${colors.text} uppercase tracking-tight mb-2`}>
               {step.title}
             </h2>
-            <p class="text-slate-600 dark:text-slate-400 text-lg font-medium">
+            <p class="text-slate-800 dark:text-slate-400 text-lg font-medium">
               {step.subtitle}
             </p>
           </div>
@@ -221,7 +221,7 @@ export const PrivacyOnboardingModal: FunctionalComponent<PrivacyOnboardingModalP
             {!isLastStep && (
               <button
                 onClick={handleSkip}
-                class="flex-1 py-4 px-6 rounded-xl font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all uppercase tracking-widest text-sm"
+                class="flex-1 py-4 px-6 rounded-xl font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all uppercase tracking-widest text-sm"
               >
                 Skip Tour
               </button>
@@ -236,7 +236,7 @@ export const PrivacyOnboardingModal: FunctionalComponent<PrivacyOnboardingModalP
 
           {/* Privacy Promise Footer */}
           <div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700 text-center">
-            <p class="text-xs text-slate-500 dark:text-slate-500 font-medium">
+            <p class="text-xs text-slate-700 dark:text-slate-400 font-medium">
               🔐 We never track your activity. This onboarding is stored only on your device.
             </p>
           </div>

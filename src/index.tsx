@@ -107,7 +107,7 @@ export function App() {
                                     <MobileNav />
                                 </ErrorBoundary>
 
-                                <div class="w-full p-4 sm:p-6 lg:p-10 pb-24 lg:pb-10">
+                                <div class="w-full p-4 sm:p-6 lg:p-10 pb-44 lg:pb-28">
                                     <ErrorBoundary>
                                         <Suspense
                                             fallback={
