@@ -1,8 +1,13 @@
 import type { AgentProtocol } from "./products";
 import { getEvidenceColor, getCategoryIcon } from "./products";
+import type { TokenGatedResource, FoundingValidator } from "../types/community";
 
 interface ProtocolCardProps {
-    protocol: AgentProtocol;
+    protocol: AgentProtocol & {
+        tokenGatedResources?: TokenGatedResource[];
+        foundingValidators?: FoundingValidator[];
+        genesisOpen?: boolean;
+    };
     featured?: boolean;
 }
 
@@ -75,7 +80,45 @@ export function ProtocolCard({ protocol, featured = false }: ProtocolCardProps) 
                 <span class={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${evidenceClass}`}>
                     📊 {protocol.evidenceLevel.charAt(0).toUpperCase() + protocol.evidenceLevel.slice(1)} Evidence
                 </span>
+                {protocol.genesisOpen && (
+                    <span class="ml-2 inline-block px-3 py-1 rounded-full text-xs font-bold border border-yellow-400 text-yellow-700 dark:text-yellow-300 bg-yellow-50 dark:bg-yellow-900/20">
+                        ⚡ Genesis Open
+                    </span>
+                )}
             </div>
+
+            {/* Token-Gated Resources */}
+            {protocol.tokenGatedResources && protocol.tokenGatedResources.length > 0 && (
+                <div class="mb-4 p-3 rounded-lg bg-brand/5 border border-brand/20">
+                    <div class="text-xs font-black text-brand uppercase tracking-widest mb-2">🔐 Token-Gated Resources</div>
+                    <ul class="space-y-1">
+                        {protocol.tokenGatedResources.map(r => (
+                            <li key={r.id} class="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300">
+                                <span class="flex-shrink-0">{r.icon}</span>
+                                <span>
+                                    <span class="font-bold">{r.title}</span>
+                                    {r.size && <span class="ml-1 text-brand font-semibold">({r.size})</span>}
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
+            {/* Founding Validators */}
+            {protocol.foundingValidators && protocol.foundingValidators.length > 0 && (
+                <div class="mb-4 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+                    <div class="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">⚖️ Founding Validators</div>
+                    <ul class="space-y-1">
+                        {protocol.foundingValidators.map(v => (
+                            <li key={v.handle} class="flex items-center justify-between text-xs">
+                                <span class="font-bold text-slate-800 dark:text-slate-200">{v.handle}</span>
+                                <span class="text-slate-500 dark:text-slate-400">{v.reviewsCommitted} reviews committed</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
 
             {/* Action Buttons */}
             <div class="flex gap-2 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">

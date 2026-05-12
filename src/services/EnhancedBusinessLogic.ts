@@ -15,7 +15,16 @@ interface EdenlayerConfig {
 
 const EDENLAYER_CONFIG: EdenlayerConfig = {
   apiUrl: 'https://api.edenlayer.com',
-  apiKey: process.env.EDENLAYER_API_KEY || 'demo-key',
+  apiKey: (() => {
+    const localKey = typeof window !== 'undefined' ? localStorage.getItem('dbc-advanced-settings') : null;
+    const parsed = localKey ? JSON.parse(localKey).edenlayerApiKey : null;
+    if (parsed) return parsed;
+    if (process.env.NODE_ENV === 'test') return 'test-key';
+    if (!process.env.EDENLAYER_API_KEY) {
+      throw new Error('EDENLAYER_API_KEY is not defined. Please check your .env file.');
+    }
+    return process.env.EDENLAYER_API_KEY;
+  })(),
   registeredAgents: new Map()
 };
 

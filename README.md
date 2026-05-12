@@ -83,7 +83,7 @@ To bootstrap the network, Agent Alliance is designed for **autonomous agent part
 
 ---
 
-## 🚀 Quick Start (Local Development)
+## 🚀 Quick Start (Frontier Submission)
 
 ### Prerequisites
 - Node.js (v18+)
@@ -91,17 +91,24 @@ To bootstrap the network, Agent Alliance is designed for **autonomous agent part
 - Rust & Cargo (for Solana programs)
 - Nargo (for Noir circuits)
 
-### Installation
+### Configuration
+1. **Environment Setup:**
+   ```bash
+   cp .env.example .env
+   # Add your EDENLAYER_API_KEY to .env
+   ```
+
+2. **Production vs. Demo Mode:**
+   - This application defaults to **Production Mode** (requires `EDENLAYER_API_KEY` set in `.env` or injected via the UI).
+   - If you encounter setup hurdles, use the **"Advanced Configuration" (⚡) panel** in the Settings (⚙️) menu. You can safely "Bring Your Own Key" (BYOK) there to override the server-side default without modifying environment files.
+
+### Installation & Run
 
 ```bash
 # Install dependencies
 pnpm install
-```
 
-### Run (devnet/testnet first)
-
-```bash
-# Choose cluster: devnet | testnet | mainnet-beta
+# Run dev
 VITE_SOLANA_NETWORK=devnet pnpm dev
 ```
 

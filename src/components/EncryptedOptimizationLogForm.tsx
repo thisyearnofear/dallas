@@ -61,9 +61,6 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
   const [privacyOptions, setPrivacyOptions] = useState({
     compressionRatio: 10, // Default to 10x (recommended)
   });
-  // Demo setting: faster, less privacy. Clearly labeled in UI.
-  const [demoFastMode, setDemoFastMode] = useState(false);
-
   // Light Protocol compression state
   const [compressionStats, setCompressionStats] = useState<{
     isCompressing: boolean;
@@ -92,14 +89,6 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
   useEffect(() => {
     lightProtocolService.initialize().catch(console.error);
   }, []);
-
-  // Demo fast mode: bias toward speed (2x compression) and clear cached compression.
-  useEffect(() => {
-    if (demoFastMode) {
-      setPrivacyOptions((p) => ({ ...p, compressionRatio: 2 }));
-      setCompressionStats((s) => ({ ...s, compressedData: null }));
-    }
-  }, [demoFastMode]);
 
   // Auto-derive encryption key when wallet is connected
   useEffect(() => {
@@ -475,9 +464,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
       // Step 1: Compress data if needed
       setSubmitStatus({
         type: 'info',
-        message: demoFastMode
-          ? '⚡ Step 1/4: Compressing (fast mode, typically ~2–8s)…'
-          : '🔄 Step 1/4: Compressing (typically ~5–20s)…',
+        message: '🔄 Step 1/4: Compressing (typically ~5–20s)…',
       });
 
       let compressedData = compressionStats.compressedData;
@@ -1427,7 +1414,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                           compressionRatio: parseInt((e.target as HTMLSelectElement).value),
                         })
                       }
-                      disabled={demoFastMode}
+                      disabled={false}
                       class="flex-1 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 outline-none"
                     >
                       <option value={2}>Fast (2x savings)</option>
@@ -1437,17 +1424,11 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                     </select>
                   </div>
 
-                  <label class="mt-3 flex items-start gap-3 text-xs font-bold text-slate-600 dark:text-slate-300">
-                    <input
-                      type="checkbox"
-                      checked={demoFastMode}
-                      onChange={(e) => setDemoFastMode((e.target as HTMLInputElement).checked)}
-                      class="mt-1"
-                    />
-                    <span>
-                      Demo fast mode (skip heavy settings; faster, slightly less private). Recommended for live demos.
-                    </span>
-                  </label>
+                  {/* Security badge instead of demo toggle */}
+                  <div class="mt-3 flex items-center gap-2 text-xs font-bold text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 p-2 rounded-lg border border-green-200 dark:border-green-800">
+                    <span>✓</span>
+                    <span>Production Secure Mode: All logs encrypted by default.</span>
+                  </div>
 
                   {/* Savings Preview */}
                   {compressionStats.originalSize > 0 && (

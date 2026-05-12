@@ -93,11 +93,11 @@ describe('Core Agent Network', () => {
 
   describe('Identity Restoration Coordination', () => {
     test('should coordinate identity_restoration operation', async () => {
-      const result = await coreNetwork.coordinateOperation('identity_restoration', {
+      const result = await coreNetwork.coordinateOperation('context_restoration', {
         fragmentationLevel: 65
       });
 
-      expect(result.coordination.participatingAgents).toContain('identity');
+      expect(result.coordination.participatingAgents).toContain('context');
       expect(result.coordination.participatingAgents).toContain('risk');
     });
   });

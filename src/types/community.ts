@@ -45,6 +45,34 @@ export interface Community extends AttentionToken {
   longDescription?: string;     // Extended mission statement
   guidelines?: string[];        // Community rules/expectations
   researchGoals?: string[];     // What the community aims to prove/discover
+
+  // Token-gated resources (concrete value for token holders)
+  tokenGatedResources?: TokenGatedResource[];
+
+  // Genesis / founding validator info
+  foundingValidators?: FoundingValidator[];
+  genesisOpen?: boolean;        // True = genesis period, no stake required to validate
+}
+
+/**
+ * A concrete resource unlocked by holding the alliance token
+ */
+export interface TokenGatedResource {
+  id: string;
+  title: string;
+  description: string;
+  type: 'dataset' | 'prompt_library' | 'eval_suite' | 'compute_credits' | 'fine_tuned_weights';
+  size?: string;               // e.g. "5K examples", "12 evals"
+  icon: string;
+}
+
+/**
+ * A founding validator — trusted reviewer during genesis period (no stake required)
+ */
+export interface FoundingValidator {
+  handle: string;              // e.g. "@alice.sol"
+  role: string;                // e.g. "Senior Engineer @ Anthropic"
+  reviewsCommitted: number;    // How many submissions they've committed to review
 }
 
 /**

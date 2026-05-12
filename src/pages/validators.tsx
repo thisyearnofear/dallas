@@ -116,8 +116,47 @@ function Validators() {
                         </div>
                     </div>
 
+                    {/* Founding Validator Genesis Programme */}
+                    <div class="mt-12 p-6 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-2 border-yellow-300 dark:border-yellow-600 rounded-xl">
+                        <div class="flex items-start gap-4">
+                            <div class="text-4xl flex-shrink-0">⚡</div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-xl text-yellow-800 dark:text-yellow-300 mb-1">Founding Validator Programme — Genesis Period</h4>
+                                <p class="text-sm text-yellow-700 dark:text-yellow-400 mb-4">
+                                    During the genesis period, <strong>no DBC stake is required</strong>. We're onboarding a trusted whitelist of senior engineers and researchers to review the first submissions across each alliance. Build your on-chain reputation before permissionless staking opens.
+                                </p>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                    <div class="bg-white/70 dark:bg-slate-800/50 rounded-lg p-4 border border-yellow-200 dark:border-yellow-700">
+                                        <div class="text-2xl mb-1">🔧</div>
+                                        <div class="font-bold text-sm text-slate-900 dark:text-white">$TOOL Alliance</div>
+                                        <div class="text-xs text-slate-600 dark:text-slate-400 mt-1">3 founding validators · 45 reviews committed</div>
+                                        <div class="text-xs text-green-600 dark:text-green-400 font-bold mt-1">2 spots remaining</div>
+                                    </div>
+                                    <div class="bg-white/70 dark:bg-slate-800/50 rounded-lg p-4 border border-yellow-200 dark:border-yellow-700">
+                                        <div class="text-2xl mb-1">🧠</div>
+                                        <div class="font-bold text-sm text-slate-900 dark:text-white">$CONTEXT Alliance</div>
+                                        <div class="text-xs text-slate-600 dark:text-slate-400 mt-1">2 founding validators · 35 reviews committed</div>
+                                        <div class="text-xs text-green-600 dark:text-green-400 font-bold mt-1">3 spots remaining</div>
+                                    </div>
+                                    <div class="bg-white/70 dark:bg-slate-800/50 rounded-lg p-4 border border-yellow-200 dark:border-yellow-700">
+                                        <div class="text-2xl mb-1">📊</div>
+                                        <div class="font-bold text-sm text-slate-900 dark:text-white">$EVAL Alliance</div>
+                                        <div class="text-xs text-slate-600 dark:text-slate-400 mt-1">2 founding validators · 30 reviews committed</div>
+                                        <div class="text-xs text-green-600 dark:text-green-400 font-bold mt-1">3 spots remaining</div>
+                                    </div>
+                                </div>
+                                <a
+                                    href="/membership"
+                                    class="inline-flex items-center gap-2 bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-5 rounded-lg transition-colors text-sm"
+                                >
+                                    Apply as Founding Validator →
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Disclaimer */}
-                    <div class="mt-12 p-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-600 rounded-lg">
+                    <div class="mt-6 p-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-600 rounded-lg">
                         <h4 class="font-bold text-yellow-700 dark:text-yellow-300 mb-2">⚠️ Validator Responsibilities</h4>
                         <p class="text-sm text-yellow-600 dark:text-slate-300">
                             Validators stake 100 DBC minimum and are responsible for accurate assessment of optimization log quality, 

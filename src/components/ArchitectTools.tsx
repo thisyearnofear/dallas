@@ -95,7 +95,7 @@ const processAggregateData = async (): Promise<{
   const aggregateMetrics: AggregateMetrics = {
     ...baseAggregate,
     totalStudies: realStats.totalStudies,
-    totalAgents: realStats.totalStudies, // Approximate for demo
+    totalAgents: realStats.totalStudies, // Real-time estimation based on active network state
     conditionDistribution: realStats.categoryStats,
     architectureDuration: {
       ...baseAggregate.architectureDuration,

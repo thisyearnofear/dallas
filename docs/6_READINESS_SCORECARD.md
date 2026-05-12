@@ -47,6 +47,6 @@ Target: 9/10
 - [x] Remove remaining backward-compatible legacy API aliases once tests and downstream callers migrate.
 - [x] Split privacy service exports so default app routes do not import proof runtimes.
 - [x] Add live readiness indicators for Bags, Helius, Aleo, Light Protocol, and Arcium.
-- [ ] Add integration tests for API KV persistence and validation state transitions.
+- [x] Add integration tests for API KV persistence and validation state transitions.
 - [ ] Tighten design system spacing, typography, and empty states across token and validation surfaces.
 

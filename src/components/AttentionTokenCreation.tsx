@@ -111,7 +111,7 @@ export const AttentionTokenCreation: React.FC<AttentionTokenCreationProps> = ({
         techniqueName,
         techniqueCategory,
         description,
-        imageUrl: imageUrl || 'https://via.placeholder.com/400',
+        imageUrl: imageUrl || '/favicon.svg',
         submitter: publicKey,
         validators: communityMode ? [] : validators.map((v) => ({
           publicKey: v.publicKey,

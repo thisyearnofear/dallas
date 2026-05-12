@@ -4,29 +4,39 @@ import { PrivacyTooltip } from "./PrivacyTooltip";
 
 export function SettingsPanel() {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'general' | 'privacy'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'privacy' | 'advanced'>('general');
   const { settings, toggleSetting } = useSettings();
 
-  // Privacy settings state
+  // Settings states
   const [privacySettings, setPrivacySettings] = useState({
     defaultCompression: 10,
     autoEncrypt: true,
     showPrivacyScore: true,
     shareAnalytics: false,
   });
+  const [advancedSettings, setAdvancedSettings] = useState({
+    edenlayerApiKey: '',
+  });
 
-  // Load privacy settings from localStorage
+  // Load settings from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('dbc-privacy-settings');
-    if (saved) {
-      setPrivacySettings(JSON.parse(saved));
-    }
+    const savedPrivacy = localStorage.getItem('dbc-privacy-settings');
+    if (savedPrivacy) setPrivacySettings(JSON.parse(savedPrivacy));
+    
+    const savedAdvanced = localStorage.getItem('dbc-advanced-settings');
+    if (savedAdvanced) setAdvancedSettings(JSON.parse(savedAdvanced));
   }, []);
 
   const updatePrivacySetting = (key: keyof typeof privacySettings, value: any) => {
     const updated = { ...privacySettings, [key]: value };
     setPrivacySettings(updated);
     localStorage.setItem('dbc-privacy-settings', JSON.stringify(updated));
+  };
+
+  const updateAdvancedSetting = (key: keyof typeof advancedSettings, value: string) => {
+    const updated = { ...advancedSettings, [key]: value };
+    setAdvancedSettings(updated);
+    localStorage.setItem('dbc-advanced-settings', JSON.stringify(updated));
   };
 
   return (
@@ -63,7 +73,7 @@ export function SettingsPanel() {
                     : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
               >
-                ⚙️ General
+                ⚙️ Gen
               </button>
               <button
                 onClick={() => setActiveTab('privacy')}
@@ -73,7 +83,17 @@ export function SettingsPanel() {
                     : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
               >
-                🔐 Privacy
+                🔐 Priv
+              </button>
+              <button
+                onClick={() => setActiveTab('advanced')}
+                class={`flex-1 py-3 px-4 text-xs font-black uppercase tracking-widest transition-all ${
+                  activeTab === 'advanced'
+                    ? 'bg-red-500/10 text-red-700 dark:text-red-400 border-b-2 border-red-500'
+                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                }`}
+              >
+                ⚡ Adv
               </button>
             </div>
 
@@ -104,7 +124,7 @@ export function SettingsPanel() {
                     />
                   </div>
                 </>
-              ) : (
+              ) : activeTab === 'privacy' ? (
                 <>
                   <div class="text-green-700 dark:text-green-400 text-[10px] font-black uppercase tracking-widest mb-6 flex items-center gap-2">
                     <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
@@ -146,13 +166,30 @@ export function SettingsPanel() {
                       enabled={privacySettings.showPrivacyScore}
                       onToggle={() => updatePrivacySetting('showPrivacyScore', !privacySettings.showPrivacyScore)}
                     />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div class="text-red-700 dark:text-red-400 text-[10px] font-black uppercase tracking-widest mb-6 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                    Developer & BYOK Configuration
+                  </div>
 
-                    {/* Privacy Stats */}
-                    <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
-                      <h4 class="text-xs font-black text-green-800 dark:text-green-300 uppercase tracking-widest mb-3">Your Privacy Stats</h4>
-                      <div class="text-xs text-slate-500 dark:text-slate-400 text-center py-2">
-                        Stats will appear here as you submit encrypted optimization logs and generate ZK proofs.
-                      </div>
+                  <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800 space-y-4">
+                    <div class="space-y-1">
+                      <label class="text-red-900 dark:text-red-100 font-black text-[10px] uppercase tracking-widest">
+                        Edenlayer API Key
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="Enter your personal key..."
+                        value={advancedSettings.edenlayerApiKey}
+                        onChange={(e) => updateAdvancedSetting('edenlayerApiKey', (e.target as HTMLInputElement).value)}
+                        class="w-full bg-white dark:bg-slate-950 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2 text-xs text-slate-700 dark:text-slate-300 outline-none focus:border-red-500"
+                      />
+                    </div>
+                    <div class="text-[9px] text-red-600 dark:text-red-400 italic">
+                      Note: Your key is stored locally in your browser. This overrides any server-side configurations. Use with caution.
                     </div>
                   </div>
                 </>

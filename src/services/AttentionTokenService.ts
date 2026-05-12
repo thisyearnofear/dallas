@@ -12,6 +12,7 @@
 
 import { PublicKey, Connection } from '@solana/web3.js';
 import { SOLANA_CONFIG } from '../config/solana';
+import type { TokenGatedResource, FoundingValidator } from '../types/community';
 import {
   AttentionToken,
   AttentionTokenAnalytics,
@@ -50,6 +51,125 @@ export class AttentionTokenService {
     }
 
     if (!this.isMainnet) {}
+
+    // Seed genesis alliances so the discovery page is never empty
+    this.seedGenesisAlliances();
+  }
+
+  /**
+   * Seed three genesis alliances with concrete token-gated resources.
+   * These are always present regardless of network or Bags API availability.
+   */
+  private seedGenesisAlliances(): void {
+    const mk = (s: string) => {
+      const b = new Uint8Array(32);
+      for (let i = 0; i < Math.min(s.length, 32); i++) b[i] = s.charCodeAt(i) % 256;
+      return new PublicKey(b);
+    };
+
+    const genesisAlliances: Array<AttentionToken & {
+      tokenGatedResources: TokenGatedResource[];
+      foundingValidators: FoundingValidator[];
+      genesisOpen: boolean;
+      memberCount: number;
+      optimizationLogCount: number;
+      validatedCount: number;
+      treasuryBalance: number;
+    }> = [
+      {
+        mint: mk('genesis-tool-mint'),
+        bondingCurve: mk('genesis-tool-curve'),
+        optimizationLogPda: mk('genesis-tool-log'),
+        name: 'Tool Call Alliance',
+        symbol: 'TOOL',
+        description: 'Solve tool-call loop failures, schema mismatches, and API chaining errors. The most universal agent failure mode.',
+        imageUrl: 'https://placehold.co/400x200/1e293b/22c55e?text=%24TOOL',
+        submitter: mk('genesis-submitter'),
+        validators: [],
+        techniqueName: 'Tool Call Alliance',
+        techniqueCategory: 'tool_calling',
+        reputationScore: 92,
+        createdAt: Date.now() - 7 * 24 * 3600 * 1000,
+        analytics: { marketCap: 0, volume24h: 0, volumeAll: 0, holders: 12, price: 0, priceChange24h: 0, lifetimeFees: 0, transactions: 7, createdAt: Date.now(), lastTradeAt: Date.now() },
+        memberCount: 12,
+        optimizationLogCount: 7,
+        validatedCount: 5,
+        treasuryBalance: 0,
+        genesisOpen: true,
+        tokenGatedResources: [
+          { id: 'tool-ds-1', title: 'Tool-Call Failure Dataset', description: '5K curated examples of tool-call failures with root-cause labels — ready for fine-tuning.', type: 'dataset', size: '5K examples', icon: '🗂️' },
+          { id: 'tool-pl-1', title: 'Retry & Fallback Prompt Library', description: '47 battle-tested prompt patterns for graceful tool-call error recovery.', type: 'prompt_library', size: '47 patterns', icon: '📚' },
+          { id: 'tool-ev-1', title: 'Tool-Call Eval Suite', description: '12 standardised evals measuring schema adherence, retry success rate, and latency.', type: 'eval_suite', size: '12 evals', icon: '📊' },
+        ],
+        foundingValidators: [
+          { handle: '@toolsmith.sol', role: 'Senior Engineer, tool-calling infra', reviewsCommitted: 20 },
+          { handle: '@agentdebug.sol', role: 'AI Agent Researcher', reviewsCommitted: 15 },
+          { handle: '@chainops.sol', role: 'Protocol Engineer', reviewsCommitted: 10 },
+        ],
+      },
+      {
+        mint: mk('genesis-context-mint'),
+        bondingCurve: mk('genesis-context-curve'),
+        optimizationLogPda: mk('genesis-context-log'),
+        name: 'Context Masters Alliance',
+        symbol: 'CONTEXT',
+        description: 'Tackle context window overflow, long-term memory, and RAG pipeline failures. Share what actually works — privately.',
+        imageUrl: 'https://placehold.co/400x200/1e293b/3b82f6?text=%24CONTEXT',
+        submitter: mk('genesis-submitter'),
+        validators: [],
+        techniqueName: 'Context Masters Alliance',
+        techniqueCategory: 'context_management',
+        reputationScore: 88,
+        createdAt: Date.now() - 5 * 24 * 3600 * 1000,
+        analytics: { marketCap: 0, volume24h: 0, volumeAll: 0, holders: 9, price: 0, priceChange24h: 0, lifetimeFees: 0, transactions: 4, createdAt: Date.now(), lastTradeAt: Date.now() },
+        memberCount: 9,
+        optimizationLogCount: 4,
+        validatedCount: 3,
+        treasuryBalance: 0,
+        genesisOpen: true,
+        tokenGatedResources: [
+          { id: 'ctx-ds-1', title: 'Context Compression Dataset', description: '10K examples of long-context inputs with optimal chunking strategies annotated.', type: 'dataset', size: '10K examples', icon: '🗂️' },
+          { id: 'ctx-pl-1', title: 'RAG Optimisation Prompt Library', description: '31 prompt templates for retrieval-augmented generation with latency benchmarks.', type: 'prompt_library', size: '31 templates', icon: '📚' },
+        ],
+        foundingValidators: [
+          { handle: '@ragmaster.sol', role: 'ML Engineer, RAG systems', reviewsCommitted: 20 },
+          { handle: '@memoryarch.sol', role: 'AI Memory Researcher', reviewsCommitted: 15 },
+        ],
+      },
+      {
+        mint: mk('genesis-eval-mint'),
+        bondingCurve: mk('genesis-eval-curve'),
+        optimizationLogPda: mk('genesis-eval-log'),
+        name: 'Eval Collective',
+        symbol: 'EVAL',
+        description: 'Build shared benchmarks, regression detectors, and safety scoring frameworks. Prove your agent improved — with receipts.',
+        imageUrl: 'https://placehold.co/400x200/1e293b/a855f7?text=%24EVAL',
+        submitter: mk('genesis-submitter'),
+        validators: [],
+        techniqueName: 'Eval Collective',
+        techniqueCategory: 'evaluation',
+        reputationScore: 85,
+        createdAt: Date.now() - 3 * 24 * 3600 * 1000,
+        analytics: { marketCap: 0, volume24h: 0, volumeAll: 0, holders: 6, price: 0, priceChange24h: 0, lifetimeFees: 0, transactions: 2, createdAt: Date.now(), lastTradeAt: Date.now() },
+        memberCount: 6,
+        optimizationLogCount: 2,
+        validatedCount: 2,
+        treasuryBalance: 0,
+        genesisOpen: true,
+        tokenGatedResources: [
+          { id: 'eval-es-1', title: 'Pass@1 Benchmark Suite', description: '8 standardised Pass@1 evals across coding, reasoning, and tool-use tasks.', type: 'eval_suite', size: '8 benchmarks', icon: '📊' },
+          { id: 'eval-ds-1', title: 'Regression Detection Dataset', description: '3K before/after prompt pairs with performance delta labels for regression testing.', type: 'dataset', size: '3K pairs', icon: '🗂️' },
+        ],
+        foundingValidators: [
+          { handle: '@evalengineer.sol', role: 'Evaluation Researcher', reviewsCommitted: 20 },
+          { handle: '@benchmarker.sol', role: 'AI Safety Engineer', reviewsCommitted: 10 },
+        ],
+      },
+    ];
+
+    for (const alliance of genesisAlliances) {
+      this.mockTokens.set(alliance.mint.toString(), alliance as unknown as AttentionToken);
+    }
   }
 
   /**

@@ -410,7 +410,15 @@ export class EdenlayerTaskComposer {
       method,
       headers: {
         'Content-Type': 'application/json',
-        'X-Api-Key': process.env.EDENLAYER_API_KEY || 'demo-key'
+        'X-Api-Key': (() => {
+          const localKey = typeof window !== 'undefined' ? localStorage.getItem('dbc-advanced-settings') : null;
+          const parsed = localKey ? JSON.parse(localKey).edenlayerApiKey : null;
+          if (parsed) return parsed;
+          if (!process.env.EDENLAYER_API_KEY) {
+            throw new Error('EDENLAYER_API_KEY is not defined. Please check your .env file.');
+          }
+          return process.env.EDENLAYER_API_KEY;
+        })()
       },
       body: data ? JSON.stringify(data) : undefined
     });

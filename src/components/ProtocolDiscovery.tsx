@@ -1,6 +1,6 @@
 import { FunctionalComponent } from 'preact';
 import { useContext, useState } from 'preact/hooks';
-import { Community, CommunityCategory, CommunityFilters, CATEGORY_INFO } from '../types/community';
+import { Community, CommunityCategory, CommunityFilters, CATEGORY_INFO, TokenGatedResource, FoundingValidator } from '../types/community';
 import { attentionTokenService } from '../services/AttentionTokenService';
 import { AttentionToken } from '../types/attentionToken';
 import { PrivacyTooltip } from './PrivacyTooltip';
@@ -15,19 +15,24 @@ interface ProtocolMatch {
   matchScore: number;
   category?: CommunityCategory;
   memberCount?: number;
+  tokenGatedResources?: TokenGatedResource[];
+  foundingValidators?: FoundingValidator[];
+  genesisOpen?: boolean;
+  description?: string;
+  symbol?: string;
 }
 
 const INTEREST_TAGS = [
-  'immune-support',
-  'energy-boost',
-  'pain-relief',
-  'mental-agent',
-  'sleep',
-  'natural',
-  'clinical-data',
-  'proven',
-  'easy',
+  'context-size',
+  'low-latency',
+  'high-accuracy',
+  'agentic-flow',
+  'reliable',
+  'fast',
   'tool_calling',
+  'evaluation',
+  'orchestration',
+  'proven',
 ];
 
 const DIFFICULTY_LEVELS = ['easy', 'moderate', 'hard'] as const;
@@ -83,15 +88,21 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
           matchScore += (matchingInterests / selectedInterests.length) * 50;
         }
 
+        const c = community as any;
         return {
           id: community.mint.toString(),
           name: community.techniqueName,
-          optimizationLogCount: community.analytics?.transactions || 0,
-          validatedCount: Math.floor((community.analytics?.transactions || 0) * 0.7), // Estimate
-          successRate: Math.min(85, 60 + (community.analytics?.holders || 0)), // Estimate based on holders
+          description: community.description,
+          symbol: community.symbol,
+          optimizationLogCount: c.optimizationLogCount ?? community.analytics?.transactions ?? 0,
+          validatedCount: c.validatedCount ?? Math.floor((community.analytics?.transactions || 0) * 0.7),
+          successRate: Math.min(85, 60 + (community.analytics?.holders || 0)),
           matchScore: Math.round(matchScore),
           category: community.techniqueCategory as CommunityCategory,
-          memberCount: community.analytics?.holders || 0,
+          memberCount: c.memberCount ?? community.analytics?.holders ?? 0,
+          tokenGatedResources: c.tokenGatedResources,
+          foundingValidators: c.foundingValidators,
+          genesisOpen: c.genesisOpen,
         };
       });
 
@@ -307,13 +318,34 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
                       </div>
                     </div>
 
-                    {/* Action Button */}
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleRequestAccess(protocol); }}
-                      class="w-full bg-slate-900 dark:bg-slate-800 text-white font-black py-3 rounded-xl text-xs uppercase tracking-widest transition-all hover:bg-blue-600 dark:hover:bg-blue-700 shadow-md active:scale-95"
-                    >
-                      Request Optimization Logs
-                    </button>
+                    {/* Token-Gated Resources */}
+                    {protocol.tokenGatedResources && protocol.tokenGatedResources.length > 0 && (
+                      <div class="mb-4 p-3 rounded-xl bg-brand/5 border border-brand/20">
+                        <div class="text-[9px] font-black text-brand uppercase tracking-widest mb-2">🔐 Token-Gated Resources</div>
+                        <ul class="space-y-1">
+                          {protocol.tokenGatedResources.map(r => (
+                            <li key={r.id} class="flex items-center gap-2 text-[10px] text-slate-700 dark:text-slate-300">
+                              <span>{r.icon}</span>
+                              <span class="font-bold">{r.title}</span>
+                              {r.size && <span class="text-brand font-semibold">({r.size})</span>}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Genesis Badge + Action Button */}
+                    <div class="flex items-center gap-2">
+                      {protocol.genesisOpen && (
+                        <span class="text-[9px] font-black px-2 py-1 rounded-full border border-yellow-400 text-yellow-700 dark:text-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 uppercase tracking-widest whitespace-nowrap">⚡ Genesis</span>
+                      )}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleRequestAccess(protocol); }}
+                        class="flex-1 bg-slate-900 dark:bg-slate-800 text-white font-black py-3 rounded-xl text-xs uppercase tracking-widest transition-all hover:bg-blue-600 dark:hover:bg-blue-700 shadow-md active:scale-95"
+                      >
+                        {protocol.genesisOpen ? 'Join Genesis Alliance →' : 'Request Optimization Logs'}
+                      </button>
+                    </div>
                   </div>
                 ))}
             </div>
@@ -365,6 +397,39 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
                 </div>
               </div>
             </div>
+
+            {/* Token-Gated Resources (detail modal) */}
+            {selectedProtocol.tokenGatedResources && selectedProtocol.tokenGatedResources.length > 0 && (
+              <div class="mb-8 p-5 rounded-2xl bg-brand/5 border-2 border-brand/20">
+                <h4 class="font-black text-xs uppercase tracking-widest mb-4 text-brand flex items-center gap-2">🔐 Token-Gated Resources</h4>
+                <ul class="space-y-3">
+                  {selectedProtocol.tokenGatedResources.map(r => (
+                    <li key={r.id} class="flex items-start gap-3">
+                      <span class="text-xl flex-shrink-0">{r.icon}</span>
+                      <div>
+                        <div class="font-bold text-sm text-slate-900 dark:text-white">{r.title} {r.size && <span class="text-brand">({r.size})</span>}</div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400">{r.description}</div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Founding Validators (detail modal) */}
+            {selectedProtocol.foundingValidators && selectedProtocol.foundingValidators.length > 0 && (
+              <div class="mb-8 p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-2 border-slate-200 dark:border-slate-700">
+                <h4 class="font-black text-xs uppercase tracking-widest mb-4 text-slate-600 dark:text-slate-300 flex items-center gap-2">⚖️ Founding Validators <span class="text-yellow-600 dark:text-yellow-400">(No stake required — Genesis period)</span></h4>
+                <ul class="space-y-2">
+                  {selectedProtocol.foundingValidators.map(v => (
+                    <li key={v.handle} class="flex items-center justify-between text-sm">
+                      <span class="font-bold text-slate-800 dark:text-slate-200">{v.handle}</span>
+                      <span class="text-xs text-slate-500 dark:text-slate-400">{v.role} · {v.reviewsCommitted} reviews committed</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* What This Means */}
             <div class="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-700 mb-8 shadow-sm">
