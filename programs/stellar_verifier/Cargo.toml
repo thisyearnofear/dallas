@@ -1,0 +1,21 @@
+[package]
+name = "dbc_optimization_attestation"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+soroban-sdk = { version = "26.0.1", default-features = false, features = ["alloc"] }
+ultrahonk_soroban_verifier = { path = "/tmp/stellar-spike/rs-soroban-ultrahonk/crates/ultrahonk-soroban-verifier", default-features = false }
+
+[profile.release]
+opt-level = "z"
+overflow-checks = true
+debug = 0
+strip = "symbols"
+lto = true
+codegen-units = 1
+
+[workspace]

@@ -1,0 +1,3 @@
+baseline_metric = "8"
+outcome_metric = "4"
+min_improvement_percent = "20"

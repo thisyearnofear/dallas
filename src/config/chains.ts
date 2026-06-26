@@ -1,13 +1,14 @@
 /**
  * Multi-chain configuration for Dallas Agent Alliance.
  *
- * Solana remains the public coordination layer.
- * Aleo is an optional private verification layer.
+ * - Solana: public coordination layer (log storage, rewards, governance)
+ * - Stellar: canonical ZK verification via Soroban (BN254 UltraHonk verifier)
+ * - Aleo: optional private verification layer
  */
 
-export type SupportedChain = 'solana' | 'aleo';
+export type SupportedChain = 'solana' | 'stellar' | 'aleo';
 
-export type ChainRole = 'public_coordination' | 'private_verification';
+export type ChainRole = 'public_coordination' | 'zk_verification' | 'private_verification';
 
 export interface ChainConfig {
   id: SupportedChain;
@@ -18,10 +19,12 @@ export interface ChainConfig {
   rpcUrl?: string;
   relayerUrl?: string;
   programId?: string;
+  contractId?: string;
 }
 
 export interface ChainsState {
   solana: ChainConfig;
+  stellar: ChainConfig;
   aleo: ChainConfig;
 }
 
@@ -40,6 +43,15 @@ export const CHAINS_CONFIG: ChainsState = {
     enabled: true,
     role: 'public_coordination',
     explorerUrl: 'https://explorer.solana.com/tx',
+  },
+  stellar: {
+    id: 'stellar',
+    name: 'Stellar',
+    enabled: env.VITE_STELLAR_ENABLED !== 'false',
+    role: 'zk_verification',
+    explorerUrl: 'https://stellar.expert/explorer/testnet/tx',
+    contractId: env.VITE_STELLAR_CONTRACT_ID || '',
+    rpcUrl: env.VITE_STELLAR_RPC_URL || 'https://soroban-testnet.stellar.org',
   },
   aleo: {
     id: 'aleo',
@@ -85,46 +97,61 @@ export function getEnabledChains(): ChainConfig[] {
   return Object.values(CHAINS_CONFIG).filter((chain) => chain.enabled);
 }
 
-export function getAleoReadiness(): AleoReadiness {
-  if (!isAleoEnabled()) {
+export function isStellarEnabled(): boolean {
+  return CHAINS_CONFIG.stellar.enabled;
+}
+
+/** Generic readiness check for any chain */
+export function getChainReadiness(chainId: SupportedChain): ChainReadiness {
+  const config = CHAINS_CONFIG[chainId];
+  if (!config.enabled) {
     return {
       enabled: false,
-      readyForSubmission: false,
-      missing: ['VITE_ALEO_ENABLED=true'],
-      warnings: [],
-      reason: 'Aleo verification is turned off.',
+      ready: false,
+      reason: `${config.name} is turned off.`,
     };
   }
 
   const missing: string[] = [];
-  const warnings: string[] = [];
-
-  if (!ALEO_CONFIG.programId) {
-    missing.push('VITE_ALEO_PROGRAM_ID');
+  if (!config.contractId && chainId === 'stellar') {
+    missing.push('VITE_STELLAR_CONTRACT_ID');
   }
-
-  if (!ALEO_CONFIG.relayerUrl) {
-    warnings.push('VITE_ALEO_RELAYER_URL');
+  if (!config.programId && chainId === 'aleo') {
+    missing.push('VITE_ALEO_PROGRAM_ID');
   }
 
   if (missing.length > 0) {
     return {
       enabled: true,
-      readyForSubmission: false,
+      ready: false,
       missing,
-      warnings,
-      reason: 'Aleo verification is enabled but not fully configured.',
+      reason: `${config.name} enabled but not fully configured: missing ${missing.join(', ')}.`,
     };
   }
 
   return {
     enabled: true,
-    readyForSubmission: true,
+    ready: true,
     missing: [],
-    warnings,
-    reason:
-      warnings.length > 0
-        ? 'Aleo verification is enabled in queue mode (no relayer URL).'
-        : 'Aleo verification is fully configured.',
+    reason: `${config.name} is fully configured.`,
   };
+}
+
+/** @deprecated Use getChainReadiness('aleo') instead */
+export function getAleoReadiness(): AleoReadiness {
+  const r = getChainReadiness('aleo');
+  return {
+    enabled: r.enabled,
+    readyForSubmission: r.ready,
+    missing: r.missing ?? [],
+    warnings: [],
+    reason: r.reason,
+  };
+}
+
+export interface ChainReadiness {
+  enabled: boolean;
+  ready: boolean;
+  missing?: string[];
+  reason: string;
 }

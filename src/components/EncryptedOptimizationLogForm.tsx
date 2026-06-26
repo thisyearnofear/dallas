@@ -4,14 +4,16 @@ import { WalletContext } from '../context/WalletContext';
 import { deriveEncryptionKey, encryptAgentData } from '../utils/encryption';
 import {
   aleoVerificationService,
+  stellarVerificationService,
   submitOptimizationLogDualChain,
   dualChainSubmissionService,
 } from '../services';
 import type { DualChainStatus } from '../services/DualChainSubmissionService';
-import { isAleoEnabled } from '../config/chains';
+import type { VerificationResult } from '../services/VerificationAdapter';
+import { isAleoEnabled, isStellarEnabled } from '../config/chains';
 import { validateBlockchainConfig } from '../config/solana';
 import { SOLANA_CONFIG } from '../config/solana';
-import { getAleoReadiness } from '../config/chains';
+import { getAleoReadiness, getChainReadiness } from '../config/chains';
 import { SubmissionConsentCheckboxes } from './LegalComponents';
 import { LEGAL_CONFIG } from '../config/legal';
 import {
@@ -48,6 +50,7 @@ interface OptimizationLogFormData {
 
 type SolanaRailStatus = 'idle' | 'pending' | 'confirmed' | 'failed';
 type AleoRailStatus = 'disabled' | 'idle' | 'pending' | 'queued' | 'verified' | 'failed';
+type StellarRailStatus = 'disabled' | 'idle' | 'pending' | 'verified' | 'failed';
 
 export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
   const walletContext = useContext(WalletContext);
@@ -83,7 +86,13 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
   };
   const aleoReadiness = getAleoReadiness();
   const aleoEnabled = aleoReadiness.enabled;
-  const submitTargetLabel = aleoEnabled ? 'Solana + Aleo' : 'Solana';
+  const stellarReadiness = getChainReadiness('stellar');
+  const stellarEnabled = stellarReadiness.enabled;
+  const submitTargetLabels = [];
+  submitTargetLabels.push('Solana');
+  if (stellarEnabled) submitTargetLabels.push('Stellar');
+  if (aleoEnabled) submitTargetLabels.push('Aleo');
+  const submitTargetLabel = submitTargetLabels.join(' + ');
 
   // Initialize Light Protocol service
   useEffect(() => {
@@ -175,12 +184,15 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
     message: string;
   }>({ type: null, message: '' });
   const [isRetryingAleo, setIsRetryingAleo] = useState(false);
+  const [isRetryingStellar, setIsRetryingStellar] = useState(false);
   const [railStatus, setRailStatus] = useState<{
     solana: SolanaRailStatus;
     aleo: AleoRailStatus;
+    stellar: StellarRailStatus;
   }>({
     solana: 'idle',
     aleo: aleoEnabled ? 'idle' : 'disabled',
+    stellar: stellarEnabled ? 'idle' : 'disabled',
   });
 
   // Success state for full-screen overlay
@@ -194,6 +206,9 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
     aleoError?: string;
     aleoCircuit?: string;
     aleoPublicInputs?: Record<string, string | number | boolean>;
+    stellarStatus?: 'disabled' | 'pending' | 'verified' | 'failed';
+    stellarTxId?: string;
+    stellarError?: string;
     dualStatus?: DualChainStatus;
   } | null>(null);
 
@@ -398,6 +413,55 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
     }
   };
 
+  const handleRetryStellarVerification = async () => {
+    if (!successData?.optimizationLogId) return;
+
+    setIsRetryingStellar(true);
+    setRailStatus((current) => ({ ...current, stellar: 'pending' }));
+    setSubmitStatus({
+      type: 'info',
+      message: '🔄 Retrying Stellar ZK verification...',
+    });
+
+    try {
+      const retryResult = await stellarVerificationService.submit({
+        optimizationLogId: successData.optimizationLogId,
+        circuit: 'benchmark_delta',
+        publicInputs: {},
+      });
+
+      const stellarStatus = retryResult.status === 'verified' ? 'verified'
+        : retryResult.status === 'failed' ? 'failed'
+        : 'pending';
+      setRailStatus((current) => ({ ...current, stellar: stellarStatus as StellarRailStatus }));
+
+      setSuccessData((current) => {
+        if (!current) return current;
+        return {
+          ...current,
+          stellarStatus: stellarStatus as 'disabled' | 'pending' | 'verified' | 'failed',
+          stellarTxId: retryResult.txId,
+          stellarError: retryResult.error,
+        };
+      });
+
+      setSubmitStatus({
+        type: retryResult.status === 'failed' ? 'error' : 'success',
+        message: retryResult.status === 'failed'
+          ? `❌ Stellar retry failed: ${retryResult.error || 'Unknown error'}`
+          : '✅ Stellar ZK verification retry submitted successfully.',
+      });
+    } catch (error) {
+      setRailStatus((current) => ({ ...current, stellar: 'failed' }));
+      setSubmitStatus({
+        type: 'error',
+        message: `❌ Stellar retry failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      });
+    } finally {
+      setIsRetryingStellar(false);
+    }
+  };
+
   // Step 2: Encrypt and submit optimization log to blockchain
   // Enhanced submission with real-time progress tracking
   const handleSubmit = async (e: Event) => {
@@ -458,6 +522,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
     setRailStatus({
       solana: 'pending',
       aleo: aleoEnabled ? 'pending' : 'disabled',
+      stellar: stellarEnabled ? 'pending' : 'disabled',
     });
 
     try {
@@ -485,8 +550,8 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
       // Step 3: Sign transaction
       setSubmitStatus({
         type: 'info',
-        message: aleoEnabled
-          ? '🔄 Step 3/4: Approve Solana transaction (Aleo verification follows)...'
+        message: stellarEnabled || aleoEnabled
+          ? '🔄 Step 3/4: Approve Solana transaction (on-chain verification follows)...'
           : '🔄 Step 3/4: Please approve the transaction in your wallet...',
       });
 
@@ -519,8 +584,8 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
         setRailStatus((current) => ({ ...current, solana: 'confirmed' }));
         setSubmitStatus({
           type: 'info',
-          message: aleoEnabled
-            ? '🔄 Step 4/4: Finalizing Solana submission + Aleo verification...'
+          message: stellarEnabled || aleoEnabled
+            ? '🔄 Step 4/4: Finalizing Solana + on-chain verification...'
             : '🔄 Step 4/4: Confirming transaction on Solana blockchain...',
         });
 
@@ -531,8 +596,18 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
         const signature = result.solana.transactionSignature || '';
         const optimizationLogId = result.solana.optimizationLogPubkey?.toString() || '';
         const aleoResult = result.aleo;
+        const stellarResult = result.stellar;
         const nextAleoStatus = getAleoRailStatus(aleoResult?.status);
-        setRailStatus((current) => ({ ...current, aleo: nextAleoStatus }));
+        const stellarRailStatus: StellarRailStatus = stellarResult?.status === 'verified'
+          ? 'verified'
+          : stellarResult?.status === 'failed'
+            ? 'failed'
+            : stellarEnabled ? 'pending' : 'disabled';
+        setRailStatus((current) => ({
+          ...current,
+          aleo: nextAleoStatus,
+          stellar: stellarRailStatus,
+        }));
 
         setSuccessData({
           signature,
@@ -546,6 +621,12 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
           aleoError: aleoResult?.error,
           aleoCircuit: 'benchmark_delta',
           aleoPublicInputs,
+          stellarStatus: stellarResult?.status === 'verified' ? 'verified'
+            : stellarResult?.submitted ? 'pending'
+            : stellarResult?.status === 'failed' ? 'failed'
+            : stellarEnabled ? 'pending' : 'disabled',
+          stellarTxId: stellarResult?.txId,
+          stellarError: stellarResult?.error,
           dualStatus: result.dualStatus,
         });
         
@@ -663,11 +744,11 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
           {/* Transaction Details Card */}
           <div class="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 mb-6 text-left border border-slate-200 dark:border-slate-700">
             <div class="space-y-4">
-              {/* Dual-Chain Status Panel */}
+              {/* Multi-Chain Status Panel */}
               {successData.dualStatus && (
                 <div class="mb-4 p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-xl border border-purple-200 dark:border-purple-700">
                   <div class="text-xs font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <span>⛓️</span> Dual-Chain Status
+                    <span>⛓️</span> Multi-Chain Status
                   </div>
                   <div class="space-y-2">
                     {/* Solana Status */}
@@ -694,6 +775,47 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                         </span>
                       </div>
                     </div>
+                    {/* Stellar ZK Status */}
+                    {successData.stellarStatus && (
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                          <span class={
+                            successData.stellarStatus === 'verified' ? 'text-green-500' :
+                            successData.stellarStatus === 'disabled' ? 'text-slate-400' :
+                            'text-yellow-500'
+                          }>
+                            {successData.stellarStatus === 'verified' ? '✅' :
+                             successData.stellarStatus === 'disabled' ? '⚪' : '⏳'}
+                          </span>
+                          <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Stellar ZK</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          {successData.stellarTxId && (
+                            <a
+                              href={`https://stellar.expert/explorer/testnet/tx/${successData.stellarTxId}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                            >
+                              View ↗
+                            </a>
+                          )}
+                          <span class={`text-xs font-bold ${
+                            successData.stellarStatus === 'verified' ? 'text-green-600 dark:text-green-400' :
+                            successData.stellarStatus === 'disabled' ? 'text-slate-500' :
+                            'text-yellow-600 dark:text-yellow-400'
+                          }`}>
+                            {successData.stellarStatus === 'verified' ? 'Verified' :
+                             successData.stellarStatus === 'disabled' ? 'Disabled' :
+                             successData.stellarStatus === 'pending' ? 'Verifying...' :
+                             'Failed'}
+                          </span>
+                        </div>
+                        {successData.stellarError && (
+                          <div class="text-xs text-red-500 mt-1">{successData.stellarError}</div>
+                        )}
+                      </div>
+                    )}
                     {/* Aleo Status */}
                     <div class="flex items-center justify-between">
                       <div class="flex items-center gap-2">
@@ -772,6 +894,28 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                   <div class="text-sm text-slate-700 dark:text-slate-300">
                     <div class="font-semibold">Solana: Confirmed</div>
                     <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">Public coordination, rewards, and governance.</div>
+                    <div class="font-semibold">
+                      Stellar ZK: {
+                        successData.stellarStatus === 'verified'
+                          ? 'Verified'
+                          : successData.stellarStatus === 'pending'
+                            ? 'Verifying...'
+                            : successData.stellarStatus === 'failed'
+                              ? 'Failed'
+                              : 'Disabled'
+                      }
+                    </div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">Canonical BN254 on-chain ZK verification via Soroban.</div>
+                    {successData.stellarTxId && (
+                      <div class="font-mono text-xs break-all">
+                        Tx: {successData.stellarTxId}
+                      </div>
+                    )}
+                    {successData.stellarError && (
+                      <div class="text-xs text-red-600 dark:text-red-400 mt-1">
+                        {successData.stellarError}
+                      </div>
+                    )}
                     <div class="font-semibold">
                       Aleo: {
                         successData.aleoStatus === 'verified'
@@ -1284,9 +1428,12 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                 Queue mode: add {aleoReadiness.warnings.join(', ')} to submit verification through your relayer.
               </div>
             )}
-            <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-semibold">
+            <div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] font-semibold">
               <div class="rounded-lg border border-slate-200 dark:border-slate-600 px-3 py-2 text-slate-700 dark:text-slate-300 bg-white/60 dark:bg-slate-900/40">
                 Solana Rail Status: {formatRailStatus(railStatus.solana)}
+              </div>
+              <div class="rounded-lg border border-slate-200 dark:border-slate-600 px-3 py-2 text-slate-700 dark:text-slate-300 bg-white/60 dark:bg-slate-900/40">
+                Stellar Rail Status: {formatRailStatus(railStatus.stellar)}
               </div>
               <div class="rounded-lg border border-slate-200 dark:border-slate-600 px-3 py-2 text-slate-700 dark:text-slate-300 bg-white/60 dark:bg-slate-900/40">
                 Aleo Rail Status: {formatRailStatus(railStatus.aleo)}
@@ -1303,7 +1450,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
             {isSubmitting ? (
               <span class="flex items-center justify-center gap-3">
                 <span class="animate-spin">⏳</span>
-                {aleoEnabled ? 'Submitting to Solana + Aleo...' : 'Submitting to Solana...'}
+                {`Submitting to ${submitTargetLabel}...`}
               </span>
             ) : !validateForm() ? (
               '📝 Complete Form to Submit'

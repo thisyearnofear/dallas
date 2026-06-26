@@ -1,11 +1,14 @@
-import { ALEO_CONFIG, CHAINS_CONFIG, isAleoEnabled } from '../../config/chains';
+import { ALEO_CONFIG, CHAINS_CONFIG, isAleoEnabled, type SupportedChain } from '../../config/chains';
+import type { VerificationAdapter, VerificationRequest, VerificationResult } from '../VerificationAdapter';
 
 /**
+ * Aleo verification service — implements VerificationAdapter.
+ *
  * Two complementary submission shapes are supported:
  *
- * 1. submitVerification(request) — structured benchmark-delta proofs
+ * 1. submit(request)  — adapter-path (structured benchmark-delta proofs)
  *    Caller provides circuit name and public inputs.
- *    Returns AleoVerificationResult.
+ *    Returns VerificationResult.
  *
  * 2. submitForVerification(payload) — relayer-based encrypted blob submission
  *    Caller provides encryptedData / metadataHash / solanaTxHash.
@@ -46,14 +49,49 @@ export interface AleoSubmissionResult {
   explorerUrl?: string;
 }
 
-export class AleoVerificationService {
+export class AleoVerificationService implements VerificationAdapter {
+  readonly chainId: SupportedChain = 'aleo';
+
   private get relayerUrl(): string {
     return CHAINS_CONFIG.aleo.relayerUrl || ALEO_CONFIG.relayerUrl || '';
   }
 
+  /** VerificationAdapter: submit */
+  async submit(request: VerificationRequest): Promise<VerificationResult> {
+    const result = await this.submitVerification(request as AleoVerificationRequest);
+    return this.toVerificationResult(result);
+  }
+
+  /** VerificationAdapter: checkStatus */
+  async checkStatus(verificationId: string): Promise<VerificationResult> {
+    const result = await this.checkVerificationStatus(verificationId);
+    return {
+      submitted: result.success,
+      verificationId,
+      txId: result.aleoTxHash,
+      status: result.status === 'queued' ? 'queued' : result.status === 'verified' ? 'verified' : 'failed',
+      explorerUrl: result.explorerUrl,
+    };
+  }
+
+  getExplorerUrl(txId: string): string {
+    return `${CHAINS_CONFIG.aleo.explorerUrl}/${txId}`;
+  }
+
+  private toVerificationResult(r: AleoVerificationResult): VerificationResult {
+    return {
+      submitted: r.submitted,
+      verificationId: r.verificationId,
+      txId: r.txId,
+      status: r.status === 'disabled' ? 'disabled' : r.status === 'queued' ? 'queued' : r.status === 'verified' ? 'verified' : 'failed',
+      error: r.error,
+      explorerUrl: r.txId ? this.getExplorerUrl(r.txId) : undefined,
+    };
+  }
+
   /**
-   * Structured verification path used by EncryptedOptimizationLogForm
-   * and the dual-chain submission helper. Carries circuit + publicInputs.
+   * Structured verification path (legacy name, kept for backward compat).
+   * Used by EncryptedOptimizationLogForm and DualChainSubmissionService.
    */
   async submitVerification(request: AleoVerificationRequest): Promise<AleoVerificationResult> {
     if (!isAleoEnabled()) {

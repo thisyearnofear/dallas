@@ -11,7 +11,10 @@
 		"preview": "vite preview",
 		"test": "jest",
 		"test:watch": "jest --watch",
-		"prepare": "husky"
+		"prepare": "husky",
+		"verify:submission": "bash scripts/verify-submission.sh",
+		"stellar:prove": "cd circuits/benchmark_delta && $HOME/.bb/bb prove --scheme ultra_honk --oracle_hash keccak --bytecode_path target/benchmark_delta.json --witness_path target/benchmark_delta.gz --output_path target --output_format bytes_and_fields && $HOME/.bb/bb write_vk --scheme ultra_honk --oracle_hash keccak --bytecode_path target/benchmark_delta.json --output_path target --output_format bytes_and_fields",
+		"stellar:verify": "stellar contract invoke --id CCBJKYVIQ6NJKHH2AW254RE2RPDJM7GXTOWA6MTTQWWNBNNZFIS6VU5Z --source alice --network testnet --send=yes -- verify_proof --public_inputs-file-path circuits/benchmark_delta/target/public_inputs --proof_bytes-file-path circuits/benchmark_delta/target/proof"
 	},
 	"eslintConfig": {
 		"extends": "preact"

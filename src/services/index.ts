@@ -85,6 +85,17 @@ export type {
   AleoSubmissionResult,
 } from './aleo';
 
+// Stellar Services
+export {
+  stellarVerificationService,
+  StellarVerificationService,
+} from './stellar';
+export type {
+  VerificationResult,
+  VerificationRequest,
+  VerificationAdapter,
+} from './VerificationAdapter';
+
 // Attention Token Services
 export { AttentionTokenService } from './AttentionTokenService';
 export { AttentionTokenTradingService } from './AttentionTokenTradingService';

@@ -9,7 +9,9 @@ import {
   AleoVerificationResult,
   AleoSubmissionResult,
 } from './aleo';
-import { isAleoEnabled, CHAINS_CONFIG } from '../config/chains';
+import { stellarVerificationService } from './stellar';
+import { isAleoEnabled, isStellarEnabled, CHAINS_CONFIG, type SupportedChain } from '../config/chains';
+import type { VerificationResult } from './VerificationAdapter';
 
 export interface OptimizationLogSubmissionFormData {
   architectureProtocol: string;
@@ -21,19 +23,29 @@ export interface OptimizationLogSubmissionFormData {
   context?: string;
 }
 
+export interface ChainStatus {
+  confirmed: boolean;
+  txHash?: string;
+  explorerUrl?: string;
+}
+
+export interface VerifierStatus {
+  status: 'pending' | 'verifying' | 'verified' | 'failed' | 'disabled';
+  verificationId?: string;
+  txHash?: string;
+  explorerUrl?: string;
+}
+
 export interface DualChainStatus {
-  solana: {
-    confirmed: boolean;
-    txHash?: string;
-    logId?: string;
-    explorerUrl?: string;
-  };
-  aleo: {
-    status: 'pending' | 'verifying' | 'verified' | 'failed' | 'disabled';
-    queueId?: string;
-    txHash?: string;
-    explorerUrl?: string;
-  };
+  solana: ChainStatus;
+  aleo: VerifierStatus;
+  /** @deprecated Use `verifications` map instead */
+}
+
+export interface MultiChainStatus {
+  solana: ChainStatus;
+  /** Map of chainId → verification status for all enabled verifiers */
+  verifications: Partial<Record<Exclude<SupportedChain, 'solana'>, VerifierStatus>>;
 }
 
 export interface DualChainSubmissionResult {
@@ -41,6 +53,7 @@ export interface DualChainSubmissionResult {
   solana: BlockchainSubmissionResult;
   aleo?: AleoVerificationResult;
   aleoSubmission?: AleoSubmissionResult;
+  stellar?: VerificationResult;
   dualStatus: DualChainStatus;
   message: string;
 }
@@ -82,11 +95,28 @@ function mapStructuredAleoToStatus(
   };
   return {
     status: map[aleo.status],
-    queueId: aleo.verificationId,
+    verificationId: aleo.verificationId,
     txHash: aleo.txId,
     explorerUrl: aleo.txId
       ? `${CHAINS_CONFIG.aleo.explorerUrl}/${aleo.txId}`
       : undefined,
+  };
+}
+
+function mapVerificationResult(v: VerificationResult): VerifierStatus {
+  const map: Record<string, VerifierStatus['status']> = {
+    disabled: 'disabled',
+    pending: 'pending',
+    queued: 'pending',
+    verifying: 'verifying',
+    verified: 'verified',
+    failed: 'failed',
+  };
+  return {
+    status: map[v.status] || 'failed',
+    verificationId: v.verificationId,
+    txHash: v.txId,
+    explorerUrl: v.explorerUrl,
   };
 }
 
@@ -128,7 +158,7 @@ export async function submitOptimizationLogDualChain(
 
 /**
  * Class form (preferred for orchestration / testing).
- * Wraps Solana submission + structured Aleo verification + dualStatus.
+ * Orchestrates Solana submission → Stellar verification (headline) → Aleo verification (optional).
  */
 class DualChainSubmissionService {
   async submit(params: DualChainSubmissionParams): Promise<DualChainSubmissionResult> {
@@ -160,43 +190,58 @@ class DualChainSubmissionService {
       };
     }
 
+    const optimizationLogId = solanaResult.optimizationLogPubkey.toBase58();
     dualStatus.solana = {
       confirmed: true,
       txHash: solanaResult.transactionSignature,
-      logId: solanaResult.optimizationLogPubkey.toString(),
+      logId: optimizationLogId,
       explorerUrl: solanaResult.transactionSignature
         ? `https://explorer.solana.com/tx/${solanaResult.transactionSignature}?cluster=devnet`
         : undefined,
     };
 
-    if (!isAleoEnabled()) {
-      return {
-        success: true,
-        solana: solanaResult,
-        dualStatus,
-        message: solanaResult.message,
-      };
+    // Stellar: headline ZK verification (runs by default when enabled)
+    let stellarResult: VerificationResult | undefined;
+    if (isStellarEnabled()) {
+      stellarResult = await stellarVerificationService.submit({
+        optimizationLogId,
+        circuit: 'benchmark_delta',
+        publicInputs: buildAleoPublicInputs(params.formData),
+      });
     }
 
-    const aleoResult = await aleoVerificationService.submitVerification({
-      optimizationLogId: solanaResult.optimizationLogPubkey.toBase58(),
-      circuit: 'benchmark_delta',
-      publicInputs: buildAleoPublicInputs(params.formData),
-    });
+    // Aleo: optional private verification
+    let aleoResult: AleoVerificationResult | undefined;
+    if (isAleoEnabled()) {
+      aleoResult = await aleoVerificationService.submitVerification({
+        optimizationLogId,
+        circuit: 'benchmark_delta',
+        publicInputs: buildAleoPublicInputs(params.formData),
+      });
 
-    dualStatus.aleo = mapStructuredAleoToStatus(aleoResult);
+      dualStatus.aleo = mapStructuredAleoToStatus(aleoResult);
+    }
+
+    const stellarMsg = stellarResult?.error ? `\n\nStellar: ${stellarResult.error}` : '';
+    const aleoMsg = aleoResult?.error ? `\n\nAleo: ${aleoResult.error}` : '';
 
     return {
       success: true,
       solana: solanaResult,
       aleo: aleoResult,
+      stellar: stellarResult,
+      aleoSubmission: undefined,
       dualStatus,
-      message: `${solanaResult.message}${aleoResult.error ? `\n\nAleo: ${aleoResult.error}` : ''}`,
+      message: `${solanaResult.message}${stellarMsg}${aleoMsg}`,
     };
   }
 
   async pollAleoStatus(queueId: string): Promise<AleoSubmissionResult> {
     return aleoVerificationService.checkVerificationStatus(queueId);
+  }
+
+  async pollStellarStatus(verificationId: string): Promise<VerificationResult> {
+    return stellarVerificationService.checkStatus(verificationId);
   }
 }
 

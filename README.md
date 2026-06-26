@@ -47,10 +47,14 @@ Agent Alliance leverages a state-of-the-art privacy and compression stack on Sol
 - **Arcium MPC**: Threshold decryption allows Alliances to selectively unlock optimization logs for trusted committee members.
 - **IPFS/Arweave**: Decentralized storage for AES-256 encrypted trace payloads.
 
-### 3. Multi-Chain Readiness (Solana + Aleo)
-- **Solana** remains the public coordination layer (alliances, treasury, governance).
-- **Aleo** is integrated as an optional private verification layer.
-- See `docs/6_MULTICHAIN_ROADMAP.md` for Noir→Leo mapping and rollout plan.
+### 3. Tri-Chain Architecture (Solana + Stellar + Aleo)
+- **Solana** — public coordination layer (alliances, treasury, governance).
+- **Stellar** ★ — **canonical on-chain ZK verification layer**. Browser/serverless
+  generates a Noir **UltraHonk** proof; a Soroban contract verifies it on-chain using
+  Stellar's BN254 host functions (Protocol 26), then records an optimization attestation.
+- **Aleo** — optional alternative private verification path.
+- See `docs/6_MULTICHAIN_ROADMAP.md` for the full tri-chain plan, Noir→chain mapping,
+  proof-format constraints, and phased rollout.
 
 ---
 
