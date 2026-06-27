@@ -93,15 +93,29 @@ A naked `verify_proof` is the common (weak) demo. We port the existing Solana
 UltraHonk verifier:
 
 ```
-optimization_attestation.soroban
-  verify_optimization(alliance_id, public_inputs, proof_bytes):
-     1. UltraHonk verify_proof(public_inputs, proof)   ← BN254 host fns
-     2. on success → store Attestation{alliance_id, submitter, ts, circuit}
-     3. emit event → indexable proof-of-optimization record
-     4. (stretch) release/stream reward or mint soulbound reputation
+dbc_optimization_attestation.soroban  (DEPLOYED + VERIFIED ✅)
+  verify_and_attest(alliance_id, submission_id, public_inputs, proof_bytes):
+     1. UltraHonk verify(public_inputs, proof)         ← BN254 host fns
+     2. re-entrancy guard: submission_id attested once (else #7 AlreadyAttested)
+     3. parse public outputs → (passed, threshold)
+     4. store immutable Attestation{submission_id, alliance_id,
+                                    passed, threshold, ledger, timestamp}
+     5. emit ATST event → indexable proof-of-optimization receipt
+
+  get_attestation(submission_id) -> Option<Attestation>   (public read)
+  has_attestation(submission_id) -> bool
 ```
 
-ZK becomes **load-bearing**: no valid proof → no attestation → no reward.
+**Contract:** `CD3ZKSCTQKVLD2Z7W3VOJSVM7TNKSP6M2QAS6CQ4HZ3X3B5KPP3IT5C3`
+(Stellar testnet) · source: `programs/stellar_verifier/src/lib.rs`
+
+ZK is **load-bearing** (verified end-to-end):
+
+- Fresh proof per submission → on-chain verify → stored attestation + `ATST` event.
+  Example: tx `aec773fcbb0d99f39af386154edb6f533ef3d9156927a3647518b9ed498b8729`.
+- Tampered proof is **rejected on-chain** (`Error(Contract, #4) VerificationFailed`).
+- Duplicate `submission_id` is **rejected** (`Error(Contract, #7) AlreadyAttested`).
+- `get_attestation` / `has_attestation` return the stored receipt for any submission.
 
 ---
 
@@ -138,9 +152,10 @@ CONSOLIDATE:
 ADD (mirrors aleo/ — not a silo):
   src/services/stellar/StellarVerificationService.ts   ✅ VerificationAdapter
   src/services/VerificationAdapter.ts                   ✅ Interface definition
-  api/stellar-prove.ts                                  ✅ CLI-based Soroban submission
-  api/stellar/proof.bin, vk.bin, public_inputs.bin     ✅ Proof artifacts
-  programs/stellar_verifier/                            ⚠️ Contract (builds + designs)
+  api/stellar-prove.ts                                  ✅ Fresh proof per request
+                                                           (Prover.toml→nargo→bb→invoke)
+  api/stellar/proof.bin, vk.bin, public_inputs.bin     ✅ Static fallback artifacts
+  programs/stellar_verifier/                            ✅ Deployed attestation contract
 
 UPDATE UI:
   EncryptedOptimizationLogForm.tsx + success overlay
@@ -173,17 +188,21 @@ PHASE 2 — REAL PROOF PIPELINE        ✅ COMPLETE
   ✅ Proof artifacts (proof.bin, vk.bin, public_inputs.bin) in api/stellar/
   ✅ Full UI integration: rail status + success overlay + retry handler
 
-PHASE 3 — STATEFUL CONTRACT          ⚠️ PARTIAL (see note)
-  ✅ Contract designed in programs/stellar_verifier/ 
-  ⚠️ Attestation contract builds locally but toolchain issue with Soroban deploy
-  ✅ Workaround: stock verifier handles on-chain proof verification
-  ✅ API layer stores attestation records server-side
+PHASE 3 — STATEFUL CONTRACT          ✅ COMPLETE
+  ✅ dbc_optimization_attestation deployed to testnet
+     CD3ZKSCTQKVLD2Z7W3VOJSVM7TNKSP6M2QAS6CQ4HZ3X3B5KPP3IT5C3
+  ✅ verify_and_attest: on-chain ZK verify → store attestation → emit ATST event
+  ✅ get_attestation / has_attestation public reads
+  ✅ Re-entrancy guard (one attestation per submission_id; #7 AlreadyAttested)
+  ✅ Verified live: fresh proof attested, read-back, duplicate rejected,
+     tampered proof rejected (#4 VerificationFailed)
 
 PHASE 4 — UX + DEMO + DOCS           🔄 IN PROGRESS
-  🔄 UI updated with Stellar rail status + success overlay
-  🔄 env vars configured
+  ✅ UI updated with Stellar rail status + success overlay + retry handler
+  ✅ env vars configured
+  ✅ README Stellar-first + verified-tx + honesty note
+  ✅ Roadmap doc reflects deployed attestation contract
   ⬜ Demo video (2-3 min)
-  ⬜ README final review
   ⬜ Submission to dorahacks.io
 
 BUFFER                              [Day 6-7 = extended deadline cushion]

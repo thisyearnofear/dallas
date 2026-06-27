@@ -16,6 +16,7 @@ interface ProveRequest {
   verificationId: string;
   optimizationLogId: string;
   circuit: string;
+  allianceId?: string;
   publicInputs: Record<string, string | number | boolean>;
   contractId?: string;
 }
@@ -147,7 +148,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const circuitParams = mapFormInputsToCircuit(body.publicInputs);
     const submissionId = generateSubmissionId(body.optimizationLogId, circuitParams);
-    const allianceId = `alliance_${body.circuit}`;
+    const allianceId = body.allianceId || `alliance:${body.circuit}`;
 
     // Generate a fresh proof for THIS user's inputs
     const { proof, publicInputs } = generateProof(circuitParams);

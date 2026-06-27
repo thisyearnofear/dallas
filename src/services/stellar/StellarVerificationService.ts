@@ -28,6 +28,7 @@ export class StellarVerificationService implements VerificationAdapter {
           verificationId,
           optimizationLogId: request.optimizationLogId,
           circuit: request.circuit,
+          allianceId: request.allianceId,
           publicInputs: request.publicInputs,
           contractId: CHAINS_CONFIG.stellar.contractId,
         }),

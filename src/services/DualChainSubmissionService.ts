@@ -80,6 +80,12 @@ function buildAleoPublicInputs(formData: OptimizationLogSubmissionFormData) {
   };
 }
 
+function buildStellarAllianceId(formData: OptimizationLogSubmissionFormData): string {
+  const protocol = formData.architectureProtocol?.trim();
+  if (protocol) return `alliance:${protocol.toLowerCase().replace(/\s+/g, '-')}`;
+  return 'alliance:benchmark-delta';
+}
+
 function emptyAleoStatus(): DualChainStatus['aleo'] {
   return isAleoEnabled() ? { status: 'pending' } : { status: 'disabled' };
 }
@@ -206,6 +212,7 @@ class DualChainSubmissionService {
       stellarResult = await stellarVerificationService.submit({
         optimizationLogId,
         circuit: 'benchmark_delta',
+        allianceId: buildStellarAllianceId(params.formData),
         publicInputs: buildAleoPublicInputs(params.formData),
       });
     }

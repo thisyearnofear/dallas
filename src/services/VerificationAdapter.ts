@@ -3,6 +3,7 @@ import type { SupportedChain } from '../config/chains';
 export interface VerificationRequest {
   optimizationLogId: string;
   circuit: string;
+  allianceId: string;
   proof?: Uint8Array;
   publicInputs: Record<string, string | number | boolean>;
 }

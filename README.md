@@ -157,59 +157,85 @@ circuits/           # Noir ZK-SNARK Circuits
 
 ---
 
-## 🏆 Aleo Buildathon 2026 Submission
+## 🏆 Stellar Hacks: Real-World ZK — Submission
 
-**Project:** Dallas Buyers Club: Agent Alliance  
-**Track:** Privacy & Infrastructure  
-**Demo URL:** https://dallasbuyersclub.vercel.app/  
+**Project:** Dallas Buyers Club: Agent Alliance
+**What ZK does here:** An AI agent proves on-chain that its optimization improved a
+benchmark by at least a committed threshold — **without revealing the baseline or
+outcome scores** — and the proof is verified inside a Soroban contract on Stellar
+testnet, which then records a permanent, queryable attestation.
+**Demo URL:** https://dallasbuyersclub.vercel.app/
 **Repository:** https://github.com/thisyearnofear/dallas
 
-### Progress Changelog
+### ZK is load-bearing (verifiable, not namechecked)
 
-| Date | Milestone |
-|------|-----------|
-| Apr 14 | Dual-chain architecture (Solana + Aleo) working |
-| Apr 15 | ZK proof generation via Noir circuits |
-| Apr 16 | Success overlay with dual-status panel |
-| Apr 16 | Aleo explorer links with real tx hash (`at1njg2utaxa3sx3c4w36jl8w6q7shl2y02epdawlhnvkvu6eer5qfqhvygqx`) |
+- Each submission generates a **fresh** Noir UltraHonk (Keccak) proof from the user's
+  real inputs — no replay. → [`api/stellar-prove.ts`](api/stellar-prove.ts)
+- The Soroban contract **cryptographically verifies** the proof on-chain using
+  Stellar's BN254 host functions (Protocol 26). A tampered proof is rejected on-chain
+  (`Error(Contract, #4) VerificationFailed`).
+- On success it **stores an immutable attestation** and emits an `ATST` event. The same
+  `submission_id` cannot be attested twice (`Error(Contract, #7) AlreadyAttested`).
+- The circuit's public output exposes the **threshold** (`min_improvement_percent`), so
+  anyone can audit *what* was proven — while baseline/outcome stay private.
+
+### Deployed on Stellar Testnet
+
+| Contract | Address | Purpose |
+|----------|---------|---------|
+| `dbc_optimization_attestation` | `CD3ZKSCTQKVLD2Z7W3VOJSVM7TNKSP6M2QAS6CQ4HZ3X3B5KPP3IT5C3` | **Stateful** verify-and-attest (verify proof → store receipt → emit event) |
+| `rs_soroban_ultrahonk` (stock verifier) | `CC5ICZLCPV2KCCJMQOE4VK6QV4MA7UWW5BS6H7CB7CTN4RZNPPDRPY4Z` | Pure UltraHonk `verify_proof` (proof-of-concept) |
+
+Source: [`programs/stellar_verifier/src/lib.rs`](programs/stellar_verifier/src/lib.rs) ·
+Circuit: [`circuits/benchmark_delta/src/main.nr`](circuits/benchmark_delta/src/main.nr)
+
+### Example verified transactions (testnet)
+
+| Action | Tx |
+|--------|-----|
+| `verify_and_attest` (fresh proof → stored attestation + `ATST` event) | [`aec773fcbb0d99f39af386154edb6f533ef3d9156927a3647518b9ed498b8729`](https://stellar.expert/explorer/testnet/tx/aec773fcbb0d99f39af386154edb6f533ef3d9156927a3647518b9ed498b8729) |
+| `verify_and_attest` (alliance `0x0001`) | `fe48c6e8…` |
+| `verify_and_attest` (alliance `0x0002`) | `a91df140…` |
+| Fresh proof verified (stock verifier) | `1d39bd4e…` |
+| Tampered proof **rejected** on-chain (`#4 VerificationFailed`) | simulation-reverted (see `docs/6_MULTICHAIN_ROADMAP.md`) |
+
+> ZK proving runs through the **Stellar CLI locally** (`vercel dev` + a funded testnet
+> identity). The Vercel-deployed UI demonstrates the flow; the on-chain proving path is
+> run from the local toolchain (`nargo 1.0.0-beta.9` + `bb 0.87.0` + `stellar-cli`). See
+> `docs/6_MULTICHAIN_ROADMAP.md` for the full toolchain and verification steps.
 
 ---
 
-## 🏗 System Architecture (Dual-Chain)
+## 🏗 System Architecture (Tri-Chain, Stellar-canonical)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        Agent Alliance UI                        │
-│              (Preact + Tailwind + Terminal Aesthetic)          │
+│                        Agent Alliance UI                          │
+│              (Preact + Tailwind + Terminal Aesthetic)             │
 └─────────────────────────────────────────────────────────────────┘
                                 │
-            ┌───────────────────┼───────────────────┐
-            ▼                   ▼                   ▼
-   ┌─────────────┐      ┌─────────────┐      ┌─────────────┐
-   │   Solana    │      │    Aleo     │      │   IPFS/     │
-   │   Program   │      │   Verifier  │      │  Arweave    │
-   │             │      │             │      │             │
-   │ optimization│      │ dbc_verifier│      │  Encrypted  │
-   │ _log        │      │  .aleo      │      │  Logs       │
-   └─────────────┘      └─────────────┘      └─────────────┘
-        │                      │                      │
-        ▼                      ▼                      ▼
-   [Token / Bonding]    [ZK Verification]    [Off-chain Storage]
-   [Curve / Treasury]   [Privacy Preserving]  [AES-256]
+   benchmark_delta.nr → fresh UltraHonk+Keccak proof (per submission)
+                                │
+            ┌───────────────────┼───────────────────────┐
+            ▼                   ▼                         ▼
+   ┌─────────────┐      ┌──────────────────┐      ┌─────────────┐
+   │   Solana    │      │   STELLAR ★      │      │    Aleo     │
+   │ coordination│      │ Soroban contract │      │  optional   │
+   │ tokens,     │      │ verify_and_attest│      │  private    │
+   │ treasury    │      │ (BN254 on-chain) │      │  verify     │
+   └─────────────┘      └──────────────────┘      └─────────────┘
+        │                      │                         │
+        ▼                      ▼                         ▼
+   [Token / Bonding]   [ZK verify → store      [Alternative ZK
+   [Curve / Treasury]   attestation → event]    verification]
 ```
 
-### Dual-Chain Flow
-1. User submits encrypted optimization log (AES-256)
-2. **Solana**: Public token coordination, bonding curves, governance
-3. **Aleo**: Private ZK verification via `dbc_verifier.aleo` program
-4. Validators verify proof without seeing proprietary data
-5. Alliance treasury rewards contributor
-
-### Key Contracts
-| Program | Address | Network |
-|---------|---------|---------|
-| `dbc_verifier.aleo` | `at1njg2utaxa3sx3c4w36jl8w6q7shl2y02epdawlhnvkvu6eer5qfqhvygqx` | Aleo Testnet |
-| `optimization_log` | (Solana devnet) | Solana devnet |
+### Verified Flow
+1. Agent submits an optimization log; baseline/outcome scores stay **private**.
+2. A **fresh** Noir UltraHonk+Keccak proof is generated from the real inputs.
+3. **Stellar** Soroban contract verifies the proof on-chain (BN254 host functions).
+4. On success → an immutable **attestation** is stored and an `ATST` event emitted.
+5. **Solana** handles token coordination / treasury; **Aleo** is an optional alt path.
 
 ---
 
