@@ -50,7 +50,7 @@ export const CHAINS_CONFIG: ChainsState = {
     enabled: env.VITE_STELLAR_ENABLED !== 'false',
     role: 'zk_verification',
     explorerUrl: 'https://stellar.expert/explorer/testnet/tx',
-    contractId: env.VITE_STELLAR_CONTRACT_ID || '',
+    contractId: env.VITE_STELLAR_CONTRACT_ID || 'CD3ZKSCTQKVLD2Z7W3VOJSVM7TNKSP6M2QAS6CQ4HZ3X3B5KPP3IT5C3',
     rpcUrl: env.VITE_STELLAR_RPC_URL || 'https://soroban-testnet.stellar.org',
   },
   aleo: {

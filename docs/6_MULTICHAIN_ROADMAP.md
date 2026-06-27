@@ -3,6 +3,7 @@
 > **Status:** ✅ **Phase 0-2 COMPLETE** — UltraHonk proof verified on Stellar testnet
 > (Tx: `9fb1c4fcc83a011718037f9ce695084c80eb6aeefdc9eaac870b13469b75eb4f`, Contract:
 > [`CC5ICZLCPV2KCCJMQOE4VK6QV4MA7UWW5BS6H7CB7CTN4RZNPPDRPY4Z`](https://stellar.expert/explorer/testnet/contract/CC5ICZLCPV2KCCJMQOE4VK6QV4MA7UWW5BS6H7CB7CTN4RZNPPDRPY4Z)).
+> Stateful attestation: [`CD3ZKSCTQKVLD2Z7W3VOJSVM7TNKSP6M2QAS6CQ4HZ3X3B5KPP3IT5C3`](https://stellar.expert/explorer/testnet/contract/CD3ZKSCTQKVLD2Z7W3VOJSVM7TNKSP6M2QAS6CQ4HZ3X3B5KPP3IT5C3).
 > Stellar is the **canonical on-chain ZK verification layer** for the
 > *Stellar Hacks: Real-World ZK* hackathon. Solana and Aleo are retained.
 > Nothing is removed — roles are made explicit.
@@ -43,6 +44,7 @@ Solana submission flow remains intact.
 | **Toolchain** | ✅ Pinned versions | `nargo 1.0.0-beta.9`, `bb 0.87.0`, `stellar 27.0.0` |
 | **Noir Circuit** | ✅ `benchmark_delta` compiled + proven | `circuits/benchmark_delta/` |
 | **Soroban Verifier** | ✅ Deployed on testnet | `CC5ICZLCPV2KCCJMQOE4VK6QV4MA7UWW5BS6H7CB7CTN4RZNPPDRPY4Z` |
+| **Optimization Attestation** | ✅ Stateful, deployed on testnet | `CD3ZKSCTQKVLD2Z7W3VOJSVM7TNKSP6M2QAS6CQ4HZ3X3B5KPP3IT5C3` |
 | **Proof Verified** | ✅ On-chain BN254 | Tx: `9fb1c4fcc83a011718037f9ce695084c80eb6aeefdc9eaac870b13469b75eb4f` |
 | **Chain Abstraction** | ✅ VerificationAdapter + Stellar + Aleo | `src/services/VerificationAdapter.ts` |
 | **Stellar Service** | ✅ UI-integrated adapter | `src/services/stellar/StellarVerificationService.ts` |

@@ -37,6 +37,7 @@ check "public inputs = 64b (2 field elements)"  bash -c 'test "$(stat -f%z circu
 echo ""
 echo "── Stellar Testnet ──"
 check "verifier deployed"    bash -c 'stellar contract info interface --id CC5ICZLCPV2KCCJMQOE4VK6QV4MA7UWW5BS6H7CB7CTN4RZNPPDRPY4Z --network testnet 2>&1 | grep -q "verify_proof"'
+check "attestation deployed" bash -c 'stellar contract info interface --id CD3ZKSCTQKVLD2Z7W3VOJSVM7TNKSP6M2QAS6CQ4HZ3X3B5KPP3IT5C3 --network testnet 2>&1 | grep -q "verify_and_attest"'
 
 echo ""
 echo "── API Artifacts ──"
