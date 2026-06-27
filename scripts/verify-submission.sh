@@ -32,11 +32,11 @@ check "proof = 14592 bytes"  bash -c 'test "$(stat -f%z circuits/benchmark_delta
 check "VK generated"         test -f circuits/benchmark_delta/target/vk
 check "VK = 1760 bytes"      bash -c 'test "$(stat -f%z circuits/benchmark_delta/target/vk)" = "1760"'
 check "public inputs"        test -f circuits/benchmark_delta/target/public_inputs
-check "public inputs = 32b"  bash -c 'test "$(stat -f%z circuits/benchmark_delta/target/public_inputs)" = "32"'
+check "public inputs = 64b (2 field elements)"  bash -c 'test "$(stat -f%z circuits/benchmark_delta/target/public_inputs)" = "64"'
 
 echo ""
 echo "── Stellar Testnet ──"
-check "verifier deployed"    bash -c 'stellar contract info interface --id CCBJKYVIQ6NJKHH2AW254RE2RPDJM7GXTOWA6MTTQWWNBNNZFIS6VU5Z --network testnet 2>&1 | grep -q "verify_proof"'
+check "verifier deployed"    bash -c 'stellar contract info interface --id CC5ICZLCPV2KCCJMQOE4VK6QV4MA7UWW5BS6H7CB7CTN4RZNPPDRPY4Z --network testnet 2>&1 | grep -q "verify_proof"'
 
 echo ""
 echo "── API Artifacts ──"

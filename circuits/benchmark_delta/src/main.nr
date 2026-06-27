@@ -3,14 +3,15 @@
 // without revealing the actual scores (e.g., Pass@1, latency, success rate)
 //
 // Private inputs: baseline_score, outcome_score (not revealed on-chain)
-// Public inputs: min_improvement_percent (e.g., 20 for 20%)
-// Output: Boolean proving improvement met threshold
+// Public inputs: min_improvement_percent - visible on-chain so the verifier
+//               knows what claim was proven.
+// Output: Boolean proving improvement met threshold (also public).
 
 fn main(
     baseline_metric: u8,           // Private: Initial benchmark score (1-10)
     outcome_metric: u8,            // Private: Final benchmark score (1-10)
-    min_improvement_percent: u8,     // Public: Minimum required improvement %
-) -> pub bool {
+    min_improvement_percent: u8,   // Private input, echoed to return to make it public
+) -> pub (bool, u8) {
     // Constraint: Scores must be in valid range (1-10)
     assert(baseline_metric >= 1);
     assert(baseline_metric <= 10);
@@ -37,49 +38,53 @@ fn main(
     // Ensure at least 1 point improvement if threshold rounds to 0
     let min_required = if threshold_u8 < 1 { 1 } else { threshold_u8 };
     
-    // Return true if improvement meets or exceeds threshold
-    improvement >= min_required
+    // Return true if improvement meets or exceeds threshold,
+    // plus the improvement percentage (echoed as public input).
+    (improvement >= min_required, min_improvement_percent)
 }
 
 // Tests for the circuit
 #[test]
 fn test_significant_improvement() {
     // Baseline score 8, outcome 4 = 50% improvement, threshold 20% -> should pass
-    let result = main(8, 4, 20);
-    assert(result == true);
+    let (passed, threshold) = main(8, 4, 20);
+    assert(passed == true);
+    assert(threshold == 20);
 }
 
 #[test]
 fn test_exact_threshold() {
     // Baseline 10, outcome 8 = 20% improvement, threshold 20% -> should pass
-    let result = main(10, 8, 20);
-    assert(result == true);
+    let (passed, threshold) = main(10, 8, 20);
+    assert(passed == true);
+    assert(threshold == 20);
 }
 
 #[test]
 fn test_below_threshold() {
     // Baseline 10, outcome 9 = 10% improvement, threshold 20% -> should fail
-    let result = main(10, 9, 20);
-    assert(result == false);
+    let (passed, threshold) = main(10, 9, 20);
+    assert(passed == false);
 }
 
 #[test]
 fn test_no_improvement() {
     // Baseline 5, outcome 5 = 0% improvement, threshold 10% -> should fail
-    let result = main(5, 5, 10);
-    assert(result == false);
+    let (passed, _) = main(5, 5, 10);
+    assert(passed == false);
 }
 
 #[test]
 fn test_worsening() {
     // Baseline 5, outcome 7 = worsening, threshold 10% -> should fail
-    let result = main(5, 7, 10);
-    assert(result == false);
+    let (passed, _) = main(5, 7, 10);
+    assert(passed == false);
 }
 
 #[test]
 fn test_high_threshold_met() {
     // Baseline 10, outcome 5 = 50% improvement, threshold 50% -> should pass
-    let result = main(10, 5, 50);
-    assert(result == true);
+    let (passed, threshold) = main(10, 5, 50);
+    assert(passed == true);
+    assert(threshold == 50);
 }
