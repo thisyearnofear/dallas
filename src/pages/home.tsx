@@ -25,7 +25,7 @@ export function Home() {
         ? { icon: '🔐', title: 'Join the Alliance', body: 'Connect your wallet to access the underground network and start filing claims.', cta: 'Connect & Join', href: '/membership' }
         : !progress.firstLogSubmitted
         ? { icon: '📋', title: 'File Your First Claim', body: 'A builder in the $CONTEXT alliance claims to have solved the long-term retrieval loop. Prove your own delta — high risk, high reward.', cta: 'File First Claim →', href: '/submit' }
-        : { icon: '⚖️', title: 'Review a Peer Claim', body: 'Your clearance qualifies you to verify an encrypted optimization log. Stake your reputation and earn rewards for accuracy.', cta: 'Review Claims →', href: '/validators' };
+        : { icon: '⚖️', title: 'Review a Peer Log', body: 'Your clearance qualifies you to verify an encrypted optimization log. Stake your reputation and earn rewards for accuracy.', cta: 'Review Logs →', href: '/validators' };
 
     return (
         <>
@@ -36,30 +36,30 @@ export function Home() {
                 </div>
                 
                 <h1 class="text-4xl lg:text-5xl font-bold mb-6 text-gray-dark dark:text-slate-100 leading-tight font-display">
-                    Privacy-first coordination for<br/>
-                    <span class="text-brand">Agent Sovereignty.</span>
+                    Zero-Knowledge Proofs for<br/>
+                    <span class="text-brand">Agent Intelligence.</span>
                 </h1>
                 
                 <p class="text-xl text-slate-600 dark:text-slate-400 mb-8 max-w-2xl">
-                    Agent Alliance is the decentralized nervous system for AI. Prove improvements without revealing IP. Fund shared research through tokenized Alliances. Stay private, scale collectively.
+                    Prove agent improvements with ZK on Stellar. No prompts, weights, or customer data exposed. Alliances pool knowledge without pooling IP.
                 </p>
                 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
                     <div class="text-center p-4 bg-gradient-to-br from-brand/10 to-brand/5 border border-brand/20 hover:border-brand/40 transition-all duration-300">
-                        <div class="text-3xl font-bold text-brand">4</div>
-                        <div class="text-sm text-gray-600 dark:text-slate-400">ZK Circuits</div>
+                        <div class="text-3xl font-bold text-brand">✓</div>
+                        <div class="text-sm text-gray-600 dark:text-slate-400">ZK Verified</div>
                     </div>
                     <div class="text-center p-4 bg-gradient-to-br from-brand/10 to-brand/5 border border-brand/20 hover:border-brand/40 transition-all duration-300">
-                        <div class="text-3xl font-bold text-brand">117</div>
-                        <div class="text-sm text-gray-600 dark:text-slate-400">Tests Passing</div>
+                        <div class="text-3xl font-bold text-brand">3</div>
+                        <div class="text-sm text-gray-600 dark:text-slate-400">Blockchains</div>
                     </div>
                     <div class="text-center p-4 bg-gradient-to-br from-brand/10 to-brand/5 border border-brand/20 hover:border-brand/40 transition-all duration-300">
                         <div class="text-3xl font-bold text-brand">100%</div>
                         <div class="text-sm text-gray-600 dark:text-slate-400">IP Protected</div>
                     </div>
                     <div class="text-center p-4 bg-gradient-to-br from-brand/10 to-brand/5 border border-brand/20 hover:border-brand/40 transition-all duration-300">
-                        <div class="text-3xl font-bold text-brand">∞</div>
-                        <div class="text-sm text-gray-600 dark:text-slate-400">Collective Learning</div>
+                        <div class="text-3xl font-bold text-brand">ZK</div>
+                        <div class="text-sm text-gray-600 dark:text-slate-400">UltraHonk + Soroban</div>
                     </div>
                 </div>
 
@@ -150,7 +150,7 @@ export function Home() {
                             class="block p-5 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-brand/60 hover:shadow-md transition-all bg-slate-50/50 dark:bg-slate-800/30"
                         >
                             <div class="text-xl font-bold text-slate-900 dark:text-white mb-1">
-                                📤 File a Claim
+                                📤 Submit Log
                             </div>
                             <div class="text-sm text-slate-600 dark:text-slate-400">
                                 Prove your agent improved with ZK-SNARKs. No prompts or IP exposed, ever.
@@ -171,8 +171,6 @@ export function Home() {
                 </div>
             </div>
 
-            <ServiceReadinessPanel />
-
             {/* Operating Model (clarifies the builder workflow) */}
             <div class="mb-12 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-lg p-6">
                 <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
@@ -186,7 +184,7 @@ export function Home() {
                         href="/submit"
                         class="inline-flex items-center justify-center bg-brand text-white font-bold px-5 py-3 rounded hover:bg-brand/90 transition-colors"
                     >
-                        File a Claim
+                        Submit Log
                     </a>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -269,6 +267,13 @@ export function Home() {
                     </div>
                 </div>
             )}
+
+            <details class="mb-8">
+                <summary class="text-xs text-slate-400 dark:text-slate-600 cursor-pointer hover:text-brand transition-colors font-medium">
+                    ⚙️ Infrastructure Status (ops only)
+                </summary>
+                <ServiceReadinessPanel />
+            </details>
 
             {/* Secret Click Area (Hidden Easter Egg) */}
             <div class="text-center mt-16">

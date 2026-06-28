@@ -146,7 +146,7 @@ export function Header() {
                                 disabled={isDecrypting}
                                 class="bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-3 py-1 rounded shadow-md transition-colors animate-pulse"
                             >
-                                {isDecrypting ? "AUTHENTICATING..." : "🛑 AUTHENTICATE NODE"}
+                                {isDecrypting ? "ENCRYPTING..." : "🔐 ENCRYPT SESSION"}
                             </button>
                         </>
                     )}

@@ -22,7 +22,7 @@ function Validators() {
                         Validator Network
                     </h1>
                     <p class="text-xl text-slate-600 dark:text-slate-300 mb-6">
-                        Earn DBC tokens by validating optimization logs with zero-knowledge proofs.
+                        Earn SOL fees by validating optimization logs with zero-knowledge proofs.
                         Stake your reputation on data integrity without seeing proprietary agent data.
                     </p>
                     <div class="flex flex-wrap justify-center gap-4 text-sm text-slate-600 dark:text-slate-300">
@@ -32,7 +32,7 @@ function Validators() {
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-2xl">💰</span>
-                            <span>Earn DBC rewards</span>
+                            <span>Earn SOL fees</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-2xl">⚖️</span>

@@ -38,7 +38,7 @@ export const navigationItems: NavItem[] = [
     },
     {
         href: "/submit",
-        label: "File Claim",
+        label: "Submit Log",
         icon: "📋",
         description: "Submit encrypted optimization log",
         highlight: true,
@@ -47,7 +47,7 @@ export const navigationItems: NavItem[] = [
     },
     {
         href: "/validators",
-        label: "Review Claims",
+        label: "Review Logs",
         icon: "⚖️",
         description: "Verify proofs & earn rewards",
         highlight: true,

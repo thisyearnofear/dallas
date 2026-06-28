@@ -16,10 +16,10 @@ export default function Submit() {
                         🔐 Zero-Knowledge · IP Protected · 0.10 USDC fee
                     </div>
                     <h1 class="text-4xl lg:text-5xl font-bold mb-4 text-slate-900 dark:text-white">
-                        File a Claim
+                        Submit Optimization Log
                     </h1>
                     <p class="text-xl text-gray-700 dark:text-gray-300 mb-6">
-                        Submit an encrypted optimization log. Prove your agent improved without exposing prompts, weights, or customer data.
+                        Prove your agent improved without exposing prompts, weights, or customer data.
                     </p>
                     <div class="flex flex-wrap justify-center gap-4 text-sm text-gray-700 dark:text-gray-300">
                         <div class="flex items-center gap-2"><span>🛡️</span><span>Wallet-encrypted</span></div>
@@ -36,7 +36,7 @@ export default function Submit() {
                 </Suspense>
 
                 <div class="mt-8 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-600 dark:text-slate-400">
-                    <strong class="text-slate-800 dark:text-slate-200">After filing:</strong> your claim enters the review queue. Validators with sufficient clearance will verify the ZK proof and confirm the performance delta — without ever seeing your proprietary data.{" "}
+                    <strong class="text-slate-800 dark:text-slate-200">After submitting:</strong> your log enters the review queue. Validators with sufficient clearance will verify the ZK proof and confirm the performance delta — without ever seeing your proprietary data.{" "}
                     <a href="/validators" class="text-brand hover:underline font-semibold">Become a reviewer →</a>
                 </div>
             </div>

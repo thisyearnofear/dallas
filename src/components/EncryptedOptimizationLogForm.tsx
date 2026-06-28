@@ -748,51 +748,22 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
               {successData.dualStatus && (
                 <div class="mb-4 p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-xl border border-purple-200 dark:border-purple-700">
                   <div class="text-xs font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <span>⛓️</span> Multi-Chain Status
+                    <span>⛓️</span> Verification Status (3 chains)
                   </div>
-                  <div class="space-y-2">
+                  <div class="space-y-3">
                     {/* Solana Status */}
-                    <div class="flex items-center justify-between">
-                      <div class="flex items-center gap-2">
-                        <span class={successData.dualStatus.solana.confirmed ? 'text-green-500' : 'text-slate-400'}>
-                          {successData.dualStatus.solana.confirmed ? '✅' : '⏳'}
-                        </span>
-                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Solana</span>
-                      </div>
-                      <div class="flex items-center gap-2">
-                        {successData.dualStatus.solana.confirmed && (
-                          <a
-                            href={successData.dualStatus.solana.explorerUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
-                          >
-                            View ↗
-                          </a>
-                        )}
-                        <span class="text-xs font-bold text-green-600 dark:text-green-400">
-                          {successData.dualStatus.solana.confirmed ? 'Confirmed' : 'Pending'}
-                        </span>
-                      </div>
-                    </div>
-                    {/* Stellar ZK Status */}
-                    {successData.stellarStatus && (
+                    <div>
                       <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                          <span class={
-                            successData.stellarStatus === 'verified' ? 'text-green-500' :
-                            successData.stellarStatus === 'disabled' ? 'text-slate-400' :
-                            'text-yellow-500'
-                          }>
-                            {successData.stellarStatus === 'verified' ? '✅' :
-                             successData.stellarStatus === 'disabled' ? '⚪' : '⏳'}
+                          <span class={successData.dualStatus.solana.confirmed ? 'text-green-500' : 'text-slate-400'}>
+                            {successData.dualStatus.solana.confirmed ? '✅' : '⏳'}
                           </span>
-                          <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Stellar ZK</span>
+                          <span class="text-sm font-medium text-slate-700 dark:text-slate-300">◎ Solana</span>
                         </div>
                         <div class="flex items-center gap-2">
-                          {successData.stellarTxId && (
+                          {successData.dualStatus.solana.confirmed && (
                             <a
-                              href={`https://stellar.expert/explorer/testnet/tx/${successData.stellarTxId}`}
+                              href={successData.dualStatus.solana.explorerUrl}
                               target="_blank"
                               rel="noopener noreferrer"
                               class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
@@ -800,25 +771,60 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                               View ↗
                             </a>
                           )}
-                          <span class={`text-xs font-bold ${
-                            successData.stellarStatus === 'verified' ? 'text-green-600 dark:text-green-400' :
-                            successData.stellarStatus === 'disabled' ? 'text-slate-500' :
-                            'text-yellow-600 dark:text-yellow-400'
-                          }`}>
-                            {successData.stellarStatus === 'verified' ? 'Verified' :
-                             successData.stellarStatus === 'disabled' ? 'Disabled' :
-                             successData.stellarStatus === 'pending' ? 'Verifying...' :
-                             'Failed'}
+                          <span class="text-xs font-bold text-green-600 dark:text-green-400">
+                            {successData.dualStatus.solana.confirmed ? 'Confirmed' : 'Pending'}
                           </span>
                         </div>
+                      </div>
+                      <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Coordination, rewards, governance</div>
+                    </div>
+                    {/* Stellar ZK Status */}
+                    {successData.stellarStatus && (
+                      <div>
+                        <div class="flex items-center justify-between">
+                          <div class="flex items-center gap-2">
+                            <span class={
+                              successData.stellarStatus === 'verified' ? 'text-green-500' :
+                              successData.stellarStatus === 'disabled' ? 'text-slate-400' :
+                              'text-yellow-500'
+                            }>
+                              {successData.stellarStatus === 'verified' ? '✅' :
+                               successData.stellarStatus === 'disabled' ? '⚪' : '⏳'}
+                            </span>
+                            <span class="text-sm font-medium text-slate-700 dark:text-slate-300">★ Stellar (ZK)</span>
+                          </div>
+                          <div class="flex items-center gap-2">
+                            {successData.stellarTxId && (
+                              <a
+                                href={`https://stellar.expert/explorer/testnet/tx/${successData.stellarTxId}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                              >
+                                View ↗
+                              </a>
+                            )}
+                            <span class={`text-xs font-bold ${
+                              successData.stellarStatus === 'verified' ? 'text-green-600 dark:text-green-400' :
+                              successData.stellarStatus === 'disabled' ? 'text-slate-500' :
+                              'text-yellow-600 dark:text-yellow-400'
+                            }`}>
+                              {successData.stellarStatus === 'verified' ? 'Verified' :
+                               successData.stellarStatus === 'disabled' ? 'Disabled' :
+                               successData.stellarStatus === 'pending' ? 'Verifying...' :
+                               'Failed'}
+                            </span>
+                          </div>
+                        </div>
+                        <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">On-chain ZK attestation (UltraHonk + Soroban)</div>
                         {successData.stellarError && (
                           <div class="text-xs text-red-500 mt-1">{successData.stellarError}</div>
                         )}
                       </div>
                     )}
                     {/* Aleo Status */}
-                    <div class="flex items-center justify-between">
-                      <div class="flex items-center gap-2">
+                    <div>
+                      <div class="flex items-center justify-between">
                         <span class={
                           successData.dualStatus.aleo.status === 'verified' ? 'text-green-500' :
                           successData.dualStatus.aleo.status === 'disabled' ? 'text-slate-400' :
@@ -827,31 +833,32 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                           {successData.dualStatus.aleo.status === 'verified' ? '✅' :
                            successData.dualStatus.aleo.status === 'disabled' ? '⚪' : '⏳'}
                         </span>
-                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Aleo</span>
+                        <span class="text-sm font-medium text-slate-700 dark:text-slate-300">◈ Aleo</span>
+                        <div class="flex items-center gap-2">
+                          {successData.dualStatus.aleo.txHash && (
+                            <a
+                              href={successData.dualStatus.aleo.explorerUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                            >
+                              View ↗
+                            </a>
+                          )}
+                          <span class={`text-xs font-bold ${
+                            successData.dualStatus.aleo.status === 'verified' ? 'text-green-600 dark:text-green-400' :
+                            successData.dualStatus.aleo.status === 'disabled' ? 'text-slate-500' :
+                            'text-yellow-600 dark:text-yellow-400'
+                          }`}>
+                            {successData.dualStatus.aleo.status === 'verified' ? 'Verified' :
+                             successData.dualStatus.aleo.status === 'disabled' ? 'Disabled' :
+                             successData.dualStatus.aleo.status === 'pending' ? 'Queued' :
+                             successData.dualStatus.aleo.status === 'verifying' ? 'Verifying...' :
+                             'Failed'}
+                          </span>
+                        </div>
                       </div>
-                      <div class="flex items-center gap-2">
-                        {successData.dualStatus.aleo.txHash && (
-                          <a
-                            href={successData.dualStatus.aleo.explorerUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
-                          >
-                            View ↗
-                          </a>
-                        )}
-                        <span class={`text-xs font-bold ${
-                          successData.dualStatus.aleo.status === 'verified' ? 'text-green-600 dark:text-green-400' :
-                          successData.dualStatus.aleo.status === 'disabled' ? 'text-slate-500' :
-                          'text-yellow-600 dark:text-yellow-400'
-                        }`}>
-                          {successData.dualStatus.aleo.status === 'verified' ? 'Verified' :
-                           successData.dualStatus.aleo.status === 'disabled' ? 'Disabled' :
-                           successData.dualStatus.aleo.status === 'pending' ? 'Queued' :
-                           successData.dualStatus.aleo.status === 'verifying' ? 'Verifying...' :
-                           'Failed'}
-                        </span>
-                      </div>
+                      <div class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Private proof verification & encrypted attestations</div>
                     </div>
                   </div>
                 </div>
@@ -888,66 +895,6 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
               </div>
 
               <div class="flex items-start gap-3">
-                <span class="text-2xl">⛓️</span>
-                <div class="flex-1">
-                  <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Chain Status</div>
-                  <div class="text-sm text-slate-700 dark:text-slate-300">
-                    <div class="font-semibold">Solana: Confirmed</div>
-                    <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">Public coordination, rewards, and governance.</div>
-                    <div class="font-semibold">
-                      Stellar ZK: {
-                        successData.stellarStatus === 'verified'
-                          ? 'Verified'
-                          : successData.stellarStatus === 'pending'
-                            ? 'Verifying...'
-                            : successData.stellarStatus === 'failed'
-                              ? 'Failed'
-                              : 'Disabled'
-                      }
-                    </div>
-                    <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">Canonical BN254 on-chain ZK verification via Soroban.</div>
-                    {successData.stellarTxId && (
-                      <div class="font-mono text-xs break-all">
-                        Tx: {successData.stellarTxId}
-                      </div>
-                    )}
-                    {successData.stellarError && (
-                      <div class="text-xs text-red-600 dark:text-red-400 mt-1">
-                        {successData.stellarError}
-                      </div>
-                    )}
-                    <div class="font-semibold">
-                      Aleo: {
-                        successData.aleoStatus === 'verified'
-                          ? 'Verified'
-                          : successData.aleoStatus === 'queued'
-                            ? 'Queued'
-                            : successData.aleoStatus === 'failed'
-                              ? 'Submission failed'
-                              : 'Disabled'
-                      }
-                    </div>
-                    <div class="text-xs text-slate-500 dark:text-slate-400">Private proof verification and encrypted attestations.</div>
-                    {successData.aleoVerificationId && (
-                      <div class="font-mono text-xs break-all mt-1">
-                        Verification: {successData.aleoVerificationId}
-                      </div>
-                    )}
-                    {successData.aleoTxId && (
-                      <div class="font-mono text-xs break-all">
-                        Tx: {successData.aleoTxId}
-                      </div>
-                    )}
-                    {successData.aleoError && (
-                      <div class="text-xs text-red-600 dark:text-red-400 mt-1">
-                        {successData.aleoError}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div class="flex items-start gap-3">
                 <span class="text-2xl">⏳</span>
                 <div class="flex-1">
                   <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Next Steps</div>
@@ -975,6 +922,16 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
             >
               <span>👥</span> Track Validation
             </a>
+            {successData.stellarStatus === 'failed' && (
+              <button
+                onClick={handleRetryStellarVerification}
+                disabled={isRetryingStellar}
+                class="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white px-6 py-4 rounded-xl font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+              >
+                <span>{isRetryingStellar ? '⏳' : '🔁'}</span>
+                {isRetryingStellar ? 'Retrying Stellar...' : 'Retry Stellar Verification'}
+              </button>
+            )}
             {successData.aleoStatus === 'failed' && (
               <button
                 onClick={handleRetryAleoVerification}
@@ -990,6 +947,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                 setSuccessData(null);
                 setRailStatus({
                   solana: 'idle',
+                  stellar: stellarEnabled ? 'idle' : 'disabled',
                   aleo: aleoEnabled ? 'idle' : 'disabled',
                 });
               }}
@@ -1194,7 +1152,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                 </div>
               </div>
               <div>
-                <label class="block text-xs font-black mb-3 uppercase tracking-widest text-slate-500 dark:text-slate-400">Energy Level (1-10)</label>
+                <label class="block text-xs font-black mb-3 uppercase tracking-widest text-slate-500 dark:text-slate-400">Throughput Level (1-10)</label>
                 <input
                   type="range"
                   min="1"
@@ -1258,7 +1216,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                 </div>
               </div>
               <div>
-                <label class="block text-xs font-black mb-3 uppercase tracking-widest text-slate-500 dark:text-slate-400">Energy Level (1-10)</label>
+                <label class="block text-xs font-black mb-3 uppercase tracking-widest text-slate-500 dark:text-slate-400">Throughput Level (1-10)</label>
                 <input
                   type="range"
                   min="1"
@@ -1286,11 +1244,11 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
             </div>
           </div>
 
-          {/* Side Effects */}
+          {/* Benchmark Notes (replaces legacy Side Effects) */}
           <div class="p-8 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-inner">
             <h3 class="text-lg font-black mb-6 uppercase tracking-wider text-slate-800 dark:text-white flex items-center gap-2">
               <span class="w-2 h-6 bg-red-500 rounded-full"></span>
-              Side Effects
+              Benchmark Notes
             </h3>
             {formData.sideEffects.length > 0 && (
               <div class="mb-6 space-y-3">
@@ -1299,9 +1257,9 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                     <div>
                       <div class="font-black text-slate-900 dark:text-white uppercase tracking-tighter">{effect.name}</div>
                       <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mt-0.5">
-                        Day {effect.dayOccurred} • Severity {effect.severity}/10
+                        Observed on iteration {effect.dayOccurred} • Impact {effect.severity}/10
                       </div>
-                      {effect.resolved && <div class="text-[10px] font-black text-green-600 uppercase mt-1 flex items-center gap-1"><span>✓</span> Resolved</div>}
+                      {effect.resolved && <div class="text-[10px] font-black text-green-600 uppercase mt-1 flex items-center gap-1"><span>✓</span> Mitigated</div>}
                     </div>
                     <button
                       type="button"
@@ -1323,7 +1281,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <input
                 type="text"
-                placeholder="Effect (e.g. nausea)"
+                placeholder="e.g. Hallucination rate spiked on iteration 3"
                 value={newSideEffect.name}
                 onInput={(e) =>
                   setNewSideEffect({
@@ -1338,7 +1296,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                   type="number"
                   min="1"
                   max="100"
-                  placeholder="Day"
+                  placeholder="Iteration"
                   value={newSideEffect.dayOccurred}
                   onInput={(e) =>
                     setNewSideEffect({
@@ -1346,7 +1304,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
                       dayOccurred: parseInt((e.target as HTMLInputElement).value),
                     })
                   }
-                  class="w-20 px-4 py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-sm font-bold outline-none focus:border-brand shadow-sm"
+                  class="w-24 px-4 py-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-sm font-bold outline-none focus:border-brand shadow-sm"
                 />
                 <button
                   type="button"
@@ -1396,22 +1354,23 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
           </div>
 
           <div class="p-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl">
-            <div class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Submission Rails</div>
-            <div class="flex items-center justify-between gap-3 text-xs font-bold">
+            <div class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">⛓️ Verification Chains</div>
+            <div class="space-y-2 text-xs font-bold">
               <div class="flex items-center gap-2 text-slate-700 dark:text-slate-300">
                 <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                Solana Public Coordination: Active
+                Solana — Public coordination, rewards, governance
+              </div>
+              <div class="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                Stellar — On-chain ZK proof verification (UltraHonk + Soroban)
               </div>
               <div class={`flex items-center gap-2 ${aleoEnabled ? 'text-purple-700 dark:text-purple-300' : 'text-slate-500 dark:text-slate-400'}`}>
                 <span class={`w-2 h-2 rounded-full ${aleoEnabled ? 'bg-purple-500' : 'bg-slate-400'}`}></span>
-                Aleo Private Verification: {aleoEnabled ? 'Enabled' : 'Disabled'}
+                Aleo — Private proof verification {aleoEnabled ? 'Enabled' : '(Disabled)'}
               </div>
             </div>
             <div class="mt-2 text-[11px] text-slate-600 dark:text-slate-400 font-medium">
-              Solana handles public coordination, rewards, and governance. Aleo handles private proof verification.
-            </div>
-            <div class="mt-2 text-[11px] text-slate-600 dark:text-slate-400 font-medium">
-              Submission target: {submitTargetLabel}
+              Each chain serves a distinct role. Your log is submitted to all active chains.
             </div>
             {!aleoReadiness.enabled && (
               <div class="mt-2 text-[11px] text-amber-700 dark:text-amber-300 font-semibold">
@@ -1430,13 +1389,13 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
             )}
             <div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] font-semibold">
               <div class="rounded-lg border border-slate-200 dark:border-slate-600 px-3 py-2 text-slate-700 dark:text-slate-300 bg-white/60 dark:bg-slate-900/40">
-                Solana Rail Status: {formatRailStatus(railStatus.solana)}
+                ◎ Solana: {formatRailStatus(railStatus.solana)}
               </div>
               <div class="rounded-lg border border-slate-200 dark:border-slate-600 px-3 py-2 text-slate-700 dark:text-slate-300 bg-white/60 dark:bg-slate-900/40">
-                Stellar Rail Status: {formatRailStatus(railStatus.stellar)}
+                ★ Stellar: {formatRailStatus(railStatus.stellar)}
               </div>
               <div class="rounded-lg border border-slate-200 dark:border-slate-600 px-3 py-2 text-slate-700 dark:text-slate-300 bg-white/60 dark:bg-slate-900/40">
-                Aleo Rail Status: {formatRailStatus(railStatus.aleo)}
+                ◈ Aleo: {formatRailStatus(railStatus.aleo)}
               </div>
             </div>
           </div>
