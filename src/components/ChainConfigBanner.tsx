@@ -27,7 +27,7 @@ export function ChainConfigBanner() {
         <div class="flex items-center gap-2">
           <a
             class="px-3 py-2 rounded-lg bg-red-700 hover:bg-red-800 text-white font-black text-sm"
-            href="https://github.com/thisyearnofear/dallas/blob/main/docs/0_GETTING_STARTED.md"
+            href="https://github.com/thisyearnofear/dallas/blob/main/docs/DEPLOYMENT.md"
             target="_blank"
             rel="noreferrer"
           >
