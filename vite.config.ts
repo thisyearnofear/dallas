@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import preact from '@preact/preset-vite';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { copyFileSync, mkdirSync, readdirSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 
@@ -55,6 +56,15 @@ export default defineConfig({
   plugins: [
     preact(),
     copyCircuitsPlugin(),
+    nodePolyfills({
+      // Needed by @aztec/bb.js and @noir-lang packages
+      include: ['buffer', 'crypto', 'process', 'util', 'stream'],
+      globals: {
+        Buffer: true,
+        global: true,
+        process: true,
+      },
+    }),
   ],
   define: {
     global: 'globalThis',
@@ -104,9 +114,11 @@ export default defineConfig({
     alias: {
       process: 'process/browser',
       buffer: 'buffer',
+      pino: 'pino/browser.js',
     },
   },
   optimizeDeps: {
+    exclude: ['@aztec/bb.js'],
     esbuildOptions: {
       define: {
         global: 'globalThis',

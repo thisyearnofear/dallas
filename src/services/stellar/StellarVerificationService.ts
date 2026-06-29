@@ -35,6 +35,7 @@ export class StellarVerificationService implements VerificationAdapter {
           optimizationLogId: request.optimizationLogId,
           circuit: request.circuit,
           allianceId: request.allianceId,
+          witnessBytes: request.witnessBytes,
           proofBytes: request.proof ? this.uint8ArrayToBase64(request.proof) : undefined,
           publicInputsBytes: request.publicInputsBytes
             ? this.uint8ArrayToBase64(request.publicInputsBytes)

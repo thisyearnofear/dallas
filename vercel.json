@@ -1,5 +1,10 @@
 {
   "rewrites": [
-    { "source": "/((?!assets/).*)", "destination": "/" }
-  ]
+    { "source": "/((?!api/|assets/).*)", "destination": "/" }
+  ],
+  "functions": {
+    "api/stellar-prove.ts": {
+      "maxDuration": 60
+    }
+  }
 }

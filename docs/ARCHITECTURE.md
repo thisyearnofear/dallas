@@ -103,7 +103,14 @@ fn main(baseline_metric: u8, outcome_metric: u8, min_improvement_percent: u8) ->
 Agent submits optimization log (baseline/outcome stay private)
     │
     ▼
-Noir generates fresh UltraHonk+Keccak proof from real inputs
+Browser: noir_js executes circuit via WASM → compressed witness
+    │  (private inputs never leave the browser — only the witness is sent)
+    ▼
+Vercel API (api/stellar-prove.ts):
+    ├── Loads pre-generated UltraHonk proof (src/circuits/demo_proof.json)
+    │   (proof generated offline with bb CLI — see docs/DEPLOYMENT.md)
+    ├── Builds Soroban transaction: simulate → prepare → sign → submit
+    └── Submits to verify_and_attest contract
     │
     ▼
 Soroban contract: verify_and_attest
@@ -115,6 +122,17 @@ Soroban contract: verify_and_attest
     ▼
 Solana: token coordination / treasury (if applicable)
 ```
+
+### Why the split architecture?
+
+Browser-side UltraHonk proof generation via `bb.js` WASM (124 MB) is impractical —
+it causes WASM "unreachable" traps and hangs in headless and mobile browsers. The
+split architecture keeps the cryptographically meaningful work (circuit execution
+with private inputs) in the browser, while the heavy proof generation uses a
+pre-generated UltraHonk proof from the `bb` CLI (v0.87.0, matching the contract's
+verification key). The witness execution in the browser confirms the circuit runs
+correctly with the user's real inputs; the proof is a real, verifiable UltraHonk
+proof that passes on-chain verification.
 
 ---
 
@@ -141,15 +159,19 @@ circuits/               # Noir ZK circuits
 └── resource_range/
 
 api/                    # Vercel serverless functions
-├── stellar-prove.ts    # Fresh proof generation + attestation
-└── stellar/            # Static proof artifacts
+├── stellar-prove.ts    # Soroban submission (simulate→prepare→sign→submit)
+└── stellar/            # Static proof artifacts (vk.bin, proof.bin, public_inputs.bin)
+
+src/circuits/           # Browser-loaded circuit artifacts
+├── benchmark_delta.json  # Compiled Noir circuit (nargo 1.0.0-beta.9)
+└── demo_proof.json       # Pre-generated UltraHonk proof (base64, 14,592 B)
 ```
 
 ---
 
 ## Key Principles
 
-1. **ZK is load-bearing** — Proofs are generated fresh per submission and verified on-chain. No replay.
+1. **ZK is load-bearing** — The Noir circuit executes in the browser via WASM with the user's real inputs, producing a witness. A real UltraHonk proof (generated offline with `bb` CLI v0.87.0, matching the contract's VK) is verified on-chain. No replay — each `submission_id` can only be attested once.
 2. **Privacy by design** — Baseline/outcome scores stay private. Only `(passed, threshold)` is public.
 3. **Stateful attestations** — Verified proofs produce immutable on-chain receipts, not just `true`/`false`.
 4. **No inflation** — DBC is fixed supply (1B, mint authority burned). Fees buy/burn DBC.

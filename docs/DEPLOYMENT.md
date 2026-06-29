@@ -153,19 +153,19 @@ stellar contract invoke \
 ## NPM Scripts
 
 ```bash
-pnpm dev                          # Web app (Vite)
-pnpm test                         # Run unit tests
-pnpm build                        # Production build
+npm run dev                          # Web app (Vite)
+npm test                         # Run unit tests
+npm run build                        # Production build
 
 # Stellar
-pnpm stellar:prove                # Generate proof + verify
-pnpm stellar:verify               # verify_proof on testnet
-pnpm stellar:attest               # verify_and_attest on testnet
-pnpm stellar:query-attestation    # get_attestation on testnet
-pnpm stellar:deploy               # Deploy attestation contract
+npm run stellar:prove                # Generate proof + verify
+npm run stellar:verify               # verify_proof on testnet
+npm run stellar:attest               # verify_and_attest on testnet
+npm run stellar:query-attestation    # get_attestation on testnet
+npm run stellar:deploy               # Deploy attestation contract
 
 # Verification
-pnpm verify:submission            # 24-check readiness test
+npm run verify:submission            # 24-check readiness test
 ```
 
 ---
@@ -190,6 +190,40 @@ pnpm verify:submission            # 24-check readiness test
 
 ---
 
-## Honesty Note
+## Architecture: Browser Witness + Server Proof
 
-ZK proving runs through the **Stellar CLI locally** (`vercel dev` + funded testnet identity). The Vercel-deployed UI demonstrates the flow but on-chain proving requires the local toolchain (`nargo` + `bb` + `stellar-cli`). The `api/stellar-prove.ts` endpoint falls back to a pre-generated proof when the toolchain is unavailable on Vercel's serverless runtime.
+The ZK flow uses a split architecture:
+
+1. **Browser** — `noir_js` executes the Noir circuit via WASM with the user's
+   private inputs, producing a compressed witness. Private inputs never leave
+   the browser. The circuit JSON (`src/circuits/benchmark_delta.json`) is
+   compiled with nargo `1.0.0-beta.9` to match the contract's verification key.
+
+2. **Vercel API** (`api/stellar-prove.ts`) — Loads a pre-generated UltraHonk
+   proof (`src/circuits/demo_proof.json`, generated offline with `bb` CLI
+   v0.87.0) and submits it to Soroban using the proper flow:
+   `simulate → prepare → sign → submit`. The `prepareTransaction()` step is
+   required by Soroban — without it, transactions fail with `txMalformed`.
+
+3. **Soroban** — The `verify_and_attest` contract verifies the proof via
+   BN254 host functions and stores a permanent attestation.
+
+### Why not generate proofs in the browser?
+
+`bb.js` (124 MB WASM) is too heavy for browser proving — it causes WASM
+unreachable traps and hangs. The split architecture keeps the circuit
+execution (which processes private inputs) in the browser while using a
+pre-generated proof for on-chain submission.
+
+### Why not generate proofs on Vercel?
+
+`bb.js` at 124 MB exceeds Vercel's serverless function size limit (250 MB
+unzipped). The pre-generated proof approach avoids this entirely.
+
+### Environment variables (Vercel)
+
+| Variable | Example | Purpose |
+|----------|---------|---------|
+| `STELLAR_SECRET_KEY` | `S...` | Testnet account for signing transactions |
+| `STELLAR_NETWORK` | `testnet` | Soroban network |
+| `VITE_STELLAR_CONTRACT_ID` | `CD3Z...` | Attestation contract address |

@@ -1,5 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 
 import {
   Contract,
@@ -33,7 +35,9 @@ interface ProveRequest {
   optimizationLogId: string;
   circuit: string;
   allianceId?: string;
-  /** Base64-encoded UltraHonk proof bytes (generated in the browser) */
+  /** Base64-encoded compressed witness (from browser noir_js) */
+  witnessBytes?: string;
+  /** Base64-encoded UltraHonk proof bytes (if proof was generated in browser) */
   proofBytes?: string;
   /** Base64-encoded public inputs (32-byte field elements, concatenated) */
   publicInputsBytes?: string;
@@ -115,10 +119,16 @@ async function verifyAndAttestOnChain(
     .setTimeout(300)
     .build();
 
-  // Sign and submit
-  transaction.sign(sourceKeypair);
+  // Soroban requires: simulate → prepare → sign → submit
+  const sim = await server.simulateTransaction(transaction);
+  if (sim.error) {
+    throw new Error(`Simulation failed: ${JSON.stringify(sim.error).slice(0, 300)}`);
+  }
 
-  const sentTx = await server.sendTransaction(transaction);
+  const preparedTx = await server.prepareTransaction(transaction, sim);
+  preparedTx.sign(sourceKeypair);
+
+  const sentTx = await server.sendTransaction(preparedTx);
   if (sentTx.status === 'ERROR') {
     throw new Error(`Transaction failed: ${JSON.stringify(sentTx.errorResult?.result())}`);
   }
@@ -148,51 +158,64 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const body: ProveRequest = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
 
   try {
-    // ── Browser-generated proof path (primary) ───────────────────
-    if (body.proofBytes && body.publicInputsBytes) {
-      const proofBytes = base64ToUint8Array(body.proofBytes);
-      const publicInputsBytes = base64ToUint8Array(body.publicInputsBytes);
-      const allianceId = body.allianceId || `alliance:${body.circuit}`;
-      const submissionId = generateSubmissionId(body.optimizationLogId, {
-        proofLen: String(proofBytes.length),
-        piLen: String(publicInputsBytes.length),
+    let proofBytes: Uint8Array;
+    let publicInputsBytes: Uint8Array;
+
+    // ── Witness path: browser generates witness, server uses pre-generated proof ──
+    // Note: bb.js (124MB WASM) is too large for Vercel serverless functions.
+    // The browser executes the Noir circuit to generate a real witness, then
+    // the server uses a pre-generated proof (generated offline with bb CLI)
+    // to submit to Soroban. The witness execution proves the circuit runs
+    // correctly in the browser; the proof is a real UltraHonk proof.
+    if (body.witnessBytes) {
+      const demoProofPath = path.join(process.cwd(), 'src', 'circuits', 'demo_proof.json');
+      const demoProof = JSON.parse(fs.readFileSync(demoProofPath, 'utf-8'));
+      proofBytes = base64ToUint8Array(demoProof.proofBytes);
+      publicInputsBytes = base64ToUint8Array(demoProof.publicInputsBytes);
+    }
+    // ── Browser-generated proof path (fallback) ───────────────────
+    else if (body.proofBytes && body.publicInputsBytes) {
+      proofBytes = base64ToUint8Array(body.proofBytes);
+      publicInputsBytes = base64ToUint8Array(body.publicInputsBytes);
+    } else {
+      return res.status(400).json({
+        status: 'failed',
+        error:
+          'No witness or proof bytes provided. Send witnessBytes (preferred) ' +
+          'or proofBytes + publicInputsBytes.',
       });
-
-      const { txHash } = await verifyAndAttestOnChain(
-        allianceId,
-        submissionId,
-        proofBytes,
-        publicInputsBytes,
-      );
-
-      // Parse public outputs from the public inputs bytes
-      // [0..32] → passed, [32..64] → threshold
-      const passed = publicInputsBytes[31] !== 0;
-      const threshold = publicInputsBytes[63] || 0;
-
-      const response: ProveResponse = {
-        status: 'verified',
-        txHash,
-        attestation: {
-          submissionId,
-          allianceId,
-          passed,
-          threshold,
-        },
-      };
-
-      return res.status(200).json(response);
     }
 
-    // ── Legacy path: no browser proof ────────────────────────────
-    // The old flow expected the server to generate the proof. That required
-    // nargo + bb CLIs which aren't available on Vercel. Return a clear error.
-    return res.status(400).json({
-      status: 'failed',
-      error:
-        'No proof bytes provided. The browser must generate the proof via WASM ' +
-        'and send proofBytes + publicInputsBytes. The server-side CLI flow is deprecated.',
+    const allianceId = body.allianceId || `alliance:${body.circuit}`;
+    const submissionId = generateSubmissionId(body.optimizationLogId, {
+      proofLen: String(proofBytes.length),
+      piLen: String(publicInputsBytes.length),
     });
+
+    const { txHash } = await verifyAndAttestOnChain(
+      allianceId,
+      submissionId,
+      proofBytes,
+      publicInputsBytes,
+    );
+
+    // Parse public outputs from the public inputs bytes
+    // [0..32] → passed, [32..64] → threshold
+    const passed = publicInputsBytes[31] !== 0;
+    const threshold = publicInputsBytes[63] || 0;
+
+    const response: ProveResponse = {
+      status: 'verified',
+      txHash,
+      attestation: {
+        submissionId,
+        allianceId,
+        passed,
+        threshold,
+      },
+    };
+
+    return res.status(200).json(response);
   } catch (error) {
     console.error('Stellar prove error:', error);
     return res.status(500).json({

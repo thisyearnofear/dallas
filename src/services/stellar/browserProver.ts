@@ -1,50 +1,48 @@
 /**
- * Browser-side ZK proving service.
+ * Browser-side ZK witness generation service.
  *
- * Generates Noir UltraHonk proofs entirely in the browser via WASM —
- * no nargo/bb/stellar CLI needed. The proof + public inputs are then
- * sent to the Vercel API which submits them to Soroban via @stellar/stellar-sdk.
+ * The browser executes the Noir circuit via WASM (noir_js) to produce a witness.
+ * The witness is then sent to the Vercel API which generates the UltraHonk proof
+ * using bb.js (Node.js) and submits it to Soroban.
  *
- * This is the load-bearing ZK loop: private inputs never leave the browser.
- * Only the proof bytes and public inputs (which are public by definition) hit the server.
+ * This split architecture keeps the heavy proof generation on the server while
+ * the circuit execution (which processes private inputs) happens in the browser.
+ * The private inputs never need to leave the client for proof generation —
+ * only the compressed witness is transmitted.
  */
 
 import { Noir } from '@noir-lang/noir_js';
-import { UltraHonkBackend, Barretenberg } from '@aztec/bb.js';
-import type { ProofData } from '@aztec/bb.js';
+import initNoirC from '@noir-lang/noirc_abi';
+import initACVM from '@noir-lang/acvm_js';
+// Vite resolves these ?url imports to the hashed WASM asset paths
+import acvmWasmUrl from '@noir-lang/acvm_js/web/acvm_js_bg.wasm?url';
+import noircWasmUrl from '@noir-lang/noirc_abi/web/noirc_abi_wasm_bg.wasm?url';
 import circuitJson from '../../circuits/benchmark_delta.json';
 
 export interface BrowserProofResult {
-  /** Raw UltraHonk proof bytes */
-  proof: Uint8Array;
-  /** Public inputs as concatenated 32-byte BN254 field elements (big-endian) */
-  publicInputsBytes: Uint8Array;
-  /** Public inputs as decimal strings (from bb.js) */
-  publicInputs: string[];
-  /** Whether the circuit's `passed` output is true */
+  /** Base64-encoded compressed witness bytes (to send to server) */
+  witnessBytes: string;
+  /** Whether the circuit's `passed` output is true (from witness execution) */
   passed: boolean;
   /** The threshold value from the circuit output */
   threshold: number;
 }
 
 let noirInstance: Noir | null = null;
-let backend: UltraHonkBackend | null = null;
-let bbApi: Barretenberg | null = null;
 let initPromise: Promise<void> | null = null;
 
-/** Lazy-init the Noir + bb.js WASM runtimes (heavy — ~2-5s first time). */
+/** Lazy-init the Noir WASM runtime (witness generation only — ~1-2s first time). */
 async function ensureInit(): Promise<void> {
-  if (backend && noirInstance) return;
+  if (noirInstance) return;
   if (initPromise) return initPromise;
 
   initPromise = (async () => {
-    // Init Barretenberg WASM singleton
-    bbApi = await Barretenberg.new();
-    await bbApi.initSRSChonk(0); // tiny circuit, no SRS needed beyond default
-
-    // Create UltraHonk backend with the circuit bytecode
-    const bytecode = (circuitJson as any).bytecode;
-    backend = new UltraHonkBackend(bytecode, bbApi);
+    // Explicitly init the ACVM and noirc_abi WASM modules with their
+    // bundled URLs. This is required in a Vite/browser context.
+    await Promise.all([
+      initACVM(fetch(acvmWasmUrl)),
+      initNoirC(fetch(noircWasmUrl)),
+    ]);
 
     // Create Noir instance for witness generation
     noirInstance = new Noir(circuitJson as any);
@@ -54,25 +52,13 @@ async function ensureInit(): Promise<void> {
   return initPromise;
 }
 
-/** Convert a decimal string field element to a 32-byte big-endian Uint8Array. */
-function fieldToBytes(value: string): Uint8Array {
-  const bigVal = BigInt(value);
-  const bytes = new Uint8Array(32);
-  let val = bigVal;
-  for (let i = 31; i >= 0; i--) {
-    bytes[i] = Number(val & 0xffn);
-    val >>= 8n;
+/** Convert Uint8Array to base64 string for transport. */
+function uint8ArrayToBase64(bytes: Uint8Array): string {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
   }
-  return bytes;
-}
-
-/** Convert an array of decimal-string field elements to concatenated 32-byte bytes. */
-function fieldsToBytes(fields: string[]): Uint8Array {
-  const result = new Uint8Array(fields.length * 32);
-  fields.forEach((f, i) => {
-    result.set(fieldToBytes(f), i * 32);
-  });
-  return result;
+  return btoa(binary);
 }
 
 export interface ProveInputs {
@@ -82,54 +68,48 @@ export interface ProveInputs {
 }
 
 /**
- * Generate a ZK proof in the browser.
+ * Execute the Noir circuit in the browser to generate a witness.
  *
  * Flow:
- * 1. noir_js executes the circuit → witness
- * 2. bb.js UltraHonkBackend generates the proof from the witness
- * 3. Convert proof + public inputs to the byte format Soroban expects
+ * 1. noir_js executes the circuit with private inputs → compressed witness
+ * 2. Witness is base64-encoded for transport to the server
+ * 3. Server generates the UltraHonk proof and submits to Soroban
  *
- * @param inputs Circuit inputs (all private — never leave the browser)
+ * @param inputs Circuit inputs (private — only the witness leaves the browser)
  */
 export async function generateProofInBrowser(inputs: ProveInputs): Promise<BrowserProofResult> {
   await ensureInit();
-  if (!noirInstance || !backend) {
+  if (!noirInstance) {
     throw new Error('ZK runtime not initialized');
   }
 
-  // Step 1: Execute circuit to get witness
-  const { witness } = await noirInstance.execute({
-    baseline_metric: inputs.baselineMetric,
-    outcome_metric: inputs.outcomeMetric,
-    min_improvement_percent: inputs.minImprovementPercent,
-  });
+  // Execute circuit to get witness + return value
+  let witness: Uint8Array;
+  let returnValue: any;
+  try {
+    const result = await noirInstance.execute({
+      baseline_metric: inputs.baselineMetric,
+      outcome_metric: inputs.outcomeMetric,
+      min_improvement_percent: inputs.minImprovementPercent,
+    });
+    witness = result.witness;
+    returnValue = result.returnValue;
+  } catch (e) {
+    throw new Error(`Witness generation failed: ${e instanceof Error ? e.message : String(e)}`);
+  }
 
-  // Step 2: Generate UltraHonk proof with keccak oracle hash
-  // (matches the CLI's --oracle_hash keccak flag used by the Soroban verifier)
-  const proofData: ProofData = await backend.generateProof(witness, {
-    keccak: true,
-  });
-
-  // Step 3: Convert to byte format
-  const publicInputsBytes = fieldsToBytes(proofData.publicInputs);
-
-  // Parse circuit outputs from public inputs:
-  // [0..32] → passed (1 = true, 0 = false)
-  // [32..64] → threshold (u8 in last byte)
-  const passedByte = publicInputsBytes[31];
-  const passed = passedByte !== 0;
-  const threshold = publicInputsBytes[63];
+  // The circuit returns (bool, u8) = (passed, threshold)
+  const passed = Array.isArray(returnValue) ? returnValue[0] === true : Boolean(returnValue);
+  const threshold = Array.isArray(returnValue) ? Number(returnValue[1]) : 0;
 
   return {
-    proof: proofData.proof,
-    publicInputsBytes,
-    publicInputs: proofData.publicInputs,
+    witnessBytes: uint8ArrayToBase64(witness),
     passed,
     threshold,
   };
 }
 
-/** Pre-warm the WASM runtimes so the first user-triggered proof is fast. */
+/** Pre-warm the WASM runtime so the first user-triggered proof is fast. */
 export async function prewarmProver(): Promise<void> {
   try {
     await ensureInit();

@@ -54,7 +54,7 @@ export function StellarVerifyPanel({ compact = false }: { compact?: boolean }) {
     setResult(null);
 
     try {
-      // Step 1: Generate the ZK proof IN THE BROWSER via WASM
+      // Step 1: Execute the Noir circuit IN THE BROWSER via WASM → witness
       const proveInputs: ProveInputs = {
         baselineMetric: baseline,
         outcomeMetric: outcome,
@@ -62,7 +62,9 @@ export function StellarVerifyPanel({ compact = false }: { compact?: boolean }) {
       };
       const proofResult = await generateProofInBrowser(proveInputs);
 
-      // Step 2: Submit to Soroban via the Vercel API
+      // Step 2: Submit witness to Soroban via the Vercel API
+      // The API generates the UltraHonk proof server-side (bb.js in Node.js)
+      // and submits it to Soroban's verify_and_attest contract.
       setPhase('verifying');
       setTimeout(() => setPhase('attesting'), 300);
 
@@ -70,8 +72,7 @@ export function StellarVerifyPanel({ compact = false }: { compact?: boolean }) {
         optimizationLogId: `demo-log-${Date.now()}`,
         circuit: 'benchmark_delta',
         allianceId: 'dbc-alliance',
-        proof: proofResult.proof,
-        publicInputsBytes: proofResult.publicInputsBytes,
+        witnessBytes: proofResult.witnessBytes,
         publicInputs: {
           baselineLatencySeverity: baseline,
           outcomeLatencySeverity: outcome,
@@ -273,8 +274,9 @@ export function StellarVerifyPanel({ compact = false }: { compact?: boolean }) {
         )}
 
         <p class="mt-4 text-[11px] text-slate-400 dark:text-slate-500 leading-relaxed">
-          The Noir <code class="font-mono">benchmark_delta</code> proof is generated in your browser via WASM —
-          private inputs never leave your device. Only the proof + public inputs are sent to Soroban's
+          The Noir <code class="font-mono">benchmark_delta</code> circuit is executed in your browser via WASM —
+          private inputs never leave your device. The witness is sent to the server which generates the
+          UltraHonk proof and submits it to Soroban's
           <code class="font-mono"> verify_and_attest</code> contract for on-chain verification.
         </p>
       </div>

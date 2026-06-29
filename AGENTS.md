@@ -66,6 +66,13 @@ For historical context, the codebase is transitioning from a "Health/Patient" me
 - Reusable treasury and optimization log programs.
 - Developers focus on agent performance, not decentralized infrastructure.
 
+### ZK Proving Architecture (Browser Witness + Server Proof)
+- **Browser**: `noir_js` executes the Noir circuit via WASM with private inputs → compressed witness. Private inputs never leave the browser.
+- **Vercel API**: Loads a pre-generated UltraHonk proof (from `bb` CLI v0.87.0) and submits to Soroban via `simulate → prepare → sign → submit`.
+- **Soroban**: `verify_and_attest` contract verifies the proof on-chain (BN254 host functions) and stores a permanent attestation.
+- **Version pinning is critical**: nargo `1.0.0-beta.9` + bb `0.87.0` + noir_js `1.0.0-beta.9` must all match. The VK embedded in the compiled circuit must match the VK stored in the deployed Soroban contract. A mismatch causes `Error #4 VerificationFailed`.
+- **Browser bb.js is impractical**: 124 MB WASM causes traps and hangs. Server-side bb.js exceeds Vercel's 250 MB serverless limit. Pre-generated proofs are the pragmatic solution.
+
 ---
 
 ## Token Economics (Critical Context)

@@ -4,6 +4,9 @@ export interface VerificationRequest {
   optimizationLogId: string;
   circuit: string;
   allianceId: string;
+  /** Base64-encoded compressed witness (from browser-side circuit execution) */
+  witnessBytes?: string;
+  /** Optional: pre-generated proof bytes (fallback) */
   proof?: Uint8Array;
   /** Base64-encoded public inputs bytes (from browser-side proving) */
   publicInputsBytes?: Uint8Array;
