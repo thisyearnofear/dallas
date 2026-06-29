@@ -1,5 +1,5 @@
 import { render } from "preact";
-import { LocationProvider, Router, Route } from "preact-iso";
+import { LocationProvider, Router, Route, lazy } from "preact-iso";
 import { WalletProvider } from "./context/WalletContext";
 import { SettingsProvider } from "./context/SettingsContext";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -31,7 +31,6 @@ import { ProgressiveOnboarding } from "./components/ProgressiveOnboarding";
 import { RetryFlowBanners } from "./components/RetryFlowBanners";
 import { MobileNav } from "./components/MobileNav";
 import { useState, useEffect } from "preact/hooks";
-import { lazy, Suspense } from "preact/compat";
 import { ChainConfigBanner } from "./components/ChainConfigBanner";
 import { useConsent } from "./hooks/useConsent";
 import { useSettings } from "./context/SettingsContext";
@@ -117,16 +116,6 @@ export function App() {
                                 </ErrorBoundary>
 
                                 <div class="w-full p-4 sm:p-6 lg:p-10 pb-44 lg:pb-28">
-                                    <ErrorBoundary>
-                                        <Suspense
-                                            fallback={
-                                                <div class="min-h-[60vh] flex items-center justify-center">
-                                                    <div class="text-sm font-bold text-slate-600 dark:text-slate-300">
-                                                        Loading…
-                                                    </div>
-                                                </div>
-                                            }
-                                        >
                                             <Router>
                                                 <Route path="/" component={Home} />
                                                 <Route path="/alliances" component={AlliancesPage} />
@@ -144,8 +133,6 @@ export function App() {
                                                 <Route path="/api-docs" component={ApiDocs} />
                                                 <Route default component={NotFound} />
                                             </Router>
-                                        </Suspense>
-                                    </ErrorBoundary>
                                 </div>
                             </div>
                             <ErrorBoundary>
