@@ -55,10 +55,15 @@ const NotFound: any = lazy(() => import("./pages/_404").then((m) => ({ default: 
 
 import "./style.css";
 
+/** Renders children only when fun-mode (popupsEnabled) is on. */
+function FunModeChrome({ children }: { children: any }) {
+    const { settings } = useSettings();
+    if (!settings.popupsEnabled) return null;
+    return <>{children}</>;
+}
+
 export function App() {
     const { notification, showNotification } = useNotification();
-    const { settings } = useSettings();
-    const funMode = settings.popupsEnabled;
     const [showOnboarding, setShowOnboarding] = useState(false);
     const [onboardingComplete, setOnboardingComplete] = useState(false);
 
@@ -91,8 +96,10 @@ export function App() {
                             />
 
                             {/* Mobile Progress & Live Counter — fun-mode only (off by default) */}
-                            {funMode && <ProgressTracker />}
-                            {funMode && <LiveCounter />}
+                            <FunModeChrome>
+                                <ProgressTracker />
+                                <LiveCounter />
+                            </FunModeChrome>
 
                             <ErrorBoundary>
                                 <ChainConfigBanner />
@@ -149,7 +156,9 @@ export function App() {
                             </ErrorBoundary>
 
                             {/* Mobile Enhancements — FAB is fun-mode only; ScrollToTop stays (utility) */}
-                            {funMode && <FloatingActionButton />}
+                            <FunModeChrome>
+                                <FloatingActionButton />
+                            </FunModeChrome>
                             <ScrollToTop />
                             <NotificationToast notification={notification} />
 
