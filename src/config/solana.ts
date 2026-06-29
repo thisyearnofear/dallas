@@ -35,7 +35,7 @@ const DEFAULTS_BY_NETWORK: Record<SolanaNetwork, {
   dbcTokenProgramIdDevnet: string;
 }> = {
   devnet: {
-    optimizationLogProgramId: 'B68o3Pnre8XgwGBKN4aQeP8gPmPARUVfb7EufFgnVUyj',
+    optimizationLogProgramId: '8tma3jnv8ZazAKxawZsE5yh3NPt1ymsEoysS2B1w2Gxx',
     dbcMintAddress: '8aNpSwFq7idN5LsX27wHndmfe46ApQkps9PgnSCLGwVT',
     treasuryProgramId: 'C5UAymmKGderVikGFiLJY88X3ZL5C49eEKTVdkKxh6nk',
     membershipProgramId: 'CB6yknfo1cBWhVH2ifkMAS2tKaDa9c9mgRiZpCzHwjzu',

@@ -317,7 +317,7 @@ export function AllianceTicker() {
                 <div class="flex-shrink-0 flex items-center gap-2 px-3 bg-brand/90 h-full border-r border-brand/50">
                     <div class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
                     <span class="text-[10px] font-mono font-black text-black uppercase tracking-widest whitespace-nowrap">
-                        Alliance Ticker
+                        Demo Ticker
                     </span>
                 </div>
 

@@ -22,7 +22,7 @@ export default function Submit() {
             <div class="bg-gradient-to-r from-purple-100/50 to-indigo-100/50 dark:from-purple-900/20 dark:to-indigo-900/20 border-b border-purple-300 dark:border-purple-700 p-8 mb-10 rounded-xl">
                 <div class="max-w-3xl mx-auto text-center">
                     <div class="inline-block bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-sm font-bold px-4 py-1.5 rounded-full mb-4">
-                        ★ ZK on Stellar · IP Protected · 0.10 USDC fee
+                        ★ ZK on Stellar · IP Protected · Soroban testnet
                     </div>
                     <h1 class="text-4xl lg:text-5xl font-bold mb-4 text-slate-900 dark:text-white">
                         Submit Optimization Log

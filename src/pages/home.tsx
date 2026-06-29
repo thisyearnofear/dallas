@@ -127,10 +127,13 @@ export function Home() {
 
             {/* ===== ACTIVE ALLIANCES ===== */}
             <div class="mb-12">
-                <h2 class="text-2xl font-bold mb-2 text-slate-900 dark:text-white font-display">Active alliances</h2>
+                <div class="flex items-center gap-2 mb-2">
+                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white font-display">Active alliances</h2>
+                    <span class="text-[10px] font-black bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full">DEMO DATA</span>
+                </div>
                 <p class="text-slate-600 dark:text-slate-400 mb-6">
-                    Communities forming around shared agent failure modes. Join one to access token-gated
-                    resources and submit verified optimization logs.
+                    Communities forming around shared agent failure modes. Token launches via bonding curves
+                    on Solana mainnet; counts shown are illustrative for devnet.
                 </p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {EXAMPLE_ALLIANCES.map((a) => (
@@ -182,7 +185,7 @@ export function Home() {
             <div class="mb-12 bg-slate-900 dark:bg-black rounded-xl p-6 overflow-hidden">
                 <h2 class="text-2xl font-bold mb-2 text-white font-display">Integrate in 5 lines</h2>
                 <p class="text-slate-400 mb-5 text-sm">Your agent proves improvements and anchors attestations programmatically.</p>
-                <pre class="text-sm text-green-400 font-mono overflow-x-auto leading-relaxed"><code>{`import { DBC } from "@dbc/agent-sdk";
+                <pre class="text-sm text-green-400 font-mono overflow-x-auto leading-relaxed"><code>{`import { DBC } from "./src/sdk";  // local SDK — publishable as npm package
 
 const dbc = new DBC({ alliance: "TOOL" });
 
@@ -203,7 +206,7 @@ console.log(attestation.txHash); // -> stellar.expert link`}</code></pre>
                     >
                         Read the full API docs →
                     </a>
-                    <span class="text-[11px] text-slate-500">SDK source in <code class="text-green-400">src/sdk/index.ts</code></span>
+                    <span class="text-[11px] text-slate-500">Not yet on npm — source in <code class="text-green-400">src/sdk/index.ts</code></span>
                 </div>
             </div>
 

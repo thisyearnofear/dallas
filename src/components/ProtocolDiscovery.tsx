@@ -138,16 +138,14 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
 
   const handleRequestAccess = (protocol: ProtocolMatch) => {
     if (protocol.genesisOpen && protocol.symbol) {
-      // Honest join flow: direct to the token market to buy the alliance token
       toast?.push(
         'info',
-        `Buy $${protocol.symbol} on the bonding curve to join ${protocol.name}. Redirecting to markets...`
+        `${protocol.name} ($${protocol.symbol}) launches via a bonding curve on Solana mainnet. On devnet, explore the alliance details below.`
       );
-      setTimeout(() => { window.location.href = '/attention-tokens'; }, 1500);
     } else {
       toast?.push(
         'info',
-        `Buy $${protocol.symbol || protocol.name} to access ${protocol.name} resources.`
+        `${protocol.name} resources are token-gated. Buy $${protocol.symbol || protocol.name} on mainnet to access.`
       );
     }
   };
@@ -352,7 +350,7 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
                         onClick={(e) => { e.stopPropagation(); handleRequestAccess(protocol); }}
                         class="flex-1 bg-slate-900 dark:bg-slate-800 text-white font-black py-3 rounded-xl text-xs uppercase tracking-widest transition-all hover:bg-blue-600 dark:hover:bg-blue-700 shadow-md active:scale-95"
                       >
-                        {protocol.genesisOpen ? 'Join Genesis Alliance →' : 'Request Optimization Logs'}
+                        {protocol.genesisOpen ? 'Explore Alliance →' : 'Request Access'}
                       </button>
                     </div>
                   </div>
