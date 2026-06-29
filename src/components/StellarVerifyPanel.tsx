@@ -12,23 +12,21 @@ const STEPS: { key: Phase; label: string; icon: string }[] = [
   { key: 'attesting', label: 'Anchor attestation', icon: '✓' },
 ];
 
-/**
- * Live "Prove it on Stellar" panel.
- *
- * Flow:
- *   1. Browser generates a Noir UltraHonk proof via WASM (noir_js + bb.js)
- *   2. Proof bytes + public inputs sent to Vercel API
- *   3. API uses @stellar/stellar-sdk to call verify_and_attest on Soroban
- *   4. On-chain attestation + stellar.expert tx link returned
- *
- * Private inputs (baseline/outcome/threshold) never leave the browser.
- * Only the proof + public inputs (which are public by definition) hit the server.
- */
+// Metric presets — the circuit is generic (u8 1-10, lower is better),
+// but framing it as real agent metrics makes it relatable.
+const METRICS = [
+  { id: 'latency',     label: 'Latency',         unit: 'severity', icon: '⚡', desc: 'Response time / p99 latency' },
+  { id: 'cost',        label: 'Token cost',      unit: 'severity', icon: '💰', desc: 'Cost per request (tokens used)' },
+  { id: 'error_rate',  label: 'Error rate',      unit: 'severity', icon: '🛑', desc: 'Tool-call / API failure rate' },
+  { id: 'hallucination', label: 'Hallucination', unit: 'severity', icon: '🌀', desc: 'Factually incorrect outputs' },
+];
+
 export function StellarVerifyPanel({ compact = false }: { compact?: boolean }) {
   const stellar = CHAINS_CONFIG.stellar;
   const readiness = getChainReadiness('stellar');
   const ready = readiness.ready;
 
+  const [metric, setMetric] = useState(METRICS[0]);
   const [baseline, setBaseline] = useState(7);
   const [outcome, setOutcome] = useState(3);
   const [threshold, setThreshold] = useState(20);
@@ -37,7 +35,6 @@ export function StellarVerifyPanel({ compact = false }: { compact?: boolean }) {
   const [error, setError] = useState<string | null>(null);
   const [prewarming, setPrewarming] = useState(false);
 
-  // Pre-warm the WASM runtimes on mount so the first proof is faster
   useEffect(() => {
     setPrewarming(true);
     prewarmProver().finally(() => setPrewarming(false));
@@ -54,7 +51,6 @@ export function StellarVerifyPanel({ compact = false }: { compact?: boolean }) {
     setResult(null);
 
     try {
-      // Step 1: Execute the Noir circuit IN THE BROWSER via WASM → witness
       const proveInputs: ProveInputs = {
         baselineMetric: baseline,
         outcomeMetric: outcome,
@@ -62,9 +58,6 @@ export function StellarVerifyPanel({ compact = false }: { compact?: boolean }) {
       };
       const proofResult = await generateProofInBrowser(proveInputs);
 
-      // Step 2: Submit witness to Soroban via the Vercel API
-      // The API generates the UltraHonk proof server-side (bb.js in Node.js)
-      // and submits it to Soroban's verify_and_attest contract.
       setPhase('verifying');
       setTimeout(() => setPhase('attesting'), 300);
 
@@ -95,7 +88,7 @@ export function StellarVerifyPanel({ compact = false }: { compact?: boolean }) {
 
   return (
     <div class={`bg-white dark:bg-slate-900 border-2 border-purple-400 dark:border-purple-700 rounded-2xl shadow-xl overflow-hidden ${compact ? '' : 'p-2'}`}>
-      {/* Header strip — Stellar identity anchor */}
+      {/* Header strip */}
       <div class="bg-gradient-to-r from-purple-700 to-indigo-700 text-white px-5 py-3 flex items-center justify-between flex-wrap gap-2">
         <div class="flex items-center gap-2">
           <span class="text-lg">★</span>
@@ -126,23 +119,46 @@ export function StellarVerifyPanel({ compact = false }: { compact?: boolean }) {
         {/* WASM prewarm indicator */}
         {prewarming && phase === 'idle' && (
           <div class="mb-4 text-xs text-slate-400 dark:text-slate-500 flex items-center gap-2">
-            <span class="animate-spin">★</span> Loading ZK WASM runtime…
+            <span class="animate-spin">★</span> Loading ZK WASM runtime...
           </div>
         )}
+
+        {/* Metric selector */}
+        <div class="mb-5">
+          <label class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-2 block">What did you optimize?</label>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {METRICS.map((m) => (
+              <button
+                key={m.id}
+                onClick={() => setMetric(m)}
+                disabled={busy}
+                class={`flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-all text-center ${
+                  metric.id === m.id
+                    ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                    : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-purple-300'
+                } disabled:opacity-40`}
+              >
+                <span class="text-xl">{m.icon}</span>
+                <span class="text-xs font-bold">{m.label}</span>
+              </button>
+            ))}
+          </div>
+          <div class="text-[10px] text-slate-400 dark:text-slate-500 mt-1.5">{metric.desc}</div>
+        </div>
 
         {/* Circuit inputs */}
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
           <SliderInput
-            label="Baseline severity"
+            label={`Baseline ${metric.unit}`}
             value={baseline}
             min={1}
             max={10}
             onChange={setBaseline}
-            hint="Worse agent metric (higher = worse)"
+            hint="Before optimization (higher = worse)"
             disabled={busy}
           />
           <SliderInput
-            label="Outcome severity"
+            label={`Outcome ${metric.unit}`}
             value={outcome}
             min={1}
             max={10}
@@ -164,7 +180,7 @@ export function StellarVerifyPanel({ compact = false }: { compact?: boolean }) {
         {/* Live improvement read-out */}
         <div class="mb-5 flex items-center justify-between flex-wrap gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
           <div class="text-sm text-slate-600 dark:text-slate-300">
-            Claimed improvement: <strong class={passes ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>{improvement}%</strong>
+            {metric.label}: <strong class={passes ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>{improvement}%</strong> improvement
             <span class="mx-2 opacity-40">·</span>
             threshold <strong>{threshold}%</strong>
           </div>
@@ -214,9 +230,9 @@ export function StellarVerifyPanel({ compact = false }: { compact?: boolean }) {
           {busy ? (
             <>
               <span class="animate-spin">★</span>
-              {phase === 'proving' && 'Generating Noir proof in browser…'}
-              {phase === 'verifying' && 'Verifying in Soroban…'}
-              {phase === 'attesting' && 'Anchoring attestation…'}
+              {phase === 'proving' && 'Generating Noir proof in browser...'}
+              {phase === 'verifying' && 'Verifying in Soroban...'}
+              {phase === 'attesting' && 'Anchoring attestation...'}
             </>
           ) : (
             <>★ Generate proof → Verify on Soroban</>
@@ -239,16 +255,25 @@ export function StellarVerifyPanel({ compact = false }: { compact?: boolean }) {
               <Field label="Threshold" value={result.attestation ? `${result.attestation.threshold}%` : '—'} />
               <Field label="Alliance" value={result.attestation?.allianceId || '—'} mono />
             </div>
-            {result.txId && (
+            <div class="flex flex-wrap gap-3">
+              {result.txId && (
+                <a
+                  href={result.explorerUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm transition-colors"
+                >
+                  <span>★</span> View on stellar.expert ↗
+                </a>
+              )}
+              {/* Post-proof CTA: close the loop to alliance participation */}
               <a
-                href={result.explorerUrl}
-                target="_blank"
-                rel="noreferrer"
-                class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm transition-colors"
+                href="/alliances"
+                class="inline-flex items-center gap-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold px-4 py-2.5 rounded-lg text-sm transition-colors border-2 border-slate-200 dark:border-slate-700"
               >
-                <span>★</span> View on stellar.expert ↗
+                ◎ Join an alliance to build reputation →
               </a>
-            )}
+            </div>
             {result.attestation?.submissionId && (
               <div class="mt-3 text-[10px] font-mono text-slate-500 dark:text-slate-400 break-all">
                 submission: {result.attestation.submissionId}
