@@ -137,10 +137,19 @@ export const ProtocolDiscovery: FunctionalComponent = () => {
   };
 
   const handleRequestAccess = (protocol: ProtocolMatch) => {
-    toast?.push(
-      'info',
-      `Access request sent. You'll be notified when the ${protocol.name} owner grants access.`
-    );
+    if (protocol.genesisOpen && protocol.symbol) {
+      // Honest join flow: direct to the token market to buy the alliance token
+      toast?.push(
+        'info',
+        `Buy $${protocol.symbol} on the bonding curve to join ${protocol.name}. Redirecting to markets...`
+      );
+      setTimeout(() => { window.location.href = '/attention-tokens'; }, 1500);
+    } else {
+      toast?.push(
+        'info',
+        `Buy $${protocol.symbol || protocol.name} to access ${protocol.name} resources.`
+      );
+    }
   };
 
   return (

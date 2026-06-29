@@ -52,7 +52,7 @@ type SolanaRailStatus = 'idle' | 'pending' | 'confirmed' | 'failed';
 type AleoRailStatus = 'disabled' | 'idle' | 'pending' | 'queued' | 'verified' | 'failed';
 type StellarRailStatus = 'disabled' | 'idle' | 'pending' | 'verified' | 'failed';
 
-export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
+export const EncryptedOptimizationLogForm: FunctionalComponent<{ proofData?: any }> = ({ proofData }) => {
   const walletContext = useContext(WalletContext);
   const { publicKey, signMessage } = walletContext;
   const [encryptionKey, setEncryptionKey] = useState<Uint8Array | null>(null);
@@ -122,10 +122,16 @@ export const EncryptedOptimizationLogForm: FunctionalComponent = () => {
     architectureProtocol: '',
     durationDays: 8,
     costUSD: 0,
-    baselineMetrics: { latencySeverity: 5, throughputLevel: 5 },
-    outcomeMetrics: { latencySeverity: 5, throughputLevel: 5 },
+    baselineMetrics: {
+      latencySeverity: proofData?.baseline ?? 5,
+      throughputLevel: 5,
+    },
+    outcomeMetrics: {
+      latencySeverity: proofData?.outcome ?? 5,
+      throughputLevel: 5,
+    },
     sideEffects: [],
-    context: '',
+    context: proofData?.txHash ? `Proof verified on Soroban: ${proofData.txHash}` : '',
   });
 
   // Validate form whenever data changes

@@ -1,5 +1,6 @@
 import { StellarVerifyPanel } from "../components/StellarVerifyPanel";
 import { AttestationFeed } from "../components/AttestationFeed";
+import { ProofHistory } from "../components/ProofHistory";
 import { CHAINS_CONFIG } from "../config/chains";
 
 const VERIFIER_CONTRACT_ID = "CC5ICZLCPV2KCCJMQOE4VK6QV4MA7UWW5BS6H7CB7CTN4RZNPPDRPY4Z";
@@ -66,6 +67,11 @@ export function Home() {
                 {/* Live attestation feed */}
                 <div class="mb-6">
                     <AttestationFeed />
+                </div>
+
+                {/* User's recent proofs (only shows if they have proof history) */}
+                <div class="mb-6">
+                    <ProofHistory />
                 </div>
 
                 {/* Secondary links */}
@@ -180,23 +186,24 @@ export function Home() {
 
 const dbc = new DBC({ alliance: "TOOL" });
 
-// Prove your agent improved — private inputs stay local
+// Prove your agent improved -- private inputs stay local
 const proof = await dbc.prove({
   metric: "latency",
   before: 7, after: 3,    // 1-10 scale, lower = better
   threshold: 20,           // min % improvement
 });
 
-// Anchor on Soroban → permanent on-chain attestation
+// Anchor on Soroban -> permanent on-chain attestation
 const attestation = await dbc.anchor(proof);
-console.log(attestation.txHash); // → stellar.expert link`}</code></pre>
-                <div class="mt-4">
+console.log(attestation.txHash); // -> stellar.expert link`}</code></pre>
+                <div class="mt-4 flex items-center gap-4">
                     <a
                         href="/api-docs"
                         class="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 font-bold text-sm transition-colors"
                     >
                         Read the full API docs →
                     </a>
+                    <span class="text-[11px] text-slate-500">SDK source in <code class="text-green-400">src/sdk/index.ts</code></span>
                 </div>
             </div>
 

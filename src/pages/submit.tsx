@@ -1,5 +1,7 @@
 import { lazy, Suspense } from "preact/compat";
+import { useState, useEffect } from "preact/hooks";
 import { StellarVerifyPanel } from "../components/StellarVerifyPanel";
+import { readProofFromUrl, type ProofRecord } from "../services/proofHistory";
 
 const EncryptedOptimizationLogForm: any = lazy(() =>
     import("../components/EncryptedOptimizationLogForm").then((m) => ({
@@ -8,6 +10,12 @@ const EncryptedOptimizationLogForm: any = lazy(() =>
 );
 
 export default function Submit() {
+    const [proofData, setProofData] = useState<Partial<ProofRecord> | null>(null);
+
+    useEffect(() => {
+        setProofData(readProofFromUrl());
+    }, []);
+
     return (
         <div class="min-h-screen">
             {/* Hero */}
@@ -32,35 +40,74 @@ export default function Submit() {
                 </div>
             </div>
 
-            {/* Live ZK verify — the load-bearing proof loop, front and center */}
-            <div class="max-w-3xl mx-auto px-4 mb-10">
-                <div class="mb-3 flex items-center gap-2">
-                    <h2 class="text-lg font-bold text-slate-900 dark:text-white">Run the ZK proof now</h2>
-                    <span class="text-[10px] font-black bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full">LIVE</span>
-                </div>
-                <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                    The same proof loop your submission triggers — run it standalone to see the Stellar
-                    attestation land on-chain.
-                </p>
-                <StellarVerifyPanel />
-            </div>
-
-            {/* Full submission form */}
             <div class="max-w-3xl mx-auto px-4 pb-12">
-                <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-3">Full encrypted submission</h2>
+                {/* Proof verified banner */}
+                {proofData && proofData.txHash && (
+                    <div class="mb-6 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border-2 border-green-400 dark:border-green-700">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-black flex-shrink-0">✓</span>
+                            <div class="flex-grow">
+                                <div class="font-black text-green-700 dark:text-green-300">Proof verified on Soroban</div>
+                                <div class="text-xs text-green-600 dark:text-green-400">
+                                    {proofData.metric && <span class="capitalize">{proofData.metric}</span>}
+                                    {proofData.passed !== undefined && proofData.passed ? " · passed" : " · failed"}
+                                    {proofData.threshold !== undefined && ` · ${proofData.threshold}% threshold`}
+                                    {proofData.allianceId && ` · ${proofData.allianceId}`}
+                                </div>
+                            </div>
+                            <a
+                                href={`https://stellar.expert/explorer/testnet/tx/${proofData.txHash}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                class="text-xs font-bold text-purple-600 dark:text-purple-400 hover:underline flex-shrink-0"
+                            >
+                                tx ↗
+                            </a>
+                        </div>
+                        <div class="text-[10px] font-mono text-slate-500 dark:text-slate-400 break-all">
+                            {proofData.txHash}
+                        </div>
+                        <div class="text-xs text-slate-600 dark:text-slate-400 mt-2">
+                            Complete the form below to submit your full encrypted optimization log.
+                            The metrics are pre-filled from your proof.
+                        </div>
+                    </div>
+                )}
+
+                {/* Live ZK verify -- shown only when no proof is pre-filled */}
+                {!proofData && (
+                    <>
+                        <div class="mb-3 flex items-center gap-2">
+                            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Run the ZK proof now</h2>
+                            <span class="text-[10px] font-black bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full">LIVE</span>
+                        </div>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                            The same proof loop your submission triggers -- run it standalone to see the Stellar
+                            attestation land on-chain.
+                        </p>
+                        <div class="mb-10">
+                            <StellarVerifyPanel />
+                        </div>
+                    </>
+                )}
+
+                {/* Full submission form */}
+                <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-3">
+                    {proofData ? "Complete your submission" : "Full encrypted submission"}
+                </h2>
                 <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">
-                    Encrypt your log, compress with Light Protocol, and submit across Solana (coordination)
-                    + Stellar (ZK attestation).
+                    {proofData
+                        ? "Encrypt your log, compress with Light Protocol, and submit across Solana + Stellar."
+                        : "Encrypt your log, compress with Light Protocol, and submit across Solana (coordination) + Stellar (ZK attestation)."}
                 </p>
-                <Suspense fallback={<div class="py-16 text-center text-slate-600 dark:text-slate-300 font-bold">Loading form…</div>}>
-                    <EncryptedOptimizationLogForm />
+                <Suspense fallback={<div class="py-16 text-center text-slate-600 dark:text-slate-300 font-bold">Loading form...</div>}>
+                    <EncryptedOptimizationLogForm proofData={proofData} />
                 </Suspense>
 
                 <div class="mt-8 p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg text-sm text-slate-600 dark:text-slate-400">
                     <strong class="text-purple-800 dark:text-purple-200">After submitting:</strong> your log is
                     encrypted on Solana and a Noir <code class="font-mono">benchmark_delta</code> proof is verified
-                    in the Soroban attestation contract. The result (passed / threshold / tx) appears inline above
-                    with a <strong>stellar.expert</strong> link — that on-chain attestation is the moment ZK does its work.{" "}
+                    in the Soroban attestation contract.{" "}
                     <a href="/validators" class="text-brand hover:underline font-semibold">Become a reviewer →</a>
                 </div>
             </div>

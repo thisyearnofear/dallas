@@ -3,6 +3,7 @@ import { stellarVerificationService } from '../services';
 import type { VerificationResult } from '../services/VerificationAdapter';
 import { CHAINS_CONFIG, getChainReadiness } from '../config/chains';
 import { generateProofInBrowser, prewarmProver, type ProveInputs } from '../services/stellar/browserProver';
+import { saveProof, buildSubmitUrlFromProof, type ProofRecord } from '../services/proofHistory';
 
 type Phase = 'idle' | 'proving' | 'verifying' | 'attesting' | 'done' | 'failed';
 
@@ -77,6 +78,22 @@ export function StellarVerifyPanel({ compact = false }: { compact?: boolean }) {
       setPhase(res.status === 'verified' ? 'done' : 'failed');
       if (res.status !== 'verified') {
         setError(res.error || 'Verification did not confirm on-chain.');
+      } else {
+        // Persist proof to localStorage for returning users
+        const record: ProofRecord = {
+          txHash: res.txId || '',
+          explorerUrl: res.explorerUrl || '',
+          allianceId: res.attestation?.allianceId || 'dbc-alliance',
+          threshold: res.attestation?.threshold || threshold,
+          passed: res.attestation?.passed ?? true,
+          metric: metric.id,
+          baseline,
+          outcome,
+          improvement,
+          timestamp: Date.now(),
+          submissionId: res.attestation?.submissionId,
+        };
+        saveProof(record);
       }
     } catch (e) {
       setPhase('failed');
@@ -266,12 +283,30 @@ export function StellarVerifyPanel({ compact = false }: { compact?: boolean }) {
                   <span>★</span> View on stellar.expert ↗
                 </a>
               )}
+              {/* Bridge: submit full log with this proof pre-filled */}
+              <a
+                href={buildSubmitUrlFromProof({
+                  txHash: result.txId || '',
+                  explorerUrl: result.explorerUrl || '',
+                  allianceId: result.attestation?.allianceId || 'dbc-alliance',
+                  threshold: result.attestation?.threshold || threshold,
+                  passed: result.attestation?.passed ?? true,
+                  metric: metric.id,
+                  baseline,
+                  outcome,
+                  improvement,
+                  timestamp: Date.now(),
+                })}
+                class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm transition-colors"
+              >
+                📋 Submit full log with this proof →
+              </a>
               {/* Post-proof CTA: close the loop to alliance participation */}
               <a
                 href="/alliances"
                 class="inline-flex items-center gap-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold px-4 py-2.5 rounded-lg text-sm transition-colors border-2 border-slate-200 dark:border-slate-700"
               >
-                ◎ Join an alliance to build reputation →
+                ◎ Join an alliance →
               </a>
             </div>
             {result.attestation?.submissionId && (
