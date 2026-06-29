@@ -16,6 +16,8 @@ export interface NavItem {
     mobileMore?: boolean;
     /** Show on desktop sidebar */
     desktop?: boolean;
+    /** This entry is the mobile "More" overflow trigger (renders as a menu button) */
+    moreTrigger?: boolean;
 }
 
 export const navigationItems: NavItem[] = [
@@ -33,25 +35,25 @@ export const navigationItems: NavItem[] = [
         icon: "🌐",
         description: "Discover & join alliances",
         highlight: true,
-        mobilePrimary: true,
+        mobileMore: true,
         desktop: true,
     },
     {
         href: "/submit",
-        label: "Submit Log",
-        icon: "📋",
-        description: "Submit encrypted optimization log",
+        label: "Verify",
+        icon: "★",
+        description: "Run the ZK proof & submit a log",
         highlight: true,
-        mobileMore: true,
+        mobilePrimary: true,
         desktop: true,
     },
     {
         href: "/validators",
-        label: "Review Logs",
+        label: "Validators",
         icon: "⚖️",
         description: "Verify proofs & earn rewards",
         highlight: true,
-        mobileMore: true,
+        mobilePrimary: true,
         desktop: true,
     },
     {
@@ -67,7 +69,7 @@ export const navigationItems: NavItem[] = [
         label: "Membership",
         icon: "🤝",
         description: "Join the Alliance",
-        mobilePrimary: true,
+        mobileMore: true,
         desktop: true,
     },
     {
@@ -110,6 +112,15 @@ export const navigationItems: NavItem[] = [
         description: "Integration guide",
         mobileMore: true,
         desktop: true,
+    },
+    // Mobile "More" overflow trigger — rendered as a button, not a link.
+    {
+        href: "#more",
+        label: "More",
+        icon: "☰",
+        description: "Alliances, markets, membership, and more",
+        mobilePrimary: true,
+        moreTrigger: true,
     },
 ];
 

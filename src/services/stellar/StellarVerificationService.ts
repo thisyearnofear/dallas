@@ -5,6 +5,12 @@ export class StellarVerificationService implements VerificationAdapter {
   readonly chainId: SupportedChain = 'stellar';
   private results: Map<string, VerificationResult> = new Map();
 
+  /**
+   * Submit a browser-generated proof to the Soroban attestation contract.
+   *
+   * The proof + public inputs are generated in the browser via WASM (noir_js + bb.js)
+   * and sent to the Vercel API which uses @stellar/stellar-sdk to invoke verify_and_attest.
+   */
   async submit(request: VerificationRequest): Promise<VerificationResult> {
     if (!isStellarEnabled()) {
       return { submitted: false, status: 'disabled' };
@@ -29,6 +35,10 @@ export class StellarVerificationService implements VerificationAdapter {
           optimizationLogId: request.optimizationLogId,
           circuit: request.circuit,
           allianceId: request.allianceId,
+          proofBytes: request.proof ? this.uint8ArrayToBase64(request.proof) : undefined,
+          publicInputsBytes: request.publicInputsBytes
+            ? this.uint8ArrayToBase64(request.publicInputsBytes)
+            : undefined,
           publicInputs: request.publicInputs,
           contractId: CHAINS_CONFIG.stellar.contractId,
         }),
@@ -46,6 +56,7 @@ export class StellarVerificationService implements VerificationAdapter {
         status: data.status === 'verified' ? 'verified' : 'pending',
         txId: data.txHash,
         explorerUrl: data.txHash ? this.getExplorerUrl(data.txHash) : undefined,
+        attestation: data.attestation,
       };
       this.results.set(verificationId, result);
       return result;
@@ -79,6 +90,14 @@ export class StellarVerificationService implements VerificationAdapter {
 
   private buildVerificationId(optimizationLogId: string, circuit: string): string {
     return `stellar_${circuit}_${optimizationLogId}_${Date.now()}`;
+  }
+
+  private uint8ArrayToBase64(arr: Uint8Array): string {
+    let binary = '';
+    for (let i = 0; i < arr.length; i++) {
+      binary += String.fromCharCode(arr[i]);
+    }
+    return btoa(binary);
   }
 }
 

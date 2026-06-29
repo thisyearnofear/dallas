@@ -180,9 +180,9 @@ export function Header() {
                             ? "bg-yellow-500 hover:bg-yellow-600 text-black border-yellow-700 animate-pulse"
                             : "bg-white dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 text-gray-900 dark:text-white border-gray-400 dark:border-slate-500 shadow-lg"
                             }`}
-                        title={settings.popupsEnabled ? "Disable 90s popups" : "Enable 90s popups"}
+                        title={settings.popupsEnabled ? "Disable fun mode (90s popups, sidebar, FAB, counters)" : "Enable fun mode (90s popups, sidebar, FAB, counters)"}
                     >
-                        {settings.popupsEnabled ? "🎲 POPUPS ON" : "🚫 POPUPS OFF"}
+                        {settings.popupsEnabled ? "🎲 FUN ON" : "🚫 FUN OFF"}
                     </button>
 
                     {/* Theme Toggle */}

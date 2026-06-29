@@ -14,7 +14,6 @@ import { Header } from "./components/Header";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
 import { AllianceTicker } from "./components/LiveActivityFeed";
-import { ViralSidebar } from "./components/ViralSidebar";
 import { SettingsPanel } from "./components/SettingsPanel";
 import {
     FloatingActionButton,
@@ -35,6 +34,7 @@ import { useState, useEffect } from "preact/hooks";
 import { lazy, Suspense } from "preact/compat";
 import { ChainConfigBanner } from "./components/ChainConfigBanner";
 import { useConsent } from "./hooks/useConsent";
+import { useSettings } from "./context/SettingsContext";
 
 // Route-level code splitting: keep initial bundle small.
 const Home: any = lazy(() => import("./pages/home").then((m) => ({ default: m.Home })));
@@ -57,6 +57,8 @@ import "./style.css";
 
 export function App() {
     const { notification, showNotification } = useNotification();
+    const { settings } = useSettings();
+    const funMode = settings.popupsEnabled;
     const [showOnboarding, setShowOnboarding] = useState(false);
     const [onboardingComplete, setOnboardingComplete] = useState(false);
 
@@ -88,9 +90,9 @@ export function App() {
                                 }}
                             />
 
-                            {/* Mobile Progress & Live Counter */}
-                            <ProgressTracker />
-                            <LiveCounter />
+                            {/* Mobile Progress & Live Counter — fun-mode only (off by default) */}
+                            {funMode && <ProgressTracker />}
+                            {funMode && <LiveCounter />}
 
                             <ErrorBoundary>
                                 <ChainConfigBanner />
@@ -146,8 +148,8 @@ export function App() {
                                 <Footer />
                             </ErrorBoundary>
 
-                            {/* Mobile Enhancements */}
-                            <FloatingActionButton />
+                            {/* Mobile Enhancements — FAB is fun-mode only; ScrollToTop stays (utility) */}
+                            {funMode && <FloatingActionButton />}
                             <ScrollToTop />
                             <NotificationToast notification={notification} />
 

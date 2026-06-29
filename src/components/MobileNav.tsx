@@ -18,7 +18,7 @@ export function MobileNav() {
                 <div class="flex items-center justify-around h-16">
                     {mobilePrimaryItems.map((item) => {
                         const active = isActive(item.href);
-                        const isMore = item.label === "Resources";
+                        const isMore = !!item.moreTrigger;
 
                         if (isMore) {
                             return (

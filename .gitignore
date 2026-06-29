@@ -51,3 +51,5 @@ Cargo.lock
 .kiro
 .blackboxcli/
 videos/
+.vercel
+.env*
