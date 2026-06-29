@@ -66,12 +66,8 @@ export function StellarVerifyPanel({ compact = false }: { compact?: boolean }) {
         optimizationLogId: `demo-log-${Date.now()}`,
         circuit: 'benchmark_delta',
         allianceId: 'dbc-alliance',
-        witnessBytes: proofResult.witnessBytes,
-        publicInputs: {
-          baselineLatencySeverity: baseline,
-          outcomeLatencySeverity: outcome,
-          minImprovementPercent: threshold,
-        },
+        proofBytes: proofResult.proofBytes,
+        publicInputsBytes: proofResult.publicInputsBytes,
       });
 
       setResult(res);

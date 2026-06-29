@@ -18,7 +18,8 @@ export interface ProveOptions {
 }
 
 export interface ProofResult {
-  witnessBytes: string;
+  proofBytes: string;
+  publicInputsBytes: string;
   baseline: number;
   outcome: number;
   threshold: number;
@@ -62,7 +63,8 @@ export class DBC {
     const improvement = Math.round(((opts.before - opts.after) / opts.before) * 100);
 
     return {
-      witnessBytes: result.witnessBytes,
+      proofBytes: result.proofBytes,
+      publicInputsBytes: result.publicInputsBytes,
       baseline: opts.before,
       outcome: opts.after,
       threshold: opts.threshold,
@@ -82,12 +84,8 @@ export class DBC {
       optimizationLogId: `sdk-log-${Date.now()}`,
       circuit: 'benchmark_delta',
       allianceId: this.alliance,
-      witnessBytes: proof.witnessBytes,
-      publicInputs: {
-        baselineLatencySeverity: proof.baseline,
-        outcomeLatencySeverity: proof.outcome,
-        minImprovementPercent: proof.threshold,
-      },
+      proofBytes: proof.proofBytes,
+      publicInputsBytes: proof.publicInputsBytes,
     });
 
     if (res.status !== 'verified') {

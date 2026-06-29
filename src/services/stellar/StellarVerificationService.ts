@@ -35,12 +35,8 @@ export class StellarVerificationService implements VerificationAdapter {
           optimizationLogId: request.optimizationLogId,
           circuit: request.circuit,
           allianceId: request.allianceId,
-          witnessBytes: request.witnessBytes,
-          proofBytes: request.proof ? this.uint8ArrayToBase64(request.proof) : undefined,
-          publicInputsBytes: request.publicInputsBytes
-            ? this.uint8ArrayToBase64(request.publicInputsBytes)
-            : undefined,
-          publicInputs: request.publicInputs,
+          proofBytes: request.proofBytes,
+          publicInputsBytes: request.publicInputsBytes,
           contractId: CHAINS_CONFIG.stellar.contractId,
         }),
       });
@@ -93,13 +89,6 @@ export class StellarVerificationService implements VerificationAdapter {
     return `stellar_${circuit}_${optimizationLogId}_${Date.now()}`;
   }
 
-  private uint8ArrayToBase64(arr: Uint8Array): string {
-    let binary = '';
-    for (let i = 0; i < arr.length; i++) {
-      binary += String.fromCharCode(arr[i]);
-    }
-    return btoa(binary);
-  }
 }
 
 export const stellarVerificationService = new StellarVerificationService();

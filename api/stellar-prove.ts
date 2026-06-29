@@ -1,7 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import crypto from 'crypto';
-import fs from 'fs';
-import path from 'path';
 
 import {
   Contract,
@@ -35,14 +33,10 @@ interface ProveRequest {
   optimizationLogId: string;
   circuit: string;
   allianceId?: string;
-  /** Base64-encoded compressed witness (from browser noir_js) */
-  witnessBytes?: string;
-  /** Base64-encoded UltraHonk proof bytes (if proof was generated in browser) */
+  /** Base64-encoded UltraHonk proof bytes (generated in browser via bb.js) */
   proofBytes?: string;
   /** Base64-encoded public inputs (32-byte field elements, concatenated) */
   publicInputsBytes?: string;
-  /** Legacy: raw public inputs object (for backward compat with the old flow) */
-  publicInputs?: Record<string, string | number | boolean>;
   contractId?: string;
 }
 
@@ -161,28 +155,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     let proofBytes: Uint8Array;
     let publicInputsBytes: Uint8Array;
 
-    // ── Witness path: browser generates witness, server uses pre-generated proof ──
-    // Note: bb.js (124MB WASM) is too large for Vercel serverless functions.
-    // The browser executes the Noir circuit to generate a real witness, then
-    // the server uses a pre-generated proof (generated offline with bb CLI)
-    // to submit to Soroban. The witness execution proves the circuit runs
-    // correctly in the browser; the proof is a real UltraHonk proof.
-    if (body.witnessBytes) {
-      const demoProofPath = path.join(process.cwd(), 'src', 'circuits', 'demo_proof.json');
-      const demoProof = JSON.parse(fs.readFileSync(demoProofPath, 'utf-8'));
-      proofBytes = base64ToUint8Array(demoProof.proofBytes);
-      publicInputsBytes = base64ToUint8Array(demoProof.publicInputsBytes);
-    }
-    // ── Browser-generated proof path (fallback) ───────────────────
-    else if (body.proofBytes && body.publicInputsBytes) {
+    // The browser generates the full UltraHonk proof using bb.js WASM,
+    // then sends the proof + public inputs here. The server only submits
+    // to Soroban — it never generates or caches proofs.
+    if (body.proofBytes && body.publicInputsBytes) {
       proofBytes = base64ToUint8Array(body.proofBytes);
       publicInputsBytes = base64ToUint8Array(body.publicInputsBytes);
     } else {
       return res.status(400).json({
         status: 'failed',
         error:
-          'No witness or proof bytes provided. Send witnessBytes (preferred) ' +
-          'or proofBytes + publicInputsBytes.',
+          'Missing proof data. The browser must generate the proof and send ' +
+          'proofBytes + publicInputsBytes.',
       });
     }
 

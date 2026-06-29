@@ -1,14 +1,19 @@
 /**
- * Browser-side ZK witness generation service.
+ * Browser-side ZK proof generation service.
  *
- * The browser executes the Noir circuit via WASM (noir_js) to produce a witness.
- * The witness is then sent to the Vercel API which generates the UltraHonk proof
- * using bb.js (Node.js) and submits it to Soroban.
+ * The browser executes the Noir circuit via WASM (noir_js) to produce a witness,
+ * then generates a real UltraHonk proof using bb.js (Barretenberg WASM).
+ * The proof + public inputs are sent to the Vercel API which submits them
+ * to the Soroban attestation contract.
  *
- * This split architecture keeps the heavy proof generation on the server while
- * the circuit execution (which processes private inputs) happens in the browser.
- * The private inputs never need to leave the client for proof generation —
- * only the compressed witness is transmitted.
+ * This is the honest flow:
+ *   1. Browser executes Noir circuit with private inputs → compressed witness
+ *   2. Browser generates UltraHonk proof from witness via bb.js WASM
+ *   3. Browser sends proof + public inputs to server
+ *   4. Server submits to Soroban verify_and_attest (on-chain verification)
+ *
+ * Private inputs never leave the browser. The proof is generated from the
+ * actual witness — no cached/pre-generated proofs.
  */
 
 import { Noir } from '@noir-lang/noir_js';
@@ -19,34 +24,47 @@ import acvmWasmUrl from '@noir-lang/acvm_js/web/acvm_js_bg.wasm?url';
 import noircWasmUrl from '@noir-lang/noirc_abi/web/noirc_abi_wasm_bg.wasm?url';
 import circuitJson from '../../circuits/benchmark_delta.json';
 
+// bb.js browser build — generates UltraHonk proofs in the browser
+import { Barretenberg, UltraHonkBackend } from '@aztec/bb.js';
+
 export interface BrowserProofResult {
-  /** Base64-encoded compressed witness bytes (to send to server) */
-  witnessBytes: string;
-  /** Whether the circuit's `passed` output is true (from witness execution) */
+  /** Base64-encoded UltraHonk proof bytes (for Soroban submission) */
+  proofBytes: string;
+  /** Base64-encoded public inputs (32-byte field elements, concatenated) */
+  publicInputsBytes: string;
+  /** Whether the circuit's `passed` output is true */
   passed: boolean;
   /** The threshold value from the circuit output */
   threshold: number;
 }
 
 let noirInstance: Noir | null = null;
+let bbInstance: Barretenberg | null = null;
+let honkBackend: UltraHonkBackend | null = null;
 let initPromise: Promise<void> | null = null;
 
-/** Lazy-init the Noir WASM runtime (witness generation only — ~1-2s first time). */
+/** Lazy-init the Noir WASM runtime + Barretenberg proof backend. */
 async function ensureInit(): Promise<void> {
-  if (noirInstance) return;
+  if (noirInstance && honkBackend) return;
   if (initPromise) return initPromise;
 
   initPromise = (async () => {
-    // Explicitly init the ACVM and noirc_abi WASM modules with their
-    // bundled URLs. This is required in a Vite/browser context.
+    // 1. Initialize ACVM + noirc_abi WASM (for witness generation)
     await Promise.all([
       initACVM(fetch(acvmWasmUrl)),
       initNoirC(fetch(noircWasmUrl)),
     ]);
 
-    // Create Noir instance for witness generation
     noirInstance = new Noir(circuitJson as any);
     await noirInstance.init();
+
+    // 2. Initialize Barretenberg (for UltraHonk proof generation)
+    //    This loads the ~3.5MB bb.js WASM in the browser.
+    bbInstance = await Barretenberg.new();
+
+    // 3. Create UltraHonkBackend with the circuit's ACIR bytecode
+    const bytecode = (circuitJson as any).bytecode;
+    honkBackend = new UltraHonkBackend(bytecode, bbInstance);
   })();
 
   return initPromise;
@@ -68,22 +86,23 @@ export interface ProveInputs {
 }
 
 /**
- * Execute the Noir circuit in the browser to generate a witness.
+ * Execute the Noir circuit and generate a real UltraHonk proof in the browser.
  *
  * Flow:
  * 1. noir_js executes the circuit with private inputs → compressed witness
- * 2. Witness is base64-encoded for transport to the server
- * 3. Server generates the UltraHonk proof and submits to Soroban
+ * 2. bb.js generates an UltraHonk proof from the witness
+ * 3. Proof + public inputs are base64-encoded for transport to the server
+ * 4. Server submits to Soroban verify_and_attest for on-chain verification
  *
- * @param inputs Circuit inputs (private — only the witness leaves the browser)
+ * @param inputs Circuit inputs (private — never leave the browser)
  */
 export async function generateProofInBrowser(inputs: ProveInputs): Promise<BrowserProofResult> {
   await ensureInit();
-  if (!noirInstance) {
+  if (!noirInstance || !honkBackend) {
     throw new Error('ZK runtime not initialized');
   }
 
-  // Execute circuit to get witness + return value
+  // ── Step 1: Execute circuit to get witness + return value ──
   let witness: Uint8Array;
   let returnValue: any;
   try {
@@ -102,8 +121,33 @@ export async function generateProofInBrowser(inputs: ProveInputs): Promise<Brows
   const passed = Array.isArray(returnValue) ? returnValue[0] === true : Boolean(returnValue);
   const threshold = Array.isArray(returnValue) ? Number(returnValue[1]) : 0;
 
+  // ── Step 2: Generate UltraHonk proof from witness ──
+  let proofData: { proof: Uint8Array; publicInputs: string[] };
+  try {
+    proofData = await honkBackend.generateProof(witness, {
+      keccak: true, // Match the on-chain verifier (Keccak hash for Soroban)
+    });
+  } catch (e) {
+    throw new Error(`Proof generation failed: ${e instanceof Error ? e.message : String(e)}`);
+  }
+
+  // ── Step 3: Convert public inputs from field strings to byte array ──
+  // Each public input is a 32-byte BN254 field element (hex string)
+  const publicInputsBytes = new Uint8Array(proofData.publicInputs.length * 32);
+  for (let i = 0; i < proofData.publicInputs.length; i++) {
+    const fieldHex = proofData.publicInputs[i].replace(/^0x/, '');
+    const fieldBytes = new Uint8Array(32);
+    // Pad to 32 bytes (field elements are big-endian)
+    const hexPadded = fieldHex.padStart(64, '0');
+    for (let j = 0; j < 32; j++) {
+      fieldBytes[j] = parseInt(hexPadded.substr(j * 2, 2), 16);
+    }
+    publicInputsBytes.set(fieldBytes, i * 32);
+  }
+
   return {
-    witnessBytes: uint8ArrayToBase64(witness),
+    proofBytes: uint8ArrayToBase64(proofData.proof),
+    publicInputsBytes: uint8ArrayToBase64(publicInputsBytes),
     passed,
     threshold,
   };

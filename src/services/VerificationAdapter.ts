@@ -4,13 +4,12 @@ export interface VerificationRequest {
   optimizationLogId: string;
   circuit: string;
   allianceId: string;
-  /** Base64-encoded compressed witness (from browser-side circuit execution) */
-  witnessBytes?: string;
-  /** Optional: pre-generated proof bytes (fallback) */
-  proof?: Uint8Array;
-  /** Base64-encoded public inputs bytes (from browser-side proving) */
-  publicInputsBytes?: Uint8Array;
-  publicInputs: Record<string, string | number | boolean>;
+  /** Base64-encoded UltraHonk proof bytes (generated in browser via bb.js) */
+  proofBytes?: string;
+  /** Base64-encoded public inputs (32-byte field elements, concatenated) */
+  publicInputsBytes?: string;
+  /** Legacy field — unused in the current browser-proving flow */
+  publicInputs?: Record<string, string | number | boolean>;
 }
 
 export interface VerificationAttestation {

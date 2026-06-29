@@ -2,7 +2,7 @@
 name = "benchmark_delta"
 type = "bin"
 authors = ["Dallas Buyers Club"]
-compiler_version = ">=0.36.0"
+compiler_version = ">=1.0.0-beta.9"
 description = "Proves benchmark score improved by at least a threshold percentage without revealing actual scores"
 
 [dependencies]
