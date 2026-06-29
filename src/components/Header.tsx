@@ -1,59 +1,15 @@
-import { meta } from "./constants";
-import { WalletButton } from "./WalletButton";
 import { useWallet } from "../context/WalletContext";
-import { encryptionService } from "../services/EncryptionService";
-import { useSettings } from "../context/SettingsContext";
 import { useTheme } from "../context/ThemeContext";
 import { useState, useEffect } from "preact/hooks";
-import { useContext } from "preact/hooks";
-import { privacyService } from "../services/privacy/PrivacyService";
-import { cacheService } from "../services/CacheService";
 import { NetworkBadge } from "./NetworkBadge";
-import { ToastContext } from "../context/ToastContext";
 import { GlobalJourneyHUD } from "./GlobalJourneyHUD";
+import { ConnectButton } from "./ConnectButton";
 
 export function Header() {
-    const { connected, signMessage, publicKey, isNetworkMismatch, walletCluster, connection, dbcBalance } = useWallet();
-    const { settings, toggleSetting } = useSettings();
-    const toast = useContext(ToastContext);
-    const [isEncrypted, setIsEncrypted] = useState(false);
-    const [isDecrypting, setIsDecrypting] = useState(false);
+    const { connected, publicKey, isNetworkMismatch, walletCluster, connection, dbcBalance } = useWallet();
     const [solBalance, setSolBalance] = useState<number | null>(null);
-    const [privacyScore, setPrivacyScore] = useState(0);
-    const [privacyLevel, setPrivacyLevel] = useState(privacyService.getPrivacyLevel(0));
 
-    useEffect(() => {
-        // Check if we're using a temporary session key or a wallet-derived key
-        const checkSovereignty = () => {
-            setIsEncrypted(encryptionService.isWalletKeyActive());
-
-            // Fetch privacy score from cache or calculate
-            const cachedStats = cacheService.get('privacy_dashboard_stats') as any;
-            if (cachedStats) {
-                setPrivacyScore(cachedStats.overallPrivacyScore);
-                setPrivacyLevel(privacyService.getPrivacyLevel(cachedStats.overallPrivacyScore));
-            } else if (publicKey) {
-                // Fallback: estimate if service is available
-                if (privacyService.isInitialized()) {
-                    const estimated = privacyService.calculatePrivacyScore({
-                        hasEncryption: encryptionService.isWalletKeyActive(),
-                        zkProofCount: 2, // Assume some activity if returning
-                        hasCompression: true,
-                        hasMPC: encryptionService.isWalletKeyActive()
-                    });
-                    setPrivacyScore(estimated);
-                    setPrivacyLevel(privacyService.getPrivacyLevel(estimated));
-                }
-            }
-        };
-        // Initial check
-        checkSovereignty();
-        // Poll for changes
-        const interval = setInterval(checkSovereignty, 2000);
-        return () => clearInterval(interval);
-    }, [publicKey]);
-
-    // Fetch DBC and SOL balances when wallet is connected
+    // Fetch SOL balance when wallet is connected
     useEffect(() => {
         if (!connected || !publicKey || !connection) {
             setSolBalance(null);
@@ -62,7 +18,6 @@ export function Header() {
 
         const fetchBalances = async () => {
             try {
-                // Fetch SOL balance
                 const LAMPORTS_PER_SOL = 1_000_000_000;
                 const solBal = await connection.getBalance(publicKey);
                 setSolBalance(solBal / LAMPORTS_PER_SOL);
@@ -72,30 +27,9 @@ export function Header() {
         };
 
         fetchBalances();
-
-        // Refresh balances every 30 seconds
         const interval = setInterval(fetchBalances, 30000);
         return () => clearInterval(interval);
     }, [connected, publicKey, connection]);
-
-    const handleDecrypt = async () => {
-        if (!connected) return;
-        setIsDecrypting(true);
-        try {
-            const message = new TextEncoder().encode("Authenticate Dallas Buyers Club Identity Node");
-            const signature = await signMessage(message);
-            await encryptionService.initializeWithSignature(signature);
-            setIsEncrypted(true);
-        } catch (error) {
-            console.error("Decryption failed:", error);
-            toast?.push(
-                "error",
-                `Authentication failed: ${error instanceof Error ? error.message : "Unknown error"}`
-            );
-        } finally {
-            setIsDecrypting(false);
-        }
-    };
 
     return (
         <header class="header-separator flex flex-col sm:flex-row pt-2 pb-1 items-start sm:items-center px-2 sm:px-4 overflow-hidden gap-4">
@@ -122,6 +56,8 @@ export function Header() {
                         </div>
                     )}
                 </div>
+
+                {/* Balance bar + theme + connect */}
                 <div class="relative flex items-center border-b-2 border-b-gray-dark dark:border-b-slate-600 flex-wrap gap-1 min-w-0">
                     {connected ? (
                         <>
@@ -133,71 +69,11 @@ export function Header() {
                                 SOL <b>{solBalance !== null ? `◎${solBalance.toLocaleString(undefined, { maximumFractionDigits: 4 })}` : '...'}</b>
                             </span>
                         </>
-                    ) : (
-                        <span class="text-brand text-lg sm:text-xl whitespace-nowrap">
-                            Connect wallet to view balances
-                        </span>
-                    )}
-                    {connected && !isEncrypted && (
-                        <>
-                            <div class="w-[2px] h-5 bg-gray-dark dark:bg-slate-500 mx-1 sm:mx-3"></div>
-                            <button
-                                onClick={handleDecrypt}
-                                disabled={isDecrypting}
-                                class="bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-3 py-1 rounded shadow-md transition-colors animate-pulse"
-                            >
-                                {isDecrypting ? "ENCRYPTING..." : "🔐 ENCRYPT SESSION"}
-                            </button>
-                        </>
-                    )}
-                    {connected && isEncrypted && (
-                        <>
-                            <div class="w-[2px] h-5 bg-gray-dark dark:bg-slate-500 mx-1 sm:mx-3"></div>
-                            <span class="text-green-600 dark:text-green-400 text-sm font-bold flex items-center gap-1">
-                                🔐 SECURE
-                            </span>
-                            <div class="w-[2px] h-5 bg-gray-dark dark:bg-slate-500 mx-1 sm:mx-2"></div>
-                            <a
-                                href="/underground"
-                                class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:scale-105 transition-all group"
-                            >
-                                <span class="text-xs">{privacyLevel.icon}</span>
-                                <span class="text-[10px] font-black uppercase tracking-tighter text-slate-500 group-hover:text-brand">Sovereignty:</span>
-                                <span class={`text-[10px] font-black ${privacyScore > 80 ? 'text-purple-500' :
-                                    privacyScore > 50 ? 'text-green-500' : 'text-blue-500'
-                                    }`}>
-                                    {privacyScore}%
-                                </span>
-                            </a>
-                        </>
-                    )}
+                    ) : null}
 
-                    {/* Popup Toggle */}
-                    <div class="w-[2px] h-5 bg-gray-dark dark:bg-slate-500 mx-1 sm:mx-3"></div>
-                    <button
-                        onClick={() => toggleSetting("popupsEnabled")}
-                        class={`text-sm font-bold px-3 py-1 rounded shadow-md transition-colors border-2 ${settings.popupsEnabled
-                            ? "bg-yellow-500 hover:bg-yellow-600 text-black border-yellow-700 animate-pulse"
-                            : "bg-white dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 text-gray-900 dark:text-white border-gray-400 dark:border-slate-500 shadow-lg"
-                            }`}
-                        title={settings.popupsEnabled ? "Disable fun mode (90s popups, sidebar, FAB, counters)" : "Enable fun mode (90s popups, sidebar, FAB, counters)"}
-                    >
-                        {settings.popupsEnabled ? "🎲 FUN ON" : "🚫 FUN OFF"}
-                    </button>
-
-                    {/* Theme Toggle */}
-                    <div class="w-[2px] h-5 bg-gray-dark dark:bg-slate-500 mx-1 sm:mx-3"></div>
-                    <ThemeToggle />
-                </div>
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
-                    {/* Wallet/User Section */}
-                    <div class="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:ml-auto">
-                        <WalletButton />
-                        <div class="hidden sm:flex flex-col items-end gap-1">
-                            <p class="text-sm sm:text-lg whitespace-nowrap">
-                                Hi, <b>{meta.author}</b>
-                            </p>
-                        </div>
+                    <div class="flex items-center gap-2 sm:gap-3 ml-auto">
+                        <ThemeToggle />
+                        <ConnectButton />
                     </div>
                 </div>
             </div>
@@ -229,7 +105,7 @@ function ThemeToggle() {
     return (
         <button
             onClick={toggleTheme}
-            class="text-sm font-bold px-3 py-1 rounded shadow-md transition-colors border-2 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-900 dark:text-white border-gray-400 dark:border-gray-600"
+            class="text-sm font-bold px-3 py-1.5 rounded-lg transition-colors border-2 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-200 border-gray-300 dark:border-slate-600"
             title={`Current theme: ${theme}. Click to cycle through light/dark/system.`}
         >
             {getThemeIcon()} {getThemeLabel()}

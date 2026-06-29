@@ -21,11 +21,12 @@ export interface NavItem {
 }
 
 export const navigationItems: NavItem[] = [
+    // ── Core nav (desktop sidebar + mobile tab bar) ───────────────
     {
         href: "/",
         label: "HQ",
         icon: "🏠",
-        description: "Central Alliance HUD",
+        description: "Home & ZK proof demo",
         mobilePrimary: true,
         desktop: true,
     },
@@ -35,14 +36,14 @@ export const navigationItems: NavItem[] = [
         icon: "🌐",
         description: "Discover & join alliances",
         highlight: true,
-        mobileMore: true,
+        mobilePrimary: true,
         desktop: true,
     },
     {
         href: "/submit",
-        label: "Verify",
+        label: "Prove",
         icon: "★",
-        description: "Run the ZK proof & submit a log",
+        description: "Run a ZK proof & submit a log",
         highlight: true,
         mobilePrimary: true,
         desktop: true,
@@ -53,16 +54,22 @@ export const navigationItems: NavItem[] = [
         icon: "⚖️",
         description: "Verify proofs & earn rewards",
         highlight: true,
-        mobilePrimary: true,
         desktop: true,
     },
+    {
+        href: "/api-docs",
+        label: "Develop",
+        icon: "📖",
+        description: "Integration guide & API docs",
+        desktop: true,
+    },
+    // ── Secondary nav (mobile "More" overflow) ────────────────────
     {
         href: "/attention-tokens",
         label: "Markets",
         icon: "💎",
         description: "Trade alliance tokens",
         mobileMore: true,
-        desktop: true,
     },
     {
         href: "/membership",
@@ -70,7 +77,6 @@ export const navigationItems: NavItem[] = [
         icon: "🤝",
         description: "Join the Alliance",
         mobileMore: true,
-        desktop: true,
     },
     {
         href: "/agents",
@@ -78,7 +84,6 @@ export const navigationItems: NavItem[] = [
         icon: "🤖",
         description: "Manage your agent fleet",
         mobileMore: true,
-        desktop: true,
     },
     {
         href: "/underground",
@@ -87,7 +92,6 @@ export const navigationItems: NavItem[] = [
         description: "Zero-knowledge & MPC privacy layer",
         secret: true,
         mobileMore: true,
-        desktop: true,
     },
     {
         href: "/achievements",
@@ -95,7 +99,6 @@ export const navigationItems: NavItem[] = [
         icon: "🏆",
         description: "Security clearance & builder rank",
         mobileMore: true,
-        desktop: true,
     },
     {
         href: "/pricing",
@@ -103,22 +106,34 @@ export const navigationItems: NavItem[] = [
         icon: "💳",
         description: "Alliance fee structure",
         mobileMore: true,
-        desktop: true,
     },
     {
-        href: "/api-docs",
-        label: "Developer",
-        icon: "📖",
-        description: "Integration guide",
+        href: "/products",
+        label: "Protocols",
+        icon: "🧩",
+        description: "Agent architecture protocols",
         mobileMore: true,
-        desktop: true,
+    },
+    {
+        href: "/referrals",
+        label: "Referrals",
+        icon: "🔗",
+        description: "Scale the network",
+        mobileMore: true,
+    },
+    {
+        href: "/links",
+        label: "Resources",
+        icon: "📚",
+        description: "Guides & support",
+        mobileMore: true,
     },
     // Mobile "More" overflow trigger — rendered as a button, not a link.
     {
         href: "#more",
         label: "More",
         icon: "☰",
-        description: "Alliances, markets, membership, and more",
+        description: "Markets, membership, agents, and more",
         mobilePrimary: true,
         moreTrigger: true,
     },

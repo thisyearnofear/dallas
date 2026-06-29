@@ -274,10 +274,8 @@ export function StellarVerifyPanel({ compact = false }: { compact?: boolean }) {
         )}
 
         <p class="mt-4 text-[11px] text-slate-400 dark:text-slate-500 leading-relaxed">
-          The Noir <code class="font-mono">benchmark_delta</code> circuit is executed in your browser via WASM —
-          private inputs never leave your device. The witness is sent to the server which generates the
-          UltraHonk proof and submits it to Soroban's
-          <code class="font-mono"> verify_and_attest</code> contract for on-chain verification.
+          Circuit runs in your browser via WASM — private inputs never leave your device.
+          Proof is submitted to Soroban's <code class="font-mono">verify_and_attest</code> contract.
         </p>
       </div>
     </div>

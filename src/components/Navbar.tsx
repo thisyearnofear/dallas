@@ -28,7 +28,7 @@ export function Navbar() {
             </div>
 
             <ul class="space-y-2 px-2">
-                {desktopNavItems.map((item, index) => (
+                {desktopNavItems.map((item) => (
                     <li key={item.href}>
                         <a
                             href={item.href}
@@ -37,7 +37,6 @@ export function Navbar() {
                                 text-brand dark:text-blue-400 hover:bg-brand hover:text-white
                                 group relative overflow-hidden
                                 ${item.highlight ? 'bg-gradient-to-r from-brand/10 to-brand/5 border border-brand/30' : ''}
-                                ${item.secret ? 'bg-gradient-to-r from-red-100/40 dark:from-red-900/20 to-gray-200 dark:to-black border border-red-400 dark:border-red-600/30 hover:bg-red-800' : ''}
                                 ${isCollapsed ? 'justify-center' : ''}
                             `}
                             title={isCollapsed ? `${item.label} - ${item.description}` : ''}
@@ -53,13 +52,6 @@ export function Navbar() {
                                 </div>
                             )}
 
-                            {/* Highlight badge (keep subtle) */}
-                            {item.highlight && !isCollapsed && (
-                                <span class="bg-brand/15 text-brand text-[10px] px-2 py-1 rounded-full font-black border border-brand/30">
-                                    CORE
-                                </span>
-                            )}
-
                             {/* Hover effect */}
                             <div class="absolute inset-0 bg-gradient-to-r from-brand/0 via-brand/5 to-brand/0 translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
                         </a>
@@ -71,7 +63,7 @@ export function Navbar() {
             {!isCollapsed && connected && (
                 <div class="mt-8 px-4">
                     <div class="bg-gradient-to-br from-brand/10 to-brand/5 p-4 rounded-lg border border-brand/20">
-                        <h3 class="font-bold text-brand mb-3 text-sm">🔥 Your Stats</h3>
+                        <h3 class="font-bold text-brand mb-3 text-sm">Your Stats</h3>
                         <div class="space-y-2 text-xs">
                             <div class="flex justify-between">
                                 <span class="text-gray-600 dark:text-gray-400">DBC Balance:</span>
@@ -109,42 +101,6 @@ export function Navbar() {
                             </div>
                         )}
                     </div>
-                </div>
-            )}
-
-            {/* Connect Wallet CTA */}
-            {!isCollapsed && !connected && (
-                <div class="mt-8 px-4">
-                    <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                        <p class="text-xs text-yellow-800 dark:text-yellow-300 mb-2">
-                            Connect your wallet to see your stats
-                        </p>
-                    </div>
-                </div>
-            )}
-
-            {/* Mobile CTA */}
-            {!isCollapsed && (
-                <div class="mt-6 px-4">
-                    <a
-                        href="/membership"
-                        class="block bg-gradient-to-r from-brand to-brand-accent text-white text-center font-bold py-3 px-4 rounded-lg hover:scale-105 transition-transform duration-300"
-                    >
-                        🔐 Join the Alliance
-                    </a>
-                </div>
-            )}
-
-            {/* Support Link */}
-            {!isCollapsed && (
-                <div class="mt-4 px-4 pb-4">
-                    <a
-                        href="/links"
-                        class="block bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 p-3 rounded-lg transition-colors"
-                    >
-                        <div class="text-slate-800 dark:text-slate-300 text-xs font-semibold mb-1">📚 Resources</div>
-                        <div class="text-slate-600 dark:text-slate-400 text-xs">Guides & support</div>
-                    </a>
                 </div>
             )}
         </nav>
