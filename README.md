@@ -85,6 +85,32 @@ The app is deployed at [dallasbuyersclub.vercel.app](https://dallasbuyersclub.ve
 
 ---
 
+## TestSprite S3: Build the Loop — Submission
+
+### What the loop does here
+
+An AI coding agent (Claude Opus 4.7) drove three write-verify-fix iterations on this codebase using the [TestSprite CLI](https://docs.testsprite.com/), catching real bugs on the live URL, committing fixes, and re-running the same tests to prove each fix. Every catch and fix is committed with the specific TestSprite run ID that verified it, so `git log` traces the loop end-to-end.
+
+### The loop is load-bearing (bugs caught, not manufactured)
+
+Full trace in [LOOP.md](LOOP.md). Highlights:
+
+- **Iteration 1** — Stellar happy path smoke pass. Caught a **modal that traps first-visit users** on `/submit` (blocked run → fix `a724649` → re-run passed 11/11).
+- **Iteration 2** — Form interaction + honesty checks. TestSprite runs all green. Code review caught **`ValidatorReputationSystem` fabricating a leaderboard and injecting the current user at rank 3** (fix `07bb5e6`); also caught **three API endpoints seeding fake KV records on cold start** (fix `ab63b01`, 140 lines deleted).
+- **Iteration 3** — Periphery pages sweep. **3 of 5 TestSprite runs caught real bugs**: `/referrals` fabricated "420+ Nodes Referred" metrics, `/achievements` shows fake unlocked badges to unconnected users, `/products` misleading URL/catalog. All three fixed in `b1820f0`, all three re-verified green.
+
+Total: **8 real bugs caught, 8 fixes committed, all 4 TestSprite-caught bugs re-verified green live**. Credit efficiency: **46 / 150** credits.
+
+### CI/CD Integration (+5 innovation)
+
+TestSprite runs on every PR against the live URL. Upgraded the existing CI to Node 20 + npm to match TestSprite's runtime. See [`.github/workflows/ci.yml`](.github/workflows/ci.yml). The job gracefully skips when `TESTSPRITE_API_KEY` / `TESTSPRITE_PROJECT_ID` aren't configured, so it won't red-flag PRs before those secrets land.
+
+### Test plan suite
+
+Nine JSON plans in [`testsprite-plans/`](testsprite-plans/), each asserting **concrete observable outcomes** (no narrative "verify it works" assertions — the TestSprite onboarding skill's discipline). Every plan tied to a specific user flow or honesty check.
+
+---
+
 ## What's Real vs. What's Demo Data
 
 Being honest about the state of the project (per hackathon guidelines):
@@ -99,8 +125,10 @@ Being honest about the state of the project (per hackathon guidelines):
 | SDK wrapper (`src/sdk/index.ts`) | **Real** — wraps the prove + anchor flow, works locally (not yet on npm) |
 | Alliance cards (home page) | **Demo data** — member/proof counts are illustrative, labeled with "DEMO DATA" badge |
 | Alliance ticker (bottom bar) | **Simulated** — labeled "Demo Ticker", not real activity |
-| Solana programs (optimization_log, etc.) | **Deployed but sparse** — program ID fixed, but devnet has limited data |
+| Solana programs (optimization_log, etc.) | **Deployed but sparse** — program ID fixed, but devnet has limited data. Coordination-layer-v0.1; full staking/reward loop deferred (see [LOOP.md](LOOP.md) for scope note) |
 | Attention token market | **Empty on devnet** — bonding curves launch on Solana mainnet |
+| Referrals / achievements / products pages | **Preview data — labeled** as of `b1820f0`. Illustrative numbers surfaced by iteration 3 of the TestSprite loop, now clearly badged as preview |
+| Validator reputation / API mock records | **Removed** as of `07bb5e6` and `ab63b01`. Fabricated leaderboard, fake `pending_001` / `task_001` KV records deleted; components use honest empty states |
 
 ---
 
