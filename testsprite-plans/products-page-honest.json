@@ -1,0 +1,27 @@
+{
+  "projectId": "7a38ce60-6b04-4ca8-88f2-8e048b395e6a",
+  "type": "frontend",
+  "name": "Products — page renders and shows either honest empty state or clearly-labeled catalog",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/products"
+    },
+    {
+      "type": "action",
+      "description": "Wait up to 12 seconds for the page to render"
+    },
+    {
+      "type": "assertion",
+      "description": "The page renders without an error boundary, blank screen, 404, or raw stack traces visible to the user"
+    },
+    {
+      "type": "assertion",
+      "description": "Product cards (if any are displayed) show meaningful content — a name, description, and price or 'coming soon' status. There must NOT be any product cards showing 'undefined', 'null', 'NaN', or empty title/price fields"
+    },
+    {
+      "type": "assertion",
+      "description": "If products are placeholder/demo content, this is disclosed visibly (e.g. a 'demo catalog' or 'coming soon' badge on the page or on individual cards). If products are real, all fields (name, price, description) are populated"
+    }
+  ]
+}

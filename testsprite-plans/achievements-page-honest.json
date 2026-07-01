@@ -1,0 +1,27 @@
+{
+  "projectId": "7a38ce60-6b04-4ca8-88f2-8e048b395e6a",
+  "type": "frontend",
+  "name": "Achievements — badge system renders honestly (no fake unlocked achievements)",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/achievements"
+    },
+    {
+      "type": "action",
+      "description": "Wait up to 12 seconds for the page to render, including any achievement icons or animations"
+    },
+    {
+      "type": "assertion",
+      "description": "The page renders without an error boundary, blank screen, 404, or raw stack traces"
+    },
+    {
+      "type": "assertion",
+      "description": "If the user has no wallet connected, no achievements are shown as 'unlocked' or 'earned' — the page either shows a connect-wallet prompt or shows all achievements as 'locked' with clear unlock criteria"
+    },
+    {
+      "type": "assertion",
+      "description": "Any achievement counts, progress bars, or 'earned by' numbers show either honest values (0 for unconnected users) or are labeled clearly as demo/example data. The page must NOT show fabricated user achievement progress"
+    }
+  ]
+}

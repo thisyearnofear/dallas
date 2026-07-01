@@ -1,0 +1,27 @@
+{
+  "projectId": "7a38ce60-6b04-4ca8-88f2-8e048b395e6a",
+  "type": "frontend",
+  "name": "Referrals — page renders honestly (no crash, no fabricated referral data)",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/referrals"
+    },
+    {
+      "type": "action",
+      "description": "Wait up to 12 seconds for the page to render"
+    },
+    {
+      "type": "assertion",
+      "description": "The page renders without an error boundary, without a blank white screen, without a 404 message, and without visible raw JavaScript stack traces"
+    },
+    {
+      "type": "assertion",
+      "description": "If the user has no wallet connected, the page shows a clear connect-wallet prompt or an honest empty state — it must NOT show fabricated referral counts, invented earning amounts, or fake referred-user lists"
+    },
+    {
+      "type": "assertion",
+      "description": "Any 'Rewards' or 'Earnings' displays show either $0/0 DBC/N/A (honest empty state) or come with a clearly visible 'demo data' / 'example' label"
+    }
+  ]
+}

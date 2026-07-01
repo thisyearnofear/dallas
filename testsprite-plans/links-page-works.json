@@ -1,0 +1,27 @@
+{
+  "projectId": "7a38ce60-6b04-4ca8-88f2-8e048b395e6a",
+  "type": "frontend",
+  "name": "Links — utility links page renders and links have valid targets",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/links"
+    },
+    {
+      "type": "action",
+      "description": "Wait up to 10 seconds for the page to render"
+    },
+    {
+      "type": "assertion",
+      "description": "The page renders without an error boundary, blank screen, 404, or stack traces"
+    },
+    {
+      "type": "assertion",
+      "description": "Any anchor (<a>) elements or link-style buttons on the page have visible link text (not 'undefined', 'null', or empty) and have non-empty href values. Links must NOT point to 'javascript:void(0)' as a placeholder or to '#' with no handler behind them"
+    },
+    {
+      "type": "assertion",
+      "description": "The page has a clear title or header explaining what these links are (e.g., 'Resources', 'External Links', 'Community') — the user should understand what they're looking at without guessing"
+    }
+  ]
+}

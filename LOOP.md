@@ -99,3 +99,45 @@ This bug is invisible to TestSprite (needs a connected wallet to trigger), but i
 
 ---
 
+## Iteration 3 — 2026-07-01 — periphery pages sweep (best catch iteration)
+
+**Maker:** Claude Opus 4.7.
+**Focus:** The 5 stubbed periphery pages TestSprite hadn't touched yet. Hypothesis: pages that were flagged as "stubbed" in iteration 0 would surface real UX bugs under a fresh-visitor crawl. Confirmed loudly.
+
+**Tests added (5, 10 credits):**
+- `referrals-page-honest` (`21df0e21`) — assert page renders without fabricated referral metrics for unconnected users.
+- `achievements-page-honest` (`1a91304a`) — assert no achievements are shown as "unlocked" or "earned" without wallet.
+- `products-page-honest` (`63520ab0`) — assert product cards show name/description + price OR "coming soon" status.
+- `underground-page-honest` (`9fb4c0c9`) — assert themed page has clear purpose statement.
+- `links-page-works` (`a5862c9f`) — assert utility links have valid targets, not placeholder `#` or `javascript:void(0)`.
+
+**What broke — 3 real catches:**
+
+1. **`/referrals` — fabricated "Network Effects" metrics** (run `a15fb6c0-4422-47d3-ab9c-4b3ac73961f7`, FAILED).
+   Observations: page displayed "420+ Nodes Referred" and "1,200+ Access Facilitated" as if they were live summary counts, with no demo label. TestSprite output: *"Summary metrics like '420+ Nodes Referred' and '1,200+ Access Facilitated' are visible on the page without an explicit 'demo' or 'example' label attached."*
+   Root cause: `src/pages/referrals.tsx` hardcoded illustrative numbers inside a "Network Effects" grid without any label distinguishing them from real data.
+
+2. **`/achievements` — fabricated user progress** (run `d72b0ae7-6041-435d-b1bb-1bc7e69b1c2e`, FAILED 5/8 steps).
+   Observations: "Welcome Fighter" achievement showed `✓ Today` (unlocked) for unconnected users. "30 Day Survivor" showed progress `18/30`. "Community (420)" tab counter shown as live number.
+   Root cause: `src/components/AchievementSystem.tsx` was riddled with hardcoded fake data — `unlocked: true` on Welcome Fighter, `progress: 18` on 30 Day Survivor, `progress: 4` on Hope Advocate, hardcoded "Agent #420" in leaderboard, injected "You (Agent #4201)" at rank 4, `userStats` object with fake XP/level/orders. Full rewrite would be a day; illustrative-banner fix is what shipped.
+
+3. **`/products` — misleading URL + card content** (run `9e950f26-318a-426b-9d07-2e15e40b3353`, FAILED 2/5 steps).
+   Observations: URL implies e-commerce products but page shows a hardcoded catalog of "Agent Architecture Protocols" (Tool Call Recovery Alliance, Regression Eval Foundry, etc.) with fabricated `memberCount` and `optimizationLogCount` values. Tagline claimed *"Real benchmarks, real data, real agents."*
+   Root cause: legacy URL kept from an earlier product-catalog design; `agentProtocols` array in `src/components/products.ts` has hardcoded member counts (1247, 892, 2156, 634) and log counts.
+
+**What passed — 2 real greens:**
+- `/underground` — themed page has clear purpose statement, passed 6/6.
+- `/links` — utility links have valid targets, passed 13/13.
+
+**What got fixed (commits `b1820f0`):**
+- `/referrals` — Added "Illustrative — Not Live Metrics" badge and explainer paragraph above the Network Effects grid. Preserves the visual weight; makes the state honest.
+- `/achievements` — Added "Preview — Illustrative Progress" page-header badge with paragraph explaining wallet-connect + mainnet unlocks real state. AchievementSystem internals kept as illustrative preview.
+- `/products` — Added "Preview Catalog — Member Counts Illustrative" header badge, rewrote misleading tagline to be honest, added per-card `preview` (next to member count) and `coming soon` (next to token symbol) captions in `ProtocolCard.tsx`. Every card now advertises its status.
+
+**Also caught by code review during iteration 3 (commit `ab63b01`):**
+Three API endpoints (`api/validations.ts`, `api/tasks.ts`, `api/agents.ts`) were seeding Vercel KV with hardcoded fake records (`pending_001`, `user_abc123`, `task_001` … `task_004`) on every serverless cold start, polluting the KV with fakes visible to any downstream component. Removed all three init calls and their fake-data function bodies (140 lines deleted).
+
+**Loop signal:** This is the strongest iteration yet — 3 out of 5 TestSprite runs caught real, live-URL bugs, and code-review-during-planning found 3 more via API-endpoint audit. Every catch has a matching fix. Re-runs pending after deploy. Total credit spend: 30/150.
+
+---
+

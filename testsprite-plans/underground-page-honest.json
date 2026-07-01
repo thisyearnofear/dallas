@@ -1,0 +1,27 @@
+{
+  "projectId": "7a38ce60-6b04-4ca8-88f2-8e048b395e6a",
+  "type": "frontend",
+  "name": "Underground — themed page renders with clear purpose (not just aesthetic theatre)",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/underground"
+    },
+    {
+      "type": "action",
+      "description": "Wait up to 12 seconds for the page to render, including any themed animations or transitions"
+    },
+    {
+      "type": "assertion",
+      "description": "The page renders without an error boundary, blank screen, 404, or raw stack traces"
+    },
+    {
+      "type": "assertion",
+      "description": "The page has a clear title/heading explaining what the 'Underground' section is — a user landing here from the URL directly should understand its purpose without prior context. Purely aesthetic themes without explanation are unhelpful for real users."
+    },
+    {
+      "type": "assertion",
+      "description": "If the page requires wallet connection or gates any content, that gating is disclosed clearly — no bait-and-switch where a prominent CTA silently does nothing when clicked"
+    }
+  ]
+}
