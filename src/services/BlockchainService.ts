@@ -18,7 +18,6 @@ import {
   Connection,
   Transaction,
   SystemProgram,
-  SYSVAR_RENT_PUBKEY,
   TransactionInstruction,
   ComputeBudgetProgram,
 } from '@solana/web3.js';
@@ -216,12 +215,15 @@ export class BlockchainService {
     (instructionData as any).writeUInt16LE(compressionRatio, offset);
     offset += 2;
 
+    // Anchor 0.29 SubmitOptimizationLog context declares exactly three accounts:
+    // optimization_log (PDA, init), submitter (signer, mut, payer), system_program.
+    // A previous version passed SYSVAR_RENT_PUBKEY as a 4th account — Anchor rejects
+    // extra accounts, which broke the whole Solana→Stellar dual-chain flow.
     return new TransactionInstruction({
       keys: [
         { pubkey: optimizationLogPda, isSigner: false, isWritable: true },
         { pubkey: payer, isSigner: true, isWritable: true },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
-        { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
       ],
       programId: this.optimizationLogProgramId,
       data: (instructionData as any).slice(0, offset),
