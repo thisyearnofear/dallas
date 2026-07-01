@@ -17,24 +17,71 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-          cache: pnpm
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-          run_install: false
+          node-version: 20
+          cache: npm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
 
       - name: TypeScript type-check
         run: npx tsc --noEmit
 
       - name: Run unit tests
-        run: pnpm test
+        run: npm test
 
       - name: Production build
-        run: pnpm build
+        run: npm run build
+
+  testsprite:
+    # Runs TestSprite against the live deployment on every PR.
+    # +5 innovation bonus for the TestSprite S3 hackathon.
+    # Requires TESTSPRITE_API_KEY secret and TESTSPRITE_PROJECT_ID env (set once project is registered).
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: test-and-build
+
+    env:
+      TESTSPRITE_API_KEY: ${{ secrets.TESTSPRITE_API_KEY }}
+      PROJECT_ID: ${{ vars.TESTSPRITE_PROJECT_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install TestSprite CLI
+        run: npm install -g @testsprite/testsprite-cli
+
+      - name: Skip if not configured
+        if: env.TESTSPRITE_API_KEY == '' || env.PROJECT_ID == ''
+        run: |
+          echo "TESTSPRITE_API_KEY or TESTSPRITE_PROJECT_ID not set — skipping."
+          echo "To enable: add TESTSPRITE_API_KEY secret and TESTSPRITE_PROJECT_ID variable."
+          exit 0
+
+      - name: Run tests
+        if: env.TESTSPRITE_API_KEY != '' && env.PROJECT_ID != ''
+        run: |
+          testsprite test run --all --project "$PROJECT_ID" \
+            --wait --output json > result.json
+
+      - name: Download failure artifacts
+        if: failure()
+        run: |
+          testsprite test failure get \
+            "$(jq -r '.run.testId' result.json)" \
+            --out ./.testsprite/failure || true
+
+      - name: Upload failure bundle
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testsprite-failure
+          path: ./.testsprite/failure
+          if-no-files-found: ignore
 
