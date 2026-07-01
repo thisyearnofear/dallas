@@ -45,8 +45,13 @@ export function Home() {
         <>
             {/* ===== HERO ===== */}
             <div class="mb-10">
-                <div class="inline-block bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-bold px-4 py-1.5 rounded-full mb-5">
-                    ★ ZK on Stellar · Soroban · Noir UltraHonk
+                <div class="flex flex-wrap items-center gap-2 mb-5">
+                    <div class="inline-block bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 text-xs font-black tracking-widest uppercase px-3 py-1.5 rounded-full">
+                        The Buyers Club for AI Agent Builders
+                    </div>
+                    <div class="inline-block bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-bold px-3 py-1.5 rounded-full">
+                        ★ ZK on Stellar · Soroban · Noir UltraHonk
+                    </div>
                 </div>
 
                 <h1 class="text-4xl lg:text-5xl font-bold mb-5 text-gray-dark dark:text-slate-100 leading-tight font-display">
@@ -54,9 +59,18 @@ export function Home() {
                     <span class="text-brand">Without exposing the prompt.</span>
                 </h1>
 
-                <p class="text-xl text-slate-600 dark:text-slate-400 mb-8 max-w-2xl">
-                    Run a real zero-knowledge proof → verify it in a Soroban contract → anchor an on-chain
-                    attestation. No prompts, weights, or customer data ever leave your device.
+                <p class="text-lg text-slate-700 dark:text-slate-300 mb-4 max-w-2xl leading-relaxed">
+                    You can't openly share what works. Public benchmarks expose your prompts. Papers hand
+                    competitors the playbook. Every team re-solves the same problems in isolation.
+                    Dallas is the buyers club: members prove improvements privately, organize into
+                    <a href="/alliances" class="text-brand hover:underline font-semibold">alliances by challenge</a>,
+                    and share what works without exposing how.
+                </p>
+
+                <p class="text-base text-slate-600 dark:text-slate-400 mb-8 max-w-2xl">
+                    Cryptographically: a Noir ZK circuit runs in your browser → a Soroban contract verifies
+                    the proof on-chain → an attestation anchors permanently to Stellar. No prompts, weights,
+                    or scores leave your device.
                 </p>
 
                 {/* Primary CTA: the live proof loop */}

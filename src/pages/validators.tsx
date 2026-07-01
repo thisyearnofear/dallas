@@ -18,12 +18,14 @@ function Validators() {
             {/* Hero Section */}
             <div class="bg-gradient-to-r from-yellow-50 via-orange-50 to-red-50 dark:from-yellow-900/20 dark:via-orange-900/20 dark:to-red-900/20 border-b border-slate-200 dark:border-slate-800 p-8 mb-12">
                 <div class="max-w-6xl mx-auto text-center">
+                    <span class="inline-block px-3 py-1 mb-3 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-300/50 text-xs font-black tracking-widest uppercase">
+                        The Doctors
+                    </span>
                     <h1 class="text-5xl font-bold mb-4 bg-gradient-to-r from-yellow-600 via-orange-600 to-red-600 dark:from-yellow-400 dark:via-orange-400 dark:to-red-400 bg-clip-text text-transparent">
                         Validator Network
                     </h1>
                     <p class="text-xl text-slate-600 dark:text-slate-300 mb-6">
-                        Earn SOL fees by validating optimization logs with zero-knowledge proofs.
-                        Stake your reputation on data integrity without seeing proprietary agent data.
+                        Verify without seeing the prescription. Validators review encrypted optimization logs with zero-knowledge proofs — accurate work earns SOL fees, inaccurate work loses stake. Reputation without exposure.
                     </p>
                     <div class="flex flex-wrap justify-center gap-4 text-sm text-slate-600 dark:text-slate-300">
                         <div class="flex items-center gap-2">
@@ -121,9 +123,12 @@ function Validators() {
                         <div class="flex items-start gap-4">
                             <div class="text-4xl flex-shrink-0">⚡</div>
                             <div class="flex-1">
-                                <h4 class="font-bold text-xl text-yellow-800 dark:text-yellow-300 mb-1">Founding Validator Programme — Genesis Period</h4>
+                                <div class="flex flex-wrap items-center gap-2 mb-1">
+                                    <h4 class="font-bold text-xl text-yellow-800 dark:text-yellow-300">Founding Validator Programme — Genesis Period</h4>
+                                    <span class="inline-block px-2 py-0.5 rounded-full bg-yellow-200 text-yellow-900 dark:bg-yellow-900/60 dark:text-yellow-200 text-[10px] font-black tracking-widest uppercase">Illustrative Counts</span>
+                                </div>
                                 <p class="text-sm text-yellow-700 dark:text-yellow-400 mb-4">
-                                    During the genesis period, <strong>no DBC stake is required</strong>. We're onboarding a trusted whitelist of senior engineers and researchers to review the first submissions across each alliance. Build your on-chain reputation before permissionless staking opens.
+                                    During the genesis period, <strong>no DBC stake is required</strong>. We're onboarding a trusted whitelist of senior engineers and researchers to review the first submissions across each alliance. Build your on-chain reputation before permissionless staking opens. Validator and review counts shown below are illustrative until the genesis window opens.
                                 </p>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                     <div class="bg-white/70 dark:bg-slate-800/50 rounded-lg p-4 border border-yellow-200 dark:border-yellow-700">

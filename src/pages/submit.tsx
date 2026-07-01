@@ -21,15 +21,19 @@ export default function Submit() {
             {/* Hero */}
             <div class="bg-gradient-to-r from-purple-100/50 to-indigo-100/50 dark:from-purple-900/20 dark:to-indigo-900/20 border-b border-purple-300 dark:border-purple-700 p-8 mb-10 rounded-xl">
                 <div class="max-w-3xl mx-auto text-center">
-                    <div class="inline-block bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-sm font-bold px-4 py-1.5 rounded-full mb-4">
-                        ★ ZK on Stellar · IP Protected · Soroban testnet
+                    <div class="flex flex-wrap justify-center items-center gap-2 mb-4">
+                        <span class="inline-block px-3 py-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-300/50 text-xs font-black tracking-widest uppercase">
+                            The Counter
+                        </span>
+                        <div class="inline-block bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-bold px-3 py-1.5 rounded-full">
+                            ★ ZK on Stellar · IP Protected · Soroban testnet
+                        </div>
                     </div>
                     <h1 class="text-4xl lg:text-5xl font-bold mb-4 text-slate-900 dark:text-white">
                         Submit Optimization Log
                     </h1>
                     <p class="text-xl text-gray-700 dark:text-gray-300 mb-6">
-                        Prove your agent improved without exposing prompts, weights, or customer data.
-                        Each submission anchors a ZK attestation on Stellar.
+                        Bring your improvement to the counter. Prove your agent got better without exposing prompts, weights, or customer data — each submission anchors a permanent ZK attestation on Stellar.
                     </p>
                     <div class="flex flex-wrap justify-center gap-4 text-sm text-gray-700 dark:text-gray-300">
                         <div class="flex items-center gap-2"><span>★</span><span>Soroban attestation</span></div>

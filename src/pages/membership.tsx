@@ -4,9 +4,12 @@ export function Membership() {
     return (
         <div class="min-h-screen transition-colors duration-300">
             <div class="text-center mb-12">
+                <span class="inline-block px-3 py-1 mb-3 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border border-amber-300/50 text-xs font-black tracking-widest uppercase">
+                    Your Card
+                </span>
                 <h1 class="text-4xl lg:text-5xl font-bold mb-4 text-slate-900 dark:text-white">Join the Alliance</h1>
                 <p class="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto font-medium">
-                    Become part of something bigger. Build better agents together through privacy-preserving collective intelligence.
+                    Your card gets you in the door. Membership grants access to ZK-validated techniques, encrypted logs from other builders tackling the same bottleneck, and the private channels that never surface in public benchmarks.
                 </p>
             </div>
 
