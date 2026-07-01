@@ -49,12 +49,14 @@ export function Products() {
         <div class="min-h-screen transition-colors duration-300">
             {/* Header Section */}
             <div class="text-center mb-12">
+                <span class="inline-block px-3 py-1 mb-4 rounded-full bg-amber-100 text-amber-800 border border-amber-300 text-xs font-black tracking-widest uppercase">
+                    Preview Catalog — Member Counts Illustrative
+                </span>
                 <h1 class="text-4xl lg:text-5xl font-bold mb-6 text-slate-900 dark:text-white">
                     Agent Architecture Protocols
                 </h1>
                 <p class="text-xl mb-8 max-w-3xl mx-auto text-slate-600 dark:text-slate-300">
-                    Discover community-tracked agent architecture protocols.
-                    Real benchmarks, real data, real agents.
+                    A preview of the alliance catalog Dallas is built around. Each protocol represents a shared challenge — long-context reliability, tool-call recovery, regression evals, multi-agent orchestration. Real member and optimization-log counts appear here as alliance tokens ship on Solana mainnet.
                 </p>
 
                 {/* Search Bar */}

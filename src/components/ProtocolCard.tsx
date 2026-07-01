@@ -62,6 +62,7 @@ export function ProtocolCard({ protocol, featured = false }: ProtocolCardProps) 
                 <div class="flex items-center gap-1 text-slate-600 dark:text-slate-400">
                     <span>👥</span>
                     <span class="font-bold">{protocol.memberCount.toLocaleString()}</span>
+                    <span class="text-[10px] uppercase tracking-widest text-slate-400">preview</span>
                 </div>
                 <div class="flex items-center gap-1 text-slate-600 dark:text-slate-400">
                     <span>📋</span>
@@ -71,6 +72,7 @@ export function ProtocolCard({ protocol, featured = false }: ProtocolCardProps) 
                     <div class="flex items-center gap-1 text-brand">
                         <span>🪙</span>
                         <span class="font-bold text-xs">${protocol.tokenSymbol}</span>
+                        <span class="text-[10px] uppercase tracking-widest text-brand/60">coming soon</span>
                     </div>
                 )}
             </div>

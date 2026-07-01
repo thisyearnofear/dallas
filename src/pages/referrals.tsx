@@ -20,9 +20,17 @@ export function Referrals() {
                 <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
                 <div class="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full -ml-32 -mb-32 blur-3xl"></div>
 
-                <h2 class="text-4xl font-bold mb-10 text-center relative z-10">
-                    Network Effects
-                </h2>
+                <div class="text-center mb-10 relative z-10">
+                    <span class="inline-block px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-xs font-black tracking-widest uppercase mb-4">
+                        Illustrative — Not Live Metrics
+                    </span>
+                    <h2 class="text-4xl font-bold">
+                        Network Effects
+                    </h2>
+                    <p class="text-sm opacity-80 mt-2 max-w-xl mx-auto">
+                        These numbers illustrate what a mature alliance network could look like. Real referral metrics will appear here once alliance token launches ship on Solana mainnet.
+                    </p>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 relative z-10">
                     <div class="text-center p-6 bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20">
                         <div class="text-5xl mb-4">👥</div>
