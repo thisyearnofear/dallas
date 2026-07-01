@@ -1,0 +1,23 @@
+{
+  "projectId": "7a38ce60-6b04-4ca8-88f2-8e048b395e6a",
+  "type": "frontend",
+  "name": "Home — attestation feed loads with content",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Navigate to the home page at https://dallasbuyersclub.vercel.app/"
+    },
+    {
+      "type": "action",
+      "description": "Wait up to 15 seconds for the page to finish loading (React hydration + attestation feed fetch from /api/stellar-attestations)"
+    },
+    {
+      "type": "assertion",
+      "description": "The page shows the hero title containing 'Dallas Buyers Club' or 'Agent Alliance'"
+    },
+    {
+      "type": "assertion",
+      "description": "The attestation feed section is visible and contains at least one attestation card — either live Soroban attestations or the hardcoded fallback entries (tx hashes starting with 7f1138e7 or 30ba9832). The feed must NOT be empty and must NOT show a raw error message."
+    }
+  ]
+}

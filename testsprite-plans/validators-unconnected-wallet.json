@@ -1,0 +1,23 @@
+{
+  "projectId": "7a38ce60-6b04-4ca8-88f2-8e048b395e6a",
+  "type": "frontend",
+  "name": "Validators — unconnected wallet shows connect prompt (not crash)",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/validators with no wallet connected"
+    },
+    {
+      "type": "action",
+      "description": "Wait for the page to fully render (up to 8 seconds)"
+    },
+    {
+      "type": "assertion",
+      "description": "The page shows either a 'Connect wallet' prompt OR the validator dashboard header with a clear indication that wallet is required — the page must NOT crash, show a blank screen, or display raw JavaScript error text"
+    },
+    {
+      "type": "assertion",
+      "description": "The page does NOT show any silent mock data pretending the user is a validator when they have not connected a wallet — no fake validator statistics or fabricated reputation numbers"
+    }
+  ]
+}

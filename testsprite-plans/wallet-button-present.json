@@ -1,0 +1,31 @@
+{
+  "projectId": "7a38ce60-6b04-4ca8-88f2-8e048b395e6a",
+  "type": "frontend",
+  "name": "Navigation — wallet connect button is present on every main page",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/"
+    },
+    {
+      "type": "assertion",
+      "description": "A wallet connect button or wallet-status indicator (with text like 'Connect Wallet', 'Connect', or showing an address) is visible in the site header or navigation on the home page"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/submit"
+    },
+    {
+      "type": "assertion",
+      "description": "The same wallet connect button or status indicator is visible in the header on the submit page"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/validators"
+    },
+    {
+      "type": "assertion",
+      "description": "The wallet connect button or status indicator is visible in the header on the validators page"
+    }
+  ]
+}

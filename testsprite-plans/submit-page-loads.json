@@ -1,0 +1,35 @@
+{
+  "projectId": "7a38ce60-6b04-4ca8-88f2-8e048b395e6a",
+  "type": "frontend",
+  "name": "Submit — ZK proof form renders with all controls",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/submit"
+    },
+    {
+      "type": "action",
+      "description": "Wait for the page to fully render (up to 10 seconds)"
+    },
+    {
+      "type": "assertion",
+      "description": "The Stellar verify panel (StellarVerifyPanel component) is visible on the page — identifiable by the label 'Generate Proof' or 'Prove Improvement' button"
+    },
+    {
+      "type": "assertion",
+      "description": "A metric selector or dropdown is visible (for selecting the benchmark type such as latency, pass@1, or tool-call accuracy)"
+    },
+    {
+      "type": "assertion",
+      "description": "Two numeric input fields for baseline and outcome scores are visible on the page"
+    },
+    {
+      "type": "assertion",
+      "description": "A threshold input or slider (for minimum improvement percentage) is visible"
+    },
+    {
+      "type": "assertion",
+      "description": "A 'Generate Proof' button (or equivalent primary CTA) is visible and enabled by default"
+    }
+  ]
+}

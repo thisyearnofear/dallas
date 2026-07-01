@@ -1,0 +1,55 @@
+{
+  "projectId": "7a38ce60-6b04-4ca8-88f2-8e048b395e6a",
+  "type": "frontend",
+  "name": "Navigation — main pages all render (no 404, no crash)",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/ and confirm the page loads"
+    },
+    {
+      "type": "assertion",
+      "description": "The home page renders without an error boundary, without a 404 message, and without a blank white screen"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/submit"
+    },
+    {
+      "type": "assertion",
+      "description": "The submit page renders without an error boundary, 404, or blank screen"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/alliances"
+    },
+    {
+      "type": "assertion",
+      "description": "The alliances page renders without an error boundary, 404, or blank screen"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/validators"
+    },
+    {
+      "type": "assertion",
+      "description": "The validators page renders without an error boundary, 404, or blank screen"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/api-docs"
+    },
+    {
+      "type": "assertion",
+      "description": "The api-docs page renders without an error boundary, 404, or blank screen"
+    },
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/pricing"
+    },
+    {
+      "type": "assertion",
+      "description": "The pricing page renders without an error boundary, 404, or blank screen"
+    }
+  ]
+}
