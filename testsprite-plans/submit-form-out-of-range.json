@@ -1,0 +1,39 @@
+{
+  "projectId": "7a38ce60-6b04-4ca8-88f2-8e048b395e6a",
+  "type": "frontend",
+  "name": "Submit — out-of-range input (score > 10) is rejected before proof gen",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/submit"
+    },
+    {
+      "type": "action",
+      "description": "Dismiss the onboarding modal if present"
+    },
+    {
+      "type": "action",
+      "description": "Select any metric"
+    },
+    {
+      "type": "action",
+      "description": "Enter 15 in the baseline severity input (outside the valid 1-10 range that the Noir circuit enforces)"
+    },
+    {
+      "type": "action",
+      "description": "Enter 3 in the outcome severity input"
+    },
+    {
+      "type": "action",
+      "description": "Set threshold to 20"
+    },
+    {
+      "type": "action",
+      "description": "Attempt to click the 'Generate Proof' button"
+    },
+    {
+      "type": "assertion",
+      "description": "The app rejects the out-of-range input BEFORE attempting proof generation. It should either (a) clamp the input to the valid range with a visible indication, (b) show an inline validation error like 'Value must be between 1 and 10', or (c) disable the Generate Proof button. It must NOT let the user submit an invalid input and then fail cryptically at the circuit-execution step, since Noir will produce an unhelpful low-level error for out-of-range inputs."
+    }
+  ]
+}

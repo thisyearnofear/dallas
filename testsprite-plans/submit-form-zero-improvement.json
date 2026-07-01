@@ -1,0 +1,39 @@
+{
+  "projectId": "7a38ce60-6b04-4ca8-88f2-8e048b395e6a",
+  "type": "frontend",
+  "name": "Submit — zero improvement (baseline = outcome) is handled gracefully",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/submit"
+    },
+    {
+      "type": "action",
+      "description": "Dismiss the onboarding modal if present (Escape key or × button)"
+    },
+    {
+      "type": "action",
+      "description": "Select any metric from the metric selector"
+    },
+    {
+      "type": "action",
+      "description": "Enter 5 in the baseline severity/score input"
+    },
+    {
+      "type": "action",
+      "description": "Enter 5 in the outcome severity/score input (same value — no improvement)"
+    },
+    {
+      "type": "action",
+      "description": "Set the minimum improvement threshold to 20"
+    },
+    {
+      "type": "action",
+      "description": "Click the 'Generate Proof' button"
+    },
+    {
+      "type": "assertion",
+      "description": "The app must handle the no-improvement case gracefully — either (a) the Generate Proof button is disabled with a visible reason like 'No improvement — outcome must be better than baseline', or (b) the app attempts proof generation and returns a clear failure message like 'Improvement below threshold' or 'passed=false'. The app must NOT crash, hang silently, or show a stack trace."
+    }
+  ]
+}

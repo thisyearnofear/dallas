@@ -1,0 +1,47 @@
+{
+  "projectId": "7a38ce60-6b04-4ca8-88f2-8e048b395e6a",
+  "type": "frontend",
+  "name": "Submit — user can fill form and reach proof-generation step",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/submit"
+    },
+    {
+      "type": "action",
+      "description": "If the onboarding modal appears, dismiss it by pressing Escape or clicking the × button in the top-right corner of the modal"
+    },
+    {
+      "type": "action",
+      "description": "Select a metric from the metric selector — pick 'Latency' or the first available option"
+    },
+    {
+      "type": "action",
+      "description": "Enter the value 7 in the baseline severity/score input"
+    },
+    {
+      "type": "action",
+      "description": "Enter the value 3 in the outcome severity/score input"
+    },
+    {
+      "type": "action",
+      "description": "Set the minimum improvement threshold to 20 (either by typing 20 or dragging the slider)"
+    },
+    {
+      "type": "action",
+      "description": "Click the 'Generate Proof' button (or the primary CTA on the form)"
+    },
+    {
+      "type": "assertion",
+      "description": "After clicking Generate Proof, the page shows a progress indicator, status message, or state change indicating proof generation has started — such as 'Generating proof...', 'Executing circuit...', a loading spinner, or a disabled button state. The page must NOT crash, show a blank screen, or throw a visible JavaScript error."
+    },
+    {
+      "type": "action",
+      "description": "Wait up to 60 seconds for proof-generation activity to progress (browser WASM proof generation is CPU-heavy and can take 30-60 seconds)"
+    },
+    {
+      "type": "assertion",
+      "description": "After waiting, the page shows either: (a) a successful proof result with a status indicator, or (b) a clear error message explaining what went wrong (e.g. wallet not connected, network error). It must NOT be stuck in a silent loading state with no user feedback, and must NOT show raw JavaScript stack traces."
+    }
+  ]
+}

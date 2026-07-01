@@ -68,3 +68,34 @@ Format per iteration: **maker → what ran → what broke → what got fixed.**
 
 ---
 
+## Iteration 2 — 2026-07-01 — form interaction + honesty checks
+
+**Maker:** Claude Opus 4.7.
+**Focus:** Push past "does it render" into "does it work when you touch it." Now that the modal dismisses cleanly, TestSprite can actually interact with forms.
+
+**Tests added (4, 8 credits):**
+- `submit-form-happy-interaction` (`cdcec406`) — Fill baseline=7, outcome=3, threshold=20%, click Generate Proof, wait for browser WASM proof gen, assert either successful result or clear error.
+- `submit-form-zero-improvement` (`e5433a19`) — Fill baseline=5, outcome=5 (no improvement) and verify the app doesn't silently succeed or crash.
+- `submit-form-out-of-range` (`44facb15`) — Fill baseline=15 (outside the Noir circuit's 1-10 range) and verify the app rejects before proof gen.
+- `attention-tokens-honest-empty` (`84334d28`) — README says the attention token market is empty on devnet; verify the page shows honest empty state or clearly labeled demo data.
+
+**What ran:** All 4 in parallel background jobs.
+
+**What broke via TestSprite:** Nothing. All 4 passed.
+- `submit-form-happy-interaction`: PASSED 8/8, ~8 min (includes real browser WASM proof generation end-to-end).
+- `submit-form-zero-improvement`: PASSED 12/12.
+- `submit-form-out-of-range`: PASSED 9/9 (input validation works).
+- `attention-tokens-honest-empty`: PASSED 6/6.
+
+**What broke via code review (during iteration 2 planning):**
+`src/components/ValidatorReputationSystem.tsx` was returning **fabricated data** from three fetch functions:
+- `fetchValidationHistory` — returned 3 invented records (`val-001/002/003`) with fake rewards and timestamps.
+- `fetchAccuracyHistory` — generated 30 days of random-walk accuracy history.
+- `fetchLeaderboard` — returned 5 fake validators and **injected the current user at rank #3 with 156 fake validations they never made**.
+
+This bug is invisible to TestSprite (needs a connected wallet to trigger), but it's the kind of dishonesty that would embarrass the project if discovered by a judge or user manually. Fix in commit `07bb5e6` — all three now return `[]` with a comment explaining what real on-chain aggregation would require. The component already had honest empty-state UI baked in ("Validator rankings will be available once the leaderboard program is deployed"), so no UI changes were needed.
+
+**Loop signal:** TestSprite is best at catching UX/interaction bugs (like the modal trap). Wallet-gated state and data fabrication need code-review or a wallet-mocked test mode. Iteration 3 will target the surface TestSprite CAN cover but iterations 1-2 didn't: the stubbed periphery pages (`/referrals`, `/products`, `/links`, `/underground`, `/achievements`). Total credit spend so far: 20/150.
+
+---
+

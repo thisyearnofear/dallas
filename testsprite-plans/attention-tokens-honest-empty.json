@@ -1,0 +1,23 @@
+{
+  "projectId": "7a38ce60-6b04-4ca8-88f2-8e048b395e6a",
+  "type": "frontend",
+  "name": "Attention Tokens — devnet has no bonding curves; page shows honest empty state",
+  "planSteps": [
+    {
+      "type": "action",
+      "description": "Navigate to https://dallasbuyersclub.vercel.app/attention-tokens"
+    },
+    {
+      "type": "action",
+      "description": "Wait up to 15 seconds for the page to render and any market data queries to complete"
+    },
+    {
+      "type": "assertion",
+      "description": "The page renders without crashing, without an error boundary, without a blank white screen, and without a raw JavaScript stack trace visible to the user"
+    },
+    {
+      "type": "assertion",
+      "description": "If the attention token market is empty on devnet (as documented in the project's README), the page must either (a) show a clear empty-state message like 'No alliance tokens launched yet — bonding curves ship on Solana mainnet', or (b) show explicit demo/placeholder data with a visible label indicating it is demo data. The page must NOT silently show blank cards, undefined values, NaN, 'null', or fabricated market prices without a demo-data indicator."
+    }
+  ]
+}
