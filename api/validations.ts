@@ -10,9 +10,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { db } from '../src/services/kv';
 
-// Initialize mock data on module load
-initializeMockData();
-
 interface ValidationRecord {
   id: string;
   optimizationLogId: string;
@@ -48,35 +45,6 @@ async function addValidationId(key: string, id: string): Promise<void> {
 async function removeValidationId(key: string, id: string): Promise<void> {
   const ids = await getValidationIds(key);
   await db.set(key, ids.filter(existingId => existingId !== id));
-}
-
-async function initializeMockData() {
-  const mockValidations = [
-    {
-      id: 'pending_001',
-      optimizationLogId: 'opt_log_001',
-      submitter: 'user_abc123',
-      submittedAt: Date.now() - 86400000,
-      status: 'pending',
-      stakeAmount: 250,
-      priority: 'medium'
-    },
-    {
-      id: 'pending_002',
-      optimizationLogId: 'opt_log_002',
-      submitter: 'user_def456',
-      submittedAt: Date.now() - 172800000,
-      status: 'pending',
-      stakeAmount: 150,
-      priority: 'low'
-    }
-  ];
-
-  await Promise.all(mockValidations.map(v => db.set(`validation:${v.id}`, v)));
-  const existingPendingIds = await getValidationIds('validations:pending');
-  if (!existingPendingIds.length) {
-    await db.set('validations:pending', mockValidations.map(v => v.id));
-  }
 }
 
 /**

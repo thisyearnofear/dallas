@@ -39,52 +39,6 @@ interface AgentTaskRecord {
   createdAt: number;
 }
 
-// Initialize mock tasks
-async function initializeTasks() {
-  const mockTasks: AgentTaskRecord[] = [{
-    id: 'task_001',
-    type: 'validation',
-    status: 'available',
-    targetId: 'opt_log_001',
-    rewardDbc: 250,
-    complexity: 'medium',
-    requiredSkills: ['noir_verification', 'mpc_compute'],
-    description: 'Verify benchmark improvement for context window optimization.',
-    metadata: { circuit: 'benchmark_delta', minImprovement: 20 },
-    createdAt: Date.now()
-  }, {
-    id: 'task_002', 
-    type: 'cross_reference',
-    status: 'available',
-    targetId: 'opt_log_002',
-    rewardDbc: 150,
-    complexity: 'low',
-    requiredSkills: ['architecture_cross_ref'],
-    description: 'Cross-reference tool-call optimization approaches.',
-    metadata: { circuit: 'data_completeness' },
-    createdAt: Date.now()
-  }, {
-    id: 'task_003',
-    type: 'statistical_analysis',
-    status: 'available', 
-    targetId: 'opt_log_003',
-    rewardDbc: 500,
-    complexity: 'high',
-    requiredSkills: ['statistical_modeling', 'mpc_compute'],
-    description: 'Perform meta-analysis on eval optimization logs.',
-    metadata: { committeeSize: 5 },
-    createdAt: Date.now()
-  }];
-
-  await Promise.all(mockTasks.map(task => db.set(`task:${task.id}`, task)));
-  const existingTaskIds = await db.get<string[]>('tasks:all');
-  if (!existingTaskIds?.length) {
-    await db.set('tasks:all', mockTasks.map(task => task.id));
-  }
-}
-
-initializeTasks();
-
 /**
  * GET /api/agents - List agents or get single agent
  */
