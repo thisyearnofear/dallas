@@ -187,44 +187,13 @@ async function fetchValidationHistory(
   }
 
   try {
-    // Simulate fetching validation history from on-chain program accounts
-    // In production, this would query validation event accounts by validator
-    const mockHistory: ValidationHistory[] = [
-      {
-        id: 'val-001',
-        timestamp: Date.now() - 2 * 24 * 60 * 60 * 1000,
-        optimizationLogId: 'cs-001',
-        validationType: 'quality',
-        approved: true,
-        consensus: 'agreed',
-        reward: 5.2,
-        stakeAmount: 10,
-      },
-      {
-        id: 'val-002', 
-        timestamp: Date.now() - 5 * 24 * 60 * 60 * 1000,
-        optimizationLogId: 'cs-002',
-        validationType: 'accuracy',
-        approved: true,
-        consensus: 'agreed',
-        reward: 8.1,
-        stakeAmount: 15,
-      },
-      {
-        id: 'val-003',
-        timestamp: Date.now() - 7 * 24 * 60 * 60 * 1000,
-        optimizationLogId: 'cs-003',
-        validationType: 'safety',
-        approved: false,
-        consensus: 'disagreed',
-        reward: 0,
-        stakeAmount: 20,
-      },
-    ];
-
-    // Cache and return
-    cacheService.set(cacheKey, mockHistory, TTL);
-    return mockHistory;
+    // Real validation history requires querying validation event accounts by
+    // validator PDA. The optimization_log program emits events on
+    // validator_prove_integrity but there's no indexer wired up yet. Returning
+    // empty is the honest answer; the component renders a proper empty state.
+    const history: ValidationHistory[] = [];
+    cacheService.set(cacheKey, history, TTL);
+    return history;
   } catch (error) {
     console.error('Error fetching validation history:', error);
     return [];
@@ -238,32 +207,12 @@ async function fetchValidationHistory(
 async function fetchAccuracyHistory(
   _connection: Connection,
   _validator: PublicKey,
-  currentAccuracy: number
+  _currentAccuracy: number
 ): Promise<AccuracyDataPoint[]> {
-  // TODO: Implement when historical accuracy tracking is available on-chain
-  // This would require daily/periodic accuracy snapshots stored on-chain
-console.warn('[ValidatorReputationSystem] Historical accuracy data not yet available on-chain. Using generated data based on current accuracy.');
-  
-  // Generate minimal mock data centered around current accuracy
-  const data: AccuracyDataPoint[] = [];
-  let accuracy = Math.max(60, currentAccuracy - 10);
-  
-  for (let i = 29; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    // Trend towards current accuracy
-    const targetAccuracy = currentAccuracy > 0 ? currentAccuracy : 75;
-    accuracy += (targetAccuracy - accuracy) * 0.1 + (Math.random() - 0.5) * 3;
-    accuracy = Math.max(60, Math.min(100, accuracy));
-    
-    data.push({
-      date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      accuracy: Math.round(accuracy),
-      validations: Math.floor(Math.random() * 5) + 1,
-    });
-  }
-  
-  return data;
+  // Real accuracy history requires daily/periodic snapshots stored on-chain,
+  // which the current programs don't emit. Returning empty is the honest
+  // answer; the component renders an "insufficient data" empty state.
+  return [];
 }
 
 /**
@@ -284,59 +233,16 @@ async function fetchLeaderboard(
   }
 
   try {
-    // Simulate fetching top validators from on-chain reputation accounts
-    // In production, this would query all validator reputation PDAs and sort
-    const mockLeaderboard: LeaderboardEntry[] = [
-      {
-        rank: 1,
-        address: 'Validator1...abc123',
-        tier: 'Platinum',
-        totalValidations: 1247,
-        accuracyRate: 96,
-        totalRewards: 2840.5,
-        isCurrentUser: false,
-      },
-      {
-        rank: 2,
-        address: 'Validator2...def456',
-        tier: 'Gold',
-        totalValidations: 892,
-        accuracyRate: 94,
-        totalRewards: 1950.2,
-        isCurrentUser: false,
-      },
-      {
-        rank: 3,
-        address: currentUser.toString().slice(0, 12) + '...',
-        tier: 'Silver',
-        totalValidations: 156,
-        accuracyRate: 89,
-        totalRewards: 420.8,
-        isCurrentUser: true,
-      },
-      {
-        rank: 4,
-        address: 'Validator4...ghi789',
-        tier: 'Silver',
-        totalValidations: 134,
-        accuracyRate: 87,
-        totalRewards: 380.1,
-        isCurrentUser: false,
-      },
-      {
-        rank: 5,
-        address: 'Validator5...jkl012',
-        tier: 'Bronze',
-        totalValidations: 89,
-        accuracyRate: 82,
-        totalRewards: 245.6,
-        isCurrentUser: false,
-      },
-    ];
-
-    // Cache and return
-    cacheService.set(cacheKey, mockLeaderboard, TTL);
-    return mockLeaderboard;
+    // Real leaderboard requires querying all validator reputation PDAs and
+    // sorting by tier/accuracy. The optimization_log program stores
+    // ValidatorReputation but there's no on-chain aggregation and no indexer
+    // wired yet. Returning empty is the honest answer; the component renders
+    // "Validator rankings will be available once the leaderboard program is
+    // deployed."
+    void currentUser;
+    const leaderboard: LeaderboardEntry[] = [];
+    cacheService.set(cacheKey, leaderboard, TTL);
+    return leaderboard;
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
     return [];
