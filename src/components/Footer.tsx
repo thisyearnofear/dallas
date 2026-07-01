@@ -8,7 +8,10 @@ export function Footer() {
 
     return (
         <>
-            <footer class="flex flex-wrap justify-between items-center mt-auto border-t-2 border-t-neutral-200 dark:border-t-slate-700 px-5 py-2 pb-16 md:pb-12 gap-2 z-50 bg-white/95 dark:bg-slate-950/95 backdrop-blur-sm relative">
+            {/* mb-9 = 36px pushes the Footer's bottom edge above the 32px AllianceTicker's
+                top edge, so the two 95%-opaque backgrounds no longer visually overlap
+                at page-bottom. */}
+            <footer class="flex flex-wrap justify-between items-center mt-auto mb-9 border-t-2 border-t-neutral-200 dark:border-t-slate-700 px-5 py-2 pb-4 md:pb-3 gap-2 z-50 bg-white/95 dark:bg-slate-950/95 backdrop-blur-sm relative">
                 <div class="flex gap-4">
                     <a 
                         class="text-brand hover:underline flex items-center gap-1" 

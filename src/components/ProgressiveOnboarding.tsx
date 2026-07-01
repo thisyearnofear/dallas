@@ -80,11 +80,13 @@ export const ProgressiveOnboarding: FunctionalComponent<ProgressiveOnboardingPro
     const isLastStep = step === STEPS.length - 1;
     const progress = ((step + 1) / STEPS.length) * 100;
 
+    // Dark-mode variants are load-bearing: without them, a light-mode pill (e.g. bg-green-50)
+    // renders as light green in dark mode too, with light gray text — near-invisible contrast.
     const colorMap: Record<string, { bg: string; border: string; text: string; button: string }> = {
-        brand: { bg: 'bg-brand/10', border: 'border-brand', text: 'text-brand', button: 'bg-brand hover:bg-brand/90' },
-        green: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', button: 'bg-green-600 hover:bg-green-700' },
-        purple: { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-700', button: 'bg-purple-600 hover:bg-purple-700' },
-        orange: { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700', button: 'bg-orange-600 hover:bg-orange-700' },
+        brand: { bg: 'bg-brand/10 dark:bg-brand/20', border: 'border-brand', text: 'text-brand', button: 'bg-brand hover:bg-brand/90' },
+        green: { bg: 'bg-green-50 dark:bg-green-900/40', border: 'border-green-200 dark:border-green-700', text: 'text-green-700 dark:text-green-300', button: 'bg-green-600 hover:bg-green-700' },
+        purple: { bg: 'bg-purple-50 dark:bg-purple-900/40', border: 'border-purple-200 dark:border-purple-700', text: 'text-purple-700 dark:text-purple-300', button: 'bg-purple-600 hover:bg-purple-700' },
+        orange: { bg: 'bg-orange-50 dark:bg-orange-900/40', border: 'border-orange-200 dark:border-orange-700', text: 'text-orange-700 dark:text-orange-300', button: 'bg-orange-600 hover:bg-orange-700' },
     };
 
     const colors = colorMap[current.color];
@@ -141,7 +143,7 @@ export const ProgressiveOnboarding: FunctionalComponent<ProgressiveOnboardingPro
                     <h2 id="onboarding-title" class={`text-2xl font-black text-center mb-2 ${colors.text}`}>
                         {current.title}
                     </h2>
-                    <p class="text-center text-slate-700 dark:text-slate-600 text-sm mb-6">
+                    <p class="text-center text-slate-700 dark:text-slate-300 text-sm mb-6">
                         {current.subtitle}
                     </p>
 

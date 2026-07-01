@@ -99,24 +99,11 @@ export const EncryptedOptimizationLogForm: FunctionalComponent<{ proofData?: any
     lightProtocolService.initialize().catch(console.error);
   }, []);
 
-  // Auto-derive encryption key when wallet is connected
-  useEffect(() => {
-    const autoDeriveKey = async () => {
-      if (publicKey && signMessage && !encryptionKey && !keyDeriving) {
-        setKeyDeriving(true);
-        try {
-          const key = await deriveEncryptionKey(publicKey, signMessage);
-          setEncryptionKey(key);
-        } catch (error) {
-          // Silent fail - user can manually derive if auto-derive fails
-          console.warn('Auto-derive encryption key failed:', error);
-        } finally {
-          setKeyDeriving(false);
-        }
-      }
-    };
-    autoDeriveKey();
-  }, [publicKey, signMessage, encryptionKey, keyDeriving]);
+  // Note: no auto-derive on wallet-connect. Prompting for a Phantom signature
+  // as a side effect of scrolling to this section was the top user-reported
+  // hang — if the popup was missed or dismissed silently, keyDeriving stayed
+  // true forever, and the useEffect's deps (including keyDeriving) caused a
+  // re-prompt loop on failure. User now explicitly clicks the button below.
 
   const [formData, setFormData] = useState<OptimizationLogFormData>({
     architectureProtocol: '',
@@ -251,7 +238,10 @@ export const EncryptedOptimizationLogForm: FunctionalComponent<{ proofData?: any
     }
   }, []);
 
-  // Step 1: Derive encryption key from wallet
+  // Step 1: Derive encryption key from wallet.
+  // 60s timeout guards against the reported hang: if Phantom's signature popup
+  // is missed or dismissed silently, the promise never settles. The wrapper
+  // races it against a timeout so the UI can recover.
   const handleDeriveKey = async () => {
     if (!publicKey || !signMessage) {
       setSubmitStatus({
@@ -262,8 +252,20 @@ export const EncryptedOptimizationLogForm: FunctionalComponent<{ proofData?: any
     }
 
     setKeyDeriving(true);
+    setSubmitStatus({
+      type: 'info',
+      message: '🔐 Check your wallet — Phantom should be asking you to sign a "Dallas Agent Sovereignty" message. Your wallet key stays local.',
+    });
     try {
-      const key = await deriveEncryptionKey(publicKey, signMessage);
+      const key = await Promise.race([
+        deriveEncryptionKey(publicKey, signMessage),
+        new Promise<never>((_, reject) =>
+          setTimeout(
+            () => reject(new Error('Timed out waiting for wallet signature. Open Phantom and try again.')),
+            60_000
+          )
+        ),
+      ]);
       setEncryptionKey(key);
       setSubmitStatus({
         type: 'success',
@@ -1017,8 +1019,13 @@ export const EncryptedOptimizationLogForm: FunctionalComponent<{ proofData?: any
               disabled={keyDeriving}
               class="w-full bg-green-600 hover:bg-green-700 text-white disabled:bg-slate-300 dark:disabled:bg-slate-700 px-6 py-4 rounded-xl font-black text-lg transition-all transform hover:scale-[1.02] active:scale-95 shadow-lg"
             >
-              {keyDeriving ? '⏳ Deriving key...' : '🔐 Derive Encryption Key from Wallet'}
+              {keyDeriving ? '⏳ Waiting for Phantom signature…' : '🔐 Derive Encryption Key from Wallet'}
             </button>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-3 text-center">
+              {keyDeriving
+                ? 'Open Phantom and approve the "Dallas Agent Sovereignty" message. Times out after 60s if the popup isn\'t answered — you can retry.'
+                : 'Clicking this asks Phantom to sign a short message. The signature is used as key material — it never leaves your browser.'}
+            </p>
           </>
         ) : (
           <div class="bg-green-50 dark:bg-green-900/20 border border-green-500 dark:border-green-600 p-5 rounded-xl flex items-center gap-4">
