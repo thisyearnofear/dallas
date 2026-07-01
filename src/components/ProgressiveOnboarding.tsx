@@ -58,6 +58,22 @@ export const ProgressiveOnboarding: FunctionalComponent<ProgressiveOnboardingPro
         }
     }, [isOpen, onComplete]);
 
+    const handleDismiss = () => {
+        localStorage.setItem('dbc-progressive-onboarding', 'true');
+        localStorage.setItem('dbc-privacy-onboarding', 'true');
+        onComplete();
+    };
+
+    // Escape-to-dismiss keeps the modal from trapping users who want to explore first.
+    useEffect(() => {
+        if (!isOpen) return;
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') handleDismiss();
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     const current = STEPS[step];
@@ -90,8 +106,23 @@ export const ProgressiveOnboarding: FunctionalComponent<ProgressiveOnboardingPro
     };
 
     return (
-        <div class="fixed inset-0 bg-slate-900/95 dark:bg-black/90 flex items-center justify-center p-4 z-[200]">
-            <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full shadow-2xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div
+            class="fixed inset-0 bg-slate-900/95 dark:bg-black/90 flex items-center justify-center p-4 z-[200]"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="onboarding-title"
+        >
+            <div class="relative bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full shadow-2xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden">
+                <button
+                    type="button"
+                    onClick={handleDismiss}
+                    aria-label="Skip onboarding"
+                    class="absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-brand"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
                 {/* Progress */}
                 <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5">
                     <div
@@ -107,7 +138,7 @@ export const ProgressiveOnboarding: FunctionalComponent<ProgressiveOnboardingPro
                     </div>
 
                     {/* Title */}
-                    <h2 class={`text-2xl font-black text-center mb-2 ${colors.text}`}>
+                    <h2 id="onboarding-title" class={`text-2xl font-black text-center mb-2 ${colors.text}`}>
                         {current.title}
                     </h2>
                     <p class="text-center text-slate-700 dark:text-slate-600 text-sm mb-6">
