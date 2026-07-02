@@ -256,15 +256,16 @@ export const EncryptedOptimizationLogForm: FunctionalComponent<{ proofData?: any
       type: 'info',
       message: '🔐 Check your wallet — Phantom should be asking you to sign a "Dallas Agent Sovereignty" message. Your wallet key stays local.',
     });
+    let timeoutHandle: ReturnType<typeof setTimeout> | null = null;
     try {
       const key = await Promise.race([
         deriveEncryptionKey(publicKey, signMessage),
-        new Promise<never>((_, reject) =>
-          setTimeout(
+        new Promise<never>((_, reject) => {
+          timeoutHandle = setTimeout(
             () => reject(new Error('Timed out waiting for wallet signature. Open Phantom and try again.')),
             60_000
-          )
-        ),
+          );
+        }),
       ]);
       setEncryptionKey(key);
       setSubmitStatus({
@@ -278,6 +279,7 @@ export const EncryptedOptimizationLogForm: FunctionalComponent<{ proofData?: any
         message: `Failed to derive encryption key: ${error instanceof Error ? error.message : 'Unknown error'}`,
       });
     } finally {
+      if (timeoutHandle) clearTimeout(timeoutHandle);
       setKeyDeriving(false);
     }
   };

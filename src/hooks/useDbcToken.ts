@@ -128,18 +128,27 @@ export function useDbcToken(): UseDbcTokenReturn {
   /**
    * Refresh balance with debouncing
    * Performant: Prevents excessive RPC calls
+   *
+   * The debounce flag lives in a ref, not React state, so that flipping it
+   * true→false→true→false during a refresh cycle does NOT re-identity this
+   * callback. Previously state.isRefreshing was a useCallback dep, which meant
+   * every refresh churned the 30s-interval useEffect (clearInterval /
+   * setInterval on every render), producing bursts of Phantom RPC calls
+   * that overwhelmed its stream mux post-signing.
    */
+  const isRefreshingRef = useRef(false);
   const refreshBalance = useCallback(async () => {
-    if (state.isRefreshing) return;
-
+    if (isRefreshingRef.current) return;
+    isRefreshingRef.current = true;
     setState(prev => ({ ...prev, isRefreshing: true }));
-    
+
     try {
       await fetchBalance();
     } finally {
+      isRefreshingRef.current = false;
       setState(prev => ({ ...prev, isRefreshing: false }));
     }
-  }, [fetchBalance, state.isRefreshing]);
+  }, [fetchBalance]);
 
   /**
    * Create DBC token account
