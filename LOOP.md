@@ -202,3 +202,41 @@ Three API endpoints (`api/validations.ts`, `api/tasks.ts`, `api/agents.ts`) were
 
 **Loop signal:** The write-verify-fix cycle isn't purely automated — TestSprite catches interaction and page-render bugs; humans catch dark-mode legibility, wallet-flow hangs, and on-chain client bugs. Both matter. Documenting this iteration explicitly so judges can see the loop is honest about what TestSprite can and can't catch.
 
+---
+
+## Iteration 5 — 2026-07-02 — the ZK flow regressed and previously-green tests didn't catch it
+
+**Maker:** Claude Opus 4.7 + human dogfooding.
+
+**Setup:** Same dogfooding session as iteration 4. After signing the Phantom encryption-key message and the churn/unresponsiveness fix from commit `6a05958` landed, the human operator clicked "Generate Noir proof" on the home page's StellarVerifyPanel — the flagship ZK flow, the one thing that has to work for the Stellar Hacks submission.
+
+**What broke:**
+
+```
+Proof generation failed: Assertion failed:
+(format_u8 == FORMAT_MSGPACK || format_u8 == FORMAT_MSGPACK_COMPACT)
+Reason: deserialize_msgpack_compact:
+  expected msgpack format marker (2 or 3), got 1
+```
+
+`@aztec/bb.js` (Barretenberg WASM) refused to deserialize the circuit bytecode at the msgpack step, before any actual proving happened.
+
+**Root cause:** `package.json` had `"@aztec/bb.js": "^5.0.0-nightly.20260324"`. The caret range and nightly channel meant `npm ci` on a fresh install (which is what Vercel does on every deploy) could resolve to any 5.x-nightly that satisfied the range. `circuits/benchmark_delta.json` was compiled with `nargo 1.0.0-beta.9`, which produces ACIR bytecode in msgpack format v1. bb.js 5.x nightlies expect v2 or v3. The README even names the correct pairing explicitly: *"Version pinning is critical: nargo 1.0.0-beta.9 + bb 0.87.0 + noir_js 1.0.0-beta.9 must all match."* — but the 5.x pin drifted from that pairing at some point.
+
+**Why TestSprite's iteration 2 `submit-form-happy-interaction` test (run `6f7a7bf7-8177-4cdf-9ebf-76507255b469`) went 8/8 green despite this bug being in the code:** TestSprite hit the *previous deploy*, which had an older Vercel-cached `node_modules` / build output pinned to a bb.js version that still worked with the beta.9 circuit. The msgpack incompatibility was latent — living in `package.json` but not yet manifest in prod. Every subsequent `npm ci` on Vercel had a chance to pull a newer nightly and break the flow. Iteration 5's fresh dogfooding session hit the newly-broken deploy.
+
+**What got fixed (commit `9e47eb1`):** Pinned `@aztec/bb.js` to `0.87.0` exactly — no caret, no nightly channel, no wiggle room for `npm ci` to resolve elsewhere. `@noir-lang/*` packages remain on `1.0.0-beta.9` (already correct). `UltraHonkBackend` and `Barretenberg` exports verified present in 0.87.0's `index.d.ts` so no source changes needed.
+
+**Loop signal (this is the interesting one for judges):**
+
+The write-verify-fix loop doesn't only catch new bugs. It also catches when *previously-green* results silently rot underneath you. TestSprite green ≠ perpetually green — a green test asserts a moment, not a contract with the future. Three things had to line up for this to surface:
+1. A caret+nightly dep range in `package.json` (drift-permissive).
+2. A `npm ci` between the last passing test and the current deploy that resolved to a newer nightly.
+3. A human clicking the button on the fresh deploy.
+
+Fix pattern going forward, worth capturing so it doesn't happen again:
+- Pin all `@aztec/*` and `@noir-lang/*` packages to *exact* versions (no `^`, no `~`, no nightly channels) since the ACIR/proof-format handshake is version-tight.
+- The next TestSprite iteration should include a scheduled cron job (out of scope for this hackathon window) that re-runs the happy-path proof test against every fresh deploy — that's how you catch this class of regression.
+
+**Verified:** Awaiting live confirmation on `dallasbuyersclub.vercel.app` after push + Vercel redeploy. This entry will be updated with the verifying run ID once the human dogfooder confirms proof generation completes end-to-end.
+
